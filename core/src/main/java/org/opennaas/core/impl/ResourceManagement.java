@@ -7,8 +7,8 @@ import org.opennaas.core.api.IResource;
 import org.opennaas.core.api.IResourceManagement;
 
 public class ResourceManagement implements IResourceManagement {
-	
-	private List<IResource> resources = new ArrayList<IResource>();
+
+	private List<IResource>	resources	= new ArrayList<IResource>();
 
 	public static boolean isSupporting(IResource resource) {
 		return resource instanceof OpenNaaS;
@@ -31,10 +31,11 @@ public class ResourceManagement implements IResourceManagement {
 
 	@Override
 	public <R extends IResource> R getResource(Class<R> clazz) {
-		for ( IResource resource : resources ) {
-			if ( clazz.isInstance(resource) ) return (R) resource;
+		for (IResource resource : resources) {
+			if (clazz.isInstance(resource))
+				return (R) resource;
 		}
-		
+
 		return null;
 	}
 }

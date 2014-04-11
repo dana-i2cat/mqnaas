@@ -1,0 +1,258 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.opennaas.mqnaas.examples</groupId>
+	<artifactId>examples</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>MQNaaS :: Examples</name>
+	<description>MQNaaS examples</description>
+
+	<properties>
+		<!-- UTF-8 encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<!-- MQNaaS version -->
+		<mqnaas-version>0.0.1-SNAPSHOT</mqnaas-version>
+
+		<!-- Maven compiler plugin version -->
+		<maven-compiler-plugin-version>3.1</maven-compiler-plugin-version>
+
+		<!-- Maven Resources plugin version -->
+		<maven-resources-plugin-version>2.6</maven-resources-plugin-version>
+
+		<!-- Build Helper Maven plugin version -->
+		<build-helper-maven-plugin-version>1.8</build-helper-maven-plugin-version>
+
+		<!-- Apache Felix Maven bundle plugin version -->
+		<maven-bundle-plugin-version>2.4.0</maven-bundle-plugin-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.opennaas</groupId>
+				<artifactId>mqnaas.core</artifactId>
+				<version>${mqnaas-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opennaas.mqnaas.examples</groupId>
+				<artifactId>api.router</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.opennaas.mqnaas.examples</groupId>
+				<artifactId>router</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+
+		<!-- Maven compiler plugin setting to Java 6 as source and target -->
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin-version}</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+
+			<!-- Maven resources plugin allowing the processing of features files 
+				with Maven properties -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven-resources-plugin-version}</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${project.build.resources[0].directory}</directory>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Build helper Maven plugin allowing the addition of features file 
+				as Maven artifact -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<version>${build-helper-maven-plugin-version}</version>
+				<executions>
+					<execution>
+						<id>attach-artifacts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attach-artifact</goal>
+						</goals>
+						<configuration>
+							<artifacts>
+								<artifact>
+									<file>${project.build.directory}/features.xml</file>
+									<type>xml</type>
+									<classifier>features</classifier>
+								</artifact>
+							</artifacts>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<!-- Maven bundle plugin allowing the creation of OSGI bundles -->
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${maven-bundle-plugin-version}</version>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						</instructions>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<modules>
+		<module>api.router</module>
+		<module>router</module>
+		<module>junosRouter</module>
+		<module>openerRouter</module>
+	</modules>
+
+	<repositories>
+		<repository>
+			<id>maven.i2cat.net</id>
+			<name>maven.i2cat.net-releases</name>
+			<url>http://maven.i2cat.net:8081/artifactory/libs-release-local</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>i2cat</id>
+			<name>i2cat maven repository</name>
+			<url>http://maven.i2cat.net:8081/artifactory/libs-release</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>i2cat ext-release-local</id>
+			<name>i2cat maven repository for third party libraries</name>
+			<url>http://maven.i2cat.net:8081/artifactory/ext-release-local</url>
+		</repository>
+		<repository>
+			<id>i2cat libs-snapshot-local</id>
+			<name>maven.i2cat.net-snapshots</name>
+			<url>http://maven.i2cat.net:8081/artifactory/libs-snapshot-local</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>interval:1</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>springsource-external</id>
+			<name>SpringSource Enterprise Bundle Repository - External Bundle
+				Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/external</url>
+		</repository>
+		<repository>
+			<id>springsource-releases</id>
+			<name>SpringSource Enterprise Bundle Repository - SpringSource Bundle
+				Releases</name>
+			<url>http://repository.springsource.com/maven/bundles/release</url>
+		</repository>
+		<repository>
+			<id>apache</id>
+			<name>Apache Releases</name>
+			<url>https://repository.apache.org/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>Maven-central</id>
+			<name>Maven central</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>osp4j</id>
+			<name>OSP4J releases</name>
+			<url>http://repository.ops4j.org/maven2</url>
+		</repository>
+		<repository>
+			<id>servicemix.m2-repo</id>
+			<name>ServiceMix Maven 2 repository</name>
+			<url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>central</id>
+			<url>http://maven.i2cat.net:8081/artifactory/plugins-release</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>snapshots</id>
+			<url>http://maven.i2cat.net:8081/artifactory/plugins-snapshot</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</pluginRepository>
+		<pluginRepository>
+			<id>ops4j.releases</id>
+			<url>http://repository.ops4j.org/maven2</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>ibiblio</id>
+			<url>http://mirrors.ibiblio.org/pub/mirrors/maven2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+</project>

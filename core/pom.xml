@@ -50,6 +50,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.opennaas.core.api,
+							org.opennaas.core.impl,
 							org.opennaas.core.annotation
 						</Export-Package>
 					</instructions>

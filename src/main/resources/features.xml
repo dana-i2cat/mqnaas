@@ -17,6 +17,7 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-collections4/${commons-collections4-version}</bundle>
 		
 		<bundle>mvn:org.opennaas/mqnaas.core/${project.version}</bundle>
+		<bundle>mvn:org.opennaas/mqnaas.core.clientprovider/${project.version}</bundle>
 	</feature>
 
 </features>

@@ -173,6 +173,7 @@
 
 	<modules>
 		<module>core</module>
+		<module>core.clientprovider</module>
 	</modules>
 
 	<repositories>

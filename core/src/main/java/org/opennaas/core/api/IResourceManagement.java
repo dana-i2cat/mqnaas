@@ -11,21 +11,19 @@ import org.opennaas.core.annotation.RemovesResource;
  * </p>
  * 
  * <p>
- * It manages all {@link IResource}s available in the platform. These resources
- * may either be representations of physical devices or any other unity offering
- * its services.</p>
+ * It manages all {@link IResource}s available in the platform. These resources may either be representations of physical devices or any other unity
+ * offering its services.
+ * </p>
  * 
  */
 public interface IResourceManagement extends ICapability {
 
 	/**
 	 * <p>
-	 * Adds the given {@link IResource} to the resources managed by the
-	 * platform.
+	 * Adds the given {@link IResource} to the resources managed by the platform.
 	 * </p>
 	 * <p>
-	 * The service {@link IBindingManagement#resourceAdded(IResource)} is
-	 * notified, whenever this service was executed successfully.
+	 * The service {@link IBindingManagement#resourceAdded(IResource)} is notified, whenever this service was executed successfully.
 	 * </p>
 	 * 
 	 * @param resource
@@ -36,13 +34,11 @@ public interface IResourceManagement extends ICapability {
 
 	/**
 	 * <p>
-	 * Remove the given {@link IResource} from the resources managed by the
-	 * platform.
+	 * Remove the given {@link IResource} from the resources managed by the platform.
 	 * </p>
 	 * 
 	 * <p>
-	 * The service {@link IBindingManagement#resourceRemoved(IResource)} is
-	 * notified whenever this service was executed successfully.
+	 * The service {@link IBindingManagement#resourceRemoved(IResource)} is notified whenever this service was executed successfully.
 	 * 
 	 * @param resource
 	 *            The resource to be removed from the platform
@@ -58,7 +54,7 @@ public interface IResourceManagement extends ICapability {
 	List<IResource> getResources();
 
 	/**
-	 * This method a draft method. May not be part of the final API.
+	 * TODO This method a draft method. May not be part of the final API.
 	 */
 	<R extends IResource> R getResource(Class<R> clazz);
 

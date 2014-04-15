@@ -19,42 +19,46 @@ public abstract class BundleUtils {
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
 
 		wiring.getRequiredWires(null);
-		
+
 		ImplementationDetectingClassVisitor<T> visitor = new ImplementationDetectingClassVisitor<T>(interfaceScannedFor);
 
-		for (String resourceName : wiring.listResources("/", "*.class",
-				BundleWiring.LISTRESOURCES_RECURSE)) {
+		for (String resourceName : wiring.listResources("/", "*.class", BundleWiring.LISTRESOURCES_RECURSE)) {
 			try {
 				// Load the classes and pass them to the visitor
 				resourceName = resourceName.replaceAll(".class", "").replaceAll("/", ".");
 
 				visitor.visit(bundle.loadClass(resourceName));
+			} catch (IncompatibleClassChangeError e) {
+				// FIXME Silently ignore this case for now...
+				// thrown by Felix (analize...)
+			} catch (VerifyError e) {
+				// FIXME Silently ignore this case for now...
+				// thrown by Felix (analize...)
 			} catch (ClassNotFoundException e) {
-				// Silently ignore this case for now...
+				// FIXME Silently ignore this case for now...
 			} catch (NoClassDefFoundError e) {
-				// Silently ignore this case for now...
+				// FIXME Silently ignore this case for now...
 			}
 		}
-		
+
 		return visitor.getImplementations();
 	}
-	
-	
+
 	private static class ImplementationDetectingClassVisitor<T> implements ClassVisitor {
-		
-		private Class<T> implementedInterface;
-		
-		private Set<Class<? extends T>> implementations;
+
+		private Class<T>				implementedInterface;
+
+		private Set<Class<? extends T>>	implementations;
 
 		private ImplementationDetectingClassVisitor(Class<T> implementedInterface) {
 			this.implementedInterface = implementedInterface;
-			
+
 			implementations = new HashSet<Class<? extends T>>();
 		}
 
 		@Override
 		public void visit(Class<?> resourceClass) {
-			
+
 			// 1. Ignore interfaces and abstract classes
 			if (resourceClass.isInterface() || Modifier.isAbstract(resourceClass.getModifiers()))
 				return;
@@ -67,15 +71,14 @@ public abstract class BundleUtils {
 				// class implements the ICapability interface
 				@SuppressWarnings("unchecked")
 				Class<? extends T> capabilityClass = (Class<? extends T>) resourceClass;
-				
+
 				implementations.add(capabilityClass);
 			}
 		}
-		
+
 		public Set<Class<? extends T>> getImplementations() {
 			return implementations;
 		}
 	}
-	
 
 }

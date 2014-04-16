@@ -88,6 +88,7 @@
 		</dependencies>
 
 	</dependencyManagement>
+
 	<build>
 
 		<!-- Maven compiler plugin setting to Java 6 as source and target -->
@@ -102,60 +103,78 @@
 				</configuration>
 			</plugin>
 
-			<!-- Maven resources plugin allowing the processing of features files 
-				with Maven properties -->
+			<!-- Maven resources plugin configured below -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>
-				<version>${maven-resources-plugin-version}</version>
-				<executions>
-					<execution>
-						<id>copy-resources</id>
-						<phase>validate</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}</outputDirectory>
-							<resources>
-								<resource>
-									<directory>${project.build.resources[0].directory}</directory>
-									<filtering>true</filtering>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 
-			<!-- Build helper Maven plugin allowing the addition of features file 
-				as Maven artifact -->
+			<!-- Build helper Maven plugin configured below -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>${build-helper-maven-plugin-version}</version>
-				<executions>
-					<execution>
-						<id>attach-artifacts</id>
-						<phase>package</phase>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<file>${project.build.directory}/features.xml</file>
-									<type>xml</type>
-									<classifier>features</classifier>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 
 		<pluginManagement>
 			<plugins>
+
+				<!-- Maven resources plugin allowing the processing of features files 
+					with Maven properties -->
+				<plugin>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>${maven-resources-plugin-version}</version>
+					<executions>
+						<execution>
+							<!-- do not inherit configuration in submodules -->
+							<inherited>false</inherited>
+
+							<id>copy-resources</id>
+							<phase>validate</phase>
+							<goals>
+								<goal>copy-resources</goal>
+							</goals>
+							<configuration>
+								<outputDirectory>${project.build.directory}</outputDirectory>
+								<resources>
+									<resource>
+										<directory>${project.build.resources[0].directory}</directory>
+										<filtering>true</filtering>
+									</resource>
+								</resources>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
+				<!-- Build helper Maven plugin allowing the addition of features file 
+					as Maven artifact -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>build-helper-maven-plugin</artifactId>
+					<version>${build-helper-maven-plugin-version}</version>
+					<executions>
+						<execution>
+							<!-- do not inherit execution in submodules -->
+							<inherited>false</inherited>
+
+							<id>attach-artifacts</id>
+							<phase>package</phase>
+							<goals>
+								<goal>attach-artifact</goal>
+							</goals>
+							<configuration>
+								<artifacts>
+									<artifact>
+										<file>${project.build.directory}/features.xml</file>
+										<type>xml</type>
+										<classifier>features</classifier>
+									</artifact>
+								</artifacts>
+							</configuration>
+						</execution>
+					</executions>
+				</plugin>
+
 				<!-- Maven bundle plugin allowing the creation of OSGI bundles -->
 				<plugin>
 					<groupId>org.apache.felix</groupId>

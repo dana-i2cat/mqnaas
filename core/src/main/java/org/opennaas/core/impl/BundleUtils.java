@@ -93,6 +93,9 @@ public abstract class BundleUtils {
 		}
 	}
 
+	/**
+	 * Return true if {@link Bundle} imports an specific package, false otherwise.
+	 */
 	public static boolean isPackageDependant(Bundle bundle, String packageName) {
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
 

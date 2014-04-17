@@ -6,7 +6,7 @@
 	<!-- Apache CXF features repository -->
 	<repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
 
-	<feature name="${project.groupId}.${project.artifactId}" version="${project.version}">
+	<feature name="${project.groupId}.mqnaas.core" version="${project.version}">
 		<!-- dependencies features -->		
 		<feature version="${cxf-version}">cxf</feature>
 		

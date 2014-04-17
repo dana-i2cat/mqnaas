@@ -2,7 +2,7 @@ package org.opennaas.core.client.netconf;
 
 import java.lang.reflect.Constructor;
 
-import org.opennaas.core.clientprovider.IInternalClientProvider;
+import org.opennaas.core.clientprovider.api.IInternalClientProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 

@@ -1,4 +1,4 @@
-package org.opennaas.core.clientprovider;
+package org.opennaas.core.clientprovider.api;
 
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;

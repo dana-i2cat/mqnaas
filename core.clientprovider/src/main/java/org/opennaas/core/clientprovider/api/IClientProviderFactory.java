@@ -1,4 +1,4 @@
-package org.opennaas.core.clientprovider;
+package org.opennaas.core.clientprovider.api;
 
 public interface IClientProviderFactory {
 

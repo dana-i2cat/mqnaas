@@ -6,7 +6,7 @@ import java.lang.reflect.Proxy;
 
 import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.opennaas.core.clientprovider.IInternalAPIProvider;
+import org.opennaas.core.clientprovider.api.IInternalAPIProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 

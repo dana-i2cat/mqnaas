@@ -176,22 +176,24 @@ public class CapabilityManagement {
 		// Collect here all capabilities that are newly added
 		Set<Class<? extends ICapability>> added = new HashSet<Class<? extends ICapability>>();
 
-		// Scan all class resources of the given bundle and collects all
-		// capability classes, e.g. those which implement ICapability
+		// filter to scan only bundles importing target package
+		if (BundleUtils.isPackageDependant(bundle, "org.opennaas.core.api")) {
+			// Scan all class resources of the given bundle and collects all
+			// capability classes, e.g. those which implement ICapability
+			Set<Class<? extends ICapability>> bundleCapabilities = BundleUtils.scanBundle(bundle, ICapability.class);
 
-		Set<Class<? extends ICapability>> bundleCapabilities = BundleUtils.scanBundle(bundle, ICapability.class);
+			if (!bundleCapabilities.isEmpty()) {
 
-		if (!bundleCapabilities.isEmpty()) {
+				// 1. Update the dependency tree
+				for (Bundle requiredBundle : getRequiredBundles(bundle)) {
+					dependencies.addDependency(requiredBundle, bundle);
+				}
 
-			// 1. Update the dependency tree
-			for (Bundle requiredBundle : getRequiredBundles(bundle)) {
-				dependencies.addDependency(requiredBundle, bundle);
-			}
-
-			// 2. Update the capabilities
-			for (Class<? extends ICapability> capability : bundleCapabilities) {
-				if (capabilities.addCapability(bundle, capability)) {
-					added.add(capability);
+				// 2. Update the capabilities
+				for (Class<? extends ICapability> capability : bundleCapabilities) {
+					if (capabilities.addCapability(bundle, capability)) {
+						added.add(capability);
+					}
 				}
 			}
 		}

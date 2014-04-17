@@ -1,6 +1,7 @@
 package test.capability;
 
-import org.opennaas.core.client.Dependency;
+import org.opennaas.core.annotation.DependingOn;
+import org.opennaas.core.api.IApplication;
 import org.opennaas.core.client.application.ApplicationConfiguration;
 import org.opennaas.core.client.application.IApplicationClient;
 import org.opennaas.core.client.cxf.CXFConfiguration;
@@ -10,22 +11,18 @@ import org.opennaas.core.client.netconf.NetconfClient;
 import org.opennaas.core.client.netconf.NetconfConfiguration;
 import org.opennaas.core.clientprovider.api.IAPIProviderFactory;
 import org.opennaas.core.clientprovider.api.IClientProviderFactory;
-import org.opennaas.core.clientprovider.impl.APIProviderFactory;
-import org.opennaas.core.clientprovider.impl.ClientProviderFactory;
 
-public class TestCapability {
+public class ClientApplication implements IApplication {
 
-	@Dependency
+	@DependingOn
 	IClientProviderFactory clientProviderFactory;
 
-	@Dependency
+	@DependingOn
 	IAPIProviderFactory apiProviderFactory;
 
-	public TestCapability() {
-
-		// 0. This initialization step is done by the framework
-		initFields();
-
+	@Override
+	public void onDependenciesResolved() {
+		
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory
 				.getClientProvider(INetconfClientProvider.class);
@@ -65,16 +62,6 @@ public class TestCapability {
 				new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();
-
-	}
-
-	private void initFields() {
-		clientProviderFactory = new ClientProviderFactory();
-		apiProviderFactory = new APIProviderFactory();
-	}
-
-	public static void main(String[] args) {
-		new TestCapability();
 	}
 
 }

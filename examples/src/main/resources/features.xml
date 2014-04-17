@@ -6,9 +6,9 @@
 	<!-- MQNaaS features repository -->
 	<repository>mvn:org.opennaas/mqnaas/${mqnaas-version}/xml/features</repository>
 
-	<feature name="${project.groupId}.${project.artifactId}" version="${project.version}">
+	<feature name="${project.groupId}" version="${project.version}">
 		<!-- dependencies features -->		
-		<feature version="${mqnaas-version}" dependency="true">org.opennaas.mqnaas</feature>
+		<feature version="${mqnaas-version}" dependency="true">org.opennaas.mqnaas.core</feature>
 		
 		<!-- included bundles -->
 		<bundle>mvn:${project.groupId}/api.router/${project.version}</bundle>

@@ -1,6 +1,6 @@
 package org.opennaas.core.impl;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Set;
 
 import org.opennaas.core.api.IApplication;
@@ -18,7 +18,7 @@ public class ApplicationManagement {
 			return BundleUtils.scanBundle(bundle, IApplication.class);
 		}
 
-		return new HashSet<Class<? extends IApplication>>(0);
+		return Collections.emptySet();
 	}
 
 }

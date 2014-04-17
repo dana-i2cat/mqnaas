@@ -96,12 +96,14 @@ public abstract class BundleUtils {
 	public static boolean isPackageDependant(Bundle bundle, String packageName) {
 		BundleWiring wiring = bundle.adapt(BundleWiring.class);
 
-		for (BundleWire wire : wiring.getRequiredWires(null)) {
-			if (wire != null && wire.getCapability().getAttributes().get(BundleRevision.PACKAGE_NAMESPACE) != null && wire.getCapability()
-					.getAttributes().get(BundleRevision.PACKAGE_NAMESPACE).equals(packageName)) {
-				// FIXME use low trace level log or remove this line
-				// System.out.println("MATCH! " + bundle.getSymbolicName() + " === Bundle importing package: " + packageName);
-				return true;
+		if (wiring != null && wiring.isInUse()) {
+			for (BundleWire wire : wiring.getRequiredWires(null)) {
+				if (wire.getCapability().getAttributes().containsKey(BundleRevision.PACKAGE_NAMESPACE) && wire.getCapability().getAttributes()
+						.get(BundleRevision.PACKAGE_NAMESPACE).equals(packageName)) {
+					// FIXME use low trace level log or remove this line
+					// System.out.println("MATCH! " + bundle.getSymbolicName() + " === Bundle importing package: " + packageName);
+					return true;
+				}
 			}
 		}
 

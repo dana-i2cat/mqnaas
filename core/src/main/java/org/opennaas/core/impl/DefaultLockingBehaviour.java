@@ -20,7 +20,7 @@ public class DefaultLockingBehaviour implements ILockingBehaviour {
 
 		return isLocked(executionContext, resource);
 	}
-
+	
 	@Override
 	public boolean isLocked(ExecutionContext executionContext, IRootResource resource) {
 		return locked.get(resource).equals(executionContext);

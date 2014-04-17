@@ -1,11 +1,9 @@
 package org.opennaas.core.clientprovider;
 
-
-
-public interface IClientProvider<T extends IClient> {
+public interface IClientProvider<T, CC> {
 	
-	T getClient();
+	T getClient();	
 	
-	T getClient(Object config);
+	T getClient(CC clientConfiguration);
 
 }

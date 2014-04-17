@@ -2,14 +2,19 @@ package org.opennaas.core.client.cxf;
 
 public class CXFConfiguration {
 
-	private Class<?> apiClass;
-	
-	public Class<?> getApiClass() {
-		return apiClass;
+	private String uri;
+
+	public void setUri(String uri) {
+		this.uri = uri;
 	}
 	
-	public void setApiClass(Class<?> apiClass) {
-		this.apiClass = apiClass;
+	public CXFConfiguration uri(String uri) {
+		setUri(uri);
+		return this;
+	}
+	
+	public String getUri() {
+		return uri;
 	}
 	
 }

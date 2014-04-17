@@ -1,23 +1,43 @@
 package org.opennaas.core.client.netconf;
 
+import java.lang.reflect.Constructor;
+
 import org.opennaas.core.clientprovider.IInternalClientProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 
 /**
- * This is an example implementation of a programmer who is providing a new client provider
+ * This is an example implementation of how to implement a specific client provider
  */
-class InternalNetconfClientProvider implements IInternalClientProvider<INetconfClient> {
+public class InternalNetconfClientProvider implements IInternalClientProvider<NetconfClient, NetconfConfiguration> {
 
 	@Override
-	public INetconfClient getClient(Endpoint ep, Credentials c) {
-		// Here the implementer has the Endpoint and the Credentials at her disposal
-		return null;
+	public NetconfClient getClient(Endpoint ep, Credentials c) {
+		return getClient(ep, c, null);
 	}
 
 	@Override
-	public <C extends INetconfClient> C getClient(Class<C> clazz, Endpoint ep, Credentials c) {
-		return null;
+	public <C extends NetconfClient> C getClient(Class<C> clazz, Endpoint ep, Credentials c) {
+		return getClient(clazz, ep, c, null);
+	}
+
+	@Override
+	public NetconfClient getClient(Endpoint ep, Credentials c, NetconfConfiguration configuration) {
+		return new NetconfClient(ep, c, configuration);
+	}
+
+	@Override
+	public <C extends NetconfClient> C getClient(Class<C> clazz, Endpoint ep, Credentials c, NetconfConfiguration configuration) {
+		Constructor<C> clientConstructor;
+		try {
+			clientConstructor = clazz.getConstructor(Endpoint.class, Credentials.class, NetconfConfiguration.class);
+			return clientConstructor.newInstance(ep, c, configuration);
+		} catch (Exception e) {
+			// TODO Ignore for now
+			e.printStackTrace();
+		}
+		
+		throw new IllegalStateException("Client could not be constructed...");
 	}
 
 }

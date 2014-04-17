@@ -1,5 +1,6 @@
 package org.opennaas.core.client;
 
-public @interface Dependecy {
+
+public @interface Dependency {
 
 }

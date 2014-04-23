@@ -8,7 +8,7 @@
 
 	<parent>
 		<groupId>org.opennaas.mqnaas.examples</groupId>
-		<artifactId>examples</artifactId>
+		<artifactId>root</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 

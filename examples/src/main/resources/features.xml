@@ -15,6 +15,7 @@
 		<bundle>mvn:${project.groupId}/router/${project.version}</bundle>
 		<bundle>mvn:${project.groupId}/junosRouter/${project.version}</bundle>
 		<bundle>mvn:${project.groupId}/openerRouter/${project.version}</bundle>
+		<bundle>mvn:${project.groupId}/testapp/${project.version}</bundle>
 	</feature>
 
 </features>

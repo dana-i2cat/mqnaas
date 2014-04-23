@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>junosRouter</artifactId>
-	<name>MQNaaS :: Examples :: JunosRouter</name>
-	<description>MQNaaS Examples -- Junos Router</description>
+	<artifactId>testapp</artifactId>
+	<name>MQNaaS :: Examples :: TestApp</name>
+	<description>MQNaaS Examples -- Test Application</description>
 	<packaging>bundle</packaging>
 
 	<parent>
@@ -17,10 +17,14 @@
 			<groupId>org.opennaas</groupId>
 			<artifactId>mqnaas.core</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.opennaas.mqnaas.examples</groupId>
-			<artifactId>router</artifactId>
+			<artifactId>junosRouter</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.opennaas.mqnaas.examples</groupId>
+			<artifactId>openerRouter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>

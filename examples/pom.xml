@@ -35,16 +35,6 @@
 				<artifactId>mqnaas.core</artifactId>
 				<version>${mqnaas-version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.opennaas.mqnaas.examples</groupId>
-				<artifactId>api.router</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.opennaas.mqnaas.examples</groupId>
-				<artifactId>router</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -136,6 +126,7 @@
 		<module>router</module>
 		<module>junosRouter</module>
 		<module>openerRouter</module>
+		<module>testapp</module>
 	</modules>
 
 	<repositories>

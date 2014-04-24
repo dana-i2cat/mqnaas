@@ -2,12 +2,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.opennaas</groupId>
+	<groupId>org.mqnaas</groupId>
 	<artifactId>mqnaas</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>MQNaaS</name>
+	<name>MQNaaS Core</name>
 
 	<url>http://www.opennaas.org/</url>
 
@@ -64,6 +64,11 @@
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
 				<version>${osgi.core-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core.api</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -191,7 +196,9 @@
 	</build>
 
 	<modules>
+		<module>core.api</module>
 		<module>core</module>
+		<!-- FIXME rename to clientprovider -->
 		<module>core.clientprovider</module>
 	</modules>
 

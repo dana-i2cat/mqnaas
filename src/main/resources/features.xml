@@ -6,7 +6,7 @@
 	<!-- Apache CXF features repository -->
 	<repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
 
-	<feature name="${project.groupId}.mqnaas.core" version="${project.version}">
+	<feature name="${project.artifactId}" version="${project.version}">
 		<!-- dependencies features -->		
 		<feature version="${cxf-version}">cxf</feature>
 		
@@ -16,8 +16,9 @@
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-collections4/${commons-collections4-version}</bundle>
 		
-		<bundle>mvn:org.opennaas/mqnaas.core/${project.version}</bundle>
-		<bundle>mvn:org.opennaas/mqnaas.core.clientprovider/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas/core.api/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas/core/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas/clientprovider/${project.version}</bundle>
 	</feature>
 
 </features>

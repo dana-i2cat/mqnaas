@@ -3,21 +3,21 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.opennaas</groupId>
+		<groupId>org.mqnaas</groupId>
 		<artifactId>mqnaas</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>mqnaas.core.clientprovider</artifactId>
-	<name>MQNaaS :: Core :: Client Provider</name>
-	<description>MQNaaS Core Client Provider</description>
+	<artifactId>clientprovider</artifactId>
+	<name>MQNaaS :: Client Provider</name>
+	<description>MQNaaS Client Provider</description>
 	<packaging>bundle</packaging>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.opennaas</groupId>
-			<artifactId>mqnaas.core</artifactId>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
@@ -38,12 +38,12 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.opennaas.core.client,
-							org.opennaas.core.client.application,
-							org.opennaas.core.client.cxf,
-							org.opennaas.core.client.netconf,
-							org.opennaas.core.client.clientprovider,
-							org.opennaas.core.client.other
+							org.mqnaas.core.client,
+							org.mqnaas.core.client.application,
+							org.mqnaas.core.client.cxf,
+							org.mqnaas.core.client.netconf,
+							org.mqnaas.core.client.clientprovider,
+							org.mqnaas.core.client.other
 						</Export-Package>
 					</instructions>
 				</configuration>

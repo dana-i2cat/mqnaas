@@ -1,4 +1,4 @@
-package org.opennaas.core.clientprovider.impl;
+package org.opennaas.core.clientprovider.impl.client;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -8,11 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.opennaas.core.client.netconf.InternalNetconfClientProvider;
-import org.opennaas.core.clientprovider.api.IAPIProvider;
-import org.opennaas.core.clientprovider.api.IClientProvider;
-import org.opennaas.core.clientprovider.api.IClientProviderFactory;
-import org.opennaas.core.clientprovider.api.IInternalAPIProvider;
-import org.opennaas.core.clientprovider.api.IInternalClientProvider;
+import org.opennaas.core.clientprovider.api.client.IClientProvider;
+import org.opennaas.core.clientprovider.api.client.IClientProviderFactory;
+import org.opennaas.core.clientprovider.api.client.IInternalClientProvider;
+import org.opennaas.core.clientprovider.impl.AbstractProviderFactory;
 
 public class ClientProviderFactory extends AbstractProviderFactory implements IClientProviderFactory {
 

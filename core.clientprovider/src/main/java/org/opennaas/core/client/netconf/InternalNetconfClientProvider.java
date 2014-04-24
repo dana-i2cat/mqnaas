@@ -1,8 +1,6 @@
 package org.opennaas.core.client.netconf;
 
-import java.lang.reflect.Constructor;
-
-import org.opennaas.core.clientprovider.api.IInternalClientProvider;
+import org.opennaas.core.clientprovider.api.client.IInternalClientProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 
@@ -13,31 +11,13 @@ public class InternalNetconfClientProvider implements IInternalClientProvider<Ne
 
 	@Override
 	public NetconfClient getClient(Endpoint ep, Credentials c) {
-		return getClient(ep, c, null);
-	}
-
-	@Override
-	public <C extends NetconfClient> C getClient(Class<C> clazz, Endpoint ep, Credentials c) {
-		return getClient(clazz, ep, c, null);
+		NetconfConfiguration defaultConfiguration = null;
+		return getClient(ep, c, defaultConfiguration);
 	}
 
 	@Override
 	public NetconfClient getClient(Endpoint ep, Credentials c, NetconfConfiguration configuration) {
 		return new NetconfClient(ep, c, configuration);
-	}
-
-	@Override
-	public <C extends NetconfClient> C getClient(Class<C> clazz, Endpoint ep, Credentials c, NetconfConfiguration configuration) {
-		Constructor<C> clientConstructor;
-		try {
-			clientConstructor = clazz.getConstructor(Endpoint.class, Credentials.class, NetconfConfiguration.class);
-			return clientConstructor.newInstance(ep, c, configuration);
-		} catch (Exception e) {
-			// TODO Ignore for now
-			e.printStackTrace();
-		}
-		
-		throw new IllegalStateException("Client could not be constructed...");
 	}
 
 }

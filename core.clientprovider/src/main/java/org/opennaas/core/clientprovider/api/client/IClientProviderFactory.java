@@ -1,4 +1,4 @@
-package org.opennaas.core.clientprovider.api;
+package org.opennaas.core.clientprovider.api.client;
 
 import org.opennaas.core.api.ICapability;
 

@@ -1,4 +1,4 @@
-package org.opennaas.core.clientprovider.impl;
+package org.opennaas.core.clientprovider.impl.apiclient;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
@@ -8,9 +8,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.opennaas.core.client.cxf.InternalCXFClientProvider;
-import org.opennaas.core.clientprovider.api.IAPIProvider;
-import org.opennaas.core.clientprovider.api.IAPIProviderFactory;
-import org.opennaas.core.clientprovider.api.IInternalAPIProvider;
+import org.opennaas.core.clientprovider.api.apiclient.IAPIClientProvider;
+import org.opennaas.core.clientprovider.api.apiclient.IAPIProviderFactory;
+import org.opennaas.core.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.opennaas.core.clientprovider.impl.AbstractProviderFactory;
 
 public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
 
@@ -18,7 +19,7 @@ public class APIProviderFactory extends AbstractProviderFactory implements IAPIP
 
 	static {
 		VALID_API_PROVIDERS = new HashSet<Type>();
-		VALID_API_PROVIDERS.add(IAPIProvider.class);
+		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
 		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
 	}
 	
@@ -32,7 +33,7 @@ public class APIProviderFactory extends AbstractProviderFactory implements IAPIP
 	}
 	
 	@Override
-	public <CC, C extends IAPIProvider<CC>> C getAPIProvider(
+	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(
 			Class<C> apiProviderClass) {
 		// Match against list of providers...
 		for (IInternalAPIProvider<?> internalApiProvider : internalAPIProviders) {

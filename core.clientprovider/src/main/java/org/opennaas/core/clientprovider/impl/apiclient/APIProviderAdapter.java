@@ -1,9 +1,9 @@
-package org.opennaas.core.clientprovider.impl;
+package org.opennaas.core.clientprovider.impl.apiclient;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.opennaas.core.clientprovider.api.IInternalAPIProvider;
+import org.opennaas.core.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 

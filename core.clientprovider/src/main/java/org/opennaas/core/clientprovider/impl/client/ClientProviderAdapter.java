@@ -1,9 +1,9 @@
-package org.opennaas.core.clientprovider.impl;
+package org.opennaas.core.clientprovider.impl.client;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.opennaas.core.clientprovider.api.IInternalClientProvider;
+import org.opennaas.core.clientprovider.api.client.IInternalClientProvider;
 import org.opennaas.core.other.Credentials;
 import org.opennaas.core.other.Endpoint;
 
@@ -27,16 +27,7 @@ class ClientProviderAdapter<T, CC> implements InvocationHandler {
 		case 0:
 			return internalClientProvider.getClient(ep, c);
 		case 1:
-			if (method.getParameterTypes()[0].equals(Class.class)) {
-				Class clazz = (Class)args[0];
-				return internalClientProvider.getClient(clazz, ep, c);
-			} else {
-				return internalClientProvider.getClient(ep, c, (CC) args[0]);
-			}
-		case 2:
-			Class clazz = (Class)args[0];
-			CC clientConfiguration = (CC) args[1];
-			return internalClientProvider.getClient(clazz, ep, c, clientConfiguration);
+			return internalClientProvider.getClient(ep, c, (CC) args[0]);
 		}
 
 		throw new IllegalStateException(

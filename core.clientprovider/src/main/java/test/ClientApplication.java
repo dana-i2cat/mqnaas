@@ -1,4 +1,4 @@
-package test.capability;
+package test;
 
 import org.opennaas.core.annotation.DependingOn;
 import org.opennaas.core.api.IApplication;
@@ -9,8 +9,8 @@ import org.opennaas.core.client.cxf.ICXFAPIProvider;
 import org.opennaas.core.client.netconf.INetconfClientProvider;
 import org.opennaas.core.client.netconf.NetconfClient;
 import org.opennaas.core.client.netconf.NetconfConfiguration;
-import org.opennaas.core.clientprovider.api.IAPIProviderFactory;
-import org.opennaas.core.clientprovider.api.IClientProviderFactory;
+import org.opennaas.core.clientprovider.api.apiclient.IAPIProviderFactory;
+import org.opennaas.core.clientprovider.api.client.IClientProviderFactory;
 
 public class ClientApplication implements IApplication {
 
@@ -22,6 +22,8 @@ public class ClientApplication implements IApplication {
 
 	@Override
 	public void onDependenciesResolved() {
+		
+		System.out.println("Running the Client test application...");
 		
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory
@@ -43,20 +45,20 @@ public class ClientApplication implements IApplication {
 		
 		// Dynamic client w/o configuration
 		IApplicationClient applicationSpecificClient1 = ap
-				.getClient(IApplicationClient.class);
+				.getAPIClient(IApplicationClient.class);
 		applicationSpecificClient1.methodA();
 		applicationSpecificClient1.methodB();
 
 		// Dynamic client with (client specific) configuration
 		IApplicationClient applicationSpecificClient2 = ap
-				.getClient(IApplicationClient.class,
+				.getAPIClient(IApplicationClient.class,
 						new CXFConfiguration().uri("U R I 1"));
 		applicationSpecificClient2.methodA();
 		applicationSpecificClient2.methodB();
 
 		// Dynamic client with client specific configuration and application
 		// specific configuration
-		IApplicationClient applicationSpecificClient3 = ap.getClient(
+		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(
 				IApplicationClient.class,
 				new CXFConfiguration().uri("U R I 2"),
 				new ApplicationConfiguration());

@@ -1,6 +1,6 @@
-package org.opennaas.router;
+package org.mqnaas.examples.router;
 
-import org.opennaas.api.router.IInterface;
+import org.mqnaas.examples.api.router.IInterface;
 
 public class AbstractInterface implements IInterface {
 

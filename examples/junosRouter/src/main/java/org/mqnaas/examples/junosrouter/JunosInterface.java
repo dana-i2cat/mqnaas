@@ -1,6 +1,6 @@
-package org.opennaas.junosrouter;
+package org.mqnaas.examples.junosrouter;
 
-import org.opennaas.router.AbstractInterface;
+import org.mqnaas.examples.router.AbstractInterface;
 
 public class JunosInterface extends AbstractInterface {
 

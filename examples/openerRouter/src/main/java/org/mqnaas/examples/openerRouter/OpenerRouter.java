@@ -1,4 +1,4 @@
-package org.opennaas.openerRouter;
+package org.mqnaas.examples.openerRouter;
 
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.impl.AbstractResource;

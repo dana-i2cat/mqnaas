@@ -1,4 +1,4 @@
-package org.opennaas.api.router;
+package org.mqnaas.examples.api.router;
 
 import org.mqnaas.core.api.ICapability;
 

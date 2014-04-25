@@ -6,7 +6,7 @@
 	<!-- MQNaaS features repository -->
 	<repository>mvn:org.mqnaas/mqnaas/${mqnaas-version}/xml/features</repository>
 
-	<feature name="${project.groupId}" version="${project.version}">
+	<feature name="mqnaas-examples" version="${project.version}">
 		<!-- dependencies features -->		
 		<feature version="${mqnaas-version}" dependency="true">mqnaas</feature>
 		

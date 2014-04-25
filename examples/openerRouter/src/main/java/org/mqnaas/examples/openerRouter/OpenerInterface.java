@@ -1,6 +1,6 @@
-package org.opennaas.openerRouter;
+package org.mqnaas.examples.openerRouter;
 
-import org.opennaas.router.AbstractInterface;
+import org.mqnaas.examples.router.AbstractInterface;
 
 public class OpenerInterface extends AbstractInterface {
 

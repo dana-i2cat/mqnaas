@@ -7,8 +7,8 @@
 	<packaging>bundle</packaging>
 
 	<parent>
-		<groupId>org.opennaas.mqnaas.examples</groupId>
-		<artifactId>root</artifactId>
+		<groupId>org.mqnaas.examples</groupId>
+		<artifactId>examples</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
@@ -22,7 +22,7 @@
 			<artifactId>core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.opennaas.mqnaas.examples</groupId>
+			<groupId>org.mqnaas.examples</groupId>
 			<artifactId>router</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -38,7 +38,7 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.opennaas.openerRouter
+							org.mqnaas.examples.openerRouter
 						</Export-Package>
 					</instructions>
 				</configuration>

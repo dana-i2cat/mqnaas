@@ -1,4 +1,4 @@
-package org.opennaas.junosrouter;
+package org.mqnaas.examples.junosrouter;
 
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.impl.AbstractResource;

@@ -1,10 +1,10 @@
-package org.opennaas.router;
+package org.mqnaas.examples.router;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.opennaas.api.router.IInterface;
-import org.opennaas.api.router.IInterfaceManagement;
+import org.mqnaas.examples.api.router.IInterface;
+import org.mqnaas.examples.api.router.IInterfaceManagement;
 
 public abstract class AbstractInterfaceManagement implements IInterfaceManagement {
 

@@ -1,4 +1,4 @@
-package org.opennaas.mqnaas.examples.testapp;
+package org.mqnaas.examples.testapp;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingManagement;
@@ -8,8 +8,8 @@ import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.impl.MQNaaS;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
-import org.opennaas.junosrouter.JunosRouter;
-import org.opennaas.openerRouter.OpenerRouter;
+import org.mqnaas.examples.junosrouter.JunosRouter;
+import org.mqnaas.examples.openerRouter.OpenerRouter;
 
 public class MyTestApplication implements IApplication {
 

@@ -1,8 +1,8 @@
-package org.opennaas.junosrouter;
+package org.mqnaas.examples.junosrouter;
 
 import org.mqnaas.core.api.IResource;
-import org.opennaas.api.router.IIPCapability;
-import org.opennaas.api.router.IPProtocolEndpoint;
+import org.mqnaas.examples.api.router.IIPCapability;
+import org.mqnaas.examples.api.router.IPProtocolEndpoint;
 
 public class JunosIPCapability implements IIPCapability {
 

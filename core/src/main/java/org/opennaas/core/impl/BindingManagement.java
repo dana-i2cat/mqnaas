@@ -217,6 +217,7 @@ public class BindingManagement implements IBindingManagement {
 					shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
 				} catch (Exception e2) {
 					// no way to establish bind
+					System.out.println("No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.");
 				}
 			}
 		}

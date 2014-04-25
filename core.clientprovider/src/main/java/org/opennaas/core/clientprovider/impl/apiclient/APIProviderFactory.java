@@ -7,14 +7,20 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.opennaas.core.api.IRootResource;
 import org.opennaas.core.client.cxf.InternalCXFClientProvider;
 import org.opennaas.core.clientprovider.api.apiclient.IAPIClientProvider;
 import org.opennaas.core.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.opennaas.core.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.opennaas.core.clientprovider.impl.AbstractProviderFactory;
+import org.opennaas.core.impl.OpenNaaS;
 
 public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
 
+	public static boolean isSupporting(IRootResource resource) {
+		return resource instanceof OpenNaaS;
+	}
+	
 	private static Set<Type> VALID_API_PROVIDERS;
 
 	static {

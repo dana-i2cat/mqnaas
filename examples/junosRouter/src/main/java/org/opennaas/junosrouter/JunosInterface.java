@@ -7,5 +7,5 @@ public class JunosInterface extends AbstractInterface {
 	protected JunosInterface(String name) {
 		super(name);
 	}
-	
+
 }

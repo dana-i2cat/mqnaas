@@ -14,10 +14,13 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.opennaas</groupId>
-			<artifactId>mqnaas.core</artifactId>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.opennaas.mqnaas.examples</groupId>
 			<artifactId>router</artifactId>

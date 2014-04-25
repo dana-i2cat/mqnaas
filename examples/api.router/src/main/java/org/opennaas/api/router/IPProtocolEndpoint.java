@@ -2,11 +2,11 @@ package org.opennaas.api.router;
 
 public class IPProtocolEndpoint {
 
-	private String iPv4Address;
-	private String iPv6Address;
+	private String	iPv4Address;
+	private String	iPv6Address;
 
-	private String subnetMask;
-	private short prefixLength;
+	private String	subnetMask;
+	private short	prefixLength;
 
 	public String getiPv4Address() {
 		return iPv4Address;

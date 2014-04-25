@@ -1,6 +1,6 @@
 package org.opennaas.api.router;
 
-import org.opennaas.core.api.IResource;
+import org.mqnaas.core.api.IResource;
 
 public interface IInterface extends IResource {
 

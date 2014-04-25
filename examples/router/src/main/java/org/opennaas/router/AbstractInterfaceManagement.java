@@ -1,6 +1,5 @@
 package org.opennaas.router;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ import org.opennaas.api.router.IInterfaceManagement;
 
 public abstract class AbstractInterfaceManagement implements IInterfaceManagement {
 
-	private List<IInterface> interfaces = new ArrayList<IInterface>();
+	private List<IInterface>	interfaces	= new ArrayList<IInterface>();
 
 	@Override
 	public void addInterface(IInterface interfaze) {

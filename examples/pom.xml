@@ -31,8 +31,13 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>org.opennaas</groupId>
-				<artifactId>mqnaas.core</artifactId>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core.api</artifactId>
+				<version>${mqnaas-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core</artifactId>
 				<version>${mqnaas-version}</version>
 			</dependency>
 		</dependencies>

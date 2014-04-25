@@ -1,12 +1,12 @@
 package org.opennaas.junosrouter;
 
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification;
 import org.opennaas.api.router.IInterface;
-import org.opennaas.core.api.IRootResource;
-import org.opennaas.core.api.Specification;
 import org.opennaas.router.AbstractInterfaceManagement;
 
 public class JunosInterfaceManagement extends AbstractInterfaceManagement {
-	
+
 	@Override
 	public IInterface createInterface(String name) {
 		return new JunosInterface(name);

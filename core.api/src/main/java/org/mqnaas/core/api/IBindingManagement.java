@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 
 /**
  * <p>
- * <code>IBindingManagement</code> is one of the core capabilities of OpenNaaS and is the capability providing the most basic services, the management
+ * <code>IBindingManagement</code> is one of the core capabilities of MQNaaS and is the capability providing the most basic services, the management
  * of available services based on the available resources (managed by {@link IResourceManagement} and the available capability implementations
  * (managed by the platform administrator by adding and removing bundles containing implementations).
  * </p>

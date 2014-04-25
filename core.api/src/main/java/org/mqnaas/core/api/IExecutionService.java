@@ -2,7 +2,7 @@ package org.mqnaas.core.api;
 
 /**
  * <p>
- * <code>IExecutionService</code> is one of the core capabilities of OpenNaaS.
+ * <code>IExecutionService</code> is one of the core capabilities of MQNaaS.
  * </p>
  * 
  * <p>

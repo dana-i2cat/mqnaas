@@ -14,7 +14,7 @@ public class ExecutionService implements IExecutionService {
 	private Map<IObservationFilter, IService>	observationFilters;
 
 	public static boolean isSupporting(IResource resource) {
-		return resource instanceof OpenNaaS;
+		return resource instanceof MQNaaS;
 	}
 
 	public ExecutionService() {

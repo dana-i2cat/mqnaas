@@ -171,7 +171,7 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 	}
 
 	/*
-	 * Relays the call to a capability implementations (an OSGi service) to an OpenNaaS Service.
+	 * Relays the call to a capability implementations (an OSGi service) to an MQNaaS Service.
 	 */
 	private class ExecutionRelayingInvocationHandler implements InvocationHandler {
 

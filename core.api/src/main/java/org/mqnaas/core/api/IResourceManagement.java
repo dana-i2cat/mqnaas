@@ -7,7 +7,7 @@ import org.mqnaas.core.api.annotations.RemovesResource;
 
 /**
  * <p>
- * <code>IResourceManagement</code> is one of the core capabilities of OpenNaaS.
+ * <code>IResourceManagement</code> is one of the core capabilities of MQNaaS.
  * </p>
  * 
  * <p>

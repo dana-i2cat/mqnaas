@@ -11,7 +11,7 @@ public class ResourceManagement implements IResourceManagement {
 	private List<IResource>	resources	= new ArrayList<IResource>();
 
 	public static boolean isSupporting(IResource resource) {
-		return resource instanceof OpenNaaS;
+		return resource instanceof MQNaaS;
 	}
 
 	@Override

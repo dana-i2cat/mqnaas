@@ -2,7 +2,7 @@ package org.mqnaas.core.api;
 
 /**
  * <p>
- * <code>IRootResource</code> is the representation of a physical device in OpenNaaS.
+ * <code>IRootResource</code> is the representation of a physical device in MQNaaS.
  * </p>
  * <p>
  * In contrast to other resources, a root resource defines its
@@ -32,7 +32,7 @@ public interface IRootResource extends IResource {
 		/**
 		 * The platform core device
 		 */
-		CORE("OpenNaaS"),
+		CORE("MQNaaS"),
 		/**
 		 * A network
 		 */

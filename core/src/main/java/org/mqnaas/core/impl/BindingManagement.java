@@ -29,8 +29,8 @@ import com.google.common.collect.Multimap;
 
 public class BindingManagement implements IBindingManagement {
 
-	// At the moment, this is the home of the OpenNaaS resource
-	private OpenNaaS					openNaaS;
+	// At the moment, this is the home of the MQNaaS resource
+	private MQNaaS						mqNaaS;
 
 	// Manages the bundle dependency tree and the capabilities each bundle offers
 
@@ -51,9 +51,9 @@ public class BindingManagement implements IBindingManagement {
 
 	public BindingManagement() {
 
-		// Initialize the OpenNaaS resource to be able to bind upcoming
+		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		openNaaS = new OpenNaaS();
+		mqNaaS = new MQNaaS();
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
 		applications = new ArrayList<ApplicationInstance>();
@@ -71,13 +71,13 @@ public class BindingManagement implements IBindingManagement {
 		executionService = new ExecutionService();
 
 		// Do the first binds manually
-		bind(openNaaS, new CapabilityInstance(ResourceManagement.class, resourceManagement));
-		bind(openNaaS, new CapabilityInstance(ExecutionService.class, executionService));
-		bind(openNaaS, new CapabilityInstance(BindingManagement.class, this));
+		bind(mqNaaS, new CapabilityInstance(ResourceManagement.class, resourceManagement));
+		bind(mqNaaS, new CapabilityInstance(ExecutionService.class, executionService));
+		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
 
 		// Initialize the notifications necessary to track resources dynamically
-		executionService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(openNaaS, "resourceAdded"));
-		executionService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(openNaaS, "resourceRemoved"));
+		executionService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
+		executionService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
 
 		// There are two ways of adding bundles to the system, each of which will be handled
 		BundleContext context = getBundleContext();
@@ -98,7 +98,7 @@ public class BindingManagement implements IBindingManagement {
 		});
 
 		// Now activate the resource, the services get visible...
-		resourceManagement.addResource(openNaaS);
+		resourceManagement.addResource(mqNaaS);
 
 		// Way 2. If bundles are already active, add them now
 		for (Bundle bundle : context.getBundles()) {

@@ -1,9 +1,11 @@
 package org.mqnaas.core.api;
 
+import org.mqnaas.core.api.annotations.DependingOn;
+
 /**
  * <p>
- * <code>IApplication</code> is a marker interface to identify an OpenNaaS application. Applications will be instantiated automatically by the
- * platform, therefore they need to have a constructor without arguments.
+ * <code>IApplication</code> is a marker interface to identify an MQNaaS application. Applications will be instantiated automatically by the platform,
+ * therefore they need to have a constructor without arguments.
  * <p>
  * <p>
  * Applications may depend on capabilities which will be injected attributes annotated with {@link DependingOn}.

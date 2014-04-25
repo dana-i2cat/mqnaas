@@ -7,13 +7,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.client.cxf.InternalCXFClientProvider;
 import org.mqnaas.core.clientprovider.api.apiclient.IAPIClientProvider;
 import org.mqnaas.core.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.core.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.core.clientprovider.impl.AbstractProviderFactory;
+import org.mqnaas.core.impl.MQNaaS;
 
 public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
+
+	public static boolean isSupporting(IRootResource resource) {
+		return resource instanceof MQNaaS;
+	}
 
 	private static Set<Type>		VALID_API_PROVIDERS;
 

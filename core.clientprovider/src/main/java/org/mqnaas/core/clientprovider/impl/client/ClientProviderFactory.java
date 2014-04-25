@@ -7,13 +7,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.client.netconf.InternalNetconfClientProvider;
 import org.mqnaas.core.clientprovider.api.client.IClientProvider;
 import org.mqnaas.core.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.core.clientprovider.impl.AbstractProviderFactory;
+import org.mqnaas.core.impl.MQNaaS;
 
 public class ClientProviderFactory extends AbstractProviderFactory implements IClientProviderFactory {
+
+	public static boolean isSupporting(IRootResource resource) {
+		return resource instanceof MQNaaS;
+	}
 
 	private List<IInternalClientProvider<?, ?>>	internalClientProviders;
 
@@ -40,11 +46,9 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 		for (IInternalClientProvider<?, ?> internalClientProvider : internalClientProviders) {
 			Class<?> internalClientProviderClass = internalClientProvider.getClass();
 
-			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS,
-					clientProviderClass, internalClientProviderClass, 2)) {
+			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass, 2)) {
 
-				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(),
-						new Class[] { clientProviderClass },
+				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(), new Class[] { clientProviderClass },
 						new ClientProviderAdapter(internalClientProvider));
 
 				return c;

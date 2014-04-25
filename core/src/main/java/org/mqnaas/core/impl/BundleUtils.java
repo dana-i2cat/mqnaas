@@ -22,7 +22,7 @@ public abstract class BundleUtils {
 	}
 
 	public static <T> Set<Class<? extends T>> scanBundle(Bundle bundle, Class<T> interfaceScannedFor) {
-		if (BundleTreeUtils.isBundleDependant(bundle, "mqnaas.core")) {
+		if (BundleTreeUtils.isBundleDependant(bundle, "core.api")) {
 			System.out.println("Scanning bundle " + bundle.getSymbolicName());
 
 			BundleWiring wiring = bundle.adapt(BundleWiring.class);

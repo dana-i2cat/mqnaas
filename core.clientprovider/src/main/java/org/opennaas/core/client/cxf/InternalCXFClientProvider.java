@@ -35,6 +35,13 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 				return createDummyClient(apiClass);
 		}
 
+		if (ep == null || ep.getUri() == null) {
+			// FIXME fail gracefully
+			System.out.println("Attempt to create JAX-RS client without target address.");
+			System.out.println("Using dummyClient instead");
+			return createDummyClient(apiClass);
+		}
+
 		// String switchId = (String) sessionContext.getSessionParameters().get(FloodlightProtocolSession.SWITCHID_CONTEXT_PARAM_NAME);
 		// TODO use switch id to instantiate the client
 
@@ -44,9 +51,8 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 		classLoader.addLoader(JAXRSClientFactoryBean.class.getClassLoader());
 
 		JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
-		if (configuration != null) {
-			bean.setAddress(ep.getUri().toString());
-		}
+		bean.setAddress(ep.getUri().toString());
+
 		// bean.setProvider(new CustomJSONProvider()); // TODO initialize the rest from the configuration
 		bean.setResourceClass(apiClass);
 		bean.setClassLoader(classLoader);

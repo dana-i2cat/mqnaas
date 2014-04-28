@@ -7,11 +7,11 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>MQNaaS Core</name>
+	<name>MQNaaS</name>
 
 	<url>http://www.opennaas.org/</url>
 
-	<description>The new core of OpenNaaS</description>
+	<description>The new OpenNaaS</description>
 
 	<organization>
 		<name>Fundació Privada i2CAT, Internet i Innovació a Catalunya</name>
@@ -203,8 +203,7 @@
 	<modules>
 		<module>core.api</module>
 		<module>core</module>
-		<!-- FIXME rename to clientprovider -->
-		<module>core.clientprovider</module>
+		<module>clientprovider</module>
 	</modules>
 
 	<repositories>

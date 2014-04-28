@@ -15,16 +15,16 @@ import org.opennaas.core.clientprovider.api.client.IClientProviderFactory;
 public class ClientApplication implements IApplication {
 
 	@DependingOn
-	IClientProviderFactory clientProviderFactory;
+	IClientProviderFactory	clientProviderFactory;
 
 	@DependingOn
-	IAPIProviderFactory apiProviderFactory;
+	IAPIProviderFactory		apiProviderFactory;
 
 	@Override
 	public void onDependenciesResolved() {
-		
+
 		System.out.println("Running the Client test application...");
-		
+
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory
 				.getClientProvider(INetconfClientProvider.class);
@@ -42,7 +42,7 @@ public class ClientApplication implements IApplication {
 		// 2. Dynamic client provisioning
 		ICXFAPIProvider ap = apiProviderFactory
 				.getAPIProvider(ICXFAPIProvider.class);
-		
+
 		// Dynamic client w/o configuration
 		IApplicationClient applicationSpecificClient1 = ap
 				.getAPIClient(IApplicationClient.class);
@@ -52,7 +52,7 @@ public class ClientApplication implements IApplication {
 		// Dynamic client with (client specific) configuration
 		IApplicationClient applicationSpecificClient2 = ap
 				.getAPIClient(IApplicationClient.class,
-						new CXFConfiguration().uri("U R I 1"));
+						new CXFConfiguration());
 		applicationSpecificClient2.methodA();
 		applicationSpecificClient2.methodB();
 
@@ -60,7 +60,7 @@ public class ClientApplication implements IApplication {
 		// specific configuration
 		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(
 				IApplicationClient.class,
-				new CXFConfiguration().uri("U R I 2"),
+				new CXFConfiguration(),
 				new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();

@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.osgi.framework.Bundle;
+import org.osgi.framework.Constants;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -35,12 +36,15 @@ public class BundleTreeUtils {
 
 		for (Bundle exporter : exporters) {
 			if (node.hasAncestor(exporter)) {
+				// FIXME use logger
 				// System.out.println(String.format("Skipping %s (already exists in the current branch)", exporter));
 			} else {
 				boolean existing = tree.flatten().contains(exporter);
+				// FIXME use logger
 				// System.out.println(String.format("Adding %s as a dependency for %s", exporter, bundle));
 				Node<Bundle> child = node.addChild(exporter);
 				if (existing) {
+					// FIXME use logger
 					// System.out.println(String.format("Skipping children of %s (already exists in another branch)", exporter));
 				} else {
 					createNode(child);
@@ -60,7 +64,12 @@ public class BundleTreeUtils {
 
 		for (BundleWire pkg : wiring.getRequiredWires(null)) {
 			Bundle providerBundle = pkg.getProviderWiring().getBundle();
-			exporters.put(bundle.getSymbolicName(), providerBundle);
+
+			if (pkg.getCapability().getAttributes().get(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE) instanceof String) {
+				String bundleSymbolicName = (String) pkg.getCapability().getAttributes().get(Constants.BUNDLE_SYMBOLICNAME_ATTRIBUTE);
+				exporters.put(bundleSymbolicName, providerBundle);
+			}
+
 		}
 		return exporters;
 	}
@@ -79,6 +88,7 @@ public class BundleTreeUtils {
 		Set<Bundle> flattenBundles = bundleTreeUtils.tree.flatten();
 
 		for (Bundle flattenBundle : flattenBundles) {
+			// FIXME use logger
 			// System.out.println("Bundle " + bundle.getSymbolicName() + " depends on " + flattenBundle.getSymbolicName());
 			if (flattenBundle.getSymbolicName().equals(bundleSymbolicName)) {
 				return true;

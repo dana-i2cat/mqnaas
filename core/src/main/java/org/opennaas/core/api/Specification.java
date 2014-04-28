@@ -1,26 +1,79 @@
 package org.opennaas.core.api;
 
+import javax.xml.bind.annotation.XmlElement;
+
 /**
- * The <code>Specification</code> contains all the configuration information
- * available about a (physical) device. It is used to describe {@link IRootResource}s.
+ * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
+ * {@link IRootResource}s.
  */
 public class Specification {
 
-	private IRootResource.Type type;
+	/**
+	 * The <code>Type</code> of an {@link IRootResource} is part of the technical specification of a device and serves as a basic classification of
+	 * resources.
+	 */
+	public enum Type {
+		/**
+		 * The platform core device
+		 */
+		CORE("OpenNaaS"),
+		/**
+		 * A network
+		 */
+		NETWORK("Network"),
+		/**
+		 * A router
+		 */
+		ROUTER("Router"),
+		/**
+		 * A switch
+		 */
+		SWITCH("Switch"),
+		/**
+		 * A Bandwidth on Demand device
+		 */
+		BoD("BoD"),
+		/**
+		 * Other devices
+		 */
+		OTHER("Other");
 
-	private String model, version;
+		private String	name;
 
-	public Specification(IRootResource.Type type, String model, String version) {
+		Type(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	};
+
+	@XmlElement(required = true)
+	private Type	type;
+
+	private String	model, version;
+
+	public Specification() {
+
+	}
+
+	public Specification(Type type, String model) {
+		this(type, model, null);
+	}
+
+	public Specification(Type type, String model, String version) {
 		this.type = type;
 		this.model = model;
 		this.version = version;
 	}
 
-	public IRootResource.Type getType() {
+	public Type getType() {
 		return type;
 	}
 
-	public void setType(IRootResource.Type type) {
+	public void setType(Type type) {
 		this.type = type;
 	}
 

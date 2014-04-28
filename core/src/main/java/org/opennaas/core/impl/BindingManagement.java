@@ -17,6 +17,8 @@ import org.opennaas.core.api.IResource;
 import org.opennaas.core.api.IResourceManagement;
 import org.opennaas.core.api.IRootResource;
 import org.opennaas.core.api.IService;
+import org.opennaas.core.api.Specification;
+import org.opennaas.core.api.Specification.Type;
 import org.opennaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -98,7 +100,7 @@ public class BindingManagement implements IBindingManagement {
 		});
 
 		// Now activate the resource, the services get visible...
-		resourceManagement.addResource(openNaaS);
+		resourceManagement.createRootResource(new Specification(Type.CORE, "OpenNaaS"));
 
 		// Way 2. If bundles are already active, add them now
 		for (Bundle bundle : context.getBundles()) {
@@ -175,7 +177,7 @@ public class BindingManagement implements IBindingManagement {
 			return;
 
 		// Establish matches
-		for (IResource resource : resourceManagement.getResources()) {
+		for (IResource resource : resourceManagement.getRootResources()) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
 
 				if (shouldBeBound(resource, capabilityClass)) {
@@ -217,7 +219,8 @@ public class BindingManagement implements IBindingManagement {
 					shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
 				} catch (Exception e2) {
 					// no way to establish bind
-					System.out.println("No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.");
+					System.out
+							.println("No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.");
 				}
 			}
 		}
@@ -307,7 +310,7 @@ public class BindingManagement implements IBindingManagement {
 
 		System.out.println("\nAVAILABLE SERVICES -----------------------------------------------");
 
-		for (IResource resource : resourceManagement.getResources()) {
+		for (IResource resource : resourceManagement.getRootResources()) {
 
 			System.out.println("Resource " + resource);
 

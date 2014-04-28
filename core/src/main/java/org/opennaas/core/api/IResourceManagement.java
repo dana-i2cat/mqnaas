@@ -2,6 +2,11 @@ package org.opennaas.core.api;
 
 import java.util.List;
 
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+
 import org.opennaas.core.annotation.AddsResource;
 import org.opennaas.core.annotation.RemovesResource;
 
@@ -16,6 +21,7 @@ import org.opennaas.core.annotation.RemovesResource;
  * </p>
  * 
  */
+@Path("/mqnaas/resources")
 public interface IResourceManagement extends ICapability {
 
 	/**
@@ -30,7 +36,10 @@ public interface IResourceManagement extends ICapability {
 	 *            The resource to be added to the platform
 	 */
 	@AddsResource
-	void addResource(IResource resource);
+	@PUT
+	void createRootResource(RootResourceDescriptor descriptor);
+
+	void createRootResource(Specification specification);
 
 	/**
 	 * <p>
@@ -44,18 +53,20 @@ public interface IResourceManagement extends ICapability {
 	 *            The resource to be removed from the platform
 	 */
 	@RemovesResource
-	void removeResource(IResource resource);
+	@DELETE
+	void removeRootResource(IResource resource);
 
 	/**
 	 * Returns all {@link IResource} currently managed by the platform.
 	 * 
 	 * @return The currently managed resources
 	 */
-	List<IResource> getResources();
+	@GET
+	List<IResource> getRootResources();
 
 	/**
 	 * TODO This method a draft method. May not be part of the final API.
 	 */
-	<R extends IResource> R getResource(Class<R> clazz);
+	<R extends IResource> R getRootResource(Class<R> clazz);
 
 }

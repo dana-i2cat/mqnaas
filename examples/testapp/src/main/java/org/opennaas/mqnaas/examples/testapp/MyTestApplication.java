@@ -6,43 +6,43 @@ import org.opennaas.core.api.IBindingManagement;
 import org.opennaas.core.api.IExecutionService;
 import org.opennaas.core.api.IResourceManagement;
 import org.opennaas.core.api.IService;
+import org.opennaas.core.api.Specification;
+import org.opennaas.core.api.Specification.Type;
 import org.opennaas.core.impl.OpenNaaS;
 import org.opennaas.core.impl.notificationfilter.ServiceFilter;
-import org.opennaas.junosrouter.JunosRouter;
-import org.opennaas.openerRouter.OpenerRouter;
 
 public class MyTestApplication implements IApplication {
 
 	@DependingOn
-	private IResourceManagement resourceManagement;
+	private IResourceManagement	resourceManagement;
 
 	@DependingOn
-	private IBindingManagement bindingManagement;
-	
+	private IBindingManagement	bindingManagement;
+
 	@DependingOn
-	private IExecutionService executionService;
+	private IExecutionService	executionService;
 
 	@Override
 	public void onDependenciesResolved() {
-		
-		OpenNaaS openNaaS = resourceManagement.getResource(OpenNaaS.class);
-		
+
+		OpenNaaS openNaaS = resourceManagement.getRootResource(OpenNaaS.class);
+
 		IService observedService = bindingManagement.getService(openNaaS, "resourceAdded");
 		IService notifiedService = bindingManagement.getService(openNaaS, "printAvailableServices");
-		
+
 		notifiedService.execute(null);
 
 		executionService.registerObservation(new ServiceFilter(observedService), notifiedService);
-		
-		resourceManagement.addResource(new JunosRouter());
-		
-		resourceManagement.addResource(new OpenerRouter());
-		
-		resourceManagement.addResource(new JunosRouter());
 
-		resourceManagement.addResource(new OpenerRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 
-		resourceManagement.addResource(new JunosRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 
 	}
 

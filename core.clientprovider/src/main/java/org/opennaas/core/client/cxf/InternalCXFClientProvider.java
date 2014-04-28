@@ -30,6 +30,11 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CXFConfiguration configuration,
 			Object applicationSpecificConfiguration) {
 
+		if (configuration != null) {
+			if (configuration.getUseDummyClient())
+				return createDummyClient(apiClass);
+		}
+
 		// String switchId = (String) sessionContext.getSessionParameters().get(FloodlightProtocolSession.SWITCHID_CONTEXT_PARAM_NAME);
 		// TODO use switch id to instantiate the client
 
@@ -46,8 +51,15 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 		bean.setResourceClass(apiClass);
 		bean.setClassLoader(classLoader);
 
-		return // bean.create(apiClass);
-		(API) Proxy.newProxyInstance(classLoader, new Class[] { apiClass }, new InvocationHandler() {
+		return bean.create(apiClass);
+	}
+
+	private <API> API createDummyClient(Class<API> apiClass) {
+
+		ProxyClassLoader classLoader = new ProxyClassLoader();
+		classLoader.addLoader(apiClass.getClassLoader());
+
+		return (API) Proxy.newProxyInstance(classLoader, new Class[] { apiClass }, new InvocationHandler() {
 
 			@Override
 			public Object invoke(Object proxy, Method method, Object[] args)

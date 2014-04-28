@@ -44,23 +44,29 @@ public class ClientApplication implements IApplication {
 				.getAPIProvider(ICXFAPIProvider.class);
 
 		// Dynamic client w/o configuration
-		IApplicationClient applicationSpecificClient1 = ap
-				.getAPIClient(IApplicationClient.class);
-		applicationSpecificClient1.methodA();
-		applicationSpecificClient1.methodB();
+		// FIXME this method will fail because ICXFClientProvider requires given API class (IApplicationClient in this case)
+		// to be JAX-RS annotated.
+		// IApplicationClient applicationSpecificClient1 = ap
+		// .getAPIClient(IApplicationClient.class);
+		// applicationSpecificClient1.methodA();
+		// applicationSpecificClient1.methodB();
 
 		// Dynamic client with (client specific) configuration
+		CXFConfiguration cxfConf = new CXFConfiguration();
+		cxfConf.setUseDummyClient(true);
 		IApplicationClient applicationSpecificClient2 = ap
 				.getAPIClient(IApplicationClient.class,
-						new CXFConfiguration());
+						cxfConf);
 		applicationSpecificClient2.methodA();
 		applicationSpecificClient2.methodB();
 
 		// Dynamic client with client specific configuration and application
 		// specific configuration
+		CXFConfiguration cxfConf2 = new CXFConfiguration();
+		cxfConf.setUseDummyClient(true);
 		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(
 				IApplicationClient.class,
-				new CXFConfiguration(),
+				cxfConf2,
 				new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();

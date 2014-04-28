@@ -3,18 +3,22 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<parent>
-		<groupId>org.opennaas</groupId>
+		<groupId>org.mqnaas</groupId>
 		<artifactId>mqnaas</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>mqnaas.core</artifactId>
+	<artifactId>core</artifactId>
 	<name>MQNaaS :: Core</name>
 	<description>MQNaaS Core</description>
 	<packaging>bundle</packaging>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
@@ -46,13 +50,11 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.opennaas.core.Activator</Bundle-Activator>
+						<Bundle-Activator>org.mqnaas.core.Activator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.opennaas.core.api,
-							org.opennaas.core.impl,
-							org.opennaas.core.impl.notificationfilter,
-							org.opennaas.core.annotation
+							org.mqnaas.core.impl,
+							org.mqnaas.core.impl.notificationfilter
 						</Export-Package>
 					</instructions>
 				</configuration>

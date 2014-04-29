@@ -7,23 +7,27 @@
 	<packaging>bundle</packaging>
 
 	<parent>
-		<groupId>org.opennaas.mqnaas.examples</groupId>
-		<artifactId>root</artifactId>
+		<groupId>org.mqnaas.examples</groupId>
+		<artifactId>examples</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.opennaas</groupId>
-			<artifactId>mqnaas.core</artifactId>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.opennaas.mqnaas.examples</groupId>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.examples</groupId>
 			<artifactId>junosRouter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.opennaas.mqnaas.examples</groupId>
+			<groupId>org.mqnaas.examples</groupId>
 			<artifactId>openerRouter</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -39,7 +43,7 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.opennaas.junosrouter
+							org.mqnaas.examples.testapp
 						</Export-Package>
 					</instructions>
 				</configuration>

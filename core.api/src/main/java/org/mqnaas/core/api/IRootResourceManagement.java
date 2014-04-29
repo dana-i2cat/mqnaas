@@ -22,7 +22,7 @@ import org.mqnaas.core.api.annotations.RemovesResource;
  * 
  */
 @Path("/mqnaas/resources")
-public interface IResourceManagement extends ICapability {
+public interface IRootResourceManagement extends ICapability {
 
 	/**
 	 * <p>
@@ -37,9 +37,9 @@ public interface IResourceManagement extends ICapability {
 	 */
 	@AddsResource
 	@PUT
-	void createRootResource(RootResourceDescriptor descriptor);
+	IRootResource createRootResource(RootResourceDescriptor descriptor);
 
-	void createRootResource(Specification specification);
+	IRootResource createRootResource(Specification specification);
 
 	/**
 	 * <p>
@@ -54,7 +54,7 @@ public interface IResourceManagement extends ICapability {
 	 */
 	@RemovesResource
 	@DELETE
-	void removeRootResource(IResource resource);
+	void removeRootResource(IRootResource resource);
 
 	/**
 	 * Returns all {@link IResource} currently managed by the platform.
@@ -62,11 +62,11 @@ public interface IResourceManagement extends ICapability {
 	 * @return The currently managed resources
 	 */
 	@GET
-	List<IResource> getRootResources();
+	List<IRootResource> getRootResources();
 
 	/**
 	 * TODO This method a draft method. May not be part of the final API.
 	 */
-	<R extends IResource> R getRootResource(Class<R> clazz);
+	IRootResource getRootResource(Specification specification);
 
 }

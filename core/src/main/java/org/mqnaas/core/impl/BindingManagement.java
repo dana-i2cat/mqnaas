@@ -11,8 +11,8 @@ import org.mqnaas.core.api.IBindingManagement;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
@@ -32,7 +32,7 @@ import com.google.common.collect.Multimap;
 public class BindingManagement implements IBindingManagement {
 
 	// At the moment, this is the home of the MQNaaS resource
-	private MQNaaS						mqNaaS;
+	// private MQNaaS mqNaaS;
 
 	// Manages the bundle dependency tree and the capabilities each bundle offers
 
@@ -49,13 +49,9 @@ public class BindingManagement implements IBindingManagement {
 	private IExecutionService			executionService;
 
 	@DependingOn
-	private IResourceManagement			resourceManagement;
+	private IRootResourceManagement		resourceManagement;
 
 	public BindingManagement() {
-
-		// Initialize the MQNaaS resource to be able to bind upcoming
-		// capability implementations to it...
-		mqNaaS = new MQNaaS();
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
 		applications = new ArrayList<ApplicationInstance>();
@@ -69,11 +65,16 @@ public class BindingManagement implements IBindingManagement {
 		applicationManagement = new ApplicationManagement();
 
 		// The inner core services are instantiated directly...
-		resourceManagement = new ResourceManagement();
+		resourceManagement = new RootResourceManagement();
 		executionService = new ExecutionService();
 
+		// Now activate the resource, the services get visible...
+		// Initialize the MQNaaS resource to be able to bind upcoming
+		// capability implementations to it...
+		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE, "MQNaaS"));
+
 		// Do the first binds manually
-		bind(mqNaaS, new CapabilityInstance(ResourceManagement.class, resourceManagement));
+		bind(mqNaaS, new CapabilityInstance(RootResourceManagement.class, resourceManagement));
 		bind(mqNaaS, new CapabilityInstance(ExecutionService.class, executionService));
 		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
 
@@ -98,9 +99,6 @@ public class BindingManagement implements IBindingManagement {
 			}
 
 		});
-
-		// Now activate the resource, the services get visible...
-		resourceManagement.createRootResource(new Specification(Type.CORE, "MQNaaS"));
 
 		// Way 2. If bundles are already active, add them now
 		for (Bundle bundle : context.getBundles()) {

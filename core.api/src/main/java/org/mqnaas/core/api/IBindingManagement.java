@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 /**
  * <p>
  * <code>IBindingManagement</code> is one of the core capabilities of MQNaaS and is the capability providing the most basic services, the management
- * of available services based on the available resources (managed by {@link IResourceManagement} and the available capability implementations
+ * of available services based on the available resources (managed by {@link IRootResourceManagement} and the available capability implementations
  * (managed by the platform administrator by adding and removing bundles containing implementations).
  * </p>
  * 
@@ -85,7 +85,7 @@ public interface IBindingManagement extends ICapability {
 
 	/**
 	 * <p>
-	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was added to the platform.
+	 * This is the service called by the {@link IRootResourceManagement} whenever a new {@link IResource} was added to the platform.
 	 * </p>
 	 * <p>
 	 * The {@link IBindingManagement} implementation than
@@ -104,7 +104,7 @@ public interface IBindingManagement extends ICapability {
 
 	/**
 	 * <p>
-	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was removed from the platform.
+	 * This is the service called by the {@link IRootResourceManagement} whenever a new {@link IResource} was removed from the platform.
 	 * </p>
 	 * <p>
 	 * The {@link IBindingManagement} implementation than

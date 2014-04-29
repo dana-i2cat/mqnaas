@@ -47,14 +47,17 @@ public class ClientApplication implements IApplication {
 		applicationSpecificClient1.methodB();
 
 		// Dynamic client with (client specific) configuration
-		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(IApplicationClient.class, new CXFConfiguration().uri("U R I 1"));
+		CXFConfiguration cxfConf = new CXFConfiguration();
+		cxfConf.setUseDummyClient(true);
+		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(IApplicationClient.class, cxfConf);
 		applicationSpecificClient2.methodA();
 		applicationSpecificClient2.methodB();
 
 		// Dynamic client with client specific configuration and application
 		// specific configuration
-		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(IApplicationClient.class, new CXFConfiguration().uri("U R I 2"),
-				new ApplicationConfiguration());
+		CXFConfiguration cxfConf2 = new CXFConfiguration();
+		cxfConf.setUseDummyClient(true);
+		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();
 	}

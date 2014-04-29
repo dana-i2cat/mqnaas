@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
-import org.mqnaas.core.client.other.Credentials;
-import org.mqnaas.core.client.other.Endpoint;
+import org.mqnaas.core.api.Credentials;
+import org.mqnaas.core.api.Endpoint;
 
 class ClientProviderAdapter<T, CC> implements InvocationHandler {
 

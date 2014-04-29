@@ -7,8 +7,8 @@ import java.lang.reflect.Proxy;
 import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
-import org.mqnaas.core.client.other.Credentials;
-import org.mqnaas.core.client.other.Endpoint;
+import org.mqnaas.core.api.Credentials;
+import org.mqnaas.core.api.Endpoint;
 
 /**
  * This is an example implementation of how to implement a specific api provider

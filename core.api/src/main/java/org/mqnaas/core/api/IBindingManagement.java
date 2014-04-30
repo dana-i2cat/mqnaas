@@ -65,33 +65,13 @@ public interface IBindingManagement extends ICapability {
 
 	/**
 	 * <p>
-	 * Defines whether the services present in the given {@link ICapability} class should be bound to the given {@link IResource}. This is the service
-	 * defining the automatic binding process of the platform.
-	 * </p>
-	 * 
-	 * <p>
-	 * Although this service is at the moment present in the {@link IBindingManagement} capability of the core, it is likely to be moved to a separate
-	 * capability, e.g. <code>IBindingStrategy</code>, to be able to vary this aspect independently.
-	 * </p>
-	 * 
-	 * @param resource
-	 *            The resource for which the binding is checked
-	 * @param capabilityClass
-	 *            The class containing an implementation of one or more {@link ICapability}s.
-	 * @return whether the {@link IResource} and the {@link Class} should be bound
-	 */
-	boolean shouldBeBound(IResource resource,
-			Class<? extends ICapability> capabilityClass);
-
-	/**
-	 * <p>
 	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was added to the platform.
 	 * </p>
 	 * <p>
 	 * The {@link IBindingManagement} implementation than
 	 * <ol>
 	 * <li>checks whether the added {@link IResource} can be bound to any of the currently available capability implementations (using
-	 * {@link #shouldBeBound(IResource, Class)}),</li>
+	 * {@link IBindingDecider#shouldBeBound(IResource, Class)}),</li>
 	 * <li>binds the {@link IResource} and the capability implementation,</li>
 	 * <li>resolves all capability dependencies, and</li>
 	 * <li>makes all services available which are defined in <b>all</b> newly resolved capability implementations.</li>

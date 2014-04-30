@@ -1,21 +1,18 @@
 package org.mqnaas.core.impl;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.IBindingManagement;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagement;
-import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.osgi.framework.Bundle;
@@ -43,11 +40,9 @@ public class BindingManagement implements IBindingManagement {
 
 	private List<ApplicationInstance>	applications;
 
-	@DependingOn
 	private IExecutionService			executionService;
-
-	@DependingOn
 	private IResourceManagement			resourceManagement;
+	private IBindingDecider				bindingDecider;
 
 	public BindingManagement() {
 
@@ -67,12 +62,16 @@ public class BindingManagement implements IBindingManagement {
 		applicationManagement = new ApplicationManagement();
 
 		// The inner core services are instantiated directly...
+		// TODO resolve the instances implementing these interfaces using a internal resolving mechanism. they should be resolved before other
+		// dependencies resolution
 		resourceManagement = new ResourceManagement();
 		executionService = new ExecutionService();
+		bindingDecider = new BinderDecider();
 
 		// Do the first binds manually
 		bind(mqNaaS, new CapabilityInstance(ResourceManagement.class, resourceManagement));
 		bind(mqNaaS, new CapabilityInstance(ExecutionService.class, executionService));
+		bind(mqNaaS, new CapabilityInstance(BinderDecider.class, bindingDecider));
 		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
 
 		// Initialize the notifications necessary to track resources dynamically
@@ -140,7 +139,7 @@ public class BindingManagement implements IBindingManagement {
 	public void resourceAdded(IResource resource) {
 		// Establish matches
 		for (Class<? extends ICapability> capabilityClass : capabilityManagement.getAllCapabilityClasses()) {
-			if (shouldBeBound(resource, capabilityClass)) {
+			if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
 				bind(resource, new CapabilityInstance(capabilityClass));
 			}
 		}
@@ -178,7 +177,7 @@ public class BindingManagement implements IBindingManagement {
 		for (IResource resource : resourceManagement.getResources()) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
 
-				if (shouldBeBound(resource, capabilityClass)) {
+				if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
 					bind(resource, new CapabilityInstance(capabilityClass));
 				}
 			}
@@ -188,43 +187,6 @@ public class BindingManagement implements IBindingManagement {
 	@SuppressWarnings("unused")
 	private void capabilitiesRemoved(Collection<Class<? extends ICapability>> capabilityClasses) {
 		// TODO add unbind logic
-	}
-
-	private static final String	IS_SUPPORTING_METHOD_NAME	= "isSupporting";
-
-	@Override
-	public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
-
-		boolean shouldBeBound = false;
-
-		List<Class<?>> interfaces = ClassUtils.getAllInterfaces(capabilityClass);
-		interfaces.remove(ICapability.class);
-
-		// If their is no interface remaining, there's nothing to bind...
-		if (interfaces.isEmpty())
-			return shouldBeBound;
-
-		// Now for the process of binding, which for the moment is a very simple
-		// implementation: look for a static isSupporting method in the
-		// capability and use it to determine the binding
-		try {
-			Method isSupportingMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IResource.class);
-			shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
-		} catch (Exception e1) {
-			if (resource instanceof IRootResource) {
-				try {
-					Method isSupportingMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IRootResource.class);
-					shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
-				} catch (Exception e2) {
-					// no way to establish bind
-					System.out.println("No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.");
-				}
-			}
-		}
-
-		// System.out.println(getClass().getSimpleName() + ".shouldBeBound(" + resource + ", " + capabilityClass + "): " + shouldBeBound);
-
-		return shouldBeBound;
 	}
 
 	// TODO Add unbind logic and move

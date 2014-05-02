@@ -1,28 +1,21 @@
 package org.mqnaas.core.impl;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
-import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceMetaData;
 
-public class Service implements IService {
+public class Service implements IInternalService {
 
 	// The resource
-	private IResource	resource;
+	private IResource			resource;
 
 	// The reflected method
-	private Method		method;
+	private IServiceMetaData	metaData;
 
-	// The implementation
-	private ICapability	capability;
-
-	public Service(IResource resource, ICapability capability, Method method) {
+	Service(IResource resource, IServiceMetaData metaData) {
 		this.resource = resource;
-		this.capability = capability;
-		this.method = method;
+		this.metaData = metaData;
 	}
 
 	@Override
@@ -31,26 +24,8 @@ public class Service implements IService {
 	}
 
 	@Override
-	public String getName() {
-		return method.getName();
-	}
-
-	public Class<? extends ICapability> getCapabilityClass() {
-		return capability.getClass();
-	}
-
-	@Override
-	public Annotation[] getAnnotations() {
-		return method.getAnnotations();
-	}
-
-	@Override
-	public boolean hasAnnotation(Class<? extends Annotation> annotation) {
-		return method.getAnnotation(annotation) != null;
-	}
-
-	public Class<?>[] getParameterTypes() {
-		return method.getParameterTypes();
+	public IServiceMetaData getMetadata() {
+		return metaData;
 	}
 
 	@Override
@@ -59,7 +34,7 @@ public class Service implements IService {
 		Object result = null;
 
 		try {
-			result = method.invoke(capability, parameters);
+			result = metaData.getMethod().invoke(metaData.getCapability(), parameters);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -72,7 +47,7 @@ public class Service implements IService {
 	}
 
 	public String toString() {
-		return getName();
+		return metaData.getName();
 	}
 
 }

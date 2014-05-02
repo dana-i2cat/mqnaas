@@ -127,7 +127,7 @@ public class BindingManagement implements IBindingManagement {
 	public IService getService(IResource resource, String name) {
 
 		for (IService service : getServices(resource).values()) {
-			if (service.getName().equals(name)) {
+			if (service.getMetadata().getName().equals(name)) {
 				return service;
 			}
 		}

@@ -30,7 +30,7 @@ public class ExecutionService implements IExecutionService {
 
 		// Transaction active?
 
-		Object result = service.execute(parameters);
+		Object result = ((IInternalService) service).execute(parameters);
 
 		// Observations?
 

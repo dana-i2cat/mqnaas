@@ -30,7 +30,7 @@ public class MyTestApplication implements IApplication {
 		IService observedService = bindingManagement.getService(mqNaaS, "resourceAdded");
 		IService notifiedService = bindingManagement.getService(mqNaaS, "printAvailableServices");
 
-		notifiedService.execute(null);
+		executionService.execute(notifiedService, null);
 
 		executionService.registerObservation(new ServiceFilter(observedService), notifiedService);
 

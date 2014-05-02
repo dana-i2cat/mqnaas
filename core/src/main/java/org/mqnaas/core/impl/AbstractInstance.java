@@ -138,17 +138,14 @@ public abstract class AbstractInstance<T> {
 			if (field.isAnnotationPresent(DependingOn.class)) {
 
 				if (!(ICapability.class.isAssignableFrom(field.getType()))) {
-					throw new IllegalArgumentException(clazz.getName()
-							+ " does not implement "
-							+ ICapability.class.getName()
-							+ " and can therefore not be used as a dependency.");
+					throw new IllegalArgumentException(
+							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + ICapability.class.getName() +
+									" and can therefore not be used as a dependency.");
 				}
 
-				// The following cast is safe, because it was explicitly checked
-				// above
+				// The following cast is safe, because it was explicitly checked above
 				@SuppressWarnings("unchecked")
-				Class<? extends ICapability> type = (Class<? extends ICapability>) field
-						.getType();
+				Class<? extends ICapability> type = (Class<? extends ICapability>) field.getType();
 
 				dependencies.put(type, field);
 			}

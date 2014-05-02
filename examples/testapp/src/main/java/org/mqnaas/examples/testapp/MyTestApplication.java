@@ -1,10 +1,10 @@
 package org.mqnaas.examples.testapp;
 
 import org.mqnaas.core.api.IApplication;
-import org.mqnaas.core.api.IBindingManagement;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.impl.MQNaaS;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
@@ -17,7 +17,7 @@ public class MyTestApplication implements IApplication {
 	private IResourceManagement	resourceManagement;
 
 	@DependingOn
-	private IBindingManagement	bindingManagement;
+	private IServiceProvider	serviceProvider;
 
 	@DependingOn
 	private IExecutionService	executionService;
@@ -27,8 +27,8 @@ public class MyTestApplication implements IApplication {
 
 		MQNaaS mqNaaS = resourceManagement.getResource(MQNaaS.class);
 
-		IService observedService = bindingManagement.getService(mqNaaS, "resourceAdded");
-		IService notifiedService = bindingManagement.getService(mqNaaS, "printAvailableServices");
+		IService observedService = serviceProvider.getService(mqNaaS, "resourceAdded");
+		IService notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
 
 		executionService.execute(notifiedService, null);
 

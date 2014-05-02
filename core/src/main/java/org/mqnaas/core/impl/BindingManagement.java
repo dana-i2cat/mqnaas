@@ -12,6 +12,7 @@ import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
@@ -24,7 +25,7 @@ import org.osgi.framework.FrameworkUtil;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
-public class BindingManagement implements IBindingManagement {
+public class BindingManagement implements IBindingManagement, IServiceProvider {
 
 	// At the moment, this is the home of the MQNaaS resource
 	private MQNaaS						mqNaaS;
@@ -265,6 +266,7 @@ public class BindingManagement implements IBindingManagement {
 		System.out.println("------------------------------------------------------------------");
 	}
 
+	@Override
 	public void printAvailableServices() {
 
 		System.out.println("\nAVAILABLE SERVICES -----------------------------------------------");

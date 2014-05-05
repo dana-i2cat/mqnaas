@@ -2,6 +2,7 @@ package org.mqnaas.examples.testapp;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IExecutionService;
+import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
@@ -23,6 +24,9 @@ public class MyTestApplication implements IApplication {
 	@DependingOn
 	private IExecutionService	executionService;
 
+	@DependingOn
+	private IObservationService	observationService;
+
 	@Override
 	public void onDependenciesResolved() {
 
@@ -40,7 +44,7 @@ public class MyTestApplication implements IApplication {
 
 		executionService.execute(notifiedService, null);
 
-		executionService.registerObservation(new ServiceFilter(observedService), notifiedService);
+		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
 		resourceManagement.addResource(new JunosRouter());
 

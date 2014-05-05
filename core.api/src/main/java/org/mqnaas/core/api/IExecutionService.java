@@ -6,13 +6,7 @@ package org.mqnaas.core.api;
  * </p>
  * 
  * <p>
- * It offers two different types of services:
- * <ul>
- * <li><b>Execution services</b>: These services execute services transactionally considering security and concurrency. After successful service
- * execution, service observers are notified.</li>
- * <li><b>Observation services</b>: These services allow for the registration of services to observe the service execution.</li>
- * </ul>
- * 
+ * It offers the ability of executing services. It executes services transactionally considering security and concurrency.
  */
 public interface IExecutionService extends ICapability {
 
@@ -43,21 +37,5 @@ public interface IExecutionService extends ICapability {
 	 * @return The result of the service execution
 	 */
 	Object execute(IService service, Object[] parameters);
-
-	/**
-	 * <p>
-	 * Adds an observation: Whenever the given {@link IObservationFilter} applies, the given {@link IService} is executed.
-	 * </p>
-	 * <p>
-	 * Whenever a service is executed (see {@link #execute(IService, Object[])} for a detailed explanation), the final step is to notify services
-	 * observing other services. Which other services are observed by a service is defined by means of the {@link IObservationFilter} registered
-	 * together with the observing service.
-	 * 
-	 * @param filter
-	 *            The {@link IObservationFilter}, which determines which services are observed
-	 * @param service
-	 *            The {@link IService} to be executed if the filter applies
-	 */
-	void registerObservation(IObservationFilter filter, IService service);
 
 }

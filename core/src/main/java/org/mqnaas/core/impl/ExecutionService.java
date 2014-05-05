@@ -5,10 +5,11 @@ import java.util.Map;
 
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationFilter;
+import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 
-public class ExecutionService implements IExecutionService {
+public class ExecutionService implements IExecutionService, IObservationService {
 
 	// Holds the registered notification filters
 	private Map<IObservationFilter, IService>	observationFilters;

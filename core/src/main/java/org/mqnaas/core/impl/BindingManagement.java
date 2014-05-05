@@ -8,6 +8,7 @@ import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
+import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IResourceManagementListener;
@@ -71,6 +72,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private List<ApplicationInstance>	applications;
 
 	private IExecutionService			executionService;
+	private IObservationService			observationService;
 	private IResourceManagement			resourceManagement;
 	private IBindingDecider				bindingDecider;
 
@@ -95,7 +97,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// TODO resolve the instances implementing these interfaces using a internal resolving mechanism. they should be resolved before other
 		// dependencies resolution
 		resourceManagement = new ResourceManagement();
-		executionService = new ExecutionService();
+		ExecutionService executionServiceInstance = new ExecutionService();
+		executionService = executionServiceInstance;
+		observationService = executionServiceInstance;
 		bindingDecider = new BinderDecider();
 
 		// Do the first binds manually
@@ -106,8 +110,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		// Initialize the notifications necessary to track resources dynamically
 		try {
-			executionService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
-			executionService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
+			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
+			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
 		} catch (ServiceNotFoundException e) {
 			// FIXME use logger
 			System.out.println("Error registering observation!");

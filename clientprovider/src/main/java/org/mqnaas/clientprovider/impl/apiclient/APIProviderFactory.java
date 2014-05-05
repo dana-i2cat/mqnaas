@@ -13,12 +13,12 @@ import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.MQNaaS;
+import org.mqnaas.core.api.Specification;
 
 public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource instanceof MQNaaS;
+		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private static Set<Type>		VALID_API_PROVIDERS;

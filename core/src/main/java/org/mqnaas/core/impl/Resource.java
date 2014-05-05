@@ -5,7 +5,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
 import org.mqnaas.core.api.Specification;
 
-public class AbstractResource implements IRootResource {
+public class Resource implements IRootResource {
 
 	private ITransactionBehavior	transactionBehaviour	= new UnawareTransactionBehaviour();
 
@@ -13,7 +13,7 @@ public class AbstractResource implements IRootResource {
 
 	private Specification			specification;
 
-	protected AbstractResource(Specification specification) {
+	protected Resource(Specification specification) {
 		this.specification = specification;
 	}
 
@@ -43,9 +43,9 @@ public class AbstractResource implements IRootResource {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof AbstractResource))
+		if (!(obj instanceof Resource))
 			return false;
-		AbstractResource other = (AbstractResource) obj;
+		Resource other = (Resource) obj;
 		return getSpecification().equals(other.getSpecification());
 	}
 

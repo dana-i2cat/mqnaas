@@ -13,12 +13,12 @@ import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.MQNaaS;
+import org.mqnaas.core.api.Specification;
 
 public class ClientProviderFactory extends AbstractProviderFactory implements IClientProviderFactory {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource instanceof MQNaaS;
+		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private List<IInternalClientProvider<?, ?>>	internalClientProviders;

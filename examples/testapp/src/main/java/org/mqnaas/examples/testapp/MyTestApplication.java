@@ -6,6 +6,7 @@ import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.MQNaaS;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 import org.mqnaas.examples.junosrouter.JunosRouter;
@@ -27,8 +28,15 @@ public class MyTestApplication implements IApplication {
 
 		MQNaaS mqNaaS = resourceManagement.getResource(MQNaaS.class);
 
-		IService observedService = serviceProvider.getService(mqNaaS, "resourceAdded");
-		IService notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
+		IService observedService = null;
+		IService notifiedService = null;
+		try {
+			observedService = serviceProvider.getService(mqNaaS, "resourceAdded");
+			notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
+		} catch (ServiceNotFoundException e) {
+			// FIXME this should not happen
+			e.printStackTrace();
+		}
 
 		executionService.execute(notifiedService, null);
 

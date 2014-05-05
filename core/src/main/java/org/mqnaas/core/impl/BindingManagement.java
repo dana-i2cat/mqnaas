@@ -15,6 +15,7 @@ import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -104,8 +105,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
 
 		// Initialize the notifications necessary to track resources dynamically
-		executionService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
-		executionService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
+		try {
+			executionService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
+			executionService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
+		} catch (ServiceNotFoundException e) {
+			// FIXME use logger
+			System.out.println("Error registering observation!");
+			e.printStackTrace();
+		}
 
 		// There are two ways of adding bundles to the system, each of which will be handled
 		BundleContext context = getBundleContext();
@@ -153,7 +160,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public IService getService(IResource resource, String name) {
+	public IService getService(IResource resource, String name) throws ServiceNotFoundException {
 
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
@@ -161,7 +168,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			}
 		}
 
-		return null;
+		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
 	}
 
 	/**

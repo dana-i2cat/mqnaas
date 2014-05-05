@@ -10,10 +10,13 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IResourceManagement;
 import org.mqnaas.core.api.IResourceManagementListener;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
@@ -58,7 +61,7 @@ import com.google.common.collect.Multimap;
 public class BindingManagement implements IServiceProvider, IResourceManagementListener {
 
 	// At the moment, this is the home of the MQNaaS resource
-	private MQNaaS						mqNaaS;
+	// private MQNaaS mqNaaS;
 
 	// Manages the bundle dependency tree and the capabilities each bundle offers
 
@@ -73,14 +76,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	private IExecutionService			executionService;
 	private IObservationService			observationService;
-	private IResourceManagement			resourceManagement;
+	private IRootResourceManagement		resourceManagement;
 	private IBindingDecider				bindingDecider;
 
 	public BindingManagement() {
-
-		// Initialize the MQNaaS resource to be able to bind upcoming
-		// capability implementations to it...
-		mqNaaS = new MQNaaS();
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
 		applications = new ArrayList<ApplicationInstance>();
@@ -96,14 +95,19 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// The inner core services are instantiated directly...
 		// TODO resolve the instances implementing these interfaces using a internal resolving mechanism. they should be resolved before other
 		// dependencies resolution
-		resourceManagement = new ResourceManagement();
+		resourceManagement = new RootResourceManagement();
 		ExecutionService executionServiceInstance = new ExecutionService();
 		executionService = executionServiceInstance;
 		observationService = executionServiceInstance;
 		bindingDecider = new BinderDecider();
 
+		// Now activate the resource, the services get visible...
+		// Initialize the MQNaaS resource to be able to bind upcoming
+		// capability implementations to it...
+		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE));
+
 		// Do the first binds manually
-		bind(mqNaaS, new CapabilityInstance(ResourceManagement.class, resourceManagement));
+		bind(mqNaaS, new CapabilityInstance(RootResourceManagement.class, resourceManagement));
 		bind(mqNaaS, new CapabilityInstance(ExecutionService.class, executionService));
 		bind(mqNaaS, new CapabilityInstance(BinderDecider.class, bindingDecider));
 		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
@@ -135,9 +139,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			}
 
 		});
-
-		// Now activate the resource, the services get visible...
-		resourceManagement.addResource(mqNaaS);
 
 		// Way 2. If bundles are already active, add them now
 		for (Bundle bundle : context.getBundles()) {
@@ -247,7 +248,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			return;
 
 		// Establish matches
-		for (IResource resource : resourceManagement.getResources()) {
+		for (IResource resource : resourceManagement.getRootResources()) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
 
 				if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
@@ -343,7 +344,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		System.out.println("\nAVAILABLE SERVICES -----------------------------------------------");
 
-		for (IResource resource : resourceManagement.getResources()) {
+		for (IResource resource : resourceManagement.getRootResources()) {
 
 			System.out.println("Resource " + resource);
 

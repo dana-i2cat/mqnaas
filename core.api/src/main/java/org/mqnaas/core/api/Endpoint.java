@@ -1,4 +1,4 @@
-package org.mqnaas.core.client.other;
+package org.mqnaas.core.api;
 
 import java.net.URI;
 

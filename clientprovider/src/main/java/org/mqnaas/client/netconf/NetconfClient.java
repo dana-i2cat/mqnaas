@@ -1,7 +1,7 @@
 package org.mqnaas.client.netconf;
 
-import org.mqnaas.core.client.other.Credentials;
-import org.mqnaas.core.client.other.Endpoint;
+import org.mqnaas.core.api.Credentials;
+import org.mqnaas.core.api.Endpoint;
 
 public class NetconfClient {
 

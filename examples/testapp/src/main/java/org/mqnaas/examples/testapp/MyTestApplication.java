@@ -3,34 +3,34 @@ package org.mqnaas.examples.testapp;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
-import org.mqnaas.core.api.IResourceManagement;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
-import org.mqnaas.core.impl.MQNaaS;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
-import org.mqnaas.examples.junosrouter.JunosRouter;
-import org.mqnaas.examples.openerRouter.OpenerRouter;
 
 public class MyTestApplication implements IApplication {
 
 	@DependingOn
-	private IResourceManagement	resourceManagement;
+	private IRootResourceManagement	resourceManagement;
 
 	@DependingOn
-	private IServiceProvider	serviceProvider;
+	private IServiceProvider		serviceProvider;
 
 	@DependingOn
-	private IExecutionService	executionService;
+	private IExecutionService		executionService;
 
 	@DependingOn
-	private IObservationService	observationService;
+	private IObservationService		observationService;
 
 	@Override
 	public void onDependenciesResolved() {
 
-		MQNaaS mqNaaS = resourceManagement.getResource(MQNaaS.class);
+		IRootResource mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
 
 		IService observedService = null;
 		IService notifiedService = null;
@@ -46,15 +46,15 @@ public class MyTestApplication implements IApplication {
 
 		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
-		resourceManagement.addResource(new JunosRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 
-		resourceManagement.addResource(new OpenerRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
 
-		resourceManagement.addResource(new JunosRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 
-		resourceManagement.addResource(new OpenerRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
 
-		resourceManagement.addResource(new JunosRouter());
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 
 	}
 

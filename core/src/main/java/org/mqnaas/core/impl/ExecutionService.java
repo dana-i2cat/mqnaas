@@ -6,16 +6,17 @@ import java.util.Map;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationFilter;
 import org.mqnaas.core.api.IObservationService;
-import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.Specification;
 
 public class ExecutionService implements IExecutionService, IObservationService {
 
 	// Holds the registered notification filters
 	private Map<IObservationFilter, IService>	observationFilters;
 
-	public static boolean isSupporting(IResource resource) {
-		return resource instanceof MQNaaS;
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	public ExecutionService() {

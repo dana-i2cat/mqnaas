@@ -15,8 +15,8 @@ public class JunosInterfaceManagement extends AbstractInterfaceManagement {
 	public static boolean isSupporting(IRootResource resource) {
 		Specification specification = resource.getSpecification();
 
-		return specification.getType().equals(IRootResource.Type.ROUTER)
-				&& specification.getModel().equals(JunosRouter.MODEL);
+		return specification.getType().equals(Specification.Type.ROUTER)
+				&& specification.getModel().equals("Junos");
 	}
 
 }

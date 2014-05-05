@@ -8,11 +8,12 @@ import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification;
 
 public class BinderDecider implements IBindingDecider {
 
-	public static boolean isSupporting(IResource resource) {
-		return resource instanceof MQNaaS;
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private static final String	IS_SUPPORTING_METHOD_NAME	= "isSupporting";

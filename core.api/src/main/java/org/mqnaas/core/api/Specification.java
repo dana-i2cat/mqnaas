@@ -16,7 +16,7 @@ public class Specification {
 		/**
 		 * The platform core device
 		 */
-		CORE("OpenNaaS"),
+		CORE("MQNaaS"),
 		/**
 		 * A network
 		 */

@@ -5,11 +5,12 @@ import java.util.Map;
 
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationFilter;
+import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.Specification;
 
-public class ExecutionService implements IExecutionService {
+public class ExecutionService implements IExecutionService, IObservationService {
 
 	// Holds the registered notification filters
 	private Map<IObservationFilter, IService>	observationFilters;
@@ -31,7 +32,7 @@ public class ExecutionService implements IExecutionService {
 
 		// Transaction active?
 
-		Object result = service.execute(parameters);
+		Object result = ((IInternalService) service).execute(parameters);
 
 		// Observations?
 

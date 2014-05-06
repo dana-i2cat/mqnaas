@@ -41,7 +41,8 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.api,
-							org.mqnaas.core.api.annotations
+							org.mqnaas.core.api.annotations,
+							org.mqnaas.core.api.exceptions
 						</Export-Package>
 					</instructions>
 				</configuration>

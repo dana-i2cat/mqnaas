@@ -1,14 +1,16 @@
 package org.mqnaas.examples.testapp;
 
 import org.mqnaas.core.api.IApplication;
-import org.mqnaas.core.api.IBindingManagement;
 import org.mqnaas.core.api.IExecutionService;
+import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 
 public class MyTestApplication implements IApplication {
@@ -17,22 +19,32 @@ public class MyTestApplication implements IApplication {
 	private IRootResourceManagement	resourceManagement;
 
 	@DependingOn
-	private IBindingManagement		bindingManagement;
+	private IServiceProvider		serviceProvider;
 
 	@DependingOn
 	private IExecutionService		executionService;
+
+	@DependingOn
+	private IObservationService		observationService;
 
 	@Override
 	public void onDependenciesResolved() {
 
 		IRootResource mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
 
-		IService observedService = bindingManagement.getService(mqNaaS, "resourceAdded");
-		IService notifiedService = bindingManagement.getService(mqNaaS, "printAvailableServices");
+		IService observedService = null;
+		IService notifiedService = null;
+		try {
+			observedService = serviceProvider.getService(mqNaaS, "resourceAdded");
+			notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
+		} catch (ServiceNotFoundException e) {
+			// FIXME this should not happen
+			e.printStackTrace();
+		}
 
-		notifiedService.execute(null);
+		executionService.execute(notifiedService, null);
 
-		executionService.registerObservation(new ServiceFilter(observedService), notifiedService);
+		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
 		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
 

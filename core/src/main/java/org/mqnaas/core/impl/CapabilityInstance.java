@@ -105,12 +105,12 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 
 		Collection<Class<? extends ICapability>> capabilities = getCapabilities();
 
-		Map<Method, IService> proxyServices = new HashMap<Method, IService>();
+		Map<Method, IInternalService> proxyServices = new HashMap<Method, IInternalService>();
 
 		// 1. Create the services of the interfaces (backed by the instance)
 		for (Class<? extends ICapability> interfaze : capabilities) {
 			for (Method method : interfaze.getMethods()) {
-				Service service = new Service(resource, getInstance(), method);
+				IInternalService service = new Service(resource, new ServiceMetaData(method, getInstance()));
 
 				// Add the service to the proxy implementation to be able to do the relay
 				proxyServices.put(method, service);
@@ -119,13 +119,9 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 			}
 		}
 
-		// 2. Create a proxy for all the interfaces implemented by this
-		// capability to redirect all calls to the interfaces to the
-		// ExecutionService
-		proxy = (ICapability) Proxy.newProxyInstance(
-				capabilities.iterator().next().getClassLoader(),
-				capabilities.toArray(new Class[capabilities.size()]),
-				new ExecutionRelayingInvocationHandler(proxyServices));
+		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
+		proxy = (ICapability) Proxy.newProxyInstance(capabilities.iterator().next().getClassLoader(),
+				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
 
 		this.resource = resource;
 	}
@@ -175,17 +171,16 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 	 */
 	private class ExecutionRelayingInvocationHandler implements InvocationHandler {
 
-		private Map<Method, IService>	relays;
+		private Map<Method, IInternalService>	relays;
 
-		public ExecutionRelayingInvocationHandler(Map<Method, IService> relays) {
+		public ExecutionRelayingInvocationHandler(Map<Method, IInternalService> relays) {
 			this.relays = relays;
 		}
 
 		@Override
-		public Object invoke(Object proxy, Method method, Object[] args)
-				throws Throwable {
+		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-			IService service = relays.get(method);
+			IInternalService service = relays.get(method);
 
 			Object result;
 
@@ -194,7 +189,7 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 				// toString(), it will be invoked directly
 				result = method.invoke(getInstance(), args);
 			} else {
-				if (service.getName().equals("execute") && service.getCapabilityClass().equals(ExecutionService.class)) {
+				if (service.getMetadata().getName().equals("execute") && service.getMetadata().getCapabilityClass().equals(ExecutionService.class)) {
 					// This avoid looping infinitely through proxy calls... TODO add more details
 					result = service.execute(args);
 				} else {

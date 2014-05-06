@@ -22,7 +22,7 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 
 	@Override
 	public boolean observes(IService service, Object[] args) {
-		return service.hasAnnotation(classAnnotation);
+		return service.getMetadata().hasAnnotation(classAnnotation);
 	}
 
 	@Override

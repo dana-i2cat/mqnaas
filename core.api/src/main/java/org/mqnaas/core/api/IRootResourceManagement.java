@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 /**
  * <p>
@@ -67,6 +68,6 @@ public interface IRootResourceManagement extends ICapability {
 	/**
 	 * TODO This method a draft method. May not be part of the final API.
 	 */
-	IRootResource getRootResource(Specification specification);
+	IRootResource getRootResource(Specification specification) throws ResourceNotFoundException;
 
 }

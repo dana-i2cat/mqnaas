@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 
@@ -30,7 +31,16 @@ public class MyTestApplication implements IApplication {
 	@Override
 	public void onDependenciesResolved() {
 
-		IRootResource mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
+		IRootResource mqNaaS;
+		try {
+			mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
+		} catch (ResourceNotFoundException e1) {
+			// this should not happen
+			// FIXME use logger
+			System.out.println("No CORE resource found!");
+			e1.printStackTrace();
+			return;
+		}
 
 		IService observedService = null;
 		IService notifiedService = null;

@@ -8,6 +8,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceManagement {
 
@@ -28,13 +29,13 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
-	public IRootResource getRootResource(Specification specification) {
+	public IRootResource getRootResource(Specification specification) throws ResourceNotFoundException {
 		for (IRootResource resource : resources) {
 			if (specification.equals(resource.getSpecification()))
 				return resource;
 		}
 
-		return null;
+		throw new ResourceNotFoundException("No resource found with this specification: " + specification);
 	}
 
 	@Override

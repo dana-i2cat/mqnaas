@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.mqnaas.core.impl.bundletree;
+package org.mqnaas.bundletree.tree;
 
 import java.util.HashSet;
 import java.util.LinkedList;

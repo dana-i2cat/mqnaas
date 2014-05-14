@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.mqnaas.bundletree.BundleUtils;
 import org.mqnaas.core.api.ICapability;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;

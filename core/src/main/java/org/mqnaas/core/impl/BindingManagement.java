@@ -221,7 +221,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 */
 	@Override
 	public void resourceRemoved(IResource resource) {
-		// TODO add unbind logic
+
+		for (CapabilityInstance ci : getCapabilityInstancesBoundToResource(resource)) {
+			unbind(resource, ci);
+		}
+	}
+
+	private void capabilityInstanceRemoved(CapabilityInstance capabilityInstance) {
+		for (IResource resource : getResourcesProvidedByCapabilityInstance(capabilityInstance)) {
+			resourceRemoved(resource);
+		}
 	}
 
 	private void applicationsAdded(Collection<Class<? extends IApplication>> applicationClasses) {
@@ -263,7 +272,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// TODO add unbind logic
 	}
 
-	// TODO Add unbind logic and move
 	private void bind(IResource resource, CapabilityInstance capabilityInstance) {
 
 		// 0. Avoid double binds: Stupid way
@@ -281,7 +289,22 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		resolve(capabilityInstance);
 
 		// 3. Add the service to the capability to be able to return it when requested
-		addCapabilityInstanceToModel(capabilityInstance);
+		bindInModel(capabilityInstance, resource);
+	}
+
+	private void unbind(IResource resource, CapabilityInstance capabilityInstance) {
+
+		// 0. remove on cascade
+		capabilityInstanceRemoved(capabilityInstance);
+
+		// 1. update the model
+		unbindInModel(capabilityInstance, resource);
+
+		// 2. Unresolve the dependencies satisfied with given capabilityInstance
+		unresolve(capabilityInstance);
+
+		// 3. Unbind the representation to the resource
+		capabilityInstance.unbind();
 	}
 
 	private void resolve(ApplicationInstance newRepresentation) {
@@ -320,6 +343,28 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			}
 
 		}
+	}
+
+	private void unresolve(CapabilityInstance oldRepresentation) {
+
+		// a. Unresolve itself (dependencies will resolve (try to) if oldRepresentation is bound again)
+		oldRepresentation.unresolveAllDependencies();
+
+		// b. Unresolve those already registered that depend on the old one
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+			representation.unresolve(oldRepresentation);
+		}
+
+		for (ApplicationInstance representation : applications) {
+			representation.unresolve(oldRepresentation);
+		}
+
+		// c. try to resolve affected ones
+		// FIXME stupid way
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+			resolve(representation);
+		}
+
 	}
 
 	private BundleContext getBundleContext() {
@@ -372,8 +417,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		System.out.println("------------------------------------------------------------------");
 	}
 
-	private void addCapabilityInstanceToModel(CapabilityInstance capabilityInstance) {
+	private void bindInModel(CapabilityInstance capabilityInstance, IResource toBindTo) {
 		boundCapabilities.add(capabilityInstance);
+	}
+
+	private void unbindInModel(CapabilityInstance capabilityInstance, IResource boundTo) {
+		// TODO remove resources "provided" by given capabilityInstance
+
+		boundCapabilities.remove(capabilityInstance);
 	}
 
 	private Iterable<CapabilityInstance> getAllCapabilityInstances() {
@@ -391,13 +442,19 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	private List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
-		// FIXME use resource tree
+		// FIXME is it necessary to iterate over all capabilityInstances? use resource tree
 		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
 		for (CapabilityInstance ci : getAllCapabilityInstances()) {
 			if (ci.getResource().equals(resource))
 				bound.add(ci);
 		}
 		return bound;
+	}
+
+	private List<IResource> getResourcesProvidedByCapabilityInstance(CapabilityInstance capabilityInstance) {
+		// TODO Auto-generated method stub
+		// TODO Use the resource tree to implement this method
+		return new ArrayList<IResource>(0);
 	}
 
 }

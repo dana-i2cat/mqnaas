@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.mqnaas.core.api.ICapability;
@@ -121,11 +122,67 @@ public abstract class AbstractInstance<T> {
 	}
 
 	/**
+	 * Unresolves all dependencies that are being resolved with the given {@link CapabilityInstance}.
+	 */
+	public <D extends ICapability> void unresolve(CapabilityInstance potentialDependency) {
+
+		for (Class<? extends ICapability> capabilityClass : potentialDependency.getCapabilities()) {
+
+			if (resolvedDependencies.containsKey(capabilityClass)) {
+				Field field = resolvedDependencies.get(capabilityClass);
+
+				try {
+					// TODO Security implications?
+					field.setAccessible(true);
+					if (field.get(getInstance()) == potentialDependency.getProxy()) {
+						// dependency is being resolved with potentialDependency
+						field.set(getInstance(), null);
+						unresolve(capabilityClass);
+					}
+				} catch (IllegalArgumentException e) {
+					// ignore for now
+					e.printStackTrace();
+				} catch (IllegalAccessException e) {
+					// ignore for now
+					e.printStackTrace();
+				}
+			}
+
+		}
+
+	}
+
+	/**
+	 * Unresolves all currently resolved dependencies
+	 */
+	public <D extends ICapability> void unresolveAllDependencies() {
+		// Iterator-safe implementation for the following:
+		// for (Class<? extends ICapability> clazz : resolvedDependencies.keySet()){ unresolve(clazz); }
+		// Due to unresolve producing changes in the map that backs up the foreach iterator, commented code is not safe
+
+		for (Iterator<Class<? extends ICapability>> it = resolvedDependencies.keySet().iterator(); it.hasNext();) {
+			// unresolve(it.next())
+			Class<? extends ICapability> clazz = it.next();
+			Field field = resolvedDependencies.get(clazz);
+			it.remove();
+			pendingDependencies.put(clazz, field);
+		}
+	}
+
+	/**
 	 * Updates the internal dependency state.
 	 */
 	protected void resolve(Class<? extends ICapability> capabilityClass) {
 		Field field = pendingDependencies.remove(capabilityClass);
 		resolvedDependencies.put(capabilityClass, field);
+	}
+
+	/**
+	 * Updates the internal dependency state.
+	 */
+	protected void unresolve(Class<? extends ICapability> capabilityClass) {
+		Field field = resolvedDependencies.remove(capabilityClass);
+		pendingDependencies.put(capabilityClass, field);
 	}
 
 	/**

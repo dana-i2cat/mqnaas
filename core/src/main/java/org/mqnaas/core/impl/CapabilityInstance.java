@@ -101,6 +101,17 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 		}
 	}
 
+	@Override
+	public <D extends ICapability> void unresolve(CapabilityInstance dependency) {
+		super.unresolve(dependency);
+
+		if (dependency.getCapabilities().contains(IExecutionService.class)) {
+			if (executionService == dependency.getInstance()) {
+				executionService = null;
+			}
+		}
+	}
+
 	public void bind(IResource resource) {
 
 		Collection<Class<? extends ICapability>> capabilities = getCapabilities();
@@ -124,6 +135,20 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
 
 		this.resource = resource;
+	}
+
+	public void unbind() {
+
+		// 1. Clear the services of the interfaces
+		services.clear();
+
+		// 2. Clear proxy
+		proxy = null;
+
+		// 3. Clear the instance
+		instance = null;
+
+		this.resource = null;
 	}
 
 	public Multimap<Class<? extends ICapability>, IService> getServices() {

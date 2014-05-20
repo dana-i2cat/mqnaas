@@ -27,7 +27,9 @@ import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.FrameworkUtil;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 /**
@@ -155,10 +157,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		Multimap<Class<? extends ICapability>, IService> services = ArrayListMultimap.create();
 
-		for (CapabilityInstance representation : boundCapabilities) {
-			if (representation.getResource().equals(resource) && representation.isResolved()) {
-				services.putAll(representation.getServices());
-			}
+		for (CapabilityInstance representation : filterResolved(getCapabilityInstancesBoundToResource(resource))) {
+			services.putAll(representation.getServices());
 		}
 
 		return services;
@@ -267,12 +267,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private void bind(IResource resource, CapabilityInstance capabilityInstance) {
 
 		// 0. Avoid double binds: Stupid way
-		for (CapabilityInstance boundCapabilityInstance : boundCapabilities) {
+		for (CapabilityInstance boundCapabilityInstance : getCapabilityInstancesBoundToResource(resource)) {
 			if (capabilityInstance.getClazz().equals(boundCapabilityInstance.getClazz())) {
-				if (boundCapabilityInstance.getResource().equals(resource)) {
-					System.out.println("ALREADY BOUND: " + resource + ", " + capabilityInstance);
-					return;
-				}
+				System.out.println("ALREADY BOUND: " + resource + ", " + capabilityInstance);
+				return;
 			}
 		}
 
@@ -283,12 +281,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		resolve(capabilityInstance);
 
 		// 3. Add the service to the capability to be able to return it when requested
-		boundCapabilities.add(capabilityInstance);
+		addCapabilityInstanceToModel(capabilityInstance);
 	}
 
 	private void resolve(ApplicationInstance newRepresentation) {
 		// Resolve capability dependencies
-		for (CapabilityInstance representation : boundCapabilities) {
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
 
 			// b. Resolve the currently added one with those already registered
 			if (!newRepresentation.isResolved()) {
@@ -299,7 +297,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	private void resolve(CapabilityInstance newRepresentation) {
 		// Resolve capability dependencies
-		for (CapabilityInstance representation : boundCapabilities) {
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
 
 			// a. Resolve those already registered that depend on the currently added one
 			if (!representation.isResolved()) {
@@ -348,10 +346,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			System.out.println("Resource " + resource);
 
-			for (CapabilityInstance representation : boundCapabilities) {
-
-				if (!representation.getResource().equals(resource))
-					continue;
+			for (CapabilityInstance representation : getCapabilityInstancesBoundToResource(resource)) {
 
 				System.out.println(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
 						.getPendingClasses() + "]");
@@ -375,6 +370,34 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		}
 
 		System.out.println("------------------------------------------------------------------");
+	}
+
+	private void addCapabilityInstanceToModel(CapabilityInstance capabilityInstance) {
+		boundCapabilities.add(capabilityInstance);
+	}
+
+	private Iterable<CapabilityInstance> getAllCapabilityInstances() {
+		return boundCapabilities;
+	}
+
+	private Iterable<CapabilityInstance> filterResolved(Iterable<CapabilityInstance> toFilter) {
+		Predicate<CapabilityInstance> isResolved = new Predicate<CapabilityInstance>() {
+			@Override
+			public boolean apply(CapabilityInstance ci) {
+				return ci.isResolved();
+			}
+		};
+		return Iterables.filter(toFilter, isResolved);
+	}
+
+	private List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
+		// FIXME use resource tree
+		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
+		for (CapabilityInstance ci : getAllCapabilityInstances()) {
+			if (ci.getResource().equals(resource))
+				bound.add(ci);
+		}
+		return bound;
 	}
 
 }

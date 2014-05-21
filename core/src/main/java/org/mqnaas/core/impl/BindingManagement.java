@@ -76,10 +76,11 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	private List<ApplicationInstance>	applications;
 
-	private IExecutionService			executionService;
-	private IObservationService			observationService;
-	private IRootResourceManagement		resourceManagement;
-	private IBindingDecider				bindingDecider;
+	// Injected core services
+	IExecutionService					executionService;
+	IObservationService					observationService;
+	IRootResourceManagement				resourceManagement;
+	IBindingDecider						bindingDecider;
 
 	public BindingManagement() {
 
@@ -94,14 +95,13 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// tracked
 		applicationManagement = new ApplicationManagement();
 
-		// The inner core services are instantiated directly...
-		// TODO resolve the instances implementing these interfaces using a internal resolving mechanism. they should be resolved before other
-		// dependencies resolution
-		resourceManagement = new RootResourceManagement();
-		ExecutionService executionServiceInstance = new ExecutionService();
-		executionService = executionServiceInstance;
-		observationService = executionServiceInstance;
-		bindingDecider = new BinderDecider();
+	}
+
+	public void init() throws Exception {
+
+		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null) {
+			throw new Exception("Failed to initialize. Required services not set.");
+		}
 
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming

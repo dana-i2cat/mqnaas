@@ -50,7 +50,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.mqnaas.core.Activator</Bundle-Activator>
+						<Bundle-Activator>org.mqnaas.core.impl.Activator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,

@@ -2,7 +2,9 @@ package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
@@ -21,11 +23,6 @@ import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.FrameworkUtil;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
@@ -65,35 +62,29 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
 
-	// Manages the bundle dependency tree and the capabilities each bundle offers
-
-	private CapabilityManagement		capabilityManagement;
-
-	private ApplicationManagement		applicationManagement;
-
 	// Holds the capabilities bound to the given resource
-	private List<CapabilityInstance>	boundCapabilities;
+	private List<CapabilityInstance>			boundCapabilities;
 
-	private List<ApplicationInstance>	applications;
+	private List<ApplicationInstance>			applications;
 
 	// Injected core services
-	IExecutionService					executionService;
-	IObservationService					observationService;
-	IRootResourceManagement				resourceManagement;
-	IBindingDecider						bindingDecider;
+	IExecutionService							executionService;
+	IObservationService							observationService;
+	IRootResourceManagement						resourceManagement;
+	IBindingDecider								bindingDecider;
+
+	// Holds known capability implementations that will be checked for compatibility with resources in the system.
+	private Set<Class<? extends ICapability>>	knownCapabilities;
+	// Holds known application implementations
+	private Set<Class<? extends IApplication>>	knownApplications;
 
 	public BindingManagement() {
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
 		applications = new ArrayList<ApplicationInstance>();
 
-		// Initialize the capability management, which is used to track
-		// capability implementations whenever bundles change...
-		capabilityManagement = new CapabilityManagement();
-
-		// ...and the application management, where deployed applications are
-		// tracked
-		applicationManagement = new ApplicationManagement();
+		knownCapabilities = new HashSet<Class<? extends ICapability>>();
+		knownApplications = new HashSet<Class<? extends IApplication>>();
 
 	}
 
@@ -122,32 +113,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			// FIXME use logger
 			System.out.println("Error registering observation!");
 			e.printStackTrace();
-		}
-
-		// There are two ways of adding bundles to the system, each of which will be handled
-		BundleContext context = getBundleContext();
-
-		// Way 1. If bundles are added or removed at runtime, the following
-		// listener reacts (adding the hook before scanning the already loaded
-		// ones to make sure we don't miss any).
-		context.addBundleListener(new BundleListener() {
-
-			@Override
-			public void bundleChanged(BundleEvent event) {
-				if (event.getType() == BundleEvent.STARTED) {
-					capabilitiesAdded(capabilityManagement.addBundle(event.getBundle()));
-					applicationsAdded(applicationManagement.addBundle(event.getBundle()));
-				}
-			}
-
-		});
-
-		// Way 2. If bundles are already active, add them now
-		for (Bundle bundle : context.getBundles()) {
-			if (bundle.getState() == Bundle.ACTIVE) {
-				capabilitiesAdded(capabilityManagement.addBundle(bundle));
-				applicationsAdded(applicationManagement.addBundle(bundle));
-			}
 		}
 
 	}
@@ -196,7 +161,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void resourceAdded(IResource resource) {
 		// Establish matches
-		for (Class<? extends ICapability> capabilityClass : capabilityManagement.getAllCapabilityClasses()) {
+		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
 			if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
 				bind(resource, new CapabilityInstance(capabilityClass));
 			}
@@ -233,9 +198,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		}
 	}
 
-	private void applicationsAdded(Collection<Class<? extends IApplication>> applicationClasses) {
+	/**
+	 * Package-protected callback: Called when application implementations (classes) are available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void applicationsAdded(Collection<Class<? extends IApplication>> applicationClasses) {
 		if (applicationClasses.isEmpty())
 			return;
+
+		knownApplications.addAll(applicationClasses);
 
 		for (Class<? extends IApplication> applicationClass : applicationClasses) {
 			ApplicationInstance application = new ApplicationInstance(applicationClass);
@@ -252,9 +224,32 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		printAvailableApplications();
 	}
 
-	private void capabilitiesAdded(Collection<Class<? extends ICapability>> capabilityClasses) {
+	/**
+	 * Package-protected callback: Called when application implementations (classes) are no longer available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void applicationsRemoved(Collection<Class<? extends IApplication>> applicationClasses) {
+		if (applicationClasses.isEmpty())
+			return;
+
+		knownApplications.removeAll(applicationClasses);
+
+		// TODO add unbind logic (remove ApplicationInstances using removed classes)
+
+		printAvailableApplications();
+	}
+
+	/**
+	 * Package-protected callback: Called when new capability implementations (classes) are available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void capabilitiesAdded(Collection<Class<? extends ICapability>> capabilityClasses) {
 		if (capabilityClasses.isEmpty())
 			return;
+
+		knownCapabilities.addAll(capabilityClasses);
 
 		// Establish matches
 		for (IResource resource : resourceManagement.getRootResources()) {
@@ -267,8 +262,17 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void capabilitiesRemoved(Collection<Class<? extends ICapability>> capabilityClasses) {
+	/**
+	 * Package-protected callback: Called when capability implementations (classes) are no longer available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void capabilitiesRemoved(Collection<Class<? extends ICapability>> capabilityClasses) {
+		if (capabilityClasses.isEmpty())
+			return;
+
+		knownCapabilities.removeAll(capabilityClasses);
+
 		// TODO add unbind logic
 	}
 
@@ -365,10 +369,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			resolve(representation);
 		}
 
-	}
-
-	private BundleContext getBundleContext() {
-		return FrameworkUtil.getBundle(getClass()).getBundleContext();
 	}
 
 	public void printAvailableApplications() {

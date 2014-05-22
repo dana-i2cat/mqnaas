@@ -1,0 +1,74 @@
+package org.mqnaas.core.impl.resourcetree;
+
+import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.impl.CapabilityInstance;
+
+public class ResourceCapabilityTreeController {
+
+	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent) {
+		if (parent == null)
+			return new ResourceNode(resource);
+
+		ResourceNode toAdd = new ResourceNode(resource);
+		return addResourceNode(toAdd, parent);
+	}
+
+	public static CapabilityNode createCapabilityNode(CapabilityInstance ci, ResourceNode parent) {
+		if (parent == null)
+			return new CapabilityNode(ci);
+
+		CapabilityNode toAdd = new CapabilityNode(ci);
+		return addCapabilityNode(toAdd, parent);
+	}
+
+	public static ResourceNode addResourceNode(ResourceNode toAdd, CapabilityNode parent) {
+		parent.getChildren().add(toAdd);
+		toAdd.setParent(parent);
+		return toAdd;
+	}
+
+	public static ResourceNode removeResourceNode(ResourceNode toRemove) {
+		if (toRemove.getParent() != null)
+			toRemove.getParent().getChildren().remove(toRemove);
+		toRemove.setParent(null);
+		return toRemove;
+	}
+
+	public static CapabilityNode addCapabilityNode(CapabilityNode toAdd, ResourceNode parent) {
+		parent.getChildren().add(toAdd);
+		toAdd.setParent(parent);
+		return toAdd;
+	}
+
+	public static CapabilityNode removeCapabilityNode(CapabilityNode toRemove) {
+		if (toRemove.getParent() != null)
+			toRemove.getParent().getChildren().remove(toRemove);
+		toRemove.setParent(null);
+		return toRemove;
+	}
+
+	public static CapabilityNode getChidrenWithContent(ResourceNode parent, CapabilityInstance content) {
+		for (CapabilityNode child : parent.getChildren()) {
+			if (child.getContent().equals(content))
+				return child;
+		}
+		return null;
+	}
+
+	public static ResourceNode getChidrenWithContent(CapabilityNode parent, IResource content) {
+		for (ResourceNode child : parent.getChildren()) {
+			if (child.getContent().equals(content))
+				return child;
+		}
+		return null;
+	}
+
+	public static boolean isBound(Class<? extends ICapability> capabilityClass, ResourceNode resourceNode) {
+		for (CapabilityNode capabilityNode : resourceNode.getChildren()) {
+			if (capabilityNode.getContent().getClazz().equals(capabilityClass))
+				return true;
+		}
+		return false;
+	}
+}

@@ -71,4 +71,32 @@ public class ResourceCapabilityTreeController {
 		}
 		return false;
 	}
+
+	/**
+	 * Looks for a CapabilityNode with given content in the hierarchy starting at startFrom ResourceNode.
+	 * 
+	 * @param startFrom
+	 * @param content
+	 * @return CapabilityNode with given content in the hierarchy starting at startFrom ResourceNode, null if there is no such capability node in this
+	 *         hierarchy.
+	 */
+	public static CapabilityNode getCapabilityNodeWithContent(ResourceNode startFrom, CapabilityInstance content) {
+
+		// search in startFrom node
+		CapabilityNode found = getChidrenWithContent(startFrom, content);
+		if (found != null)
+			return found;
+
+		// recursively search in children resources
+		for (CapabilityNode capability : startFrom.getChildren()) {
+			for (ResourceNode child : capability.getChildren()) {
+				found = getCapabilityNodeWithContent(child, content);
+				if (found != null)
+					return found;
+			}
+		}
+
+		// if not found in startFrom capabilities nor in children resources capabilities (if any)
+		return null;
+	}
 }

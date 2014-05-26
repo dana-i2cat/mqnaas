@@ -1,5 +1,8 @@
 package org.mqnaas.core.impl.resourcetree;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.impl.CapabilityInstance;
@@ -98,5 +101,47 @@ public class ResourceCapabilityTreeController {
 
 		// if not found in startFrom capabilities nor in children resources capabilities (if any)
 		return null;
+	}
+
+	/**
+	 * Looks for ResourceNodes in the hierarchy starting at startFrom ResourceNode.
+	 * 
+	 * @param startFrom
+	 * @return
+	 */
+	public static List<ResourceNode> getAllResourceNodes(ResourceNode startFrom) {
+
+		List<ResourceNode> resources = new LinkedList<ResourceNode>();
+		resources.add(startFrom);
+
+		// recursively search in children resources
+		for (CapabilityNode capability : startFrom.getChildren()) {
+			for (ResourceNode child : capability.getChildren()) {
+				resources.addAll(getAllResourceNodes(child));
+			}
+		}
+
+		return resources;
+	}
+
+	/**
+	 * Looks for CapabilityNodes in the hierarchy starting at startFrom ResourceNode.
+	 * 
+	 * @param startFrom
+	 * @return
+	 */
+	public static List<CapabilityNode> getAllCapabilityNodes(ResourceNode startFrom) {
+
+		List<CapabilityNode> capabilities = new LinkedList<CapabilityNode>();
+		capabilities.addAll(startFrom.getChildren());
+
+		// recursively search in children resources
+		for (CapabilityNode capability : startFrom.getChildren()) {
+			for (ResourceNode child : capability.getChildren()) {
+				capabilities.addAll(getAllCapabilityNodes(child));
+			}
+		}
+
+		return capabilities;
 	}
 }

@@ -12,7 +12,6 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
@@ -23,7 +22,6 @@ import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
-import org.mqnaas.core.impl.exceptions.ApplicationInstanceNotFoundException;
 import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -64,7 +62,7 @@ import com.google.common.collect.Multimap;
  * {@link #resourceAdded(IResource)} and {@link #resourceRemoved(IResource)}.
  * </p>
  */
-public class BindingManagement implements IServiceProvider, IResourceManagementListener, IBindingManagement, IBindingManagementEventListener {
+public class BindingManagement implements IServiceProvider, IInternalResourceManagementListener, IBindingManagement, IBindingManagementEventListener {
 
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
@@ -97,6 +95,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	}
 
+	/**
+	 * TODO Register the service resourceAdded {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)} with 2 params
+	 */
 	public void init() throws Exception {
 
 		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null) {
@@ -118,21 +119,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		CapabilityInstance binderDeciderCI = new CapabilityInstance(BinderDecider.class, bindingDecider);
 		CapabilityInstance bindingManagementCI = new CapabilityInstance(BindingManagement.class, this);
 
-		// TODO remove
-		// Do the first binds manually
-		bind(mqNaaS, resourceManagementCI);
-		bind(mqNaaS, executionServiceCI);
-		bind(mqNaaS, binderDeciderCI);
-		bind(mqNaaS, bindingManagementCI);
-
 		// Do the first binds manually
 		bind(new CapabilityNode(resourceManagementCI), mqNaaSNode);
 		bind(new CapabilityNode(executionServiceCI), mqNaaSNode);
 		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
-		// TODO Register the service resourceAdded with 2 params
-		// TODO Register the service resourceRemoved with 2 params
+		// TODO Register the service {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)}
+		// TODO Register the service {@link IInternalResourceManagementListener#resourceRemoved(IResource, CapabilityInstance)}
 		// Initialize the notifications necessary to track resources dynamically
 		try {
 			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
@@ -143,6 +137,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			e.printStackTrace();
 		}
 
+	}
+
+	ResourceCapabilityTree getResourceCapabilityTree() {
+		return tree;
 	}
 
 	// ///////////////////////////////////////
@@ -164,6 +162,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public IService getService(IResource resource, String name) throws ServiceNotFoundException {
 
+		// FIXME: There may be several services with same name in a resource!
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
 				return service;
@@ -174,7 +173,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	// //////////////////////////////////////////////////
-	// {@link IResourceManagementListener} implementation
+	// {@link IInternalResourceManagementListener} implementation
 	// //////////////////////////////////////////////////
 
 	/**
@@ -193,14 +192,19 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 * 
 	 * @param resource
 	 *            The resource added to the platform
+	 * @param addedTo
 	 */
 	@Override
-	public void resourceAdded(IResource resource) {
-		// Establish matches
-		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
-			if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
-				bind(resource, new CapabilityInstance(capabilityClass));
-			}
+	public void resourceAdded(IResource added, CapabilityInstance managedBy) {
+
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
+
+			addResource(new ResourceNode(added), parent);
+		} catch (CapabilityInstanceNotFoundException e) {
+			System.err.println(e);
 		}
 	}
 
@@ -219,36 +223,25 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 * 
 	 * @param resource
 	 *            The resource removed from the platform
+	 * @param removedFrom
 	 */
 	@Override
-	public void resourceRemoved(IResource resource) {
+	public void resourceRemoved(IResource removed, CapabilityInstance managedBy) {
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
 
-		for (CapabilityInstance ci : getCapabilityInstancesBoundToResource(resource)) {
-			unbind(resource, ci);
+			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, removed);
+			if (toRemove == null)
+				throw new ResourceNotFoundException("Resource is not provided by given capability instance");
+
+			removeResource(toRemove, parent);
+		} catch (CapabilityInstanceNotFoundException e) {
+			System.err.println(e);
+		} catch (ResourceNotFoundException e) {
+			System.err.println(e);
 		}
-	}
-
-	public void resourceAdded(IResource added, CapabilityInstance managedBy) throws CapabilityInstanceNotFoundException {
-
-		CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
-		if (parent == null)
-			throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
-
-		addResource(new ResourceNode(added), parent);
-	}
-
-	public void resourceRemoved(IResource removed, CapabilityInstance managedBy) throws CapabilityInstanceNotFoundException,
-			ResourceNotFoundException {
-
-		CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
-		if (parent == null)
-			throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
-
-		ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, removed);
-		if (toRemove == null)
-			throw new ResourceNotFoundException("Resource is not provided by given capability instance");
-
-		removeResource(toRemove, parent);
 	}
 
 	// /////////////////////////////////////////////////
@@ -348,6 +341,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		toBind.getContent().bind(toBindTo.getContent());
 
 		// 2. Update the model
+		boundCapabilities.add(toBind.getContent());
 		ResourceCapabilityTreeController.addCapabilityNode(toBind, toBindTo);
 
 		// 3. Announce this class about the binding
@@ -373,6 +367,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		// 2. Update the model
 		ResourceCapabilityTreeController.removeCapabilityNode(toUnbind);
+		boundCapabilities.remove(toUnbind.getContent());
 
 		// 3. Announce this class about the unbinding
 		// (it will unresolve the unbound capabilityInstance)
@@ -391,12 +386,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void removeApplicationInstance(ApplicationInstance applicationInstance) throws ApplicationInstanceNotFoundException {
-
-		if (!applications.remove(applicationInstance))
-			throw new ApplicationInstanceNotFoundException(applicationInstance);
-
-		applicationInstanceRemoved(applicationInstance);
+	public void removeApplicationInstance(ApplicationInstance applicationInstance) {
+		if (applications.remove(applicationInstance))
+			applicationInstanceRemoved(applicationInstance);
 	}
 
 	// ///////////////////////////
@@ -417,13 +409,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		for (Class<? extends IApplication> applicationClass : applicationClasses) {
 			ApplicationInstance application = new ApplicationInstance(applicationClass);
 
-			resolve(application);
-
-			applications.add(application);
-
-			if (application.isResolved()) {
-				application.getInstance().onDependenciesResolved();
-			}
+			addApplicationInstance(application);
 		}
 
 		printAvailableApplications();
@@ -440,7 +426,11 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		knownApplications.removeAll(applicationClasses);
 
-		// TODO add unbind logic (remove ApplicationInstances using removed classes)
+		// remove ApplicationInstances using removed classes
+		for (ApplicationInstance application : applications) {
+			if (applicationClasses.contains(application.getClazz()))
+				removeApplicationInstance(application);
+		}
 
 		printAvailableApplications();
 	}
@@ -457,11 +447,11 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		knownCapabilities.addAll(capabilityClasses);
 
 		// Establish matches
-		for (IResource resource : resourceManagement.getRootResources()) {
+		for (ResourceNode resourceNode : ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode())) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
-
-				if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
-					bind(resource, new CapabilityInstance(capabilityClass));
+				if (bindingDecider.shouldBeBound(resourceNode.getContent(), capabilityClass)) {
+					if (!ResourceCapabilityTreeController.isBound(capabilityClass, resourceNode))
+						bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
 				}
 			}
 		}
@@ -478,53 +468,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		knownCapabilities.removeAll(capabilityClasses);
 
-		// TODO add unbind logic
+		// unbind logic
+		for (CapabilityNode capabilityNode : ResourceCapabilityTreeController.getAllCapabilityNodes(tree.getRootResourceNode())) {
+			if (capabilityClasses.contains(capabilityNode.getContent().getClazz())) {
+				unbind(capabilityNode, capabilityNode.getParent());
+			}
+		}
+
 	}
 
 	// ///////////////
 	// private methods
 	// ///////////////
-
-	private void capabilityInstanceRemoved(CapabilityInstance capabilityInstance) {
-		for (IResource resource : getResourcesProvidedByCapabilityInstance(capabilityInstance)) {
-			resourceRemoved(resource);
-		}
-	}
-
-	private void bind(IResource resource, CapabilityInstance capabilityInstance) {
-
-		// 0. Avoid double binds: Stupid way
-		for (CapabilityInstance boundCapabilityInstance : getCapabilityInstancesBoundToResource(resource)) {
-			if (capabilityInstance.getClazz().equals(boundCapabilityInstance.getClazz())) {
-				System.out.println("ALREADY BOUND: " + resource + ", " + capabilityInstance);
-				return;
-			}
-		}
-
-		// 1. Bind the representation to the resource
-		capabilityInstance.bind(resource);
-
-		// 2. Resolve the dependencies using the newly bound capability
-		resolve(capabilityInstance);
-
-		// 3. Add the service to the capability to be able to return it when requested
-		bindInModel(capabilityInstance, resource);
-	}
-
-	private void unbind(IResource resource, CapabilityInstance capabilityInstance) {
-
-		// 0. remove on cascade
-		capabilityInstanceRemoved(capabilityInstance);
-
-		// 1. update the model
-		unbindInModel(capabilityInstance, resource);
-
-		// 2. Unresolve the dependencies satisfied with given capabilityInstance
-		unresolve(capabilityInstance);
-
-		// 3. Unbind the representation to the resource
-		capabilityInstance.unbind();
-	}
 
 	private void resolve(ApplicationInstance newRepresentation) {
 		// Resolve capability dependencies
@@ -536,7 +491,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			// b. Resolve the currently added one with those already registered
 			if (!newRepresentation.isResolved()) {
 				newRepresentation.resolve(representation);
+
 			}
+		}
+
+		if (newRepresentation.isResolved()) {
+			newRepresentation.getInstance().onDependenciesResolved();
 		}
 	}
 
@@ -563,7 +523,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 					representation.getInstance().onDependenciesResolved();
 				}
 			}
-
 		}
 	}
 
@@ -598,18 +557,17 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// No dependency on ApplicationInstances is allowed by now
 	}
 
-	private void bindInModel(CapabilityInstance capabilityInstance, IResource toBindTo) {
-		boundCapabilities.add(capabilityInstance);
-	}
-
-	private void unbindInModel(CapabilityInstance capabilityInstance, IResource boundTo) {
-		// TODO remove resources "provided" by given capabilityInstance
-
-		boundCapabilities.remove(capabilityInstance);
-	}
-
-	private Iterable<CapabilityInstance> getAllCapabilityInstances() {
+	List<CapabilityInstance> getAllCapabilityInstances() {
 		return boundCapabilities;
+	}
+
+	List<IResource> getAllResources() {
+		List<ResourceNode> allResourceNodes = ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode());
+		List<IResource> allResources = new ArrayList<IResource>(allResourceNodes.size());
+		for (ResourceNode node : allResourceNodes) {
+			allResources.add(node.getContent());
+		}
+		return allResources;
 	}
 
 	private Iterable<CapabilityInstance> filterResolved(Iterable<CapabilityInstance> toFilter) {
@@ -622,7 +580,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		return Iterables.filter(toFilter, isResolved);
 	}
 
-	private List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
+	List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
 		// FIXME is it necessary to iterate over all capabilityInstances? use resource tree
 		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
 		for (CapabilityInstance ci : getAllCapabilityInstances()) {
@@ -632,10 +590,17 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		return bound;
 	}
 
-	private List<IResource> getResourcesProvidedByCapabilityInstance(CapabilityInstance capabilityInstance) {
-		// TODO Auto-generated method stub
-		// TODO Use the resource tree to implement this method
-		return new ArrayList<IResource>(0);
+	List<IResource> getResourcesProvidedByCapabilityInstance(CapabilityInstance capabilityInstance) {
+
+		CapabilityNode capab = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), capabilityInstance);
+		if (capab == null)
+			return new ArrayList<IResource>(0);
+
+		List<IResource> resources = new ArrayList<IResource>(capab.getChildren().size());
+		for (ResourceNode resourceNode : capab.getChildren()) {
+			resources.add(resourceNode.getContent());
+		}
+		return resources;
 	}
 
 	// ////////////////

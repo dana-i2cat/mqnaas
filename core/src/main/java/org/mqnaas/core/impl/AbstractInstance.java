@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -159,13 +159,9 @@ public abstract class AbstractInstance<T> {
 		// Iterator-safe implementation for the following:
 		// for (Class<? extends ICapability> clazz : resolvedDependencies.keySet()){ unresolve(clazz); }
 		// Due to unresolve producing changes in the map that backs up the foreach iterator, commented code is not safe
-
-		for (Iterator<Class<? extends ICapability>> it = resolvedDependencies.keySet().iterator(); it.hasNext();) {
-			// unresolve(it.next())
-			Class<? extends ICapability> clazz = it.next();
-			Field field = resolvedDependencies.get(clazz);
-			it.remove();
-			pendingDependencies.put(clazz, field);
+		Set<Class<? extends ICapability>> capabilityClasses = new HashSet<Class<? extends ICapability>>(resolvedDependencies.keySet());
+		for (Class<? extends ICapability> clazz : capabilityClasses) {
+			unresolve(clazz);
 		}
 	}
 

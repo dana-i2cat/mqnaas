@@ -85,4 +85,10 @@ public class ExecutionService implements IExecutionService, IObservationService 
 
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

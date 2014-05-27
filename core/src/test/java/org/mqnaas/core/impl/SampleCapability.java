@@ -37,4 +37,10 @@ public class SampleCapability implements ISampleCapability {
 		return true;
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

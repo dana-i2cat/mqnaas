@@ -712,4 +712,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		System.out.println("------------------------------------------------------------------");
 	}
+
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
 }

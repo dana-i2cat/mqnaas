@@ -29,7 +29,7 @@ import com.google.common.collect.Multimap;
  * Provides the {@link IService}s for each {@link ICapability} interface implemented by the represented capability class.
  * </p>
  */
-public class CapabilityInstance extends AbstractInstance<ICapability> {
+public class CapabilityInstance extends ApplicationInstance {
 
 	private IExecutionService									executionService;
 
@@ -129,7 +129,7 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 		// 1. Create the services of the interfaces (backed by the instance)
 		for (Class<? extends ICapability> interfaze : capabilities) {
 			for (Method method : interfaze.getMethods()) {
-				IInternalService service = new Service(resource, new ServiceMetaData(method, getInstance()));
+				IInternalService service = new Service(resource, new ServiceMetaData(method, (ICapability) getInstance()));
 
 				// Add the service to the proxy implementation to be able to do the relay
 				proxyServices.put(method, service);

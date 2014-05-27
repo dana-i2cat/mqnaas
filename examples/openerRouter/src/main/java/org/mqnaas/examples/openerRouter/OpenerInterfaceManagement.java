@@ -20,4 +20,10 @@ public class OpenerInterfaceManagement extends AbstractInterfaceManagement {
 				&& specification.getModel().equals("Opener");
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -38,6 +38,12 @@ public class BindingManagementTest {
 			public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
 				return true;
 			}
+
+			@Override
+			public void onDependenciesResolved() {
+				// TODO Auto-generated method stub
+
+			}
 		};
 
 		ExecutionService executionServiceInstance = new ExecutionService();

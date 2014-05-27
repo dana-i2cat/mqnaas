@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -533,17 +534,26 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		oldRepresentation.unresolveAllDependencies();
 
 		// b. Unresolve those already registered that depend on the old one
+		List<CapabilityInstance> affectedCapabilityInstances = new LinkedList<CapabilityInstance>();
 		for (CapabilityInstance representation : getAllCapabilityInstances()) {
-			representation.unresolve(oldRepresentation);
+			boolean affected = representation.unresolve(oldRepresentation);
+			if (affected)
+				affectedCapabilityInstances.add(representation);
 		}
 
+		List<ApplicationInstance> affectedApplicationInstances = new LinkedList<ApplicationInstance>();
 		for (ApplicationInstance representation : applications) {
-			representation.unresolve(oldRepresentation);
+			boolean affected = representation.unresolve(oldRepresentation);
+			if (affected)
+				affectedApplicationInstances.add(representation);
 		}
 
 		// c. try to resolve affected ones
-		// FIXME stupid way
-		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+		for (CapabilityInstance representation : affectedCapabilityInstances) {
+			resolve(representation);
+		}
+
+		for (ApplicationInstance representation : affectedApplicationInstances) {
 			resolve(representation);
 		}
 

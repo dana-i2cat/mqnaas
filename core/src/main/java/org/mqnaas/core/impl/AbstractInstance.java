@@ -93,9 +93,14 @@ public abstract class AbstractInstance<T> {
 
 	/**
 	 * Resolves all dependencies that can be satisfied by the given {@link CapabilityInstance}.
+	 * 
+	 * @param potentialDependency
+	 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was not
+	 *         before)
 	 */
-	public <D extends ICapability> void resolve(CapabilityInstance potentialDependency) {
+	public <D extends ICapability> boolean resolve(CapabilityInstance potentialDependency) {
 
+		boolean affected = false;
 		for (Class<? extends ICapability> capabilityClass : potentialDependency.getCapabilities()) {
 
 			if (pendingDependencies.containsKey(capabilityClass)) {
@@ -108,6 +113,7 @@ public abstract class AbstractInstance<T> {
 					field.set(getInstance(), potentialDependency.getProxy());
 
 					resolve(capabilityClass);
+					affected = true;
 				} catch (IllegalArgumentException e) {
 					// ignore for now
 					e.printStackTrace();
@@ -116,16 +122,20 @@ public abstract class AbstractInstance<T> {
 					e.printStackTrace();
 				}
 			}
-
 		}
-
+		return affected;
 	}
 
 	/**
 	 * Unresolves all dependencies that are being resolved with the given {@link CapabilityInstance}.
+	 * 
+	 * @param potentialDependency
+	 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the call
+	 *         is no longer)
 	 */
-	public <D extends ICapability> void unresolve(CapabilityInstance potentialDependency) {
+	public <D extends ICapability> boolean unresolve(CapabilityInstance potentialDependency) {
 
+		boolean affected = false;
 		for (Class<? extends ICapability> capabilityClass : potentialDependency.getCapabilities()) {
 
 			if (resolvedDependencies.containsKey(capabilityClass)) {
@@ -138,6 +148,7 @@ public abstract class AbstractInstance<T> {
 						// dependency is being resolved with potentialDependency
 						field.set(getInstance(), null);
 						unresolve(capabilityClass);
+						affected = true;
 					}
 				} catch (IllegalArgumentException e) {
 					// ignore for now
@@ -147,9 +158,8 @@ public abstract class AbstractInstance<T> {
 					e.printStackTrace();
 				}
 			}
-
 		}
-
+		return affected;
 	}
 
 	/**

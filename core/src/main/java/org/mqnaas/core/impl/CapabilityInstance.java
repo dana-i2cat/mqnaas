@@ -93,23 +93,31 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 	}
 
 	@Override
-	public <D extends ICapability> void resolve(CapabilityInstance dependency) {
-		super.resolve(dependency);
+	public <D extends ICapability> boolean resolve(CapabilityInstance dependency) {
+		boolean affected = super.resolve(dependency);
 
+		boolean execServiceAffected = false;
 		if (dependency.getCapabilities().contains(IExecutionService.class)) {
 			executionService = (IExecutionService) dependency.getInstance();
+			execServiceAffected = true;
 		}
+
+		return affected || execServiceAffected;
 	}
 
 	@Override
-	public <D extends ICapability> void unresolve(CapabilityInstance dependency) {
-		super.unresolve(dependency);
+	public <D extends ICapability> boolean unresolve(CapabilityInstance dependency) {
+		boolean affected = super.unresolve(dependency);
 
+		boolean execServiceAffected = false;
 		if (dependency.getCapabilities().contains(IExecutionService.class)) {
 			if (executionService == dependency.getInstance()) {
 				executionService = null;
+				execServiceAffected = true;
 			}
 		}
+
+		return affected || execServiceAffected;
 	}
 
 	public void bind(IResource resource) {

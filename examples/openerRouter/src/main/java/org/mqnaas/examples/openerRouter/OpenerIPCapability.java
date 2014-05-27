@@ -25,4 +25,10 @@ public class OpenerIPCapability implements IIPCapability {
 		System.out.println(getClass().getName() + " executing removeIP(" + iPProtocolEndpoint + ") on resource ?");
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -49,4 +49,10 @@ public class RootResourceManagement implements IRootResourceManagement {
 		resources.add(resource);
 		return resource;
 	}
+
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
 }

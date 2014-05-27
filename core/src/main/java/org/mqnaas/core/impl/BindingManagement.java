@@ -96,9 +96,6 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 
 	}
 
-	/**
-	 * TODO Register the service resourceAdded {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)} with 2 params
-	 */
 	public void init() throws Exception {
 
 		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null) {
@@ -126,12 +123,14 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
-		// TODO Register the service {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)}
-		// TODO Register the service {@link IInternalResourceManagementListener#resourceRemoved(IResource, CapabilityInstance)}
 		// Initialize the notifications necessary to track resources dynamically
+		// Register the service {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)}
+		// Register the service {@link IInternalResourceManagementListener#resourceRemoved(IResource, CapabilityInstance)}
 		try {
-			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
-			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
+			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class),
+					getService(mqNaaS, "resourceAdded", IResource.class, CapabilityInstance.class));
+			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
+					getService(mqNaaS, "resourceRemoved", IResource.class, CapabilityInstance.class));
 		} catch (ServiceNotFoundException e) {
 			// FIXME use logger
 			System.out.println("Error registering observation!");

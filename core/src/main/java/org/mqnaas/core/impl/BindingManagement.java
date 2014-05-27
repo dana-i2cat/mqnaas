@@ -595,6 +595,9 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
 
 		ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
+		if (resourceNode == null)
+			return new ArrayList<CapabilityInstance>(0);
+
 		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
 		for (CapabilityNode capabNode : resourceNode.getChildren()) {
 			bound.add(capabNode.getContent());

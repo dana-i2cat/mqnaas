@@ -55,13 +55,14 @@ import com.google.common.collect.Multimap;
  * </li>
  * <li><u>Manage the {@link IApplication}s available.</u> An <code>IApplication</code> is third party code requiring utilizing platform services to
  * provide its functionalities.</li>
- * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource)} and {@link #resourceRemoved(IResource)}) for details and
- * update the set of services available depending on available capability implementations and resources.</li>
+ * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource, CapabilityInstance)} and
+ * {@link #resourceRemoved(IResource, CapabilityInstance)}) for details and update the set of services available depending on available capability
+ * implementations and resources.</li>
  * </ol>
  * 
  * <p>
  * Some of these services are not available to the majority of platform users, but are reserved for the sole use of the core, e.g.
- * {@link #resourceAdded(IResource)} and {@link #resourceRemoved(IResource)}.
+ * {@link #resourceAdded(IResource, CapabilityInstance)} and {@link #resourceRemoved(IResource, CapabilityInstance)}.
  * </p>
  */
 public class BindingManagement implements IServiceProvider, IInternalResourceManagementListener, IBindingManagement, IBindingManagementEventListener {

@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.annotations.DependingOn;
 
 //TODO Redo the security and instantiation aspects
@@ -23,10 +23,12 @@ import org.mqnaas.core.api.annotations.DependingOn;
  * <li><b>instance</b>: which could be given when initializing</li>
  * <li><b>two types of dependencies</b>
  * <ol>
- * <li><i>pending</i>: the unresolved capability dependencies</li>
- * <li><i>resolved</i>: already resolved capability dependencies</li>
+ * <li><i>pending</i>: the unresolved application dependencies</li>
+ * <li><i>resolved</i>: already resolved application dependencies</li>
  * </ol>
  * </ul>
+ * 
+ * Dependencies are identified using {@link DependingOn} field annotation.
  * 
  */
 public abstract class AbstractInstance<T> {
@@ -35,16 +37,16 @@ public abstract class AbstractInstance<T> {
 
 	public T											instance;
 
-	private Map<Class<? extends ICapability>, Field>	pendingDependencies;
+	private Map<Class<? extends IApplication>, Field>	pendingDependencies;
 
-	private Map<Class<? extends ICapability>, Field>	resolvedDependencies;
+	private Map<Class<? extends IApplication>, Field>	resolvedDependencies;
 
 	public AbstractInstance(Class<? extends T> clazz) {
 		this.clazz = clazz;
 
 		pendingDependencies = getDependencies(clazz);
 
-		resolvedDependencies = new HashMap<Class<? extends ICapability>, Field>();
+		resolvedDependencies = new HashMap<Class<? extends IApplication>, Field>();
 	}
 
 	protected AbstractInstance(Class<? extends T> clazz, T instance) {
@@ -80,28 +82,28 @@ public abstract class AbstractInstance<T> {
 	/**
 	 * Returns the currently pending dependencies, e.g. the missing capability classes.
 	 */
-	public Collection<Class<? extends ICapability>> getPendingClasses() {
-		return new HashSet<Class<? extends ICapability>>(pendingDependencies.keySet());
+	public Collection<Class<? extends IApplication>> getPendingClasses() {
+		return new HashSet<Class<? extends IApplication>>(pendingDependencies.keySet());
 	}
 
 	/**
 	 * Returns the currently resolved dependencies, e.g. the already initialized capability classes.
 	 */
-	public Collection<Class<? extends ICapability>> getResolvedClasses() {
-		return new HashSet<Class<? extends ICapability>>(resolvedDependencies.keySet());
+	public Collection<Class<? extends IApplication>> getResolvedClasses() {
+		return new HashSet<Class<? extends IApplication>>(resolvedDependencies.keySet());
 	}
 
 	/**
-	 * Resolves all dependencies that can be satisfied by the given {@link CapabilityInstance}.
+	 * Resolves all dependencies that can be satisfied by the given {@link ApplicationInstance}.
 	 * 
 	 * @param potentialDependency
 	 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was not
 	 *         before)
 	 */
-	public <D extends ICapability> boolean resolve(CapabilityInstance potentialDependency) {
+	public <D extends IApplication> boolean resolve(ApplicationInstance potentialDependency) {
 
 		boolean affected = false;
-		for (Class<? extends ICapability> capabilityClass : potentialDependency.getCapabilities()) {
+		for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
 
 			if (pendingDependencies.containsKey(capabilityClass)) {
 				Field field = pendingDependencies.get(capabilityClass);
@@ -133,10 +135,10 @@ public abstract class AbstractInstance<T> {
 	 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the call
 	 *         is no longer)
 	 */
-	public <D extends ICapability> boolean unresolve(CapabilityInstance potentialDependency) {
+	public <D extends IApplication> boolean unresolve(ApplicationInstance potentialDependency) {
 
 		boolean affected = false;
-		for (Class<? extends ICapability> capabilityClass : potentialDependency.getCapabilities()) {
+		for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
 
 			if (resolvedDependencies.containsKey(capabilityClass)) {
 				Field field = resolvedDependencies.get(capabilityClass);
@@ -165,12 +167,12 @@ public abstract class AbstractInstance<T> {
 	/**
 	 * Unresolves all currently resolved dependencies
 	 */
-	public <D extends ICapability> void unresolveAllDependencies() {
+	public <D extends IApplication> void unresolveAllDependencies() {
 		// Iterator-safe implementation for the following:
 		// for (Class<? extends ICapability> clazz : resolvedDependencies.keySet()){ unresolve(clazz); }
 		// Due to unresolve producing changes in the map that backs up the foreach iterator, commented code is not safe
-		Set<Class<? extends ICapability>> capabilityClasses = new HashSet<Class<? extends ICapability>>(resolvedDependencies.keySet());
-		for (Class<? extends ICapability> clazz : capabilityClasses) {
+		Set<Class<? extends IApplication>> capabilityClasses = new HashSet<Class<? extends IApplication>>(resolvedDependencies.keySet());
+		for (Class<? extends IApplication> clazz : capabilityClasses) {
 			unresolve(clazz);
 		}
 	}
@@ -178,7 +180,7 @@ public abstract class AbstractInstance<T> {
 	/**
 	 * Updates the internal dependency state.
 	 */
-	protected void resolve(Class<? extends ICapability> capabilityClass) {
+	protected void resolve(Class<? extends IApplication> capabilityClass) {
 		Field field = pendingDependencies.remove(capabilityClass);
 		resolvedDependencies.put(capabilityClass, field);
 	}
@@ -186,7 +188,7 @@ public abstract class AbstractInstance<T> {
 	/**
 	 * Updates the internal dependency state.
 	 */
-	protected void unresolve(Class<? extends ICapability> capabilityClass) {
+	protected void unresolve(Class<? extends IApplication> capabilityClass) {
 		Field field = resolvedDependencies.remove(capabilityClass);
 		pendingDependencies.put(capabilityClass, field);
 	}
@@ -194,21 +196,21 @@ public abstract class AbstractInstance<T> {
 	/**
 	 * Collects and returns all fields in the given class, which have the @DependingOn annotation.
 	 */
-	protected Map<Class<? extends ICapability>, Field> getDependencies(Class<? extends T> clazz) {
-		Map<Class<? extends ICapability>, Field> dependencies = new HashMap<Class<? extends ICapability>, Field>();
+	protected Map<Class<? extends IApplication>, Field> getDependencies(Class<? extends T> clazz) {
+		Map<Class<? extends IApplication>, Field> dependencies = new HashMap<Class<? extends IApplication>, Field>();
 
 		for (Field field : clazz.getDeclaredFields()) {
 			if (field.isAnnotationPresent(DependingOn.class)) {
 
-				if (!(ICapability.class.isAssignableFrom(field.getType()))) {
+				if (!(IApplication.class.isAssignableFrom(field.getType()))) {
 					throw new IllegalArgumentException(
-							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + ICapability.class.getName() +
+							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
 									" and can therefore not be used as a dependency.");
 				}
 
 				// The following cast is safe, because it was explicitly checked above
 				@SuppressWarnings("unchecked")
-				Class<? extends ICapability> type = (Class<? extends ICapability>) field.getType();
+				Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
 
 				dependencies.put(type, field);
 			}

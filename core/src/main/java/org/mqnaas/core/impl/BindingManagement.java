@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -160,12 +161,13 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	}
 
 	@Override
-	public IService getService(IResource resource, String name) throws ServiceNotFoundException {
+	public IService getService(IResource resource, String name, Class<?>... parameterClasses) throws ServiceNotFoundException {
 
-		// FIXME: There may be several services with same name in a resource!
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
-				return service;
+				if (Arrays.equals(service.getMetadata().getParameterTypes(), parameterClasses)) {
+					return service;
+				}
 			}
 		}
 

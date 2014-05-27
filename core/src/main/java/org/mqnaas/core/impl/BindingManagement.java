@@ -583,11 +583,11 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	}
 
 	List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
-		// FIXME is it necessary to iterate over all capabilityInstances? use resource tree
+
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
 		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
-		for (CapabilityInstance ci : getAllCapabilityInstances()) {
-			if (ci.getResource().equals(resource))
-				bound.add(ci);
+		for (CapabilityNode capabNode : resourceNode.getChildren()) {
+			bound.add(capabNode.getContent());
 		}
 		return bound;
 	}

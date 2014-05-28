@@ -530,6 +530,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// ///////////////
 
 	private void resolve(ApplicationInstance newRepresentation) {
+
+		List<ApplicationInstance> resolvedNow = new LinkedList<ApplicationInstance>();
+		boolean wasResolved = newRepresentation.isResolved();
+
 		// Resolve capability dependencies
 		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
 
@@ -538,18 +542,25 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				representation.resolve(newRepresentation);
 
 				if (representation.isResolved()) {
-					representation.getInstance().onDependenciesResolved();
+					resolvedNow.add(representation);
 				}
 			}
 
 			// b. Resolve the currently added one with those already registered
 			if (!newRepresentation.isResolved()) {
 				newRepresentation.resolve(representation);
-
-				if (newRepresentation.isResolved()) {
-					newRepresentation.getInstance().onDependenciesResolved();
-				}
 			}
+		}
+
+		if (!wasResolved && newRepresentation.isResolved()) {
+			resolvedNow.add(newRepresentation);
+		}
+
+		// c. Notify resolved
+		// Notifying AFTER resolving all dependencies that can be resolved with newRepresentation
+		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
+		for (ApplicationInstance resolved : resolvedNow) {
+			resolved.getInstance().onDependenciesResolved();
 		}
 	}
 

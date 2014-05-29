@@ -139,7 +139,8 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 		}
 
 		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		proxy = (ICapability) Proxy.newProxyInstance(capabilities.iterator().next().getClassLoader(),
+		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
+		proxy = (ICapability) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
 				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
 
 		this.resource = resource;

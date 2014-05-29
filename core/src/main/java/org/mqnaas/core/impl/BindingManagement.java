@@ -55,14 +55,14 @@ import com.google.common.collect.Multimap;
  * </li>
  * <li><u>Manage the {@link IApplication}s available.</u> An <code>IApplication</code> is third party code requiring utilizing platform services to
  * provide its functionalities.</li>
- * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource, CapabilityInstance)} and
- * {@link #resourceRemoved(IResource, CapabilityInstance)}) for details and update the set of services available depending on available capability
+ * <li><u>Listen to resource being added and removed (see {@link #resourceCreated(IResource, CapabilityInstance)} and
+ * {@link #resourceDestroyed(IResource, CapabilityInstance)}) for details and update the set of services available depending on available capability
  * implementations and resources.</li>
  * </ol>
  * 
  * <p>
  * Some of these services are not available to the majority of platform users, but are reserved for the sole use of the core, e.g.
- * {@link #resourceAdded(IResource, CapabilityInstance)} and {@link #resourceRemoved(IResource, CapabilityInstance)}.
+ * {@link #resourceCreated(IResource, CapabilityInstance)} and {@link #resourceDestroyed(IResource, CapabilityInstance)}.
  * </p>
  */
 public class BindingManagement implements IServiceProvider, IInternalResourceManagementListener, IBindingManagement, IBindingManagementEventListener {
@@ -126,13 +126,13 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
 		// Initialize the notifications necessary to track resources dynamically
-		// Register the service {@link IInternalResourceManagementListener#resourceAdded(IResource, CapabilityInstance)}
-		// Register the service {@link IInternalResourceManagementListener#resourceRemoved(IResource, CapabilityInstance)}
+		// Register the service {@link IInternalResourceManagementListener#resourceCreated(IResource, CapabilityInstance)}
+		// Register the service {@link IInternalResourceManagementListener#resourceDestroyed(IResource, CapabilityInstance)}
 		try {
 			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class),
-					getService(mqNaaS, "resourceAdded", IResource.class, CapabilityInstance.class));
+					getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class));
 			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
-					getService(mqNaaS, "resourceRemoved", IResource.class, CapabilityInstance.class));
+					getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class));
 		} catch (ServiceNotFoundException e) {
 			// FIXME use logger
 			System.out.println("Error registering observation!");
@@ -202,14 +202,14 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	 * @param addedTo
 	 */
 	@Override
-	public void resourceAdded(IResource added, CapabilityInstance managedBy) {
+	public void resourceCreated(IResource added, CapabilityInstance managedBy) {
 
 		try {
 			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
 			if (parent == null)
 				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
 
-			addResource(new ResourceNode(added), parent);
+			addResourceNode(new ResourceNode(added), parent);
 		} catch (CapabilityInstanceNotFoundException e) {
 			System.err.println(e);
 		}
@@ -233,7 +233,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	 * @param removedFrom
 	 */
 	@Override
-	public void resourceRemoved(IResource removed, CapabilityInstance managedBy) {
+	public void resourceDestroyed(IResource removed, CapabilityInstance managedBy) {
 		try {
 			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
 			if (parent == null)
@@ -243,7 +243,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 			if (toRemove == null)
 				throw new ResourceNotFoundException("Resource is not provided by given capability instance");
 
-			removeResource(toRemove, parent);
+			removeResourceNode(toRemove, parent);
 		} catch (CapabilityInstanceNotFoundException e) {
 			System.err.println(e);
 		} catch (ResourceNotFoundException e) {
@@ -303,7 +303,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	// /////////////////////////////////////////
 
 	@Override
-	public void addResource(ResourceNode resource, CapabilityNode managedBy) {
+	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) {
 
 		System.out.println("Adding resource " + resource.getContent() + "managed by capability " + managedBy.getContent());
 
@@ -320,7 +320,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	}
 
 	@Override
-	public void removeResource(ResourceNode toRemove, CapabilityNode managedBy) {
+	public void removeResourceNode(ResourceNode toRemove, CapabilityNode managedBy) {
 
 		System.out.println("Removing resource " + toRemove.getContent() + "managed by capability " + managedBy.getContent());
 
@@ -380,7 +380,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		// 1. Remove on cascade (resources provided by toUnbind capability)
 		// Notice recursivity between unbind and removeResource methods
 		for (ResourceNode provided : toUnbind.getChildren()) {
-			removeResource(provided, toUnbind);
+			removeResourceNode(provided, toUnbind);
 		}
 
 		// 2. Update the model

@@ -19,7 +19,7 @@ public interface IInternalResourceManagementListener extends ICapability {
 	 *            The resource added to the platform
 	 * @param addedTo
 	 */
-	void resourceAdded(IResource resource, CapabilityInstance addedTo);
+	void resourceCreated(IResource resource, CapabilityInstance addedTo);
 
 	/**
 	 * <p>
@@ -31,5 +31,5 @@ public interface IInternalResourceManagementListener extends ICapability {
 	 *            The resource removed from the platform
 	 * @param removedFrom
 	 */
-	void resourceRemoved(IResource resource, CapabilityInstance removedFrom);
+	void resourceDestroyed(IResource resource, CapabilityInstance removedFrom);
 }

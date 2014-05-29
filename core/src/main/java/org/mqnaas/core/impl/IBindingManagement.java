@@ -22,7 +22,7 @@ public interface IBindingManagement {
 	 * @throws CapabilityInstanceNotFoundException
 	 *             if given CapabilityInstance is not in the bindingManagement model.
 	 */
-	public void addResource(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException;
+	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException;
 
 	/**
 	 * Removes given resource under the control of given CapabilityInstance from the bindingManagement model.
@@ -34,7 +34,7 @@ public interface IBindingManagement {
 	 * @throws ResourceNotFoundException
 	 *             if given IResource is not in the bindingManagement model or is not under the control of given CapabilityInstance.
 	 */
-	public void removeResource(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException,
+	public void removeResourceNode(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException,
 			ResourceNotFoundException;
 
 	/**

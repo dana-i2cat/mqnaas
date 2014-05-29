@@ -108,7 +108,7 @@ public class BindingManagementTest {
 
 		IResource sampleResource = generateSampleResource();
 
-		bindingManagement.resourceAdded(sampleResource, sampleCI);
+		bindingManagement.resourceCreated(sampleResource, sampleCI);
 
 		Assert.assertTrue("SampleResource should be provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
@@ -128,7 +128,7 @@ public class BindingManagementTest {
 		ResourceNode sampleResourceNode = capability.getChildren().get(0);
 		IResource sampleResource = sampleResourceNode.getContent();
 
-		bindingManagement.resourceRemoved(sampleResource, sampleCI);
+		bindingManagement.resourceDestroyed(sampleResource, sampleCI);
 
 		Assert.assertFalse("SampleResource should NOT provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
@@ -168,7 +168,7 @@ public class BindingManagementTest {
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
 		IResource sampleResource = generateSampleResource();
-		bindingManagement.resourceAdded(sampleResource, sampleCI);
+		bindingManagement.resourceCreated(sampleResource, sampleCI);
 
 		// following check relies on bindingDecider.shouldBeBound(sampleResource, SampleCapability.class) returning true
 		// which is the trigger for a CapabilityInstance with SampleCapability being bound to sampleResource
@@ -202,7 +202,7 @@ public class BindingManagementTest {
 		CapabilityInstance sampleCI = coreSampleCI;
 		for (int i = 0; i < 5; i++) {
 			resource = generateSampleResource();
-			bindingManagement.resourceAdded(resource, sampleCI);
+			bindingManagement.resourceCreated(resource, sampleCI);
 			sampleCI = getCapabilityInstanceBoundToResource(resource, SampleCapability.class);
 			Assert.assertNotNull(sampleCI);
 
@@ -212,7 +212,7 @@ public class BindingManagementTest {
 
 		// remove first resource in the chain
 		IResource toRemove = chainResources.get(0);
-		bindingManagement.resourceRemoved(toRemove, coreSampleCI);
+		bindingManagement.resourceDestroyed(toRemove, coreSampleCI);
 		Assert.assertFalse(bindingManagement.getResourcesProvidedByCapabilityInstance(coreSampleCI).contains(toRemove));
 
 		for (CapabilityInstance inChain : chainCapabilityInstances)

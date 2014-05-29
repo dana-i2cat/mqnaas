@@ -14,6 +14,7 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
@@ -26,6 +27,7 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
+import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
@@ -65,7 +67,8 @@ import com.google.common.collect.Multimap;
  * {@link #resourceCreated(IResource, CapabilityInstance)} and {@link #resourceDestroyed(IResource, CapabilityInstance)}.
  * </p>
  */
-public class BindingManagement implements IServiceProvider, IInternalResourceManagementListener, IBindingManagement, IBindingManagementEventListener {
+public class BindingManagement implements IServiceProvider, IResourceManagementListener, IInternalResourceManagementListener, IBindingManagement,
+		IBindingManagementEventListener {
 
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
@@ -133,6 +136,15 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 					getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class));
 			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
 					getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class));
+			// Initialize the notifications allowing extensions to track resources dynamically (using IResourceManagementListener interface)
+			// These notifications are executed once the resource has already been processed by this BindingManagement ;)
+			observationService.registerObservation(
+					new ServiceFilter(getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class)),
+					getService(mqNaaS, "resourceAdded", IResource.class));
+			observationService.registerObservation(
+					new ServiceFilter(getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class)),
+					getService(mqNaaS, "resourceRemoved", IResource.class));
+
 		} catch (ServiceNotFoundException e) {
 			// FIXME use logger
 			System.out.println("Error registering observation!");
@@ -177,6 +189,24 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		}
 
 		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
+	}
+
+	// //////////////////////////////////////////////////
+	// {@link IResourceManagementListener} implementation
+	// //////////////////////////////////////////////////
+
+	@Override
+	public void resourceAdded(IResource resource) {
+		// Nothing to do
+		// This is just a service exposed to announce that a resource has been added to the system
+
+	}
+
+	@Override
+	public void resourceRemoved(IResource resource) {
+		// Nothing to do
+		// This is just a service exposed to announce that a resource has been removed from the system
+
 	}
 
 	// //////////////////////////////////////////////////

@@ -144,6 +144,10 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	ResourceCapabilityTree getResourceCapabilityTree() {
 		return tree;
 	}
+	
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType() == Specification.Type.CORE;
+	}
 
 	// ///////////////////////////////////////
 	// {@link IServiceProvider} implementation

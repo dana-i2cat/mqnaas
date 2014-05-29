@@ -144,7 +144,7 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	ResourceCapabilityTree getResourceCapabilityTree() {
 		return tree;
 	}
-	
+
 	public static boolean isSupporting(IRootResource resource) {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
@@ -260,8 +260,11 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 		// Bind matching capabilities
 		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
 			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
-				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added))
+				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)) {
 					bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
+				} else {
+					System.out.println("Already bound " + capabilityClass + " to resource " + added.getContent());
+				}
 			}
 		}
 	}
@@ -302,6 +305,8 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	@Override
 	public void addResource(ResourceNode resource, CapabilityNode managedBy) {
 
+		System.out.println("Adding resource " + resource.getContent() + "managed by capability " + managedBy.getContent());
+
 		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
 		// if (parent == null)
 		// throw new CapabilityInstanceNotFoundException(managedBy.getContent(), "Unknown capability instance");
@@ -316,6 +321,8 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 
 	@Override
 	public void removeResource(ResourceNode toRemove, CapabilityNode managedBy) {
+
+		System.out.println("Removing resource " + toRemove.getContent() + "managed by capability " + managedBy.getContent());
 
 		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
 		// if (parent == null)
@@ -340,6 +347,8 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 	@Override
 	public void bind(CapabilityNode toBind, ResourceNode toBindTo) {
 
+		System.out.println("Binding " + toBind.getContent() + "to resource " + toBindTo.getContent());
+
 		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(toBindTo);
 		// if (resourceNode == null)
 		// throw new ResourceNotFoundException("Unknown resource");
@@ -358,6 +367,8 @@ public class BindingManagement implements IServiceProvider, IInternalResourceMan
 
 	@Override
 	public void unbind(CapabilityNode toUnbind, ResourceNode boundTo) {
+
+		System.out.println("Unbinding " + toUnbind.getContent() + "bound to resource " + boundTo.getContent());
 
 		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(boundTo);
 		// if (resourceNode == null)

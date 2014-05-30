@@ -6,7 +6,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
@@ -42,7 +41,7 @@ public class CapabilityInstance extends ApplicationInstance {
 	private ICapability											proxy;
 
 	// All capability interfaces this capability implements
-	private List<Class<? extends ICapability>>					capabilityClasses;
+	private Collection<Class<? extends ICapability>>			capabilityClasses;
 
 	public CapabilityInstance(Class<? extends ICapability> clazz) {
 		super(clazz);
@@ -69,27 +68,9 @@ public class CapabilityInstance extends ApplicationInstance {
 	 * Determines and returns all capability interfaces implemented by the represented capability
 	 */
 	public Collection<Class<? extends ICapability>> getCapabilities() {
-
 		if (capabilityClasses == null) {
-
-			capabilityClasses = new ArrayList<Class<? extends ICapability>>();
-
-			for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
-				// Ignore the ICapability interface itself
-				if (interfaze.equals(ICapability.class))
-					continue;
-
-				// Ignore all interfaces that do not extend ICapability
-				if (!ICapability.class.isAssignableFrom(interfaze))
-					continue;
-
-				// Now do the cast: this one is safe because we explicitly checked it before
-				@SuppressWarnings("unchecked")
-				Class<? extends ICapability> capabilityInterface = (Class<? extends ICapability>) interfaze;
-				capabilityClasses.add(capabilityInterface);
-			}
+			capabilityClasses = computeCapabilities(clazz);
 		}
-
 		return capabilityClasses;
 	}
 
@@ -123,40 +104,14 @@ public class CapabilityInstance extends ApplicationInstance {
 
 	public void bind(IResource resource) {
 
-		Collection<Class<? extends ICapability>> capabilities = getCapabilities();
-
-		Map<Method, IInternalService> proxyServices = new HashMap<Method, IInternalService>();
-
-		// 1. Create the services of the interfaces (backed by the instance)
-		for (Class<? extends ICapability> interfaze : capabilities) {
-			for (Method method : interfaze.getMethods()) {
-				IInternalService service = new Service(resource, new ServiceMetaData(method, (ICapability) getInstance()));
-
-				// Add the service to the proxy implementation to be able to do the relay
-				proxyServices.put(method, service);
-
-				services.put(interfaze, service);
-			}
-		}
-
-		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
-		proxy = (ICapability) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
-				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
+		initInstanceServicesAndProxy(resource);
 
 		this.resource = resource;
 	}
 
 	public void unbind() {
 
-		// 1. Clear the services of the interfaces
-		services.clear();
-
-		// 2. Clear proxy
-		proxy = null;
-
-		// 3. Clear the instance
-		instance = null;
+		clearInstanceServicesAndProxy();
 
 		this.resource = null;
 	}
@@ -200,6 +155,63 @@ public class CapabilityInstance extends ApplicationInstance {
 	@Override
 	public ICapability getProxy() {
 		return proxy;
+	}
+
+	protected void initInstanceServicesAndProxy(IResource resource) {
+
+		Collection<Class<? extends ICapability>> capabilities = getCapabilities();
+
+		Map<Method, IInternalService> proxyServices = new HashMap<Method, IInternalService>();
+
+		// 1. Create the services of the interfaces (backed by the instance)
+		for (Class<? extends ICapability> interfaze : capabilities) {
+			for (Method method : interfaze.getMethods()) {
+				IInternalService service = new Service(resource, new ServiceMetaData(method, (ICapability) getInstance()));
+
+				// Add the service to the proxy implementation to be able to do the relay
+				proxyServices.put(method, service);
+
+				services.put(interfaze, service);
+			}
+		}
+
+		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
+		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
+		proxy = (ICapability) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
+				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
+
+	}
+
+	protected void clearInstanceServicesAndProxy() {
+		// 1. Clear the services of the interfaces
+		services.clear();
+
+		// 2. Clear proxy
+		proxy = null;
+
+		// 3. Clear the instance
+		instance = null;
+	}
+
+	protected static Collection<Class<? extends ICapability>> computeCapabilities(Class<? extends IApplication> clazz) {
+		Collection<Class<? extends ICapability>> capabilityClasses = new ArrayList<Class<? extends ICapability>>();
+
+		for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
+			// Ignore the ICapability interface itself
+			if (interfaze.equals(ICapability.class))
+				continue;
+
+			// Ignore all interfaces that do not extend ICapability
+			if (!ICapability.class.isAssignableFrom(interfaze))
+				continue;
+
+			// Now do the cast: this one is safe because we explicitly checked it before
+			@SuppressWarnings("unchecked")
+			Class<? extends ICapability> capabilityInterface = (Class<? extends ICapability>) interfaze;
+			capabilityClasses.add(capabilityInterface);
+		}
+
+		return capabilityClasses;
 	}
 
 	/*

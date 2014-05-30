@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
@@ -93,11 +94,11 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	@Override
-	public <D extends ICapability> boolean resolve(CapabilityInstance dependency) {
+	public <D extends IApplication> boolean resolve(ApplicationInstance dependency) {
 		boolean affected = super.resolve(dependency);
 
 		boolean execServiceAffected = false;
-		if (dependency.getCapabilities().contains(IExecutionService.class)) {
+		if (dependency.getApplications().contains(IExecutionService.class)) {
 			executionService = (IExecutionService) dependency.getInstance();
 			execServiceAffected = true;
 		}
@@ -106,11 +107,11 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	@Override
-	public <D extends ICapability> boolean unresolve(CapabilityInstance dependency) {
+	public <D extends IApplication> boolean unresolve(ApplicationInstance dependency) {
 		boolean affected = super.unresolve(dependency);
 
 		boolean execServiceAffected = false;
-		if (dependency.getCapabilities().contains(IExecutionService.class)) {
+		if (dependency.getApplications().contains(IExecutionService.class)) {
 			if (executionService == dependency.getInstance()) {
 				executionService = null;
 				execServiceAffected = true;
@@ -175,7 +176,7 @@ public class CapabilityInstance extends ApplicationInstance {
 		sb.append("Capability ").append(clazz.getSimpleName());
 		sb.append(" [pending=(");
 		int i = 0;
-		for (Class<? extends ICapability> clazz : getPendingClasses()) {
+		for (Class<? extends IApplication> clazz : getPendingClasses()) {
 			if (i > 0)
 				sb.append(", ");
 			sb.append(clazz.getSimpleName());
@@ -184,7 +185,7 @@ public class CapabilityInstance extends ApplicationInstance {
 
 		sb.append("), resolved=(");
 		i = 0;
-		for (Class<? extends ICapability> clazz : getResolvedClasses()) {
+		for (Class<? extends IApplication> clazz : getResolvedClasses()) {
 			if (i > 0)
 				sb.append(", ");
 			sb.append(clazz.getSimpleName());
@@ -196,6 +197,7 @@ public class CapabilityInstance extends ApplicationInstance {
 		return sb.toString();
 	}
 
+	@Override
 	public ICapability getProxy() {
 		return proxy;
 	}

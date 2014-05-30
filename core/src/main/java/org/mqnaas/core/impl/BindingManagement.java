@@ -318,13 +318,13 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void applicationInstanceAdded(ApplicationInstance added) {
-		// resolve application
+		// resolve application and those depending on it
 		resolve(added);
 	}
 
 	@Override
 	public void applicationInstanceRemoved(ApplicationInstance removed) {
-		// unresolve application
+		// unresolve application and those depending on it
 		unresolve(removed);
 	}
 
@@ -530,79 +530,38 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// ///////////////
 
 	private void resolve(ApplicationInstance newRepresentation) {
+
+		List<ApplicationInstance> resolvedNow = new LinkedList<ApplicationInstance>();
+		boolean wasResolved = newRepresentation.isResolved();
+
 		// Resolve capability dependencies
-		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
 
 			// a. Resolve those already registered that depend on the currently added one
-			// No dependency on ApplicationInstances is allowed by now
-
-			// b. Resolve the currently added one with those already registered
-			if (!newRepresentation.isResolved()) {
-				newRepresentation.resolve(representation);
-
-			}
-		}
-
-		if (newRepresentation.isResolved()) {
-			newRepresentation.getInstance().onDependenciesResolved();
-		}
-	}
-
-	private void resolve(CapabilityInstance newRepresentation) {
-		// Resolve capability dependencies
-		for (CapabilityInstance representation : getAllCapabilityInstances()) {
-
-			// a. Resolve those already registered that depend on the currently added one
-			if (!representation.isResolved()) {
-				representation.resolve(newRepresentation);
-			}
-
-			// b. Resolve the currently added one with those already registered
-			if (!newRepresentation.isResolved()) {
-				newRepresentation.resolve(representation);
-			}
-		}
-
-		for (ApplicationInstance representation : applications) {
 			if (!representation.isResolved()) {
 				representation.resolve(newRepresentation);
 
 				if (representation.isResolved()) {
-					representation.getInstance().onDependenciesResolved();
+					resolvedNow.add(representation);
 				}
 			}
-		}
-	}
 
-	private void unresolve(CapabilityInstance oldRepresentation) {
-
-		// a. Unresolve itself (dependencies will resolve (try to) if oldRepresentation is bound again)
-		oldRepresentation.unresolveAllDependencies();
-
-		// b. Unresolve those already registered that depend on the old one
-		List<CapabilityInstance> affectedCapabilityInstances = new LinkedList<CapabilityInstance>();
-		for (CapabilityInstance representation : getAllCapabilityInstances()) {
-			boolean affected = representation.unresolve(oldRepresentation);
-			if (affected)
-				affectedCapabilityInstances.add(representation);
+			// b. Resolve the currently added one with those already registered
+			if (!newRepresentation.isResolved()) {
+				newRepresentation.resolve(representation);
+			}
 		}
 
-		List<ApplicationInstance> affectedApplicationInstances = new LinkedList<ApplicationInstance>();
-		for (ApplicationInstance representation : applications) {
-			boolean affected = representation.unresolve(oldRepresentation);
-			if (affected)
-				affectedApplicationInstances.add(representation);
+		if (!wasResolved && newRepresentation.isResolved()) {
+			resolvedNow.add(newRepresentation);
 		}
 
-		// c. try to resolve affected ones
-		for (CapabilityInstance representation : affectedCapabilityInstances) {
-			resolve(representation);
+		// c. Notify resolved
+		// Notifying AFTER resolving all dependencies that can be resolved with newRepresentation
+		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
+		for (ApplicationInstance resolved : resolvedNow) {
+			resolved.getInstance().onDependenciesResolved();
 		}
-
-		for (ApplicationInstance representation : affectedApplicationInstances) {
-			resolve(representation);
-		}
-
 	}
 
 	private void unresolve(ApplicationInstance oldRepresentation) {
@@ -611,11 +570,28 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		oldRepresentation.unresolveAllDependencies();
 
 		// b. Unresolve those already registered that depend on the old one
-		// No dependency on ApplicationInstances is allowed by now
+		List<ApplicationInstance> affectedInstances = new LinkedList<ApplicationInstance>();
+		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
+			boolean affected = representation.unresolve(oldRepresentation);
+			if (affected)
+				affectedInstances.add(representation);
+		}
+
+		// c. try to resolve affected ones
+		for (ApplicationInstance representation : affectedInstances) {
+			resolve(representation);
+		}
+
 	}
 
 	List<CapabilityInstance> getAllCapabilityInstances() {
 		return boundCapabilities;
+	}
+
+	List<ApplicationInstance> getAllCapabilityAndApplicationInstances() {
+		List<ApplicationInstance> capabsAndApps = new ArrayList<ApplicationInstance>(applications);
+		capabsAndApps.addAll(getAllCapabilityInstances());
+		return capabsAndApps;
 	}
 
 	List<IResource> getAllResources() {

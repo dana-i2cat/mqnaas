@@ -34,7 +34,7 @@ public class Service implements IInternalService {
 		Object result = null;
 
 		try {
-			result = metaData.getMethod().invoke(metaData.getCapability(), parameters);
+			result = metaData.getMethod().invoke(metaData.getApplication(), parameters);
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

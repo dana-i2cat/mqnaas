@@ -25,7 +25,7 @@ public interface IServiceProvider extends ICapability {
 	 *            The resource for which to return the services
 	 * @return The available services organized in a {@link Multimap}
 	 */
-	Multimap<Class<? extends ICapability>, IService> getServices(IResource resource);
+	Multimap<Class<? extends IApplication>, IService> getServices(IResource resource);
 
 	/**
 	 * Returns the service with a specific name of the given {@link IResource}.

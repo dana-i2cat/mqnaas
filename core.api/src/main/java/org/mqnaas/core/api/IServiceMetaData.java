@@ -10,9 +10,9 @@ import java.lang.reflect.Method;
 public interface IServiceMetaData {
 	public Method getMethod();
 
-	public ICapability getCapability();
+	public IApplication getApplication();
 
-	public Class<? extends ICapability> getCapabilityClass();
+	public Class<? extends IApplication> getApplicationClass();
 
 	public String getName();
 

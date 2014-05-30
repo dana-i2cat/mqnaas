@@ -166,9 +166,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// ///////////////////////////////////////
 
 	@Override
-	public Multimap<Class<? extends ICapability>, IService> getServices(IResource resource) {
+	public Multimap<Class<? extends IApplication>, IService> getServices(IResource resource) {
 
-		Multimap<Class<? extends ICapability>, IService> services = ArrayListMultimap.create();
+		Multimap<Class<? extends IApplication>, IService> services = ArrayListMultimap.create();
 
 		for (CapabilityInstance representation : filterResolved(getCapabilityInstancesBoundToResource(resource))) {
 			services.putAll(representation.getServices());
@@ -668,7 +668,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				System.out.println(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
 						.getPendingClasses() + "]");
 
-				for (Class<? extends ICapability> capability : representation.getServices().keySet()) {
+				for (Class<? extends IApplication> capability : representation.getServices().keySet()) {
 					System.out.println("  Services of " + capability);
 
 					System.out.print("    ");

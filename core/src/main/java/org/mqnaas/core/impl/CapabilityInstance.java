@@ -47,17 +47,34 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	public void bind(IResource resource) {
-
-		initInstanceServicesAndProxy(resource);
-
 		this.resource = resource;
 	}
 
 	public void unbind() {
-
-		clearInstanceServicesAndProxy();
-
 		this.resource = null;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.ApplicationInstance#initServices()
+	 */
+	@Override
+	public void initServices() {
+		if (resource == null)
+			throw new IllegalStateException("Resource must be set");
+
+		initInstanceServicesAndProxy(resource);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.ApplicationInstance#stopServices()
+	 */
+	@Override
+	public void stopServices() {
+		clearInstanceServicesAndProxy();
 	}
 
 	public IResource getResource() {

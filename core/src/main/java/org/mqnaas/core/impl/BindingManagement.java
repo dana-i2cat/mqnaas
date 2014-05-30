@@ -428,6 +428,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void addApplicationInstance(ApplicationInstance applicationInstance) {
 
+		System.out.println("Adding application " + applicationInstance);
+
 		applications.add(applicationInstance);
 
 		applicationInstanceAdded(applicationInstance);
@@ -435,6 +437,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void removeApplicationInstance(ApplicationInstance applicationInstance) {
+
+		System.out.println("Removing application " + applicationInstance);
+
 		if (applications.remove(applicationInstance))
 			applicationInstanceRemoved(applicationInstance);
 	}
@@ -560,24 +565,36 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Notifying AFTER resolving all dependencies that can be resolved with newRepresentation
 		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
 		for (ApplicationInstance resolved : resolvedNow) {
+			resolved.initServices();
 			resolved.getInstance().onDependenciesResolved();
 		}
 	}
 
 	private void unresolve(ApplicationInstance oldRepresentation) {
-
-		// a. Unresolve itself (dependencies will resolve (try to) if oldRepresentation is bound again)
+		// a. Unresolve itself
+		boolean resolved = oldRepresentation.isResolved();
 		oldRepresentation.unresolveAllDependencies();
+		if (resolved) {
+			oldRepresentation.stopServices();
+			// oldRepresentation.getInstance().onDependenciesUnresolved();
+		}
 
 		// b. Unresolve those already registered that depend on the old one
 		List<ApplicationInstance> affectedInstances = new LinkedList<ApplicationInstance>();
 		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
+			boolean wasResolved = representation.isResolved();
 			boolean affected = representation.unresolve(oldRepresentation);
 			if (affected)
 				affectedInstances.add(representation);
+
+			// c. Notify unresolved
+			if (wasResolved && affected) {
+				representation.stopServices();
+				// representation.getInstance().onDependenciesUnresolved();
+			}
 		}
 
-		// c. try to resolve affected ones
+		// d. try to resolve affected ones
 		for (ApplicationInstance representation : affectedInstances) {
 			resolve(representation);
 		}

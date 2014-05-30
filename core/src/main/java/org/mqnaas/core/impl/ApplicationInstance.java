@@ -88,6 +88,14 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		return affected || execServiceAffected;
 	}
 
+	public void initServices() {
+		initInstanceServicesAndProxy(null);
+	}
+
+	public void stopServices() {
+		clearInstanceServicesAndProxy();
+	}
+
 	public Multimap<Class<? extends IApplication>, IService> getServices() {
 		return ArrayListMultimap.create(services);
 	}

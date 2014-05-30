@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.map.HashedMap;
-import org.mqnaas.bundletree.BundleUtils;
+import org.mqnaas.bundletree.utils.BundleClassPathUtils;
 import org.mqnaas.core.api.ICapability;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
@@ -179,7 +179,7 @@ public class CapabilityManagement {
 
 		// Filter bundles depending on core and scan all class resources of the given bundle and collects all capability classes, e.g. those which
 		// implement ICapability
-		Set<Class<? extends ICapability>> bundleCapabilities = BundleUtils.scanBundle(bundle, ICapability.class);
+		Set<Class<? extends ICapability>> bundleCapabilities = BundleClassPathUtils.scanBundle(bundle, ICapability.class);
 
 		if (!bundleCapabilities.isEmpty()) {
 

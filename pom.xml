@@ -54,6 +54,9 @@
 		<!-- Apache Commons Collections 4 version -->
 		<commons-collections4-version>4.0</commons-collections4-version>
 
+		<!-- javax.ws.rs API (REST) version -->
+		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
+
 		<!-- Apache CXF bundle version -->
 		<cxf-version>2.7.10</cxf-version>
 	</properties>
@@ -94,6 +97,11 @@
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-collections4</artifactId>
 				<version>${commons-collections4-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.ws.rs</groupId>
+				<artifactId>javax.ws.rs-api</artifactId>
+				<version>${javax.ws.rs-api-version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.cxf</groupId>

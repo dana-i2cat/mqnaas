@@ -2,6 +2,7 @@ package org.mqnaas.core.impl;
 
 import java.util.Set;
 
+import org.mqnaas.bundletree.BundleUtils;
 import org.mqnaas.core.api.IApplication;
 import org.osgi.framework.Bundle;
 

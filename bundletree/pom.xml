@@ -9,9 +9,9 @@
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>core</artifactId>
-	<name>MQNaaS :: Core</name>
-	<description>MQNaaS Core</description>
+	<artifactId>bundletree</artifactId>
+	<name>MQNaaS :: BundleTree</name>
+	<description>MQNaaS BundleTree</description>
 	<packaging>bundle</packaging>
 
 	<dependencies>
@@ -20,26 +20,15 @@
 			<artifactId>core.api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.mqnaas</groupId>
-			<artifactId>bundletree</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-collections4</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-bundle</artifactId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
+
 
 	<build>
 		<plugins>
@@ -49,11 +38,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.mqnaas.core.Activator</Bundle-Activator>
+						<Bundle-Activator>org.mqnaas.bundletree.Activator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.core.impl,
-							org.mqnaas.core.impl.notificationfilter
+							org.mqnaas.bundletree
 						</Export-Package>
 					</instructions>
 				</configuration>

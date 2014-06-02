@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.bundletree;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryPoolMXBean;
@@ -11,7 +11,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.mqnaas.core.impl.bundletree.BundleTreeUtils;
+import org.mqnaas.bundletree.tree.BundleTreeUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 

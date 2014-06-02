@@ -29,9 +29,16 @@ public class BundleUtils {
 	 *            Bundle to be checked as dependency of candidateBundle
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
-	// FIXME improve performance looking for positive candidates per layer. CAUTION, it is possible to do cycles over the graph, prepare a hashset of
-	// visited bundles avoiding revisiting them
 	public static boolean bundleDependsOnBundle(BundleContext context, Bundle candidateBundle, Bundle rootBundle) {
+		// check if candidateBundle is rootBundle itself
+		if (candidateBundle.equals(rootBundle)) {
+			return true;
+		}
+		return bundleDependsOnBundle(context, candidateBundle, rootBundle, new HashSet<Bundle>());
+	}
+
+	// FIXME improve performance looking for positive candidates per layer.
+	private static boolean bundleDependsOnBundle(BundleContext context, Bundle candidateBundle, Bundle rootBundle, Set<Bundle> visitedBundles) {
 		// get required bundles by candidateBundle (direct dependency ancestors)
 		Set<Bundle> candidateAncestorBundles = getAncestorBundles(candidateBundle);
 
@@ -42,8 +49,13 @@ public class BundleUtils {
 
 		// iterate over ancestors of each direct ancestor looking for rootBundle
 		for (Bundle ancestorBundle : candidateAncestorBundles) {
-			if (bundleDependsOnBundle(context, ancestorBundle, rootBundle)) {
-				return true;
+			// don't analyse previously visited bundles
+			if (!visitedBundles.contains(ancestorBundle)) {
+				if (bundleDependsOnBundle(context, ancestorBundle, rootBundle, visitedBundles)) {
+					return true;
+				}
+				// mark candidate as visited bundle
+				visitedBundles.add(ancestorBundle);
 			}
 		}
 
@@ -86,12 +98,14 @@ public class BundleUtils {
 		// the set of bundles from which the bundle imports packages
 		Set<Bundle> exporters = new HashSet<Bundle>();
 
-		List<BundleWire> bundleWires = wiring.getRequiredWires(null);
+		if (wiring != null) {
+			List<BundleWire> bundleWires = wiring.getRequiredWires(null);
 
-		if (bundleWires != null) {
-			for (BundleWire pkg : bundleWires) {
-				Bundle providerBundle = pkg.getProviderWiring().getBundle();
-				exporters.add(providerBundle);
+			if (bundleWires != null) {
+				for (BundleWire pkg : bundleWires) {
+					Bundle providerBundle = pkg.getProviderWiring().getBundle();
+					exporters.add(providerBundle);
+				}
 			}
 		}
 
@@ -110,8 +124,10 @@ public class BundleUtils {
 
 		Set<Bundle> dependencies = new HashSet<Bundle>();
 
-		for (BundleWire requiredWire : wiring.getProvidedWires(null)) {
-			dependencies.add(requiredWire.getRequirerWiring().getBundle());
+		if (wiring != null) {
+			for (BundleWire requiredWire : wiring.getProvidedWires(null)) {
+				dependencies.add(requiredWire.getRequirerWiring().getBundle());
+			}
 		}
 
 		return dependencies;

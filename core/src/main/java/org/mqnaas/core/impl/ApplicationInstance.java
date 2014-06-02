@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
@@ -145,6 +146,10 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	protected void initInstanceServicesAndProxy(IResource resource) {
 
 		Collection<Class<? extends IApplication>> appClasses = getApplications();
+		// an application without interfaces is not able to offer services
+		// applications are forced to implement interfaces extending IApplication in order to publish services
+		if (appClasses.isEmpty())
+			return;
 
 		Map<Method, IInternalService> proxyServices = new HashMap<Method, IInternalService>();
 
@@ -184,6 +189,9 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
 			// Ignore the IApplication interface itself
 			if (interfaze.equals(IApplication.class))
+				continue;
+			// Ignore the ICapability interface itself
+			if (interfaze.equals(ICapability.class))
 				continue;
 
 			// Ignore all interfaces that do not extend IApplication

@@ -23,6 +23,16 @@
 		<!-- test dependencies -->
 		<dependency>
 			<groupId>org.mqnaas</groupId>
+			<artifactId>core</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
 			<artifactId>bundletree-itests-testbundleA</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

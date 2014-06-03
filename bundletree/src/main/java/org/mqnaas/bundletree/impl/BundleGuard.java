@@ -71,7 +71,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 			try {
 				// is this bundle dependent of core.api bundle
 				if (BundleUtils.bundleDependsOnBundle(Activator.getContext(), bundle,
-						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"))) {
+						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
 					// scan bundle and notify in case of classFilters matches
 					scanBundleAndNotifyClassFound(bundle);
 				}
@@ -88,7 +88,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 			try {
 				// is this bundle dependent of core.api bundle
 				if (BundleUtils.bundleDependsOnBundle(Activator.getContext(), bundle,
-						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"))) {
+						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
 					// scan bundle and notify in case of classFilters matches
 					scanBundleAndNotifyClassLeft(bundle);
 				}
@@ -112,6 +112,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 		}
 	}
 
+	// FIXME this strategy can not be used, uninstalled bundles can not be analysed looking for classes
 	private void scanBundleAndNotifyClassLeft(Bundle bundle) {
 		// iterate over bundle classes
 		for (Class<?> bundleClass : BundleClassPathUtils.getBundleClasses(bundle)) {

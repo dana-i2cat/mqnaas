@@ -8,6 +8,7 @@ import java.util.Set;
 import org.mqnaas.bundletree.exceptions.BundleNotFoundException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
 
@@ -30,20 +31,18 @@ public class BundleUtils {
 	/**
 	 * Checks if given {@link Bundle} depends on rootBundle based on {@link BundleContext}
 	 * 
-	 * @param context
-	 *            BundleContext to be used to check dependencies
 	 * @param candidateBundle
 	 *            target bundle to be checked
 	 * @param rootBundle
 	 *            Bundle to be checked as dependency of candidateBundle
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
-	public static boolean bundleDependsOnBundle(BundleContext context, Bundle candidateBundle, Bundle rootBundle, LOOK_UP_STRATEGY strategy) {
+	public static boolean bundleDependsOnBundle(Bundle candidateBundle, Bundle rootBundle, LOOK_UP_STRATEGY strategy) {
 		switch (strategy) {
 			case UP:
-				return bundleDependsOnBundleUp(context, candidateBundle, rootBundle);
+				return bundleDependsOnBundleUp(candidateBundle, rootBundle);
 			case DOWN:
-				return bundleDependsOnBundleDown(context, candidateBundle, rootBundle);
+				return bundleDependsOnBundleDown(candidateBundle, rootBundle);
 		}
 		// this code should never be reached, but compiler does not detect switch cases
 		throw new IllegalArgumentException("Invalid strategy!");
@@ -53,24 +52,22 @@ public class BundleUtils {
 	 * Checks if given {@link Bundle} depends on rootBundle based on {@link BundleContext}. It looks for rootBundle as direct or indirect dependency
 	 * ancestor of candidateBundle.
 	 * 
-	 * @param context
-	 *            BundleContext to be used to check dependencies
 	 * @param candidateBundle
 	 *            target bundle to be checked
 	 * @param rootBundle
 	 *            Bundle to be checked as dependency of candidateBundle
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
-	private static boolean bundleDependsOnBundleUp(BundleContext context, Bundle candidateBundle, Bundle rootBundle) {
+	private static boolean bundleDependsOnBundleUp(Bundle candidateBundle, Bundle rootBundle) {
 		// System.out.println("Checking if " + candidateBundle + " depends on " + rootBundle);
 		// check if candidateBundle is rootBundle itself
 		if (candidateBundle.equals(rootBundle)) {
 			return true;
 		}
-		return bundleDependsOnBundleUp(context, new HashSet<Bundle>(Arrays.asList(candidateBundle)), rootBundle, new HashSet<Bundle>());
+		return bundleDependsOnBundleUp(new HashSet<Bundle>(Arrays.asList(candidateBundle)), rootBundle, new HashSet<Bundle>());
 	}
 
-	private static boolean bundleDependsOnBundleUp(BundleContext context, Set<Bundle> candidateAncestorBundles, Bundle rootBundle,
+	private static boolean bundleDependsOnBundleUp(Set<Bundle> candidateAncestorBundles, Bundle rootBundle,
 			Set<Bundle> visitedBundles) {
 		// check if any direct ancestor is rootBundle
 		// System.out.println("\tChecking if " + rootBundle + " is an ancestor of " + candidateAncestorBundles);
@@ -96,7 +93,7 @@ public class BundleUtils {
 
 		// check ancestor bundles recursively
 		// System.out.println("\tNext Layer: " + nextAncestordBundles);
-		if (bundleDependsOnBundleUp(context, nextAncestordBundles, rootBundle, visitedBundles)) {
+		if (bundleDependsOnBundleUp(nextAncestordBundles, rootBundle, visitedBundles)) {
 			return true;
 		}
 
@@ -109,24 +106,22 @@ public class BundleUtils {
 	 * Checks if given {@link Bundle} depends on rootBundle based on {@link BundleContext}. It looks for candidateBundle as direct or indirect
 	 * dependency child of rootBundle.
 	 * 
-	 * @param context
-	 *            BundleContext to be used to check dependencies
 	 * @param candidateBundle
 	 *            target bundle to be checked
 	 * @param rootBundle
 	 *            Bundle to be checked as dependency of targetBundle
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
-	private static boolean bundleDependsOnBundleDown(BundleContext context, Bundle candidateBundle, Bundle rootBundle) {
+	private static boolean bundleDependsOnBundleDown(Bundle candidateBundle, Bundle rootBundle) {
 		// System.out.println("Checking if " + candidateBundle + " depends on " + rootBundle);
 		// check if candidateBundle is rootBundle itself
 		if (candidateBundle.equals(rootBundle)) {
 			return true;
 		}
-		return bundleDependsOnBundleDown(context, candidateBundle, new HashSet<Bundle>(Arrays.asList(rootBundle)), new HashSet<Bundle>());
+		return bundleDependsOnBundleDown(candidateBundle, new HashSet<Bundle>(Arrays.asList(rootBundle)), new HashSet<Bundle>());
 	}
 
-	private static boolean bundleDependsOnBundleDown(BundleContext context, Bundle candidateBundle, Set<Bundle> candidateChildBundles,
+	private static boolean bundleDependsOnBundleDown(Bundle candidateBundle, Set<Bundle> candidateChildBundles,
 			Set<Bundle> visitedBundles) {
 		// check if any direct child is candidateBundle
 		// System.out.println("\tChecking if " + candidateBundle + " depends on " + candidateChildBundles);
@@ -152,7 +147,7 @@ public class BundleUtils {
 
 		// check child bundles recursively
 		// System.out.println("\tNext Layer: " + nextChildBundles);
-		if (bundleDependsOnBundleDown(context, candidateBundle, nextChildBundles, visitedBundles)) {
+		if (bundleDependsOnBundleDown(candidateBundle, nextChildBundles, visitedBundles)) {
 			return true;
 		}
 
@@ -165,16 +160,14 @@ public class BundleUtils {
 	 * Retrieves a {@link Bundle} with given <a href="http://wiki.osgi.org/wiki/Bundle-SymbolicName">Bundle-SymbolicName</a> using given
 	 * {@link BundleContext}.
 	 * 
-	 * @param context
-	 *            BundleContext to be used to look for Bundle's
 	 * @param bundleSymbolicName
 	 *            target Bundle-SymbolicName to be searched
 	 * @return Bundle with target bundleSymbolicName
 	 * @throws BundleNotFoundException
 	 *             if no Bundle with given bundleSymbolicName is found
 	 */
-	public static Bundle getBundleBySymbolicName(BundleContext context, String bundleSymbolicName) throws BundleNotFoundException {
-		Bundle[] bundles = context.getBundles();
+	public static Bundle getBundleBySymbolicName(String bundleSymbolicName) throws BundleNotFoundException {
+		Bundle[] bundles = FrameworkUtil.getBundle(BundleUtils.class).getBundleContext().getBundles();
 		for (Bundle bundle : bundles) {
 			if (bundle.getSymbolicName().equals(bundleSymbolicName)) {
 				return bundle;

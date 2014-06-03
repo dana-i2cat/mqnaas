@@ -37,7 +37,6 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Bundle-Activator>org.mqnaas.bundletree.Activator</Bundle-Activator>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.bundletree,

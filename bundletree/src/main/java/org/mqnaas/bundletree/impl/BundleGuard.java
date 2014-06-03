@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.mqnaas.bundletree.Activator;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
@@ -17,6 +16,7 @@ import org.mqnaas.core.api.Specification;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * Bundle Guard maintains a set of registered {@link IClassListener}, each of them using a {@link IClassFilter}.
@@ -42,7 +42,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 
 	public BundleGuard() {
 		// register itself as BundleListener
-		Activator.getContext().addBundleListener(this);
+		FrameworkUtil.getBundle(BundleGuard.class).getBundleContext().addBundleListener(this);
 	}
 
 	@Override
@@ -70,8 +70,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 
 			try {
 				// is this bundle dependent of core.api bundle
-				if (BundleUtils.bundleDependsOnBundle(Activator.getContext(), bundle,
-						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
+				if (BundleUtils.bundleDependsOnBundle(bundle, BundleUtils.getBundleBySymbolicName("core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
 					// scan bundle and notify in case of classFilters matches
 					scanBundleAndNotifyClassFound(bundle);
 				}
@@ -87,8 +86,7 @@ public class BundleGuard implements IBundleGuard, BundleListener, ICapability {
 
 			try {
 				// is this bundle dependent of core.api bundle
-				if (BundleUtils.bundleDependsOnBundle(Activator.getContext(), bundle,
-						BundleUtils.getBundleBySymbolicName(Activator.getContext(), "core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
+				if (BundleUtils.bundleDependsOnBundle(bundle, BundleUtils.getBundleBySymbolicName("core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
 					// scan bundle and notify in case of classFilters matches
 					scanBundleAndNotifyClassLeft(bundle);
 				}

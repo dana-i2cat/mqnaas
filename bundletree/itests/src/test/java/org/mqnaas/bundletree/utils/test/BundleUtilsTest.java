@@ -63,7 +63,7 @@ public class BundleUtilsTest {
 	public void getBundleBySymbolicNameTest() throws Exception {
 		// valid bundle
 		try {
-			Bundle bundle = BundleUtils.getBundleBySymbolicName(bundleContext, BUNDLETREE_BUNDLE_NAME);
+			Bundle bundle = BundleUtils.getBundleBySymbolicName(BUNDLETREE_BUNDLE_NAME);
 			Assert.assertEquals("Obtained bundle must be same as requested", BUNDLETREE_BUNDLE_NAME, bundle.getSymbolicName());
 		} catch (BundleNotFoundException e) {
 			Assert.fail("BundleNotFoundException must not be thrown: " + e);
@@ -73,7 +73,7 @@ public class BundleUtilsTest {
 	@Test(expected = BundleNotFoundException.class)
 	public void getBadBundleBySymbolicNameTest() throws Exception {
 		// invalid bundle
-		BundleUtils.getBundleBySymbolicName(bundleContext, "not valid bundle name");
+		BundleUtils.getBundleBySymbolicName("not valid bundle name");
 	}
 
 	static final int			TEST_ITERATIONS	= 1000;
@@ -83,10 +83,10 @@ public class BundleUtilsTest {
 	@Test
 	public void bundleDependecyAnalysisTest() throws Exception {
 		// used bundles
-		final Bundle rootBundle = BundleUtils.getBundleBySymbolicName(bundleContext, FELIX_CORE_BUNDLE_NAME);
-		final Bundle testBundleA = BundleUtils.getBundleBySymbolicName(bundleContext, TEST_BUNDLE_A_BUNDLE_NAME);
-		final Bundle testBundleB = BundleUtils.getBundleBySymbolicName(bundleContext, TEST_BUNDLE_B_BUNDLE_NAME);
-		final Bundle coreBundle = BundleUtils.getBundleBySymbolicName(bundleContext, MQNAAS_CORE_BUNDLE_NAME);
+		final Bundle rootBundle = BundleUtils.getBundleBySymbolicName(FELIX_CORE_BUNDLE_NAME);
+		final Bundle testBundleA = BundleUtils.getBundleBySymbolicName(TEST_BUNDLE_A_BUNDLE_NAME);
+		final Bundle testBundleB = BundleUtils.getBundleBySymbolicName(TEST_BUNDLE_B_BUNDLE_NAME);
+		final Bundle coreBundle = BundleUtils.getBundleBySymbolicName(MQNAAS_CORE_BUNDLE_NAME);
 
 		// mean vars
 		long[] times = new long[2];
@@ -111,28 +111,28 @@ public class BundleUtilsTest {
 
 		// do multiple calls to method to extract means
 		for (int i = 0; i < TEST_ITERATIONS; i++) {
-			times = upAndDownDependency(bundleContext, testBundleA, rootBundle, true);
+			times = upAndDownDependency(testBundleA, rootBundle, true);
 			upTotalAverage += (times[0] - upTotalAverage) / ++upTotalCount;
 			downTotalAverage += (times[1] - downTotalAverage) / ++downTotalCount;
 
 			upPosAverage += (times[0] - upPosAverage) / ++upPosCount;
 			downPosAverage += (times[1] - downPosAverage) / ++downPosCount;
 
-			times = upAndDownDependency(bundleContext, testBundleB, rootBundle, true);
+			times = upAndDownDependency(testBundleB, rootBundle, true);
 			upTotalAverage += (times[0] - upTotalAverage) / ++upTotalCount;
 			downTotalAverage += (times[1] - downTotalAverage) / ++downTotalCount;
 
 			upPosAverage += (times[0] - upPosAverage) / ++upPosCount;
 			downPosAverage += (times[1] - downPosAverage) / ++downPosCount;
 
-			times = upAndDownDependency(bundleContext, testBundleB, coreBundle, false);
+			times = upAndDownDependency(testBundleB, coreBundle, false);
 			upTotalAverage += (times[0] - upTotalAverage) / ++upTotalCount;
 			downTotalAverage += (times[1] - downTotalAverage) / ++downTotalCount;
 
 			upNegAverage += (times[0] - upNegAverage) / ++upNegCount;
 			downNegAverage += (times[1] - downNegAverage) / ++downNegCount;
 
-			times = upAndDownDependency(bundleContext, testBundleA, coreBundle, false);
+			times = upAndDownDependency(testBundleA, coreBundle, false);
 			upTotalAverage += (times[0] - upTotalAverage) / ++upTotalCount;
 			downTotalAverage += (times[1] - downTotalAverage) / ++downTotalCount;
 
@@ -154,17 +154,17 @@ public class BundleUtilsTest {
 	static long		time;
 	static boolean	depends;
 
-	private static long[] upAndDownDependency(BundleContext context, Bundle targetBundle, Bundle rootBundle, boolean expectedResult) {
+	private static long[] upAndDownDependency(Bundle targetBundle, Bundle rootBundle, boolean expectedResult) {
 		long[] times = new long[2];
 		time = System.nanoTime();
-		depends = BundleUtils.bundleDependsOnBundle(context, targetBundle, rootBundle, BundleUtils.LOOK_UP_STRATEGY.UP);
+		depends = BundleUtils.bundleDependsOnBundle(targetBundle, rootBundle, BundleUtils.LOOK_UP_STRATEGY.UP);
 		time = System.nanoTime() - time;
 		Assert.assertTrue("Bundle " + targetBundle + (expectedResult ? " must" : " must not") + " depend on " + rootBundle, expectedResult == depends);
 		// System.out.println("[ UP ] " + targetBundle + (res ? " does" : " doesn't") + " depend on " + rootBundle + ". Time = " + time + " ns.");
 		times[0] = time;
 
 		time = System.nanoTime();
-		depends = BundleUtils.bundleDependsOnBundle(context, targetBundle, rootBundle, BundleUtils.LOOK_UP_STRATEGY.DOWN);
+		depends = BundleUtils.bundleDependsOnBundle(targetBundle, rootBundle, BundleUtils.LOOK_UP_STRATEGY.DOWN);
 		time = System.nanoTime() - time;
 		Assert.assertTrue("Bundle " + targetBundle + (expectedResult ? " must" : " must not") + " depend on " + rootBundle, expectedResult == depends);
 		// System.out.println("[DOWN] " + targetBundle + (res ? " does" : " doesn't") + " depend on " + rootBundle + ". Time = " + time + " ns.");

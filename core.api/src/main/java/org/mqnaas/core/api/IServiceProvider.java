@@ -37,7 +37,7 @@ public interface IServiceProvider extends ICapability {
 	 * @return The service with the given name or <code>null</code>, if no such service exists or if the service exists but is not available at the
 	 *         moment.
 	 */
-	IService getService(IResource resource, String serviceName) throws ServiceNotFoundException;
+	IService getService(IResource resource, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
 
 	/**
 	 * FIXME This is a service to play with during development and will not be part of the final API

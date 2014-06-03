@@ -98,6 +98,11 @@ public class BundleClassPathUtils {
 	 * @return {@link Set} of classes present in given Bundle
 	 */
 	public static Set<Class<?>> getBundleClasses(Bundle bundle) {
+		if (bundle.getState() != Bundle.ACTIVE) {
+			System.out.println("Can not get classes from bundle " + bundle.getSymbolicName() + ", it is not ACTIVE.");
+			return Collections.emptySet();
+		}
+
 		System.out.println("Getting classes for bundle " + bundle.getSymbolicName());
 
 		Set<Class<?>> classes = new HashSet<Class<?>>();

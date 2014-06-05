@@ -104,7 +104,6 @@ public class BundleGuardTest {
 			System.out.println("Notification of TestClassA received.");
 		}
 
-		/*
 		synchronized (bothClassesNotificationLock) {
 			// FIXME remove testBundleA (it does not change state on testbundleB and its a dependency?!?!? on Karaf, WTF?!?!?)
 			System.out.println("Uninstalling testBundleA and testbundleB...");
@@ -113,12 +112,11 @@ public class BundleGuardTest {
 
 			// wait for callback of both classes
 			do {
-				System.out.println("Waiting for notification of both classes...");
+				System.out.println("Waiting for notification of both classes... [" + rootClassAvailable + ", " + testClassAvailable + "]");
 				bothClassesNotificationLock.wait(NOTIFICATION_TIMEOUT);
-			} while (rootClassAvailable && testClassAvailable);
+			} while (rootClassAvailable || testClassAvailable);
 			System.out.println("Notification of both classes received.");
 		}
-		*/
 	}
 
 	// test class filter returning true when Class clazz is classname or a superclass of it
@@ -177,7 +175,7 @@ public class BundleGuardTest {
 			// if event refers to RootClass, notify it
 			if (clazz.getCanonicalName().equals(ROOT_CLASS_NAME)) {
 				synchronized (bothClassesNotificationLock) {
-					System.out.println("Notifying both calsses locked thread...");
+					System.out.println("Notifying both classes locked thread...");
 					rootClassAvailable = false;
 					bothClassesNotificationLock.notify();
 				}
@@ -185,7 +183,7 @@ public class BundleGuardTest {
 			// if event refers to TestClassA, notify it
 			else if (clazz.getCanonicalName().equals(TEST_CLASS_A_NAME)) {
 				synchronized (bothClassesNotificationLock) {
-					System.out.println("Notifying TestClassA locked threads...");
+					System.out.println("Notifying both classes locked threads...");
 					testClassAvailable = false;
 					bothClassesNotificationLock.notify();
 				}

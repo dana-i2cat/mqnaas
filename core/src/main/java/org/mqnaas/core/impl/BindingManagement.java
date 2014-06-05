@@ -1,8 +1,12 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
@@ -19,15 +23,19 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleEvent;
-import org.osgi.framework.BundleListener;
-import org.osgi.framework.FrameworkUtil;
+import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
+import org.mqnaas.core.impl.resourcetree.CapabilityNode;
+import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
+import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
+import org.mqnaas.core.impl.resourcetree.ResourceNode;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 /**
@@ -49,132 +57,161 @@ import com.google.common.collect.Multimap;
  * </li>
  * <li><u>Manage the {@link IApplication}s available.</u> An <code>IApplication</code> is third party code requiring utilizing platform services to
  * provide its functionalities.</li>
- * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource)} and {@link #resourceRemoved(IResource)}) for details and
- * update the set of services available depending on available capability implementations and resources.</li>
+ * <li><u>Listen to resource being added and removed (see {@link #resourceCreated(IResource, CapabilityInstance)} and
+ * {@link #resourceDestroyed(IResource, CapabilityInstance)}) for details and update the set of services available depending on available capability
+ * implementations and resources.</li>
  * </ol>
  * 
  * <p>
  * Some of these services are not available to the majority of platform users, but are reserved for the sole use of the core, e.g.
- * {@link #resourceAdded(IResource)} and {@link #resourceRemoved(IResource)}.
+ * {@link #resourceCreated(IResource, CapabilityInstance)} and {@link #resourceDestroyed(IResource, CapabilityInstance)}.
  * </p>
  */
-public class BindingManagement implements IServiceProvider, IResourceManagementListener {
+public class BindingManagement implements IServiceProvider, IResourceManagementListener, IInternalResourceManagementListener, IBindingManagement,
+		IBindingManagementEventListener {
 
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
 
-	// Manages the bundle dependency tree and the capabilities each bundle offers
-
-	private CapabilityManagement		capabilityManagement;
-
-	private ApplicationManagement		applicationManagement;
-
 	// Holds the capabilities bound to the given resource
-	private List<CapabilityInstance>	boundCapabilities;
+	private List<CapabilityInstance>			boundCapabilities;
 
-	private List<ApplicationInstance>	applications;
+	private List<ApplicationInstance>			applications;
 
-	private IExecutionService			executionService;
-	private IObservationService			observationService;
-	private IRootResourceManagement		resourceManagement;
-	private IBindingDecider				bindingDecider;
+	// Injected core services
+	IExecutionService							executionService;
+	IObservationService							observationService;
+	IRootResourceManagement						resourceManagement;
+	IBindingDecider								bindingDecider;
+
+	// Holds known capability implementations that will be checked for compatibility with resources in the system.
+	private Set<Class<? extends ICapability>>	knownCapabilities;
+	// Holds known application implementations
+	private Set<Class<? extends IApplication>>	knownApplications;
+
+	private ResourceCapabilityTree				tree;
 
 	public BindingManagement() {
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
 		applications = new ArrayList<ApplicationInstance>();
 
-		// Initialize the capability management, which is used to track
-		// capability implementations whenever bundles change...
-		capabilityManagement = new CapabilityManagement();
+		knownCapabilities = new HashSet<Class<? extends ICapability>>();
+		knownApplications = new HashSet<Class<? extends IApplication>>();
 
-		// ...and the application management, where deployed applications are
-		// tracked
-		applicationManagement = new ApplicationManagement();
+	}
 
-		// The inner core services are instantiated directly...
-		// TODO resolve the instances implementing these interfaces using a internal resolving mechanism. they should be resolved before other
-		// dependencies resolution
-		resourceManagement = new RootResourceManagement();
-		ExecutionService executionServiceInstance = new ExecutionService();
-		executionService = executionServiceInstance;
-		observationService = executionServiceInstance;
-		bindingDecider = new BinderDecider();
+	public void init() throws Exception {
+
+		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null) {
+			throw new Exception("Failed to initialize. Required services not set.");
+		}
 
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
 		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE));
+		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
+
+		// initialize the tree
+		tree = new ResourceCapabilityTree();
+		tree.setRootResourceNode(mqNaaSNode);
+
+		CapabilityInstance resourceManagementCI = new CapabilityInstance(RootResourceManagement.class, resourceManagement);
+		CapabilityInstance executionServiceCI = new CapabilityInstance(ExecutionService.class, executionService);
+		CapabilityInstance binderDeciderCI = new CapabilityInstance(BinderDecider.class, bindingDecider);
+		CapabilityInstance bindingManagementCI = new CapabilityInstance(BindingManagement.class, this);
 
 		// Do the first binds manually
-		bind(mqNaaS, new CapabilityInstance(RootResourceManagement.class, resourceManagement));
-		bind(mqNaaS, new CapabilityInstance(ExecutionService.class, executionService));
-		bind(mqNaaS, new CapabilityInstance(BinderDecider.class, bindingDecider));
-		bind(mqNaaS, new CapabilityInstance(BindingManagement.class, this));
+		bind(new CapabilityNode(resourceManagementCI), mqNaaSNode);
+		bind(new CapabilityNode(executionServiceCI), mqNaaSNode);
+		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
+		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
 		// Initialize the notifications necessary to track resources dynamically
+		// Register the service {@link IInternalResourceManagementListener#resourceCreated(IResource, CapabilityInstance)}
+		// Register the service {@link IInternalResourceManagementListener#resourceDestroyed(IResource, CapabilityInstance)}
 		try {
-			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class), getService(mqNaaS, "resourceAdded"));
-			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class), getService(mqNaaS, "resourceRemoved"));
+			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class),
+					getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class));
+			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
+					getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class));
+			// Initialize the notifications allowing extensions to track resources dynamically (using IResourceManagementListener interface)
+			// These notifications are executed once the resource has already been processed by this BindingManagement ;)
+			observationService.registerObservation(
+					new ServiceFilter(getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class)),
+					getService(mqNaaS, "resourceAdded", IResource.class));
+			observationService.registerObservation(
+					new ServiceFilter(getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class)),
+					getService(mqNaaS, "resourceRemoved", IResource.class));
+
 		} catch (ServiceNotFoundException e) {
 			// FIXME use logger
 			System.out.println("Error registering observation!");
 			e.printStackTrace();
 		}
 
-		// There are two ways of adding bundles to the system, each of which will be handled
-		BundleContext context = getBundleContext();
-
-		// Way 1. If bundles are added or removed at runtime, the following
-		// listener reacts (adding the hook before scanning the already loaded
-		// ones to make sure we don't miss any).
-		context.addBundleListener(new BundleListener() {
-
-			@Override
-			public void bundleChanged(BundleEvent event) {
-				if (event.getType() == BundleEvent.STARTED) {
-					capabilitiesAdded(capabilityManagement.addBundle(event.getBundle()));
-					applicationsAdded(applicationManagement.addBundle(event.getBundle()));
-				}
-			}
-
-		});
-
-		// Way 2. If bundles are already active, add them now
-		for (Bundle bundle : context.getBundles()) {
-			if (bundle.getState() == Bundle.ACTIVE) {
-				capabilitiesAdded(capabilityManagement.addBundle(bundle));
-				applicationsAdded(applicationManagement.addBundle(bundle));
-			}
-		}
-
 	}
+
+	ResourceCapabilityTree getResourceCapabilityTree() {
+		return tree;
+	}
+
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType() == Specification.Type.CORE;
+	}
+
+	// ///////////////////////////////////////
+	// {@link IServiceProvider} implementation
+	// ///////////////////////////////////////
 
 	@Override
 	public Multimap<Class<? extends ICapability>, IService> getServices(IResource resource) {
 
 		Multimap<Class<? extends ICapability>, IService> services = ArrayListMultimap.create();
 
-		for (CapabilityInstance representation : boundCapabilities) {
-			if (representation.getResource().equals(resource) && representation.isResolved()) {
-				services.putAll(representation.getServices());
-			}
+		for (CapabilityInstance representation : filterResolved(getCapabilityInstancesBoundToResource(resource))) {
+			services.putAll(representation.getServices());
 		}
 
 		return services;
 	}
 
 	@Override
-	public IService getService(IResource resource, String name) throws ServiceNotFoundException {
+	public IService getService(IResource resource, String name, Class<?>... parameterClasses) throws ServiceNotFoundException {
 
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
-				return service;
+				if (Arrays.equals(service.getMetadata().getParameterTypes(), parameterClasses)) {
+					return service;
+				}
 			}
 		}
 
 		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
 	}
+
+	// //////////////////////////////////////////////////
+	// {@link IResourceManagementListener} implementation
+	// //////////////////////////////////////////////////
+
+	@Override
+	public void resourceAdded(IResource resource) {
+		// Nothing to do
+		// This is just a service exposed to announce that a resource has been added to the system
+
+	}
+
+	@Override
+	public void resourceRemoved(IResource resource) {
+		// Nothing to do
+		// This is just a service exposed to announce that a resource has been removed from the system
+
+	}
+
+	// //////////////////////////////////////////////////
+	// {@link IInternalResourceManagementListener} implementation
+	// //////////////////////////////////////////////////
 
 	/**
 	 * <p>
@@ -192,14 +229,19 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 * 
 	 * @param resource
 	 *            The resource added to the platform
+	 * @param addedTo
 	 */
 	@Override
-	public void resourceAdded(IResource resource) {
-		// Establish matches
-		for (Class<? extends ICapability> capabilityClass : capabilityManagement.getAllCapabilityClasses()) {
-			if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
-				bind(resource, new CapabilityInstance(capabilityClass));
-			}
+	public void resourceCreated(IResource added, CapabilityInstance managedBy) {
+
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
+
+			addResourceNode(new ResourceNode(added), parent);
+		} catch (CapabilityInstanceNotFoundException e) {
+			System.err.println(e);
 		}
 	}
 
@@ -218,88 +260,297 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 * 
 	 * @param resource
 	 *            The resource removed from the platform
+	 * @param removedFrom
 	 */
 	@Override
-	public void resourceRemoved(IResource resource) {
-		// TODO add unbind logic
+	public void resourceDestroyed(IResource removed, CapabilityInstance managedBy) {
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
+
+			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, removed);
+			if (toRemove == null)
+				throw new ResourceNotFoundException("Resource is not provided by given capability instance");
+
+			removeResourceNode(toRemove, parent);
+		} catch (CapabilityInstanceNotFoundException e) {
+			System.err.println(e);
+		} catch (ResourceNotFoundException e) {
+			System.err.println(e);
+		}
 	}
 
-	private void applicationsAdded(Collection<Class<? extends IApplication>> applicationClasses) {
+	// /////////////////////////////////////////////////
+	// {@link IBindingManagementEventListener} implementation
+	// /////////////////////////////////////////////////
+
+	@Override
+	public void resourceAdded(ResourceNode added, CapabilityNode managedBy) {
+		// Bind matching capabilities
+		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
+			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
+				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)) {
+					bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
+				} else {
+					System.out.println("Already bound " + capabilityClass + " to resource " + added.getContent());
+				}
+			}
+		}
+	}
+
+	@Override
+	public void resourceRemoved(ResourceNode removed, CapabilityNode wasManagedBy) {
+		// Nothing to do, the resource is already removed
+	}
+
+	@Override
+	public void capabilityInstanceBound(CapabilityNode bound, ResourceNode boundTo) {
+		// revolve bound capability and those depending on it
+		resolve(bound.getContent());
+	}
+
+	@Override
+	public void capabilityInstanceUnbound(CapabilityNode unbound, ResourceNode wasBoundTo) {
+		// unresolve unbound capability and those depending on it
+		unresolve(unbound.getContent());
+	}
+
+	@Override
+	public void applicationInstanceAdded(ApplicationInstance added) {
+		// resolve application
+		resolve(added);
+	}
+
+	@Override
+	public void applicationInstanceRemoved(ApplicationInstance removed) {
+		// unresolve application
+		unresolve(removed);
+	}
+
+	// /////////////////////////////////////////
+	// {@link IBindingManagement} implementation
+	// /////////////////////////////////////////
+
+	@Override
+	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) {
+
+		System.out.println("Adding resource " + resource.getContent() + "managed by capability " + managedBy.getContent());
+
+		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
+		// if (parent == null)
+		// throw new CapabilityInstanceNotFoundException(managedBy.getContent(), "Unknown capability instance");
+
+		// 1. Update the model
+		ResourceCapabilityTreeController.addResourceNode(resource, managedBy);
+
+		// 2. Notify this class about the addition
+		// (it will attempt to bind available capabilities to the new resource)
+		resourceAdded(resource, managedBy);
+	}
+
+	@Override
+	public void removeResourceNode(ResourceNode toRemove, CapabilityNode managedBy) {
+
+		System.out.println("Removing resource " + toRemove.getContent() + "managed by capability " + managedBy.getContent());
+
+		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
+		// if (parent == null)
+		// throw new CapabilityInstanceNotFoundException(managedBy.getContent(), "Unknown capability instance");
+		//
+		// if (!parent.getChildren().contains(toRemove))
+		// throw new ResourceNotFoundException("Resource is not provided by given capability instance");
+
+		// 1. Remove on cascade (remove capabilities bound to this resource)
+		// Notice recursivity between removeResource and unbind methods
+		for (CapabilityNode bound : toRemove.getChildren()) {
+			unbind(bound, toRemove);
+		}
+
+		// 2. Update the model
+		ResourceCapabilityTreeController.removeResourceNode(toRemove);
+
+		// 3. Notify this class about the resource removal
+		resourceRemoved(toRemove, managedBy);
+	}
+
+	@Override
+	public void bind(CapabilityNode toBind, ResourceNode toBindTo) {
+
+		System.out.println("Binding " + toBind.getContent() + "to resource " + toBindTo.getContent());
+
+		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(toBindTo);
+		// if (resourceNode == null)
+		// throw new ResourceNotFoundException("Unknown resource");
+
+		// 1. Bind the representation to the resource
+		toBind.getContent().bind(toBindTo.getContent());
+
+		// 2. Update the model
+		boundCapabilities.add(toBind.getContent());
+		ResourceCapabilityTreeController.addCapabilityNode(toBind, toBindTo);
+
+		// 3. Announce this class about the binding
+		// (it will resolve the newly bound capabilityInstance)
+		capabilityInstanceBound(toBind, toBindTo);
+	}
+
+	@Override
+	public void unbind(CapabilityNode toUnbind, ResourceNode boundTo) {
+
+		System.out.println("Unbinding " + toUnbind.getContent() + "bound to resource " + boundTo.getContent());
+
+		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(boundTo);
+		// if (resourceNode == null)
+		// throw new ResourceNotFoundException("Unknown resource");
+		//
+		// if (!resourceNode.getChildren().contains(toUnbind))
+		// throw new CapabilityInstanceNotFoundException(toUnbind.getContent());
+
+		// 1. Remove on cascade (resources provided by toUnbind capability)
+		// Notice recursivity between unbind and removeResource methods
+		for (ResourceNode provided : toUnbind.getChildren()) {
+			removeResourceNode(provided, toUnbind);
+		}
+
+		// 2. Update the model
+		ResourceCapabilityTreeController.removeCapabilityNode(toUnbind);
+		boundCapabilities.remove(toUnbind.getContent());
+
+		// 3. Announce this class about the unbinding
+		// (it will unresolve the unbound capabilityInstance)
+		capabilityInstanceUnbound(toUnbind, boundTo);
+
+		// 4. Unbind the representation to the resource
+		toUnbind.getContent().unbind();
+	}
+
+	@Override
+	public void addApplicationInstance(ApplicationInstance applicationInstance) {
+
+		applications.add(applicationInstance);
+
+		applicationInstanceAdded(applicationInstance);
+	}
+
+	@Override
+	public void removeApplicationInstance(ApplicationInstance applicationInstance) {
+		if (applications.remove(applicationInstance))
+			applicationInstanceRemoved(applicationInstance);
+	}
+
+	// ///////////////////////////
+	// Package-protected callbacks
+	// ///////////////////////////
+
+	/**
+	 * Package-protected callback: Called when application implementations (classes) are available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void applicationsAdded(Collection<Class<? extends IApplication>> applicationClasses) {
 		if (applicationClasses.isEmpty())
 			return;
+
+		knownApplications.addAll(applicationClasses);
 
 		for (Class<? extends IApplication> applicationClass : applicationClasses) {
 			ApplicationInstance application = new ApplicationInstance(applicationClass);
 
-			resolve(application);
-
-			applications.add(application);
-
-			if (application.isResolved()) {
-				application.getInstance().onDependenciesResolved();
-			}
+			addApplicationInstance(application);
 		}
 
 		printAvailableApplications();
 	}
 
-	private void capabilitiesAdded(Collection<Class<? extends ICapability>> capabilityClasses) {
+	/**
+	 * Package-protected callback: Called when application implementations (classes) are no longer available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void applicationsRemoved(Collection<Class<? extends IApplication>> applicationClasses) {
+		if (applicationClasses.isEmpty())
+			return;
+
+		knownApplications.removeAll(applicationClasses);
+
+		// remove ApplicationInstances using removed classes
+		for (ApplicationInstance application : applications) {
+			if (applicationClasses.contains(application.getClazz()))
+				removeApplicationInstance(application);
+		}
+
+		printAvailableApplications();
+	}
+
+	/**
+	 * Package-protected callback: Called when new capability implementations (classes) are available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void capabilitiesAdded(Collection<Class<? extends ICapability>> capabilityClasses) {
 		if (capabilityClasses.isEmpty())
 			return;
 
+		knownCapabilities.addAll(capabilityClasses);
+
 		// Establish matches
-		for (IResource resource : resourceManagement.getRootResources()) {
+		for (ResourceNode resourceNode : ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode())) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
-
-				if (bindingDecider.shouldBeBound(resource, capabilityClass)) {
-					bind(resource, new CapabilityInstance(capabilityClass));
+				if (bindingDecider.shouldBeBound(resourceNode.getContent(), capabilityClass)) {
+					if (!ResourceCapabilityTreeController.isBound(capabilityClass, resourceNode))
+						bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
 				}
 			}
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void capabilitiesRemoved(Collection<Class<? extends ICapability>> capabilityClasses) {
-		// TODO add unbind logic
-	}
+	/**
+	 * Package-protected callback: Called when capability implementations (classes) are no longer available.
+	 * 
+	 * @param capabilityClasses
+	 */
+	void capabilitiesRemoved(Collection<Class<? extends ICapability>> capabilityClasses) {
+		if (capabilityClasses.isEmpty())
+			return;
 
-	// TODO Add unbind logic and move
-	private void bind(IResource resource, CapabilityInstance capabilityInstance) {
+		knownCapabilities.removeAll(capabilityClasses);
 
-		// 0. Avoid double binds: Stupid way
-		for (CapabilityInstance boundCapabilityInstance : boundCapabilities) {
-			if (capabilityInstance.getClazz().equals(boundCapabilityInstance.getClazz())) {
-				if (boundCapabilityInstance.getResource().equals(resource)) {
-					System.out.println("ALREADY BOUND: " + resource + ", " + capabilityInstance);
-					return;
-				}
+		// unbind logic
+		for (CapabilityNode capabilityNode : ResourceCapabilityTreeController.getAllCapabilityNodes(tree.getRootResourceNode())) {
+			if (capabilityClasses.contains(capabilityNode.getContent().getClazz())) {
+				unbind(capabilityNode, capabilityNode.getParent());
 			}
 		}
 
-		// 1. Bind the representation to the resource
-		capabilityInstance.bind(resource);
-
-		// 2. Resolve the dependencies using the newly bound capability
-		resolve(capabilityInstance);
-
-		// 3. Add the service to the capability to be able to return it when requested
-		boundCapabilities.add(capabilityInstance);
 	}
+
+	// ///////////////
+	// private methods
+	// ///////////////
 
 	private void resolve(ApplicationInstance newRepresentation) {
 		// Resolve capability dependencies
-		for (CapabilityInstance representation : boundCapabilities) {
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+
+			// a. Resolve those already registered that depend on the currently added one
+			// No dependency on ApplicationInstances is allowed by now
 
 			// b. Resolve the currently added one with those already registered
 			if (!newRepresentation.isResolved()) {
 				newRepresentation.resolve(representation);
+
 			}
+		}
+
+		if (newRepresentation.isResolved()) {
+			newRepresentation.getInstance().onDependenciesResolved();
 		}
 	}
 
 	private void resolve(CapabilityInstance newRepresentation) {
 		// Resolve capability dependencies
-		for (CapabilityInstance representation : boundCapabilities) {
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
 
 			// a. Resolve those already registered that depend on the currently added one
 			if (!representation.isResolved()) {
@@ -320,13 +571,101 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 					representation.getInstance().onDependenciesResolved();
 				}
 			}
-
 		}
 	}
 
-	private BundleContext getBundleContext() {
-		return FrameworkUtil.getBundle(getClass()).getBundleContext();
+	private void unresolve(CapabilityInstance oldRepresentation) {
+
+		// a. Unresolve itself (dependencies will resolve (try to) if oldRepresentation is bound again)
+		oldRepresentation.unresolveAllDependencies();
+
+		// b. Unresolve those already registered that depend on the old one
+		List<CapabilityInstance> affectedCapabilityInstances = new LinkedList<CapabilityInstance>();
+		for (CapabilityInstance representation : getAllCapabilityInstances()) {
+			boolean affected = representation.unresolve(oldRepresentation);
+			if (affected)
+				affectedCapabilityInstances.add(representation);
+		}
+
+		List<ApplicationInstance> affectedApplicationInstances = new LinkedList<ApplicationInstance>();
+		for (ApplicationInstance representation : applications) {
+			boolean affected = representation.unresolve(oldRepresentation);
+			if (affected)
+				affectedApplicationInstances.add(representation);
+		}
+
+		// c. try to resolve affected ones
+		for (CapabilityInstance representation : affectedCapabilityInstances) {
+			resolve(representation);
+		}
+
+		for (ApplicationInstance representation : affectedApplicationInstances) {
+			resolve(representation);
+		}
+
 	}
+
+	private void unresolve(ApplicationInstance oldRepresentation) {
+
+		// a. Unresolve itself (dependencies will resolve (try to) if oldRepresentation is bound again)
+		oldRepresentation.unresolveAllDependencies();
+
+		// b. Unresolve those already registered that depend on the old one
+		// No dependency on ApplicationInstances is allowed by now
+	}
+
+	List<CapabilityInstance> getAllCapabilityInstances() {
+		return boundCapabilities;
+	}
+
+	List<IResource> getAllResources() {
+		List<ResourceNode> allResourceNodes = ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode());
+		List<IResource> allResources = new ArrayList<IResource>(allResourceNodes.size());
+		for (ResourceNode node : allResourceNodes) {
+			allResources.add(node.getContent());
+		}
+		return allResources;
+	}
+
+	private Iterable<CapabilityInstance> filterResolved(Iterable<CapabilityInstance> toFilter) {
+		Predicate<CapabilityInstance> isResolved = new Predicate<CapabilityInstance>() {
+			@Override
+			public boolean apply(CapabilityInstance ci) {
+				return ci.isResolved();
+			}
+		};
+		return Iterables.filter(toFilter, isResolved);
+	}
+
+	List<CapabilityInstance> getCapabilityInstancesBoundToResource(IResource resource) {
+
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
+		if (resourceNode == null)
+			return new ArrayList<CapabilityInstance>(0);
+
+		List<CapabilityInstance> bound = new ArrayList<CapabilityInstance>();
+		for (CapabilityNode capabNode : resourceNode.getChildren()) {
+			bound.add(capabNode.getContent());
+		}
+		return bound;
+	}
+
+	List<IResource> getResourcesProvidedByCapabilityInstance(CapabilityInstance capabilityInstance) {
+
+		CapabilityNode capab = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), capabilityInstance);
+		if (capab == null)
+			return new ArrayList<IResource>(0);
+
+		List<IResource> resources = new ArrayList<IResource>(capab.getChildren().size());
+		for (ResourceNode resourceNode : capab.getChildren()) {
+			resources.add(resourceNode.getContent());
+		}
+		return resources;
+	}
+
+	// ////////////////
+	// Printing methods
+	// ////////////////
 
 	public void printAvailableApplications() {
 		System.out.println("\nAVAILABLE APPLICATIONS -------------------------------------------");
@@ -348,10 +687,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			System.out.println("Resource " + resource);
 
-			for (CapabilityInstance representation : boundCapabilities) {
-
-				if (!representation.getResource().equals(resource))
-					continue;
+			for (CapabilityInstance representation : getCapabilityInstancesBoundToResource(resource)) {
 
 				System.out.println(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
 						.getPendingClasses() + "]");
@@ -376,5 +712,4 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		System.out.println("------------------------------------------------------------------");
 	}
-
 }

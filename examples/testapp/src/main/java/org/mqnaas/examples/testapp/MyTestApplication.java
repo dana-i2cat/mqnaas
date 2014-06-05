@@ -3,6 +3,7 @@ package org.mqnaas.examples.testapp;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
@@ -45,7 +46,7 @@ public class MyTestApplication implements IApplication {
 		IService observedService = null;
 		IService notifiedService = null;
 		try {
-			observedService = serviceProvider.getService(mqNaaS, "resourceAdded");
+			observedService = serviceProvider.getService(mqNaaS, "resourceAdded", IResource.class);
 			notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
 		} catch (ServiceNotFoundException e) {
 			// FIXME this should not happen

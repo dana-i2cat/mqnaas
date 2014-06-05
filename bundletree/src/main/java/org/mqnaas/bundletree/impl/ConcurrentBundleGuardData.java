@@ -15,7 +15,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 /**
- * TODO
+ * {@link BundleGuard} data containing all the necessary structures to offer its services.
  * 
  * @author Julio Carlos Barrera
  * 
@@ -83,21 +83,24 @@ public class ConcurrentBundleGuardData {
 	 * Notifies (entered or left) an IClassListener with given Collection of Class'es.
 	 */
 	private void notifyClassListener(IClassListener classListener, Collection<Class<?>> classes, ClassListenerNotification notification) {
-		// TODO use a switch
 		for (Class<?> clazz : classes) {
-			if (notification == ClassListenerNotification.ENTERED) {
-				classListener.classEntered(clazz);
-			} else if (notification == ClassListenerNotification.LEFT) {
-				classListener.classLeft(clazz);
+			switch (notification) {
+				case ENTERED:
+					classListener.classEntered(clazz);
+					break;
+				case LEFT:
+					classListener.classLeft(clazz);
+					break;
 			}
 		}
 	}
 
 	/**
-	 * Performs action to be done when a {@link Bundle} leaves the system: <br/>
-	 * TODO update javadoc
+	 * Performs a set of actions to be done when a {@link Bundle} leaves the system: <br/>
 	 * <ol>
-	 * <li>Notify classes left any previously notified {@link IClassListener} with classes in classListenerNotifiedClassesMap.</li>
+	 * <li>Notify classes left to any previously notified {@link IClassListener} with classes in classListenerNotifiedClassesMap.</li>
+	 * <li>Remove notified classes from classListenerNotifiedClassesMap for each IClassListener.</li>
+	 * <li>Remove Bundle entry from bundleClassesMap.</li>
 	 * </ol>
 	 * 
 	 * @param bundle

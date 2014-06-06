@@ -10,6 +10,8 @@ import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
 import org.mqnaas.bundletree.utils.BundleClassPathUtils;
 import org.osgi.framework.Bundle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -21,6 +23,8 @@ import com.google.common.collect.Multimap;
  * 
  */
 public class ConcurrentBundleGuardData {
+
+	private static final Logger			log								= LoggerFactory.getLogger(ConcurrentBundleGuardData.class);
 
 	private Object						lock							= new Object();
 
@@ -46,7 +50,7 @@ public class ConcurrentBundleGuardData {
 	 *            added Bundle, to be analysed
 	 */
 	public void bundleIn(Bundle bundle) {
-		System.out.println("Bundle in: " + bundle);
+		log.debug("Bundle in: " + bundle);
 		synchronized (lock) {
 			// extract classes from Bundle and store them in bundleClassesMap
 			bundleClassesMap.putAll(bundle, BundleClassPathUtils.getBundleClasses(bundle));
@@ -107,7 +111,7 @@ public class ConcurrentBundleGuardData {
 	 *            left Bundle
 	 */
 	public void bundleOut(Bundle bundle) {
-		System.out.println("Bundle out: " + bundle);
+		log.debug("Bundle out: " + bundle);
 		synchronized (lock) {
 			// iterate over previously notified IClassListener present in classListenerNotifiedClassesMap
 			for (IClassListener classListener : classListenerNotifiedClassesMap.keySet()) {

@@ -9,6 +9,8 @@ import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.bundletree.tree.BundleTreeUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bundle Classpath Utilities.
@@ -17,6 +19,8 @@ import org.osgi.framework.wiring.BundleWiring;
  * 
  */
 public class BundleClassPathUtils {
+
+	private static final Logger	log	= LoggerFactory.getLogger(BundleClassPathUtils.class);
 
 	interface ClassVisitor {
 		void visit(Class<?> resourceClass);
@@ -43,7 +47,7 @@ public class BundleClassPathUtils {
 	 */
 	public static <T> Set<Class<? extends T>> scanBundle(Bundle bundle, Class<T> interfaceScannedFor, String ancestorBundle) {
 		if (BundleTreeUtils.isBundleDependant(bundle, "core.api")) {
-			System.out.println("Scanning bundle " + bundle.getSymbolicName());
+			log.debug("Scanning bundle " + bundle.getSymbolicName());
 
 			ImplementationDetectingClassVisitor<T> visitor = new ImplementationDetectingClassVisitor<T>(interfaceScannedFor);
 
@@ -99,11 +103,11 @@ public class BundleClassPathUtils {
 	 */
 	public static Set<Class<?>> getBundleClasses(Bundle bundle) {
 		if (bundle.getState() != Bundle.ACTIVE) {
-			System.out.println("Can not get classes from bundle " + bundle.getSymbolicName() + ", it is not ACTIVE.");
+			log.warn("Can not get classes from bundle " + bundle.getSymbolicName() + ", it is not ACTIVE.");
 			return Collections.emptySet();
 		}
 
-		System.out.println("Getting classes for bundle " + bundle.getSymbolicName());
+		log.debug("Getting classes for bundle " + bundle.getSymbolicName());
 
 		Set<Class<?>> classes = new HashSet<Class<?>>();
 
@@ -114,8 +118,7 @@ public class BundleClassPathUtils {
 				// Load the classes and pass them to the visitor
 				resourceName = resourceName.replaceAll(".class", "").replaceAll("/", ".");
 
-				// FIXME use low trace level log or remove these lines
-				System.out.println("\tLoading class " + resourceName);
+				log.trace("\tLoading class " + resourceName);
 
 				classes.add(bundle.loadClass(resourceName));
 			} catch (IncompatibleClassChangeError e) {

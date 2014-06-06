@@ -11,6 +11,8 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bundle Utilities.
@@ -20,9 +22,11 @@ import org.osgi.framework.wiring.BundleWiring;
  */
 public class BundleUtils {
 
+	private static final Logger	log	= LoggerFactory.getLogger(BundleUtils.class);
+
 	/**
+	 * Strategy chooser enum for {@link #bundleDependsOnBundle(Bundle, Bundle, LOOK_UP_STRATEGY)} method
 	 * 
-	 *
 	 */
 	public enum LOOK_UP_STRATEGY {
 		UP, DOWN
@@ -59,7 +63,7 @@ public class BundleUtils {
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
 	private static boolean bundleDependsOnBundleUp(Bundle candidateBundle, Bundle rootBundle) {
-		// System.out.println("Checking if " + candidateBundle + " depends on " + rootBundle);
+		log.debug("Checking if " + candidateBundle + " depends on " + rootBundle);
 		// check if candidateBundle is rootBundle itself
 		if (candidateBundle.equals(rootBundle)) {
 			return true;
@@ -70,7 +74,7 @@ public class BundleUtils {
 	private static boolean bundleDependsOnBundleUp(Set<Bundle> candidateAncestorBundles, Bundle rootBundle,
 			Set<Bundle> visitedBundles) {
 		// check if any direct ancestor is rootBundle
-		// System.out.println("\tChecking if " + rootBundle + " is an ancestor of " + candidateAncestorBundles);
+		log.trace("\tChecking if " + rootBundle + " is an ancestor of " + candidateAncestorBundles);
 		if (candidateAncestorBundles.contains(rootBundle)) {
 			return true;
 		}
@@ -87,18 +91,18 @@ public class BundleUtils {
 
 		// if all the nextAncestordBundles have been visited previously, it is not necessary to continue looking for rootBundle
 		if (nextAncestordBundles.isEmpty()) {
-			// System.out.println("No new ancestors, returning false.");
+			log.trace("No new ancestors, returning false.");
 			return false;
 		}
 
 		// check ancestor bundles recursively
-		// System.out.println("\tNext Layer: " + nextAncestordBundles);
+		log.trace("\tNext Layer: " + nextAncestordBundles);
 		if (bundleDependsOnBundleUp(nextAncestordBundles, rootBundle, visitedBundles)) {
 			return true;
 		}
 
 		// no ancestor bundle is rootBundle
-		// System.out.println("No " + rootBundle + " in ancestors, returning false.");
+		log.trace("No " + rootBundle + " in ancestors, returning false.");
 		return false;
 	}
 
@@ -113,7 +117,7 @@ public class BundleUtils {
 	 * @return true if candidateBundle depends directly or indirectly on rootBundle, false otherwise
 	 */
 	private static boolean bundleDependsOnBundleDown(Bundle candidateBundle, Bundle rootBundle) {
-		// System.out.println("Checking if " + candidateBundle + " depends on " + rootBundle);
+		log.debug("Checking if " + candidateBundle + " depends on " + rootBundle);
 		// check if candidateBundle is rootBundle itself
 		if (candidateBundle.equals(rootBundle)) {
 			return true;
@@ -124,7 +128,7 @@ public class BundleUtils {
 	private static boolean bundleDependsOnBundleDown(Bundle candidateBundle, Set<Bundle> candidateChildBundles,
 			Set<Bundle> visitedBundles) {
 		// check if any direct child is candidateBundle
-		// System.out.println("\tChecking if " + candidateBundle + " depends on " + candidateChildBundles);
+		log.trace("\tChecking if " + candidateBundle + " depends on " + candidateChildBundles);
 		if (candidateChildBundles.contains(candidateBundle)) {
 			return true;
 		}
@@ -141,18 +145,18 @@ public class BundleUtils {
 
 		// if all the nextChildbundles have been visited previously, it is not necessary to continue looking for candidateBundle
 		if (nextChildBundles.isEmpty()) {
-			// System.out.println("No new childs, returning false.");
+			log.trace("No new childs, returning false.");
 			return false;
 		}
 
 		// check child bundles recursively
-		// System.out.println("\tNext Layer: " + nextChildBundles);
+		log.trace("\tNext Layer: " + nextChildBundles);
 		if (bundleDependsOnBundleDown(candidateBundle, nextChildBundles, visitedBundles)) {
 			return true;
 		}
 
 		// no child bundle is candidateBundle
-		// System.out.println("No " + candidateBundle + " in childs, returning false.");
+		log.trace("No " + candidateBundle + " in childs, returning false.");
 		return false;
 	}
 

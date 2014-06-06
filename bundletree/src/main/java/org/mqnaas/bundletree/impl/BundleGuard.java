@@ -14,6 +14,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Bundle Guard maintains a set of registered {@link IClassListener}, each of them using a {@link IClassFilter}.
@@ -29,6 +31,8 @@ import org.osgi.framework.FrameworkUtil;
  */
 public class BundleGuard implements IBundleGuard {
 
+	private static final Logger	log	= LoggerFactory.getLogger(BundleGuard.class);
+
 	// method declaring this instance as MQNaaS core ICapability
 	public static boolean isSupporting(IRootResource resource) {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
@@ -39,11 +43,13 @@ public class BundleGuard implements IBundleGuard {
 
 	@Override
 	public void registerClassListener(IClassFilter classFilter, IClassListener classListener) {
+		log.info("Registering Class Listener.");
 		data.registerClassListener(classListener, classFilter);
 	}
 
 	@Override
 	public void unregisterClassListener(IClassListener classListener) {
+		log.info("Unregistering Class Listener.");
 		data.unregisterClassListener(classListener);
 	}
 
@@ -61,7 +67,7 @@ public class BundleGuard implements IBundleGuard {
 
 		@Override
 		public void bundleChanged(BundleEvent event) {
-			System.out.println("Received BundleEvent: " + event + ", " + bundleEventType2String(event.getType()));
+			log.debug("Received BundleEvent: " + event + ", " + bundleEventType2String(event.getType()));
 			try {
 				// a new bundle got started
 				if (event.getType() == BundleEvent.STARTED) {
@@ -89,7 +95,7 @@ public class BundleGuard implements IBundleGuard {
 				}
 			} catch (BundleNotFoundException e) {
 				// this should not happen, "core.api" bundle must exist
-				System.out.println("core.api bundle not found: " + e.getMessage());
+				log.error("core.api bundle not found.", e);
 			}
 		}
 	}

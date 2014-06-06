@@ -32,6 +32,8 @@ import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
@@ -69,6 +71,8 @@ import com.google.common.collect.Multimap;
  */
 public class BindingManagement implements IServiceProvider, IResourceManagementListener, IInternalResourceManagementListener, IBindingManagement,
 		IBindingManagementEventListener {
+
+	private static final Logger					log	= LoggerFactory.getLogger(BindingManagement.class);
 
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
@@ -146,9 +150,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 					getService(mqNaaS, "resourceRemoved", IResource.class));
 
 		} catch (ServiceNotFoundException e) {
-			// FIXME use logger
-			System.out.println("Error registering observation!");
-			e.printStackTrace();
+			log.error("Error registering observation!", e);
 		}
 
 	}
@@ -241,7 +243,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			addResourceNode(new ResourceNode(added), parent);
 		} catch (CapabilityInstanceNotFoundException e) {
-			System.err.println(e);
+			log.error("No parent found!", e);
 		}
 	}
 
@@ -275,9 +277,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			removeResourceNode(toRemove, parent);
 		} catch (CapabilityInstanceNotFoundException e) {
-			System.err.println(e);
+			log.error("No parent found!", e);
 		} catch (ResourceNotFoundException e) {
-			System.err.println(e);
+			log.error("No resource to be removed found!", e);
 		}
 	}
 
@@ -293,7 +295,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)) {
 					bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
 				} else {
-					System.out.println("Already bound " + capabilityClass + " to resource " + added.getContent());
+					log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
 				}
 			}
 		}
@@ -335,7 +337,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) {
 
-		System.out.println("Adding resource " + resource.getContent() + "managed by capability " + managedBy.getContent());
+		log.info("Adding resource " + resource.getContent() + " managed by capability " + managedBy.getContent());
 
 		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
 		// if (parent == null)
@@ -352,7 +354,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void removeResourceNode(ResourceNode toRemove, CapabilityNode managedBy) {
 
-		System.out.println("Removing resource " + toRemove.getContent() + "managed by capability " + managedBy.getContent());
+		log.info("Removing resource " + toRemove.getContent() + " managed by capability " + managedBy.getContent());
 
 		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
 		// if (parent == null)
@@ -377,7 +379,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void bind(CapabilityNode toBind, ResourceNode toBindTo) {
 
-		System.out.println("Binding " + toBind.getContent() + "to resource " + toBindTo.getContent());
+		log.info("Binding " + toBind.getContent() + " to resource " + toBindTo.getContent());
 
 		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(toBindTo);
 		// if (resourceNode == null)
@@ -398,7 +400,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void unbind(CapabilityNode toUnbind, ResourceNode boundTo) {
 
-		System.out.println("Unbinding " + toUnbind.getContent() + "bound to resource " + boundTo.getContent());
+		log.info("Unbinding " + toUnbind.getContent() + " bound to resource " + boundTo.getContent());
 
 		// ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNode(boundTo);
 		// if (resourceNode == null)
@@ -668,48 +670,57 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// ////////////////
 
 	public void printAvailableApplications() {
-		System.out.println("\nAVAILABLE APPLICATIONS -------------------------------------------");
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("\nAVAILABLE APPLICATIONS -------------------------------------------\n");
 
 		for (ApplicationInstance representation : applications) {
-			System.out.println(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
-					.getPendingClasses() + "]");
+			sb.append(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
+					.getPendingClasses() + "]\n");
 		}
 
-		System.out.println("------------------------------------------------------------------");
+		sb.append("------------------------------------------------------------------\n");
+
+		log.info(sb.toString());
+		System.out.println(sb.toString());
 	}
 
 	@Override
 	public void printAvailableServices() {
+		StringBuffer sb = new StringBuffer();
 
-		System.out.println("\nAVAILABLE SERVICES -----------------------------------------------");
+		sb.append("\nAVAILABLE SERVICES -----------------------------------------------\n");
 
 		for (IResource resource : resourceManagement.getRootResources()) {
 
-			System.out.println("Resource " + resource);
+			sb.append("Resource " + resource + "\n");
 
 			for (CapabilityInstance representation : getCapabilityInstancesBoundToResource(resource)) {
 
-				System.out.println(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
-						.getPendingClasses() + "]");
+				sb.append(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
+						.getPendingClasses() + "]\n");
 
 				for (Class<? extends ICapability> capability : representation.getServices().keySet()) {
-					System.out.println("  Services of " + capability);
+					sb.append("  Services of " + capability + "\n");
 
-					System.out.print("    ");
+					sb.append("    ");
 					int index = 0;
 					for (IService service : representation.getServices().values()) {
 						if (index > 0)
-							System.out.print(", ");
-						System.out.print(service);
+							sb.append(", ");
+						sb.append(service);
 						index++;
 					}
-					System.out.println();
+					sb.append("\n");
 				}
 			}
 
-			System.out.println();
+			sb.append("\n");
 		}
 
-		System.out.println("------------------------------------------------------------------");
+		sb.append("------------------------------------------------------------------\n");
+
+		log.info(sb.toString());
+		System.out.println(sb.toString());
 	}
 }

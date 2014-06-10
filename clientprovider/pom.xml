@@ -30,6 +30,10 @@
 			<artifactId>cxf-bundle-jaxrs</artifactId>
 			<version>2.7.10</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -40,7 +44,10 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Import-Package>*</Import-Package>
+						<Import-Package>
+							org.slf4j;provider=paxlogging,
+							*
+						</Import-Package>
 						<Export-Package>
 							org.mqnaas.clientprovider.api.apiclient,
 							org.mqnaas.clientprovider.api.client

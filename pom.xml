@@ -60,6 +60,9 @@
 		<!-- Apache CXF bundle version -->
 		<cxf-version>2.7.10</cxf-version>
 
+		<!-- SLF4J version -->
+		<slf4j-version>1.7.7</slf4j-version>
+
 		<!-- JUnit version -->
 		<junit-version>4.11</junit-version>
 
@@ -121,6 +124,11 @@
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-bundle</artifactId>
 				<version>${cxf-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j-version}</version>
 			</dependency>
 
 			<!-- test dependencies -->

@@ -9,8 +9,12 @@ import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.Specification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExecutionService implements IExecutionService, IObservationService {
+
+	private static final Logger					log	= LoggerFactory.getLogger(ExecutionService.class);
 
 	// Holds the registered notification filters
 	private Map<IObservationFilter, IService>	observationFilters;
@@ -44,8 +48,7 @@ public class ExecutionService implements IExecutionService, IObservationService 
 
 				IService notifiedService = observationFilters.get(filter);
 
-				System.out
-						.println(getClass().getSimpleName() + ": Observing filter " + filter + " MATCHES, executing '" + notifiedService + "' " + (asynchronously ? "asynchronously" : "synchronously"));
+				log.debug(getClass().getSimpleName() + ": Observing filter " + filter + " MATCHES, executing '" + notifiedService + "' " + (asynchronously ? "asynchronously" : "synchronously"));
 
 				if (asynchronously) {
 					new Thread(new RunnableService(notifiedService, args)).start();

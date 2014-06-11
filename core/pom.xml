@@ -58,10 +58,7 @@
 				<configuration>
 					<instructions>
 						<Bundle-Activator>org.mqnaas.core.impl.Activator</Bundle-Activator>
-						<Import-Package>
-							org.slf4j;provider=paxlogging,
-							*
-						</Import-Package>
+						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,
 							org.mqnaas.core.impl.notificationfilter

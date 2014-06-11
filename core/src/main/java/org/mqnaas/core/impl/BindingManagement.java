@@ -15,6 +15,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
@@ -104,7 +105,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE));
+		IRootResource mqNaaS = resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE)));
 
 		// Do the first binds manually
 		bind(mqNaaS, new CapabilityInstance(RootResourceManagement.class, resourceManagement));

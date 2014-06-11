@@ -1,11 +1,13 @@
 package org.mqnaas.core.api;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
  * {@link IRootResource}s.
  */
+@XmlType(propOrder = { "type", "model", "version" })
 public class Specification {
 
 	/**
@@ -50,7 +52,6 @@ public class Specification {
 		}
 	};
 
-	@XmlElement(required = true)
 	private Type	type;
 
 	private String	model, version;
@@ -77,6 +78,7 @@ public class Specification {
 		return type;
 	}
 
+	@XmlElement(required = true)
 	public void setType(Type type) {
 		this.type = type;
 	}

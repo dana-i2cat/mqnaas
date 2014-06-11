@@ -7,6 +7,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -30,7 +31,7 @@ public class MyTestApplication implements IApplication {
 	@Override
 	public void onDependenciesResolved() {
 
-		IRootResource mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
+		IRootResource mqNaaS = resourceManagement.getCore();
 
 		IService observedService = null;
 		IService notifiedService = null;
@@ -46,15 +47,15 @@ public class MyTestApplication implements IApplication {
 
 		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos")));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+		resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Opener")));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos")));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+		resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Opener")));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos")));
 
 	}
 

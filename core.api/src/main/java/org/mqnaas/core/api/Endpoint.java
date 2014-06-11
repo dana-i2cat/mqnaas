@@ -4,6 +4,14 @@ import java.net.URI;
 
 public class Endpoint {
 
+	public Endpoint() {
+
+	}
+
+	public Endpoint(URI uri) {
+		this.uri = uri;
+	}
+
 	private URI	uri;
 
 	/**

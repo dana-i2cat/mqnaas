@@ -1,10 +1,14 @@
 package org.mqnaas.core.impl;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
 import org.mqnaas.core.api.Specification;
 
+@XmlRootElement
 public class Resource implements IRootResource {
 
 	private ITransactionBehavior	transactionBehaviour	= new UnawareTransactionBehaviour();
@@ -12,6 +16,9 @@ public class Resource implements IRootResource {
 	private ILockingBehaviour		lockingBehaviour		= new DefaultLockingBehaviour();
 
 	private Specification			specification;
+
+	Resource() {
+	}
 
 	protected Resource(Specification specification) {
 		this.specification = specification;
@@ -34,6 +41,21 @@ public class Resource implements IRootResource {
 	@Override
 	public Specification getSpecification() {
 		return specification;
+	}
+
+	@Override
+	public String getId() {
+		StringBuilder sb = new StringBuilder(specification.getType().toString());
+
+		if (!StringUtils.isEmpty(specification.getModel())) {
+			sb.append(":").append(specification.getModel());
+		}
+
+		if (!StringUtils.isEmpty(specification.getVersion())) {
+			sb.append(":").append(specification.getVersion());
+		}
+
+		return sb.toString();
 	}
 
 	@Override

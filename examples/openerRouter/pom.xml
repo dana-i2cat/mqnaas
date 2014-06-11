@@ -40,10 +40,7 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Import-Package>
-							org.slf4j;provider=paxlogging,
-							*
-						</Import-Package>
+						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.examples.openerRouter
 						</Export-Package>

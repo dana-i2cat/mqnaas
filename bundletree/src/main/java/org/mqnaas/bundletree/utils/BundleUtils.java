@@ -95,6 +95,9 @@ public class BundleUtils {
 			return false;
 		}
 
+		// add bundle to visitiedBundles
+		visitedBundles.addAll(nextAncestordBundles);
+
 		// check ancestor bundles recursively
 		log.trace("\tNext Layer: " + nextAncestordBundles);
 		if (bundleDependsOnBundleUp(nextAncestordBundles, rootBundle, visitedBundles)) {
@@ -148,6 +151,9 @@ public class BundleUtils {
 			log.trace("No new childs, returning false.");
 			return false;
 		}
+
+		// add bundle to visitiedBundles
+		visitedBundles.addAll(nextChildBundles);
 
 		// check child bundles recursively
 		log.trace("\tNext Layer: " + nextChildBundles);

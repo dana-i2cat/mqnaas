@@ -38,8 +38,8 @@ public class BundleGuard implements IBundleGuard {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
-	InternalBundleListener		bundleListener	= new InternalBundleListener();
 	ConcurrentBundleGuardData	data			= new ConcurrentBundleGuardData();
+	InternalBundleListener		bundleListener	= new InternalBundleListener();
 
 	@Override
 	public void registerClassListener(IClassFilter classFilter, IClassListener classListener) {
@@ -62,36 +62,55 @@ public class BundleGuard implements IBundleGuard {
 
 		public InternalBundleListener() {
 			// register itself as BundleListener
+			log.info("Registering BundleGuard as BundleListener");
 			FrameworkUtil.getBundle(BundleGuard.class).getBundleContext().addBundleListener(this);
+
+			// check current platform active bundles
+			log.info("Checking current platform bundles...");
+			Bundle[] bundles = FrameworkUtil.getBundle(getClass()).getBundleContext().getBundles();
+			for (Bundle bundle : bundles) {
+				if (bundle.getState() == Bundle.ACTIVE) {
+					// process each bundle as a recently started bundle
+					log.trace("Checking current platform bundle: " + bundle);
+					filterBundleStarted(bundle);
+				}
+			}
 		}
 
 		@Override
 		public void bundleChanged(BundleEvent event) {
 			log.debug("Received BundleEvent: " + event + ", " + bundleEventType2String(event.getType()));
-			try {
-				// a new bundle got started
-				if (event.getType() == BundleEvent.STARTED) {
-					Bundle bundle = event.getBundle();
 
-					// is this bundle dependent of core.api bundle
-					if (BundleUtils.bundleDependsOnBundle(bundle, BundleUtils.getBundleBySymbolicName("core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
-						// add this bundle as dependent of core.api
-						coreAPIDependentBundles.add(bundle);
-						// apply bundle IN logic
-						data.bundleIn(bundle);
-					}
+			// a new bundle got started
+			if (event.getType() == BundleEvent.STARTED) {
+				Bundle bundle = event.getBundle();
+
+				// process new bundle in platform
+				filterBundleStarted(bundle);
+			}
+
+			// a previous bundle got stopped
+			else if (event.getType() == BundleEvent.STOPPED) {
+				Bundle bundle = event.getBundle();
+
+				// is this bundle dependent of core.api bundle
+				if (coreAPIDependentBundles.contains(bundle)) {
+					// apply bundle OUT logic
+					data.bundleOut(bundle);
+					// remove bundle from coreAPIDependentBundles
+					coreAPIDependentBundles.remove(bundle);
 				}
-				// a previous bundle got stopped
-				else if (event.getType() == BundleEvent.STOPPED) {
-					Bundle bundle = event.getBundle();
+			}
+		}
 
-					// is this bundle dependent of core.api bundle
-					if (coreAPIDependentBundles.contains(bundle)) {
-						// apply bundle OUT logic
-						data.bundleOut(bundle);
-						// remove bundle from coreAPIDependentBundles
-						coreAPIDependentBundles.remove(bundle);
-					}
+		private void filterBundleStarted(Bundle bundle) {
+			try {
+				// is this bundle dependent of core.api bundle
+				if (BundleUtils.bundleDependsOnBundle(bundle, BundleUtils.getBundleBySymbolicName("core.api"), BundleUtils.LOOK_UP_STRATEGY.UP)) {
+					// add this bundle as dependent of core.api
+					coreAPIDependentBundles.add(bundle);
+					// apply bundle IN logic
+					data.bundleIn(bundle);
 				}
 			} catch (BundleNotFoundException e) {
 				// this should not happen, "core.api" bundle must exist

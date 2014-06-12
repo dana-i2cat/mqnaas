@@ -40,7 +40,11 @@ public class BundleUtilsTest {
 				// no local and remote consoles
 				KarafDistributionOption.configureConsole().ignoreLocalConsole(),
 				KarafDistributionOption.configureConsole().ignoreRemoteShell(),
+				// keep runtime folder allowing analysing results
 				KarafDistributionOption.keepRuntimeFolder(),
+				// use custom logging configuration file with a custom appender
+				KarafDistributionOption.replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg", new File(
+						"src/test/resources/org.ops4j.pax.logging.cfg")),
 				// add core feature (including bundletree)
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas"),
@@ -78,7 +82,7 @@ public class BundleUtilsTest {
 
 	static final int			TEST_ITERATIONS	= 1000;
 
-	static final NumberFormat	FORMATTER		= new DecimalFormat("0000000.000");
+	static final NumberFormat	FORMATTER		= new DecimalFormat("#,###,###.000");
 
 	@Test
 	public void bundleDependecyAnalysisTest() throws Exception {

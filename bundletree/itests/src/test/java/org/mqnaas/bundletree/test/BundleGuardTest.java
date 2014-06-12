@@ -41,7 +41,11 @@ public class BundleGuardTest {
 				// no local and remote consoles
 				KarafDistributionOption.configureConsole().ignoreLocalConsole(),
 				KarafDistributionOption.configureConsole().ignoreRemoteShell(),
+				// keep runtime folder allowing analysing results
 				KarafDistributionOption.keepRuntimeFolder(),
+				// use custom logging configuration file with a custom appender
+				KarafDistributionOption.replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg", new File(
+						"src/test/resources/org.ops4j.pax.logging.cfg")),
 				// add bundletree feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("bundletree").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "bundletree"),

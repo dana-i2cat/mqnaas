@@ -176,6 +176,13 @@
 				<version>${karaf-version}</version>
 				<type>tar.gz</type>
 				<scope>test</scope>
+				<!-- exclude Karaf client to avoid SLF4J binding conflicts -->
+				<exclusions>
+					<exclusion>
+						<artifactId>org.apache.karaf.client</artifactId>
+						<groupId>org.apache.karaf</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -71,6 +71,9 @@
 
 		<!-- OPS4J Pax Exam version -->
 		<pax-exam-version>3.5.0</pax-exam-version>
+
+		<!-- javax.inject version -->
+		<javax.inject-version>1</javax.inject-version>
 	</properties>
 
 	<dependencyManagement>
@@ -130,6 +133,11 @@
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j-version}</version>
 			</dependency>
+			<dependency>
+				<groupId>javax.inject</groupId>
+				<artifactId>javax.inject</artifactId>
+				<version>${javax.inject-version}</version>
+			</dependency>
 
 			<!-- test dependencies -->
 			<dependency>
@@ -160,6 +168,7 @@
 				<groupId>org.ops4j.pax.exam</groupId>
 				<artifactId>pax-exam-spi</artifactId>
 				<version>${pax-exam-version}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.karaf</groupId>

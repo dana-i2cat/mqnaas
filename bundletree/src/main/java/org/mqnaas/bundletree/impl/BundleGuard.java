@@ -87,6 +87,9 @@ public class BundleGuard implements IBundleGuard {
 
 				// process new bundle in platform
 				filterBundleStarted(bundle);
+
+				// refresh bundles to update wires
+				BundleUtils.refreshBundles();
 			}
 
 			// a previous bundle got stopped
@@ -100,6 +103,9 @@ public class BundleGuard implements IBundleGuard {
 					// remove bundle from coreAPIDependentBundles
 					coreAPIDependentBundles.remove(bundle);
 				}
+
+				// refresh bundles to update wires
+				BundleUtils.refreshBundles();
 			}
 		}
 

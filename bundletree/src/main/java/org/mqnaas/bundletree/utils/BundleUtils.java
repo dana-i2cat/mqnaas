@@ -11,6 +11,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.osgi.framework.wiring.FrameworkWiring;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -232,6 +233,40 @@ public class BundleUtils {
 		}
 
 		return dependencies;
+	}
+
+	/**
+	 * Refreshes bundles using FrameworkWiring and current Bundle (<a
+	 * href="https://mail.osgi.org/pipermail/osgi-dev/2014-June/004459.html">reference</a>).
+	 */
+	public static void refreshBundles() {
+		log.trace("Refreshing bundles...");
+
+		Bundle currentBundle = FrameworkUtil.getBundle(BundleUtils.class);
+		if (currentBundle == null) {
+			log.error("Could not obtain current bundle! Not refreshing Bundles.");
+			return;
+		}
+
+		BundleContext bundleContext = currentBundle.getBundleContext();
+		if (bundleContext == null) {
+			log.error("Could not obtain bundle context! Not refreshing Bundles.");
+			return;
+		}
+
+		Bundle systemBundle = bundleContext.getBundle(0);
+		if (systemBundle == null) {
+			log.error("Could not obtain system bundle! Not refreshing Bundles.");
+			return;
+		}
+
+		FrameworkWiring frameworkWiring = systemBundle.adapt(FrameworkWiring.class);
+		if (frameworkWiring == null) {
+			log.error("Could not obtain FrameworkWiring from system bundle! Not refreshing Bundles.");
+			return;
+		}
+
+		frameworkWiring.refreshBundles(null);
 	}
 
 }

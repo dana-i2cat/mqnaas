@@ -109,10 +109,9 @@ public class BundleGuardTest {
 		}
 
 		synchronized (bothClassesNotificationLock) {
-			// FIXME remove testBundleA (it does not change state on testbundleB and its a dependency?!?!? on Karaf, WTF?!?!?)
+			// remove testBundleA (consequently testBundleB will be stopped because it has unresolved dependencies)
 			System.out.println("Uninstalling testBundleA and testbundleB...");
 			testBundleA.uninstall();
-			testBundleB.uninstall();
 
 			// wait for callback of both classes
 			do {

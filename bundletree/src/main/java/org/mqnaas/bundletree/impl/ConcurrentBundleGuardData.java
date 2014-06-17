@@ -60,7 +60,7 @@ public class ConcurrentBundleGuardData {
 				Collection<Class<?>> classesToNotify = getFilteredClasses(classFilter, bundleClassesMap.get(bundle));
 				IClassListener classListener = classListenersMap.get(classFilter);
 				classListenerNotifiedClassesMap.putAll(classListener, classesToNotify);
-				notifyClassListener(classListener, classesToNotify, ClassListenerNotification.ENTERED);
+				notifyClassListenerOnClassEntered(classListener, classesToNotify);
 			}
 		}
 	}
@@ -79,23 +79,21 @@ public class ConcurrentBundleGuardData {
 		return filteredClasses;
 	}
 
-	private enum ClassListenerNotification {
-		ENTERED, LEFT
+	/*
+	 * Notifies an IClassListener on Class entered with given Collection of Class'es.
+	 */
+	private void notifyClassListenerOnClassEntered(IClassListener classListener, Collection<Class<?>> classes) {
+		for (Class<?> clazz : classes) {
+			classListener.classEntered(clazz);
+		}
 	}
 
 	/*
-	 * Notifies (entered or left) an IClassListener with given Collection of Class'es.
+	 * Notifies an IClassListener on Class left with given Collection of Class'es.
 	 */
-	private void notifyClassListener(IClassListener classListener, Collection<Class<?>> classes, ClassListenerNotification notification) {
+	private void notifyClassListenerOnClassLeft(IClassListener classListener, Collection<Class<?>> classes) {
 		for (Class<?> clazz : classes) {
-			switch (notification) {
-				case ENTERED:
-					classListener.classEntered(clazz);
-					break;
-				case LEFT:
-					classListener.classLeft(clazz);
-					break;
-			}
+			classListener.classLeft(clazz);
 		}
 	}
 
@@ -121,7 +119,7 @@ public class ConcurrentBundleGuardData {
 				notifiedClasses.retainAll(bundleClasses);
 
 				// notify left classes
-				notifyClassListener(classListener, notifiedClasses, ClassListenerNotification.LEFT);
+				notifyClassListenerOnClassLeft(classListener, notifiedClasses);
 
 				// remove notified classes from classListenerNotifiedClassesMap for this classListener
 				for (Class<?> clazz : notifiedClasses) {
@@ -151,7 +149,7 @@ public class ConcurrentBundleGuardData {
 			for (Bundle bundle : bundleClassesMap.keySet()) {
 				Collection<Class<?>> classesToNotify = getFilteredClasses(classFilter, bundleClassesMap.get(bundle));
 				classListenerNotifiedClassesMap.putAll(classListener, classesToNotify);
-				notifyClassListener(classListener, classesToNotify, ClassListenerNotification.ENTERED);
+				notifyClassListenerOnClassEntered(classListener, classesToNotify);
 			}
 		}
 	}

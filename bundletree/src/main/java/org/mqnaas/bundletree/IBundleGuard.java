@@ -22,7 +22,8 @@ public interface IBundleGuard extends ICapability {
 	public void registerClassListener(IClassFilter classFilter, IClassListener classListener);
 
 	/**
-	 * Unregister a previously registered {@link IClassListener}.
+	 * Unregister a previously registered {@link IClassListener}. This operation removes first IClassListener found registered with given
+	 * IClassFilter. For this reason it is recommended registering each IClassListener as a different instance.
 	 * 
 	 * @param classListener
 	 *            IClassListener to be unregistered

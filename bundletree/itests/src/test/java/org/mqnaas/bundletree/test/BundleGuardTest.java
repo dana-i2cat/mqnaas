@@ -75,11 +75,12 @@ public class BundleGuardTest {
 
 	Object				bothClassesNotificationLock	= new Object();
 
+	// bundle guard instance as OSGi service
+	@Inject
+	IBundleGuard		bundleGuard;
+
 	@Test(timeout = TEST_TIMEOUT)
 	public void bundleGuardtest() throws Exception {
-
-		// create bundle guard
-		IBundleGuard bundleGuard = new BundleGuard();
 
 		// register to listen for RootClass
 		bundleGuard.registerClassListener(new TestClassFilter(ROOT_CLASS_NAME), new TestClassListener());

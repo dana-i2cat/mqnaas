@@ -22,6 +22,12 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+/**
+ * {@link BundleGuard} tests
+ * 
+ * @author Julio Carlos Barrera
+ * 
+ */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class BundleGuardTest {

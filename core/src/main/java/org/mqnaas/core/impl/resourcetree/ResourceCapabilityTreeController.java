@@ -172,4 +172,9 @@ public class ResourceCapabilityTreeController {
 
 		return capabilities;
 	}
+
+	public static CapabilityNode getCapabilityNodeWithContentCapability(ResourceNode rootResourceNode, ICapability managedBy) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

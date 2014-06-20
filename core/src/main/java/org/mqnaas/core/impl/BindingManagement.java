@@ -23,11 +23,11 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
-import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
@@ -59,8 +59,8 @@ import com.google.common.collect.Multimap;
  * </li>
  * <li><u>Manage the {@link IApplication}s available.</u> An <code>IApplication</code> is third party code requiring utilizing platform services to
  * provide its functionalities.</li>
- * <li><u>Listen to resource being added and removed (see {@link #resourceCreated(IResource, CapabilityInstance)} and
- * {@link #resourceDestroyed(IResource, CapabilityInstance)}) for details and update the set of services available depending on available capability
+ * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource, ICapability)} and
+ * {@link #resourceRemoved(IResource, ICapability)}) for details and update the set of services available depending on available capability
  * implementations and resources.</li>
  * </ol>
  * 
@@ -133,22 +133,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
 		// Initialize the notifications necessary to track resources dynamically
-		// Register the service {@link IInternalResourceManagementListener#resourceCreated(IResource, CapabilityInstance)}
-		// Register the service {@link IInternalResourceManagementListener#resourceDestroyed(IResource, CapabilityInstance)}
+		// Register the service {@link IResourceManagementListener#resourceAdded(IResource, ICapability);}
+		// Register the service {@link IResourceManagementListener#resourceRemoved(IResource, ICapability);}
 		try {
+			// TODO Ensure these observations are treated BEFORE any other observation of resource creation/removal.
+			// By now, applications willing to react to resource creation or removal should observe services in IResourceManagementListener.
+			// They should not use ResourceMonitoringFilter, as the resource may not be ready to be used.
 			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class),
-					getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class));
+					getService(mqNaaS, "resourceAdded", IResource.class, ICapability.class));
 			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
-					getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class));
-			// Initialize the notifications allowing extensions to track resources dynamically (using IResourceManagementListener interface)
-			// These notifications are executed once the resource has already been processed by this BindingManagement ;)
-			observationService.registerObservation(
-					new ServiceFilter(getService(mqNaaS, "resourceCreated", IResource.class, CapabilityInstance.class)),
-					getService(mqNaaS, "resourceAdded", IResource.class));
-			observationService.registerObservation(
-					new ServiceFilter(getService(mqNaaS, "resourceDestroyed", IResource.class, CapabilityInstance.class)),
-					getService(mqNaaS, "resourceRemoved", IResource.class));
-
+					getService(mqNaaS, "resourceRemoved", IResource.class, ICapability.class));
 		} catch (ServiceNotFoundException e) {
 			log.error("Error registering observation!", e);
 		}
@@ -197,18 +191,73 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// {@link IResourceManagementListener} implementation
 	// //////////////////////////////////////////////////
 
+	/**
+	 * <p>
+	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was added to the platform.
+	 * </p>
+	 * <p>
+	 * The {@link BindingManagement} implementation than
+	 * <ol>
+	 * <li>checks whether the added {@link IResource} can be bound to any of the currently available capability implementations (using
+	 * {@link IBindingDecider#shouldBeBound(IResource, Class)}),</li>
+	 * <li>binds the {@link IResource} and the capability implementation,</li>
+	 * <li>resolves all capability dependencies, and</li>
+	 * <li>makes all services available which are defined in <b>all</b> newly resolved capability implementations.</li>
+	 * </ol>
+	 * 
+	 * @param resource
+	 *            The resource added to the platform
+	 * @param managedBy
+	 *            The ICapability managing given resource
+	 */
 	@Override
-	public void resourceAdded(IResource resource) {
-		// Nothing to do
-		// This is just a service exposed to announce that a resource has been added to the system
+	public void resourceAdded(IResource resource, ICapability managedBy) {
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityNotFoundException(managedBy, "Unknown capability");
 
+			addResourceNode(new ResourceNode(resource), parent);
+		} catch (CapabilityNotFoundException e) {
+			log.error("No parent found!", e);
+		}
 	}
 
+	/**
+	 * <p>
+	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was removed from the platform.
+	 * </p>
+	 * <p>
+	 * The {@link BindingManagement} implementation than
+	 * 
+	 * <ol>
+	 * <li>unbinds the {@link IResource} from all its capability implementations,</li>
+	 * <li>unresolves all capability implementation dependencies, and</li>
+	 * <li>removes all services which were provided by the given resource.</li>
+	 * </ol>
+	 * 
+	 * @param resource
+	 *            The resource removed from the platform
+	 * @param managedBy
+	 *            The ICapability managing given resource
+	 */
 	@Override
-	public void resourceRemoved(IResource resource) {
-		// Nothing to do
-		// This is just a service exposed to announce that a resource has been removed from the system
+	public void resourceRemoved(IResource resource, ICapability managedBy) {
+		try {
+			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(), managedBy);
+			if (parent == null)
+				throw new CapabilityNotFoundException(managedBy, "Unknown capability");
 
+			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
+			if (toRemove == null)
+				throw new ResourceNotFoundException("Resource is not provided by given capability");
+
+			removeResourceNode(toRemove, parent);
+		} catch (CapabilityNotFoundException e) {
+			log.error("No parent found!", e);
+		} catch (ResourceNotFoundException e) {
+			log.error("No resource to be removed found!", e);
+		}
 	}
 
 	// //////////////////////////////////////////////////
@@ -216,10 +265,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// //////////////////////////////////////////////////
 
 	/**
-	 * <p>
-	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was added to the platform.
-	 * </p>
-	 * <p>
 	 * The {@link BindingManagement} implementation than
 	 * <ol>
 	 * <li>checks whether the added {@link IResource} can be bound to any of the currently available capability implementations (using
@@ -248,9 +293,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	/**
-	 * <p>
-	 * This is the service called by the {@link IResourceManagement} whenever a new {@link IResource} was removed from the platform.
-	 * </p>
 	 * <p>
 	 * The {@link BindingManagement} implementation than
 	 * 

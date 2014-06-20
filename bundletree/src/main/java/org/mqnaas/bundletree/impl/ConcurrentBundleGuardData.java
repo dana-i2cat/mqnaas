@@ -84,6 +84,7 @@ public class ConcurrentBundleGuardData {
 	 */
 	private void notifyClassListenerOnClassEntered(IClassListener classListener, Collection<Class<?>> classes) {
 		for (Class<?> clazz : classes) {
+			log.trace("Notify classEntered event to classListener (" + classListener + ") with class " + clazz.getCanonicalName());
 			classListener.classEntered(clazz);
 		}
 	}
@@ -93,6 +94,7 @@ public class ConcurrentBundleGuardData {
 	 */
 	private void notifyClassListenerOnClassLeft(IClassListener classListener, Collection<Class<?>> classes) {
 		for (Class<?> clazz : classes) {
+			log.trace("Notify classLeft event to classListener (" + classListener + ") with class " + clazz.getCanonicalName());
 			classListener.classLeft(clazz);
 		}
 	}

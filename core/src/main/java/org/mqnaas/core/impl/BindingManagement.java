@@ -377,7 +377,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		@Override
 		public boolean filter(Class<?> clazz) {
 			// retrieve only instantiable classes
-			return clazz.isAssignableFrom(ICapability.class) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
+			return ICapability.class.isAssignableFrom(clazz) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
 		}
 
 	}
@@ -387,7 +387,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		@Override
 		public boolean filter(Class<?> clazz) {
 			// retrieve only instantiable classes
-			return clazz.isAssignableFrom(IApplication.class) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
+			return IApplication.class.isAssignableFrom(clazz) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
 		}
 
 	}
@@ -401,9 +401,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// safe-casting of classes, checked previously
 		@SuppressWarnings("unchecked")
 		public void classEntered(Class<?> clazz) {
-			if (clazz.isAssignableFrom(ICapability.class)) {
+			log.debug("Received classEntered event for class: " + clazz.getCanonicalName());
+			if (ICapability.class.isAssignableFrom(clazz)) {
 				capabilitiesAdded(Arrays.<Class<? extends ICapability>> asList((Class<? extends ICapability>) clazz));
-			} else if (clazz.isAssignableFrom(IApplication.class)) {
+			} else if (IApplication.class.isAssignableFrom(clazz)) {
 				applicationsAdded(Arrays.<Class<? extends IApplication>> asList((Class<? extends IApplication>) clazz));
 			} else {
 				log.error("Unknown ClassListener classEntered event received from class " + clazz.getCanonicalName());
@@ -414,9 +415,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// safe-casting of classes, checked previously
 		@SuppressWarnings("unchecked")
 		public void classLeft(Class<?> clazz) {
-			if (clazz.isAssignableFrom(ICapability.class)) {
+			log.debug("Received classLeft event for class: " + clazz.getCanonicalName());
+			if (ICapability.class.isAssignableFrom(clazz)) {
 				capabilitiesRemoved(Arrays.<Class<? extends ICapability>> asList((Class<? extends ICapability>) clazz));
-			} else if (clazz.isAssignableFrom(IApplication.class)) {
+			} else if (IApplication.class.isAssignableFrom(clazz)) {
 				applicationsRemoved(Arrays.<Class<? extends IApplication>> asList((Class<? extends IApplication>) clazz));
 			} else {
 				log.error("Unknown ClassListener classLeft event received from class " + clazz.getCanonicalName());

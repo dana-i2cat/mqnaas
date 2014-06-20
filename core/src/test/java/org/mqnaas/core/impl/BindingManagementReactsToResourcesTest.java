@@ -15,6 +15,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
 
 public class BindingManagementReactsToResourcesTest {
@@ -43,10 +44,11 @@ public class BindingManagementReactsToResourcesTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.resourceManagement = resourceManagement;
-		bindingManagement.bindingDecider = bindingDecider;
-		bindingManagement.executionService = executionServiceInstance;
-		bindingManagement.observationService = executionServiceInstance;
+		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setBindingDecider(bindingDecider);
+		bindingManagement.setExecutionService(executionServiceInstance);
+		bindingManagement.setObservationService(executionServiceInstance);
+		bindingManagement.setBundleGuard(new DummyBundleGuard());
 
 		bindingManagement.init();
 

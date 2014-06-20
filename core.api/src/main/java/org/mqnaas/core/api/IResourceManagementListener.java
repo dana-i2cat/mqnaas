@@ -4,6 +4,8 @@ package org.mqnaas.core.api;
  * <code>IResourceManagementListener</code> is responsible of receiving notifications of {@link IResourceManagement} whenever a {@link IResource} is
  * added to or removed from the platform.
  * 
+ * One may observe services in this ICapability to react to Resource creation and removal in the platform. See {@link IObservationService}.
+ * 
  */
 public interface IResourceManagementListener extends ICapability {
 	/**
@@ -14,8 +16,10 @@ public interface IResourceManagementListener extends ICapability {
 	 * 
 	 * @param resource
 	 *            The resource added to the platform
+	 * @param managedBy
+	 *            The ICapability managing given resource
 	 */
-	void resourceAdded(IResource resource);
+	void resourceAdded(IResource resource, ICapability managedBy);
 
 	/**
 	 * <p>
@@ -25,6 +29,8 @@ public interface IResourceManagementListener extends ICapability {
 	 * 
 	 * @param resource
 	 *            The resource removed from the platform
+	 * @param managedBy
+	 *            The ICapability managing given resource
 	 */
-	void resourceRemoved(IResource resource);
+	void resourceRemoved(IResource resource, ICapability managedBy);
 }

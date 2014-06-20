@@ -43,13 +43,13 @@ public class BundleGuard implements IBundleGuard {
 
 	@Override
 	public void registerClassListener(IClassFilter classFilter, IClassListener classListener) {
-		log.info("Registering Class Listener.");
+		log.info("Registering Class Listener: " + classListener);
 		data.registerClassListener(classListener, classFilter);
 	}
 
 	@Override
 	public void unregisterClassListener(IClassListener classListener) {
-		log.info("Unregistering Class Listener.");
+		log.info("Unregistering Class Listener: " + classListener);
 		data.unregisterClassListener(classListener);
 	}
 

@@ -26,7 +26,6 @@ import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
-import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
@@ -69,7 +68,7 @@ import com.google.common.collect.Multimap;
  * {@link #resourceCreated(IResource, CapabilityInstance)} and {@link #resourceDestroyed(IResource, CapabilityInstance)}.
  * </p>
  */
-public class BindingManagement implements IServiceProvider, IResourceManagementListener, IInternalResourceManagementListener, IBindingManagement,
+public class BindingManagement implements IServiceProvider, IResourceManagementListener, IBindingManagement,
 		IBindingManagementEventListener {
 
 	private static final Logger					log	= LoggerFactory.getLogger(BindingManagement.class);
@@ -254,71 +253,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			removeResourceNode(toRemove, parent);
 		} catch (CapabilityNotFoundException e) {
-			log.error("No parent found!", e);
-		} catch (ResourceNotFoundException e) {
-			log.error("No resource to be removed found!", e);
-		}
-	}
-
-	// //////////////////////////////////////////////////
-	// {@link IInternalResourceManagementListener} implementation
-	// //////////////////////////////////////////////////
-
-	/**
-	 * The {@link BindingManagement} implementation than
-	 * <ol>
-	 * <li>checks whether the added {@link IResource} can be bound to any of the currently available capability implementations (using
-	 * {@link IBindingDecider#shouldBeBound(IResource, Class)}),</li>
-	 * <li>binds the {@link IResource} and the capability implementation,</li>
-	 * <li>resolves all capability dependencies, and</li>
-	 * <li>makes all services available which are defined in <b>all</b> newly resolved capability implementations.</li>
-	 * </ol>
-	 * 
-	 * @param resource
-	 *            The resource added to the platform
-	 * @param addedTo
-	 */
-	@Override
-	public void resourceCreated(IResource added, CapabilityInstance managedBy) {
-
-		try {
-			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
-			if (parent == null)
-				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
-
-			addResourceNode(new ResourceNode(added), parent);
-		} catch (CapabilityInstanceNotFoundException e) {
-			log.error("No parent found!", e);
-		}
-	}
-
-	/**
-	 * <p>
-	 * The {@link BindingManagement} implementation than
-	 * 
-	 * <ol>
-	 * <li>unbinds the {@link IResource} from all its capability implementations,</li>
-	 * <li>unresolves all capability implementation dependencies, and</li>
-	 * <li>removes all services which were provided by the given resource.</li>
-	 * </ol>
-	 * 
-	 * @param resource
-	 *            The resource removed from the platform
-	 * @param removedFrom
-	 */
-	@Override
-	public void resourceDestroyed(IResource removed, CapabilityInstance managedBy) {
-		try {
-			CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContent(tree.getRootResourceNode(), managedBy);
-			if (parent == null)
-				throw new CapabilityInstanceNotFoundException(managedBy, "Unknown capability instance");
-
-			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, removed);
-			if (toRemove == null)
-				throw new ResourceNotFoundException("Resource is not provided by given capability instance");
-
-			removeResourceNode(toRemove, parent);
-		} catch (CapabilityInstanceNotFoundException e) {
 			log.error("No parent found!", e);
 		} catch (ResourceNotFoundException e) {
 			log.error("No resource to be removed found!", e);

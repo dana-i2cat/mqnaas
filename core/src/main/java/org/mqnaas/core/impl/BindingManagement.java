@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -8,6 +9,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.mqnaas.bundletree.IBundleGuard;
+import org.mqnaas.bundletree.IClassFilter;
+import org.mqnaas.bundletree.IClassListener;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -82,10 +86,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private List<ApplicationInstance>			applications;
 
 	// Injected core services
-	IExecutionService							executionService;
-	IObservationService							observationService;
-	IRootResourceManagement						resourceManagement;
-	IBindingDecider								bindingDecider;
+	private IExecutionService					executionService;
+	private IObservationService					observationService;
+	private IRootResourceManagement				resourceManagement;
+	private IBindingDecider						bindingDecider;
+	private IBundleGuard						bundleGuard;
+
+	// internal {@link IClassListener} instance
+	private InternalClassListener				internalClassListener;
 
 	// Holds known capability implementations that will be checked for compatibility with resources in the system.
 	private Set<Class<? extends ICapability>>	knownCapabilities;
@@ -106,7 +114,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	public void init() throws Exception {
 
-		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null) {
+		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null || bundleGuard == null) {
 			throw new Exception("Failed to initialize. Required services not set.");
 		}
 
@@ -146,6 +154,37 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			log.error("Error registering observation!", e);
 		}
 
+		// register class listeners
+		log.info("Registering as ClassListener with IApplicationClassFilter ICapabilityClassFilter");
+		internalClassListener = new InternalClassListener();
+		bundleGuard.registerClassListener(new IApplicationClassFilter(), internalClassListener);
+		bundleGuard.registerClassListener(new ICapabilityClassFilter(), internalClassListener);
+
+	}
+
+	public void setExecutionService(IExecutionService executionService) {
+		log.info("Setting IExecutionService");
+		this.executionService = executionService;
+	}
+
+	public void setObservationService(IObservationService observationService) {
+		log.info("Setting IObservationService");
+		this.observationService = observationService;
+	}
+
+	public void setResourceManagement(IRootResourceManagement resourceManagement) {
+		log.info("Setting IRootResourceManagement");
+		this.resourceManagement = resourceManagement;
+	}
+
+	public void setBindingDecider(IBindingDecider bindingDecider) {
+		log.info("Setting IBindingDecider");
+		this.bindingDecider = bindingDecider;
+	}
+
+	public void setBundleGuard(IBundleGuard bundleGuard) {
+		log.info("Setting IBundleGuard");
+		this.bundleGuard = bundleGuard;
 	}
 
 	ResourceCapabilityTree getResourceCapabilityTree() {
@@ -304,6 +343,62 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void applicationInstanceRemoved(ApplicationInstance removed) {
 		// unresolve application
 		unresolve(removed);
+	}
+
+	// ////////////////////////////////////////////////////////////////////////////////////
+	// {@link ICapability} and {@link IApplication} {@link IClassFilter} implementations //
+	// ////////////////////////////////////////////////////////////////////////////////////
+	private class ICapabilityClassFilter implements IClassFilter {
+
+		@Override
+		public boolean filter(Class<?> clazz) {
+			// retrieve only instantiable classes
+			return clazz.isAssignableFrom(ICapability.class) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
+		}
+
+	}
+
+	private class IApplicationClassFilter implements IClassFilter {
+
+		@Override
+		public boolean filter(Class<?> clazz) {
+			// retrieve only instantiable classes
+			return clazz.isAssignableFrom(IApplication.class) && !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
+		}
+
+	}
+
+	// /////////////////////////////////////////
+	// {@link IClassListener} implementation //
+	// /////////////////////////////////////////
+	private class InternalClassListener implements IClassListener {
+
+		@Override
+		// safe-casting of classes, checked previously
+		@SuppressWarnings("unchecked")
+		public void classEntered(Class<?> clazz) {
+			if (clazz.isAssignableFrom(ICapability.class)) {
+				capabilitiesAdded(Arrays.<Class<? extends ICapability>> asList((Class<? extends ICapability>) clazz));
+			} else if (clazz.isAssignableFrom(IApplication.class)) {
+				applicationsAdded(Arrays.<Class<? extends IApplication>> asList((Class<? extends IApplication>) clazz));
+			} else {
+				log.error("Unknown ClassListener classEntered event received from class " + clazz.getCanonicalName());
+			}
+		}
+
+		@Override
+		// safe-casting of classes, checked previously
+		@SuppressWarnings("unchecked")
+		public void classLeft(Class<?> clazz) {
+			if (clazz.isAssignableFrom(ICapability.class)) {
+				capabilitiesRemoved(Arrays.<Class<? extends ICapability>> asList((Class<? extends ICapability>) clazz));
+			} else if (clazz.isAssignableFrom(IApplication.class)) {
+				applicationsRemoved(Arrays.<Class<? extends IApplication>> asList((Class<? extends IApplication>) clazz));
+			} else {
+				log.error("Unknown ClassListener classLeft event received from class " + clazz.getCanonicalName());
+			}
+		}
+
 	}
 
 	// /////////////////////////////////////////

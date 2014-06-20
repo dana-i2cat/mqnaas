@@ -14,6 +14,7 @@ import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
+import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
@@ -43,10 +44,12 @@ public class BindingManagementTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.resourceManagement = resourceManagement;
-		bindingManagement.bindingDecider = bindingDecider;
-		bindingManagement.executionService = executionServiceInstance;
-		bindingManagement.observationService = executionServiceInstance;
+		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setBindingDecider(bindingDecider);
+		bindingManagement.setExecutionService(executionServiceInstance);
+		bindingManagement.setObservationService(executionServiceInstance);
+		// use dummy BundleGuard
+		bindingManagement.setBundleGuard(new DummyBundleGuard());
 
 		bindingManagement.init();
 

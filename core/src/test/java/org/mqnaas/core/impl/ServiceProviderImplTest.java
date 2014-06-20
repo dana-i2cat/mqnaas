@@ -19,6 +19,7 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 
 /**
  * 
@@ -45,10 +46,12 @@ public class ServiceProviderImplTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.resourceManagement = resourceManagement;
-		bindingManagement.bindingDecider = bindingDecider;
-		bindingManagement.executionService = executionServiceInstance;
-		bindingManagement.observationService = executionServiceInstance;
+		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setBindingDecider(bindingDecider);
+		bindingManagement.setExecutionService(executionServiceInstance);
+		bindingManagement.setObservationService(executionServiceInstance);
+		// use dummy BundleGuard
+		bindingManagement.setBundleGuard(new DummyBundleGuard());
 
 		bindingManagement.init();
 

@@ -3,7 +3,7 @@ package org.mqnaas.core.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IServiceMetaData;
 
 /**
@@ -12,25 +12,25 @@ import org.mqnaas.core.api.IServiceMetaData;
  */
 public class ServiceMetaData implements IServiceMetaData {
 
-	Method		method;
+	Method			method;
 
-	ICapability	capability;
+	IApplication	application;
 
-	ServiceMetaData(Method method, ICapability capability) {
+	ServiceMetaData(Method method, IApplication application) {
 		this.method = method;
-		this.capability = capability;
+		this.application = application;
 	}
 
 	public Method getMethod() {
 		return method;
 	}
 
-	public ICapability getCapability() {
-		return capability;
+	public IApplication getApplication() {
+		return application;
 	}
 
-	public Class<? extends ICapability> getCapabilityClass() {
-		return capability.getClass();
+	public Class<? extends IApplication> getApplicationClass() {
+		return application.getClass();
 	}
 
 	public String getName() {

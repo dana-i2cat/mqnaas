@@ -1,5 +1,7 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,6 +14,8 @@ public class RootResourceDescriptor {
 
 	@XmlElement(required = true)
 	private Specification							specification;
+
+	private Collection<Endpoint>					endpoints;
 
 	public Class<? extends ITransactionBehavior> getTransactionBehaviour() {
 		return transactionBehaviour;
@@ -35,6 +39,19 @@ public class RootResourceDescriptor {
 
 	public void setSpecification(Specification specification) {
 		this.specification = specification;
+	}
+
+	public Collection<Endpoint> getEndpoints() {
+		return endpoints;
+	}
+
+	public void setEndpoints(Collection<Endpoint> endpoints) {
+		this.endpoints = endpoints;
+	}
+
+	@Override
+	public String toString() {
+		return "RootResourceDescriptor [transactionBehaviour=" + transactionBehaviour + ", lockingBehaviour=" + lockingBehaviour + ", specification=" + specification + ", endpoints=" + endpoints + "]";
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,6 +15,9 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.impl.utils.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -30,6 +34,8 @@ import com.google.common.collect.Multimap;
  * </p>
  */
 public class CapabilityInstance extends AbstractInstance<ICapability> {
+
+	private static final Logger									log	= LoggerFactory.getLogger(CapabilityInstance.class);
 
 	private IExecutionService									executionService;
 
@@ -143,7 +149,36 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 		proxy = (ICapability) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
 				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
 
+		// 3. Inject resource to capability instance
+		ICapability capability = getInstance();
+		try {
+			injectResourceToCapability(capability, resource);
+		} catch (IllegalArgumentException e) {
+			// this should not happen, this ICapability has an IResource field to be injected
+			log.error("Error injecting resource {} in capability {}.", resource, capability);
+			log.error("Exception: ", e);
+		} catch (IllegalAccessException e) {
+			// this should not happen, this method should be able to inject field value
+			log.error("Error injecting resource {} in capability {}.", resource, capability);
+			log.error("Exception: ", e);
+		}
+
 		this.resource = resource;
+	}
+
+	/**
+	 * Injects resource in each field of given capability instance (including his superclasses).
+	 */
+	private static void injectResourceToCapability(ICapability capability, IResource resource) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<? extends ICapability> capabilityClass = capability.getClass();
+		List<Field> resourceFields = ReflectionUtils.getAnnotationFields(capabilityClass, org.mqnaas.core.api.annotations.Resource.class);
+		for (Field resourceField : resourceFields) {
+			if (!resourceField.isAccessible()) {
+				resourceField.setAccessible(true);
+			}
+			resourceField.set(capability, resource);
+		}
 	}
 
 	public void unbind() {

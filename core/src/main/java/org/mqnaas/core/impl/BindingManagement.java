@@ -27,10 +27,12 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
+import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
@@ -83,7 +85,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// Holds the capabilities bound to the given resource
 	private List<CapabilityInstance>			boundCapabilities;
 
-	private List<ApplicationInstance>			applications;
+	private List<ApplicationNode>				applications;
 
 	// Injected core services
 	private IExecutionService					executionService;
@@ -105,7 +107,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public BindingManagement() {
 
 		boundCapabilities = new ArrayList<CapabilityInstance>();
-		applications = new ArrayList<ApplicationInstance>();
+		applications = new ArrayList<ApplicationNode>();
 
 		knownCapabilities = new HashSet<Class<? extends ICapability>>();
 		knownApplications = new HashSet<Class<? extends IApplication>>();
@@ -262,7 +264,23 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				log.error("No parent found!", e);
 			}
 		} else {
-			// TODO: treat the case an application is managing a resource!!!
+			// treat the case an application is managing a resource
+			try {
+				ApplicationNode parent = null;
+				for (ApplicationNode applicationNode : applications) {
+					if (applicationNode.getContent().getInstance().equals(managedBy)) {
+						parent = applicationNode;
+						break;
+					}
+				}
+				if (parent == null)
+					throw new ApplicationNotFoundException(managedBy, "Unknown application");
+
+				addResourceNode(new ResourceNode(resource), parent);
+			} catch (ApplicationNotFoundException e) {
+				log.error("No parent found!", e);
+			}
+
 		}
 	}
 
@@ -304,7 +322,28 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				log.error("No resource to be removed found!", e);
 			}
 		} else {
-			// TODO: treat the case an application is managing a resource!!!
+			// treat the case an application is managing a resource
+			try {
+				ApplicationNode parent = null;
+				for (ApplicationNode applicationNode : applications) {
+					if (applicationNode.getContent().getInstance().equals(managedBy)) {
+						parent = applicationNode;
+						break;
+					}
+				}
+				if (parent == null)
+					throw new ApplicationNotFoundException(managedBy, "Unknown application");
+
+				ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
+				if (toRemove == null)
+					throw new ResourceNotFoundException("Resource is not provided by given application");
+
+				removeResourceNode(toRemove, parent);
+			} catch (ApplicationNotFoundException e) {
+				log.error("No parent found!", e);
+			} catch (ResourceNotFoundException e) {
+				log.error("No resource to be removed found!", e);
+			}
 		}
 	}
 
@@ -313,7 +352,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// /////////////////////////////////////////////////
 
 	@Override
-	public void resourceAdded(ResourceNode added, CapabilityNode managedBy) {
+	public void resourceAdded(ResourceNode added, ApplicationNode managedBy) {
 		// Bind matching capabilities
 		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
 			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
@@ -327,7 +366,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void resourceRemoved(ResourceNode removed, CapabilityNode wasManagedBy) {
+	public void resourceRemoved(ResourceNode removed, ApplicationNode wasManagedBy) {
 		// Nothing to do, the resource is already removed
 	}
 
@@ -418,13 +457,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// /////////////////////////////////////////
 
 	@Override
-	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) {
+	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy) {
 
-		log.info("Adding resource " + resource.getContent() + " managed by capability " + managedBy.getContent());
-
-		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
-		// if (parent == null)
-		// throw new CapabilityInstanceNotFoundException(managedBy.getContent(), "Unknown capability instance");
+		log.info("Adding resource " + resource.getContent() + " managed by application " + managedBy.getContent());
 
 		// 1. Update the model
 		ResourceCapabilityTreeController.addResourceNode(resource, managedBy);
@@ -435,16 +470,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void removeResourceNode(ResourceNode toRemove, CapabilityNode managedBy) {
+	public void removeResourceNode(ResourceNode toRemove, ApplicationNode managedBy) {
 
-		log.info("Removing resource " + toRemove.getContent() + " managed by capability " + managedBy.getContent());
-
-		// CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNode(managedBy);
-		// if (parent == null)
-		// throw new CapabilityInstanceNotFoundException(managedBy.getContent(), "Unknown capability instance");
-		//
-		// if (!parent.getChildren().contains(toRemove))
-		// throw new ResourceNotFoundException("Resource is not provided by given capability instance");
+		log.info("Removing resource " + toRemove.getContent() + " managed by application " + managedBy.getContent());
 
 		// 1. Remove on cascade (remove capabilities bound to this resource)
 		// Notice recursivity between removeResource and unbind methods
@@ -515,7 +543,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		log.info("Adding application " + applicationInstance);
 
-		applications.add(applicationInstance);
+		applications.add(new ApplicationNode(applicationInstance));
 
 		applicationInstanceAdded(applicationInstance);
 	}
@@ -525,8 +553,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		log.info("Removing application " + applicationInstance);
 
-		if (applications.remove(applicationInstance))
-			applicationInstanceRemoved(applicationInstance);
+		ApplicationNode found = null;
+		for (ApplicationNode node : applications) {
+			if (node.getContent().equals(applicationInstance)) {
+				found = node;
+				break;
+			}
+		}
+
+		if (found != null) {
+			applications.remove(found);
+			applicationInstanceRemoved(found.getContent());
+		}
 	}
 
 	// ///////////////////////////
@@ -565,7 +603,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		knownApplications.removeAll(applicationClasses);
 
 		// remove ApplicationInstances using removed classes
-		for (ApplicationInstance application : applications) {
+		for (ApplicationNode applicationNode : applications) {
+			ApplicationInstance application = applicationNode.getContent();
 			if (applicationClasses.contains(application.getClazz()))
 				removeApplicationInstance(application);
 		}
@@ -690,8 +729,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		return boundCapabilities;
 	}
 
+	List<ApplicationInstance> getAllApplicationInstances() {
+		List<ApplicationInstance> applicationInstances = new ArrayList<ApplicationInstance>(applications.size());
+		for (ApplicationNode node : applications) {
+			applicationInstances.add(node.getContent());
+		}
+		return applicationInstances;
+	}
+
 	List<ApplicationInstance> getAllCapabilityAndApplicationInstances() {
-		List<ApplicationInstance> capabsAndApps = new ArrayList<ApplicationInstance>(applications);
+		List<ApplicationInstance> capabsAndApps = getAllApplicationInstances();
 		capabsAndApps.addAll(getAllCapabilityInstances());
 		return capabsAndApps;
 	}
@@ -750,7 +797,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		sb.append("\nAVAILABLE APPLICATIONS -------------------------------------------\n");
 
-		for (ApplicationInstance representation : applications) {
+		for (ApplicationInstance representation : getAllApplicationInstances()) {
 			sb.append(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
 					.getPendingClasses() + "]\n");
 		}

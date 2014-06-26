@@ -85,6 +85,9 @@ public class BindingManagementTest {
 				bindingManagement.getServices(resource).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for resource",
 				bindingManagement.getServices(resource).get(ISampleCapability.class).isEmpty());
+
+		Object resourceValue = ((SampleCapability) ci.getInstance()).getResource();
+		Assert.assertEquals("Resource must be injected in capability.", resource, resourceValue);
 	}
 
 	@Test

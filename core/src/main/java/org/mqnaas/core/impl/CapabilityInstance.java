@@ -1,13 +1,18 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.impl.utils.ReflectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -21,6 +26,8 @@ import org.mqnaas.core.api.IService;
  * </p>
  */
 public class CapabilityInstance extends ApplicationInstance {
+
+	private static final Logger							log	= LoggerFactory.getLogger(CapabilityInstance.class);
 
 	// The resource this capability is bound to
 	private IResource									resource;
@@ -47,7 +54,38 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	public void bind(IResource resource) {
+
+		// Safe cast checked in constructors
+		ICapability capability = (ICapability) getInstance();
+		try {
+			// Inject resource to capability instance
+			injectResourceToCapability(capability, resource);
+		} catch (IllegalArgumentException e) {
+			// this should not happen, this ICapability has an IResource field to be injected
+			log.error("Error injecting resource {} in capability {}.", resource, capability);
+			log.error("Exception: ", e);
+		} catch (IllegalAccessException e) {
+			// this should not happen, this method should be able to inject field value
+			log.error("Error injecting resource {} in capability {}.", resource, capability);
+			log.error("Exception: ", e);
+		}
+
 		this.resource = resource;
+	}
+
+	/**
+	 * Injects resource in each field of given capability instance (including his superclasses).
+	 */
+	private static void injectResourceToCapability(ICapability capability, IResource resource) throws IllegalArgumentException,
+			IllegalAccessException {
+		Class<? extends ICapability> capabilityClass = capability.getClass();
+		List<Field> resourceFields = ReflectionUtils.getAnnotationFields(capabilityClass, org.mqnaas.core.api.annotations.Resource.class);
+		for (Field resourceField : resourceFields) {
+			if (!resourceField.isAccessible()) {
+				resourceField.setAccessible(true);
+			}
+			resourceField.set(capability, resource);
+		}
 	}
 
 	public void unbind() {

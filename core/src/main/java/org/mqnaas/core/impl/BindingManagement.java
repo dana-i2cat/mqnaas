@@ -252,21 +252,15 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 */
 	@Override
 	public void resourceAdded(IResource resource, IApplication managedBy) {
-		if (managedBy instanceof ICapability) {
-			try {
-				CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
+
+		try {
+			ApplicationNode parent = null;
+			if (managedBy instanceof ICapability) {
+				parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
 						(ICapability) managedBy);
 				if (parent == null)
 					throw new CapabilityNotFoundException((ICapability) managedBy, "Unknown capability");
-
-				addResourceNode(new ResourceNode(resource), parent);
-			} catch (CapabilityNotFoundException e) {
-				log.error("No parent found!", e);
-			}
-		} else {
-			// treat the case an application is managing a resource
-			try {
-				ApplicationNode parent = null;
+			} else {
 				for (ApplicationNode applicationNode : applications) {
 					if (applicationNode.getContent().getInstance().equals(managedBy)) {
 						parent = applicationNode;
@@ -275,12 +269,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				}
 				if (parent == null)
 					throw new ApplicationNotFoundException(managedBy, "Unknown application");
-
-				addResourceNode(new ResourceNode(resource), parent);
-			} catch (ApplicationNotFoundException e) {
-				log.error("No parent found!", e);
 			}
 
+			addResourceNode(new ResourceNode(resource), parent);
+
+		} catch (ApplicationNotFoundException e) {
+			log.error("No parent found!", e);
+		} catch (CapabilityNotFoundException e) {
+			log.error("No parent found!", e);
 		}
 	}
 
@@ -304,27 +300,15 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 */
 	@Override
 	public void resourceRemoved(IResource resource, IApplication managedBy) {
-		if (managedBy instanceof ICapability) {
-			try {
-				CapabilityNode parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
+
+		try {
+			ApplicationNode parent = null;
+			if (managedBy instanceof ICapability) {
+				parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
 						(ICapability) managedBy);
 				if (parent == null)
 					throw new CapabilityNotFoundException((ICapability) managedBy, "Unknown capability");
-
-				ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
-				if (toRemove == null)
-					throw new ResourceNotFoundException("Resource is not provided by given capability");
-
-				removeResourceNode(toRemove, parent);
-			} catch (CapabilityNotFoundException e) {
-				log.error("No parent found!", e);
-			} catch (ResourceNotFoundException e) {
-				log.error("No resource to be removed found!", e);
-			}
-		} else {
-			// treat the case an application is managing a resource
-			try {
-				ApplicationNode parent = null;
+			} else {
 				for (ApplicationNode applicationNode : applications) {
 					if (applicationNode.getContent().getInstance().equals(managedBy)) {
 						parent = applicationNode;
@@ -333,17 +317,20 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				}
 				if (parent == null)
 					throw new ApplicationNotFoundException(managedBy, "Unknown application");
-
-				ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
-				if (toRemove == null)
-					throw new ResourceNotFoundException("Resource is not provided by given application");
-
-				removeResourceNode(toRemove, parent);
-			} catch (ApplicationNotFoundException e) {
-				log.error("No parent found!", e);
-			} catch (ResourceNotFoundException e) {
-				log.error("No resource to be removed found!", e);
 			}
+
+			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
+			if (toRemove == null)
+				throw new ResourceNotFoundException("Resource is not provided by given application");
+
+			removeResourceNode(toRemove, parent);
+
+		} catch (ApplicationNotFoundException e) {
+			log.error("No parent found!", e);
+		} catch (CapabilityNotFoundException e) {
+			log.error("No parent found!", e);
+		} catch (ResourceNotFoundException e) {
+			log.error("No resource to be removed found!", e);
 		}
 	}
 

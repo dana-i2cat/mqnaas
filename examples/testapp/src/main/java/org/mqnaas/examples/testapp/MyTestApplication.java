@@ -13,9 +13,14 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+import org.mqnaas.core.impl.BindingManagement;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MyTestApplication implements IApplication {
+
+	private static final Logger		log	= LoggerFactory.getLogger(BindingManagement.class);
 
 	@DependingOn
 	private IRootResourceManagement	resourceManagement;
@@ -35,11 +40,9 @@ public class MyTestApplication implements IApplication {
 		IRootResource mqNaaS;
 		try {
 			mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
-		} catch (ResourceNotFoundException e1) {
+		} catch (ResourceNotFoundException e) {
 			// this should not happen
-			// FIXME use logger
-			System.out.println("No CORE resource found!");
-			e1.printStackTrace();
+			log.error("No CORE resource found!", e);
 			return;
 		}
 
@@ -49,8 +52,8 @@ public class MyTestApplication implements IApplication {
 			observedService = serviceProvider.getService(mqNaaS, "resourceAdded", IResource.class);
 			notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
 		} catch (ServiceNotFoundException e) {
-			// FIXME this should not happen
-			e.printStackTrace();
+			log.error("No CORE services found!", e);
+			return;
 		}
 
 		executionService.execute(notifiedService, null);

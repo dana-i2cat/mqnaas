@@ -14,6 +14,7 @@ import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
+import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
@@ -41,18 +42,18 @@ public class BindingManagementTest {
 
 			@Override
 			public void onDependenciesResolved() {
-				// TODO Auto-generated method stub
-
 			}
 		};
 
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.resourceManagement = resourceManagement;
-		bindingManagement.bindingDecider = bindingDecider;
-		bindingManagement.executionService = executionServiceInstance;
-		bindingManagement.observationService = executionServiceInstance;
+		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setBindingDecider(bindingDecider);
+		bindingManagement.setExecutionService(executionServiceInstance);
+		bindingManagement.setObservationService(executionServiceInstance);
+		// use dummy BundleGuard
+		bindingManagement.setBundleGuard(new DummyBundleGuard());
 
 		bindingManagement.init();
 
@@ -114,7 +115,7 @@ public class BindingManagementTest {
 
 		IResource sampleResource = generateSampleResource();
 
-		bindingManagement.resourceCreated(sampleResource, sampleCI);
+		bindingManagement.resourceAdded(sampleResource, sampleCI.getInstance());
 
 		Assert.assertTrue("SampleResource should be provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
@@ -134,7 +135,7 @@ public class BindingManagementTest {
 		ResourceNode sampleResourceNode = capability.getChildren().get(0);
 		IResource sampleResource = sampleResourceNode.getContent();
 
-		bindingManagement.resourceDestroyed(sampleResource, sampleCI);
+		bindingManagement.resourceRemoved(sampleResource, sampleCI.getInstance());
 
 		Assert.assertFalse("SampleResource should NOT provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
@@ -174,7 +175,7 @@ public class BindingManagementTest {
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
 		IResource sampleResource = generateSampleResource();
-		bindingManagement.resourceCreated(sampleResource, sampleCI);
+		bindingManagement.resourceAdded(sampleResource, sampleCI.getInstance());
 
 		// following check relies on bindingDecider.shouldBeBound(sampleResource, SampleCapability.class) returning true
 		// which is the trigger for a CapabilityInstance with SampleCapability being bound to sampleResource
@@ -208,7 +209,7 @@ public class BindingManagementTest {
 		CapabilityInstance sampleCI = coreSampleCI;
 		for (int i = 0; i < 5; i++) {
 			resource = generateSampleResource();
-			bindingManagement.resourceCreated(resource, sampleCI);
+			bindingManagement.resourceAdded(resource, sampleCI.getInstance());
 			sampleCI = getCapabilityInstanceBoundToResource(resource, SampleCapability.class);
 			Assert.assertNotNull(sampleCI);
 
@@ -218,7 +219,7 @@ public class BindingManagementTest {
 
 		// remove first resource in the chain
 		IResource toRemove = chainResources.get(0);
-		bindingManagement.resourceDestroyed(toRemove, coreSampleCI);
+		bindingManagement.resourceRemoved(toRemove, coreSampleCI.getInstance());
 		Assert.assertFalse(bindingManagement.getResourcesProvidedByCapabilityInstance(coreSampleCI).contains(toRemove));
 
 		for (CapabilityInstance inChain : chainCapabilityInstances)

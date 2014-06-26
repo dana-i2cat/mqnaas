@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl.bundletree;
+package org.mqnaas.bundletree.tree;
 
 import java.util.Collection;
 import java.util.HashSet;

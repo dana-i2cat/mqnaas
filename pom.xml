@@ -54,11 +54,26 @@
 		<!-- Apache Commons Collections 4 version -->
 		<commons-collections4-version>4.0</commons-collections4-version>
 
+		<!-- javax.ws.rs API (REST) version -->
+		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
+
 		<!-- Apache CXF bundle version -->
 		<cxf-version>2.7.10</cxf-version>
-		
-		<!-- TESTING -->
+
+		<!-- SLF4J version -->
+		<slf4j-version>1.7.7</slf4j-version>
+
+		<!-- JUnit version -->
 		<junit-version>4.11</junit-version>
+
+		<!-- Apache Karaf distribution version -->
+		<karaf-version>3.0.1</karaf-version>
+
+		<!-- OPS4J Pax Exam version -->
+		<pax-exam-version>3.5.0</pax-exam-version>
+
+		<!-- OSGified javax.inject version -->
+		<javax.inject-version>1_2</javax.inject-version>
 	</properties>
 
 	<dependencyManagement>
@@ -75,7 +90,17 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
+				<artifactId>bundletree</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
 				<artifactId>core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -94,15 +119,70 @@
 				<version>${commons-collections4-version}</version>
 			</dependency>
 			<dependency>
+				<groupId>javax.ws.rs</groupId>
+				<artifactId>javax.ws.rs-api</artifactId>
+				<version>${javax.ws.rs-api-version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-bundle</artifactId>
 				<version>${cxf-version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+				<version>${javax.inject-version}</version>
+			</dependency>
+
+			<!-- test dependencies -->
+			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>${junit-version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-container-karaf</artifactId>
+				<version>${pax-exam-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam</artifactId>
+				<version>${pax-exam-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-junit4</artifactId>
+				<version>${pax-exam-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${pax-exam-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.karaf</groupId>
+				<artifactId>apache-karaf</artifactId>
+				<version>${karaf-version}</version>
+				<type>tar.gz</type>
+				<scope>test</scope>
+				<!-- exclude Karaf client to avoid SLF4J binding conflicts -->
+				<exclusions>
+					<exclusion>
+						<artifactId>org.apache.karaf.client</artifactId>
+						<groupId>org.apache.karaf</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -211,6 +291,10 @@
 	<modules>
 		<module>core.api</module>
 		<module>core</module>
+		<module>bundletree</module>
+		<module>bundletree/itests</module>
+		<module>bundletree/itests-testbundleA</module>
+		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider</module>
 	</modules>
 

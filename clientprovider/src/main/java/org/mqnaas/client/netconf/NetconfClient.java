@@ -2,8 +2,12 @@ package org.mqnaas.client.netconf;
 
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NetconfClient {
+
+	private static final Logger		log	= LoggerFactory.getLogger(NetconfClient.class);
 
 	private Credentials				c;
 	private Endpoint				ep;
@@ -16,11 +20,11 @@ public class NetconfClient {
 	}
 
 	public void doNetconfSpecificThing1() {
-		System.out.println("Done netconf specific thing 1 on enpoint " + ep + " with credentials " + c + " and config " + config);
+		log.info("Done netconf specific thing 1 on enpoint " + ep + " with credentials " + c + " and config " + config);
 	}
 
 	public void doNetconfSpecificThing2() {
-		System.out.println("Done netconf specific thing 2 on enpoint " + ep + " with credentials " + c + " and config " + config);
+		log.info("Done netconf specific thing 2 on enpoint " + ep + " with credentials " + c + " and config " + config);
 	}
 
 }

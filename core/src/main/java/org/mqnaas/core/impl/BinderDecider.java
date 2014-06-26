@@ -9,8 +9,12 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BinderDecider implements IBindingDecider {
+
+	private static final Logger	log	= LoggerFactory.getLogger(BinderDecider.class);
 
 	public static boolean isSupporting(IRootResource resource) {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
@@ -42,15 +46,14 @@ public class BinderDecider implements IBindingDecider {
 					shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
 				} catch (Exception e2) {
 					// no way to establish bind
-					// FIXME use logger
-					System.out
-							.println("No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.");
+					log.error(
+							"No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.",
+							e2);
 				}
 			}
 		}
 
-		// FIXME use logger
-		// System.out.println(getClass().getSimpleName() + ".shouldBeBound(" + resource + ", " + capabilityClass + "): " + shouldBeBound);
+		log.debug(getClass().getSimpleName() + ".shouldBeBound(" + resource + ", " + capabilityClass + "): " + shouldBeBound);
 
 		return shouldBeBound;
 	}

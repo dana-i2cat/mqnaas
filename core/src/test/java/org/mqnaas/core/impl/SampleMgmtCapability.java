@@ -23,4 +23,8 @@ public class SampleMgmtCapability implements ISampleMgmtCapability {
 		return new ArrayList<SampleResource>(resources);
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+	}
+
 }

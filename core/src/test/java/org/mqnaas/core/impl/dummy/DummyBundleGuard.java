@@ -22,4 +22,7 @@ public class DummyBundleGuard implements IBundleGuard {
 		// do nothing
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+	}
 }

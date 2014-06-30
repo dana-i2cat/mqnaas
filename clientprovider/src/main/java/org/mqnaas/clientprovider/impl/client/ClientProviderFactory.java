@@ -58,4 +58,10 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 		return null;
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

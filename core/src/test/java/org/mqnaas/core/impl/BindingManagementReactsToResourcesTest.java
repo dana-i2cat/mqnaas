@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
@@ -38,6 +39,10 @@ public class BindingManagementReactsToResourcesTest {
 			@Override
 			public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
 				return true;
+			}
+
+			@Override
+			public void onDependenciesResolved() {
 			}
 		};
 
@@ -71,7 +76,7 @@ public class BindingManagementReactsToResourcesTest {
 		// register service that notifies test when observed resourceAdded is executed
 		IService observedAdd = bindingManagement.getService(
 				bindingManagement.getResourceCapabilityTree().getRootResourceNode().getContent(),
-				"resourceAdded", IResource.class, ICapability.class);
+				"resourceAdded", IResource.class, IApplication.class);
 
 		Method addExecutedM = MyTest.class.getMethod("addExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedAdd),
@@ -87,7 +92,7 @@ public class BindingManagementReactsToResourcesTest {
 		// register service that notifies test when observed resourceRemoved is executed
 		IService observedRemove = bindingManagement.getService(
 				bindingManagement.getResourceCapabilityTree().getRootResourceNode().getContent(),
-				"resourceRemoved", IResource.class, ICapability.class);
+				"resourceRemoved", IResource.class, IApplication.class);
 
 		Method removeExecutedM = MyTest.class.getMethod("removeExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedRemove),

@@ -1,5 +1,10 @@
 package org.mqnaas.core.impl.resourcetree;
 
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
 public class ResourceCapabilityTree {
 
 	private ResourceNode	rootResourceNode;

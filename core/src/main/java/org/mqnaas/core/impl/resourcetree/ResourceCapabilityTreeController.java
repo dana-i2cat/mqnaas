@@ -7,6 +7,11 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.impl.CapabilityInstance;
 
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
 public class ResourceCapabilityTreeController {
 
 	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent) {
@@ -25,7 +30,7 @@ public class ResourceCapabilityTreeController {
 		return addCapabilityNode(toAdd, parent);
 	}
 
-	public static ResourceNode addResourceNode(ResourceNode toAdd, CapabilityNode parent) {
+	public static ResourceNode addResourceNode(ResourceNode toAdd, ApplicationNode parent) {
 		parent.getChildren().add(toAdd);
 		toAdd.setParent(parent);
 		return toAdd;
@@ -59,7 +64,7 @@ public class ResourceCapabilityTreeController {
 		return null;
 	}
 
-	public static ResourceNode getChidrenWithContent(CapabilityNode parent, IResource content) {
+	public static ResourceNode getChidrenWithContent(ApplicationNode parent, IResource content) {
 		for (ResourceNode child : parent.getChildren()) {
 			if (child.getContent().equals(content))
 				return child;

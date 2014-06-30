@@ -31,4 +31,10 @@ public class Sample2Capability implements ISample2Capability {
 
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

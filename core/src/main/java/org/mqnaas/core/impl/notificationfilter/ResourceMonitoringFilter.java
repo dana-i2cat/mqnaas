@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IObservationFilter;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
@@ -28,12 +28,12 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 	}
 
 	/**
-	 * Retrieves affected IResource among service parameters and result. Retrieves ICapability managing affected IResource from the service itself.
+	 * Retrieves affected IResource among service parameters and result. Retrieves IApplication managing affected IResource from the service itself.
 	 * 
 	 * The resource is retrieved following this algorithm: - Look at observed services parameters, fist one implementing IResource is taken as the
 	 * affected resource (if any) - If not yet found, if result implements IResource it is taken as affected resource. - Null otherwise
 	 * 
-	 * @return an array with affected resource and the ICapability managing it.
+	 * @return an array with affected resource and the IApplication managing it.
 	 */
 	@Override
 	public Object[] getParameters(IService service, Object[] args, Object result) {
@@ -52,8 +52,8 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 			if (result instanceof IResource)
 				affectedResource = (IResource) result;
 
-		// retrieve capability
-		ICapability resourceHolder = service.getMetadata().getCapability();
+		// retrieve application holding the resource
+		IApplication resourceHolder = service.getMetadata().getApplication();
 
 		List<Object> parameters = new ArrayList<Object>(2);
 		parameters.add(affectedResource);

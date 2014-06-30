@@ -39,6 +39,10 @@ public class BindingManagementTest {
 			public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
 				return true;
 			}
+
+			@Override
+			public void onDependenciesResolved() {
+			}
 		};
 
 		ExecutionService executionServiceInstance = new ExecutionService();

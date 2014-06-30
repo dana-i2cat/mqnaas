@@ -29,4 +29,8 @@ public class JunosIPCapability implements IIPCapability {
 		log.info(getClass().getName() + " executing removeIP(" + iPProtocolEndpoint + ") resource ");
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+	}
+
 }

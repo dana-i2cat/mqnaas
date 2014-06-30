@@ -165,4 +165,8 @@ public class BundleGuard implements IBundleGuard {
 				return "UNKNOWN_BUNDLE_EVENT_TYPE";
 		}
 	}
+
+	@Override
+	public void onDependenciesResolved() {
+	}
 }

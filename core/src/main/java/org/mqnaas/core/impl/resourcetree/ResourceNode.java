@@ -5,11 +5,16 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
 
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
 public class ResourceNode {
 
 	private IResource				content;
 
-	private CapabilityNode			parent;
+	private ApplicationNode			parent;
 	private List<CapabilityNode>	children;
 
 	public ResourceNode() {
@@ -21,7 +26,7 @@ public class ResourceNode {
 		content = resource;
 	}
 
-	public ResourceNode(IResource resource, CapabilityNode parent) {
+	public ResourceNode(IResource resource, ApplicationNode parent) {
 		this();
 		content = resource;
 		this.parent = parent;
@@ -45,7 +50,7 @@ public class ResourceNode {
 	/**
 	 * @return the parent
 	 */
-	public CapabilityNode getParent() {
+	public ApplicationNode getParent() {
 		return parent;
 	}
 
@@ -53,7 +58,7 @@ public class ResourceNode {
 	 * @param parent
 	 *            the parent to set
 	 */
-	public void setParent(CapabilityNode parent) {
+	public void setParent(ApplicationNode parent) {
 		this.parent = parent;
 	}
 

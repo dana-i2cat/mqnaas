@@ -55,4 +55,10 @@ public class APIProviderFactory extends AbstractProviderFactory implements IAPIP
 		return null;
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

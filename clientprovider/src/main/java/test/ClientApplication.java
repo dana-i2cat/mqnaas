@@ -7,7 +7,7 @@ import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.client.netconf.INetconfClientProvider;
 import org.mqnaas.client.netconf.NetconfClient;
 import org.mqnaas.client.netconf.NetconfConfiguration;
-import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
+import org.mqnaas.clientprovider.api.apiclient.IAPClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -22,7 +22,7 @@ public class ClientApplication implements IApplication {
 	IClientProviderFactory		clientProviderFactory;
 
 	@DependingOn
-	IAPIProviderFactory			apiProviderFactory;
+	IAPClientProviderFactory			apiProviderFactory;
 
 	@Override
 	public void onDependenciesResolved() {

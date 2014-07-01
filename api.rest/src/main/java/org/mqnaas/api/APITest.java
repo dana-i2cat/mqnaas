@@ -14,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.ext.MessageBodyWriter;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.i2cat.utils.StringBuilderUtils;
@@ -80,7 +80,7 @@ public class APITest {
 
 			@Override
 			public long getSize(Object t, Class<?> type, java.lang.reflect.Type genericType, Annotation[] annotations, MediaType mediaType) {
-				throw new NotImplementedException();
+				throw new NotImplementedException("getSize");
 			}
 
 			@Override

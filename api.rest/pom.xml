@@ -25,6 +25,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.asm</artifactId>
+			<version>3.3.1_1</version>
+		</dependency>
+
 	</dependencies>
 
 </project>

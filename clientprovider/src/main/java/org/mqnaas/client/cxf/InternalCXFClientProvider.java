@@ -6,7 +6,7 @@ import java.lang.reflect.Proxy;
 
 import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.slf4j.Logger;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * This is an example implementation of how to implement a specific api provider
  * 
  */
-public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfiguration> {
+public class InternalCXFClientProvider implements IInternalAPIClientProvider<CXFConfiguration> {
 
 	private static final Logger	log	= LoggerFactory.getLogger(InternalCXFClientProvider.class);
 

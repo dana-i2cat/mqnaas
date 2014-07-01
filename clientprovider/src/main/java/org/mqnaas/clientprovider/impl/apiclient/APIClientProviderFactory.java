@@ -8,46 +8,52 @@ import java.util.List;
 import java.util.Set;
 
 import org.mqnaas.client.cxf.InternalCXFClientProvider;
+import org.mqnaas.clientprovider.api.apiclient.IAPClientProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
-import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 
-public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
+/**
+ * TODO Javadoc
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ */
+public class APIClientProviderFactory extends AbstractProviderFactory implements IAPClientProviderFactory {
 
 	public static boolean isSupporting(IRootResource resource) {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
-	private static Set<Type>		VALID_API_PROVIDERS;
+	private static Set<Type>			VALID_API_PROVIDERS;
 
 	static {
 		VALID_API_PROVIDERS = new HashSet<Type>();
 		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
-		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
+		VALID_API_PROVIDERS.add(IInternalAPIClientProvider.class);
 	}
 
-	List<IInternalAPIProvider<?>>	internalAPIProviders;
+	List<IInternalAPIClientProvider<?>>	internalAPIProviders;
 
-	public APIProviderFactory() {
+	public APIClientProviderFactory() {
 		// List of available IInternalAPIProvider must be maintained by
 		// classpath scanning
-		internalAPIProviders = new ArrayList<IInternalAPIProvider<?>>();
+		internalAPIProviders = new ArrayList<IInternalAPIClientProvider<?>>();
 		internalAPIProviders.add(new InternalCXFClientProvider());
 	}
 
 	@Override
 	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) {
 		// Match against list of providers...
-		for (IInternalAPIProvider<?> internalApiProvider : internalAPIProviders) {
+		for (IInternalAPIClientProvider<?> internalApiProvider : internalAPIProviders) {
 			Class<?> internalAPIProviderClass = internalApiProvider.getClass();
 
 			if (doTypeArgumentsMatch(VALID_API_PROVIDERS, apiProviderClass, internalAPIProviderClass, 1)) {
 
-				C c = (C) Proxy.newProxyInstance(internalAPIProviderClass.getClassLoader(), new Class[] { apiProviderClass }, new APIProviderAdapter(
-						internalApiProvider));
+				C c = (C) Proxy.newProxyInstance(internalAPIProviderClass.getClassLoader(), new Class[] { apiProviderClass },
+						new APIClientProviderAdapter(
+								internalApiProvider));
 
 				return c;
 			}

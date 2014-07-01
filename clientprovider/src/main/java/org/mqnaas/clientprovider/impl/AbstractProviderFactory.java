@@ -4,6 +4,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Set;
 
+/**
+ * TODO Javadoc
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ */
 public class AbstractProviderFactory {
 
 	protected static boolean doTypeArgumentsMatch(Set<Type> validTypes, Class<?> clazz1, Class<?> class2, int numArgs) {

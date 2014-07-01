@@ -3,15 +3,20 @@ package org.mqnaas.clientprovider.impl.apiclient;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 
-class APIProviderAdapter<CC> implements InvocationHandler {
+/**
+ * TODO Javadoc
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ */
+class APIClientProviderAdapter<CC> implements InvocationHandler {
 
-	private IInternalAPIProvider<CC>	internalAPIProvider;
+	private IInternalAPIClientProvider<CC>	internalAPIProvider;
 
-	public APIProviderAdapter(IInternalAPIProvider<CC> internalAPIProvider) {
+	public APIClientProviderAdapter(IInternalAPIClientProvider<CC> internalAPIProvider) {
 		this.internalAPIProvider = internalAPIProvider;
 	}
 

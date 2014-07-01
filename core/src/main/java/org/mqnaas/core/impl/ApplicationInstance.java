@@ -14,6 +14,7 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.impl.dependencies.ApplicationInstanceLifeCycleState;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -40,10 +41,14 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	// All application interfaces represented application implements
 	private Collection<Class<? extends IApplication>>			applicationClasses;
 
+	private ApplicationInstanceLifeCycleState					state;
+
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		super(clazz);
 
 		services = ArrayListMultimap.create();
+
+		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 	}
 
 	public ApplicationInstance(Class<? extends IApplication> clazz, IApplication instance) {
@@ -54,6 +59,21 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		if (instance instanceof IExecutionService) {
 			executionService = (IExecutionService) instance;
 		}
+	}
+
+	/**
+	 * @return the state
+	 */
+	public ApplicationInstanceLifeCycleState getState() {
+		return state;
+	}
+
+	/**
+	 * @param state
+	 *            the state to set
+	 */
+	public void setState(ApplicationInstanceLifeCycleState state) {
+		this.state = state;
 	}
 
 	@Override

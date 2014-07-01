@@ -93,12 +93,31 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 	}
 
 	@Override
-	public <D extends ICapability> void resolve(CapabilityInstance dependency) {
-		super.resolve(dependency);
+	public <D extends ICapability> boolean resolve(CapabilityInstance dependency) {
+		boolean affected = super.resolve(dependency);
 
+		boolean execServiceAffected = false;
 		if (dependency.getCapabilities().contains(IExecutionService.class)) {
 			executionService = (IExecutionService) dependency.getInstance();
+			execServiceAffected = true;
 		}
+
+		return affected || execServiceAffected;
+	}
+
+	@Override
+	public <D extends ICapability> boolean unresolve(CapabilityInstance dependency) {
+		boolean affected = super.unresolve(dependency);
+
+		boolean execServiceAffected = false;
+		if (dependency.getCapabilities().contains(IExecutionService.class)) {
+			if (executionService == dependency.getInstance()) {
+				executionService = null;
+				execServiceAffected = true;
+			}
+		}
+
+		return affected || execServiceAffected;
 	}
 
 	public void bind(IResource resource) {
@@ -120,10 +139,25 @@ public class CapabilityInstance extends AbstractInstance<ICapability> {
 		}
 
 		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		proxy = (ICapability) Proxy.newProxyInstance(capabilities.iterator().next().getClassLoader(),
+		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
+		proxy = (ICapability) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
 				capabilities.toArray(new Class[capabilities.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
 
 		this.resource = resource;
+	}
+
+	public void unbind() {
+
+		// 1. Clear the services of the interfaces
+		services.clear();
+
+		// 2. Clear proxy
+		proxy = null;
+
+		// 3. Clear the instance
+		instance = null;
+
+		this.resource = null;
 	}
 
 	public Multimap<Class<? extends ICapability>, IService> getServices() {

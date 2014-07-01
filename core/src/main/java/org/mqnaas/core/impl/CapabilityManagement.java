@@ -7,21 +7,26 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections4.map.HashedMap;
+import org.mqnaas.bundletree.utils.BundleClassPathUtils;
 import org.mqnaas.core.api.ICapability;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWire;
 import org.osgi.framework.wiring.BundleWiring;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 public class CapabilityManagement {
 
+	private static final Logger	log	= LoggerFactory.getLogger(CapabilityManagement.class);
+
 	// Stores a list of bundles that require the bundle used as a key
-	private Dependencies	dependencies;
+	private Dependencies		dependencies;
 
 	// Stores the capabilities of each bundle
-	private Capabilities	capabilities;
+	private Capabilities		capabilities;
 
 	public CapabilityManagement() {
 		dependencies = new Dependencies();
@@ -171,14 +176,14 @@ public class CapabilityManagement {
 	 * Adds the capabilities of the given bundle and returns the set of newly added capabilities
 	 */
 	public Set<Class<? extends ICapability>> addBundle(Bundle bundle) {
-		// System.out.println(getClass().getSimpleName() + ": scanning bundle " + shortName(bundle));
+		log.trace(getClass().getSimpleName() + ": scanning bundle " + shortName(bundle));
 
 		// Collect here all capabilities that are newly added
 		Set<Class<? extends ICapability>> added = new HashSet<Class<? extends ICapability>>();
 
 		// Filter bundles depending on core and scan all class resources of the given bundle and collects all capability classes, e.g. those which
 		// implement ICapability
-		Set<Class<? extends ICapability>> bundleCapabilities = BundleUtils.scanBundle(bundle, ICapability.class);
+		Set<Class<? extends ICapability>> bundleCapabilities = BundleClassPathUtils.scanBundle(bundle, ICapability.class);
 
 		if (!bundleCapabilities.isEmpty()) {
 

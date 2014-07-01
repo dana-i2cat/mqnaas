@@ -5,6 +5,7 @@ import java.util.List;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.ListResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 /**
  * <p>

@@ -5,18 +5,26 @@
 	<repository>mvn:${project.groupId}/${project.artifactId}/${project.version}/xml/features</repository>
 	<!-- Apache CXF features repository -->
 	<repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
+	
+	<feature name="mqnaas-core-api" version="${project.version}">
+	
+		<!-- runtime dependencies -->
+		<bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
+		<bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/${javax.ws.rs-api-version}</bundle>
+		
+		<bundle>mvn:org.mqnaas/core.api/${project.version}</bundle>
+	</feature>
 
 	<feature name="${project.artifactId}" version="${project.version}">
 		<!-- dependencies features -->		
 		<feature version="${cxf-version}">cxf</feature>
+		<feature version="${project.version}">mqnaas-core-api</feature>		
 		
 		<!-- runtime dependencies -->
-		<bundle dependency="true">mvn:org.osgi/org.osgi.core/${osgi.core-version}</bundle>
-		<bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-collections4/${commons-collections4-version}</bundle>
 		
-		<bundle>mvn:org.mqnaas/core.api/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas/bundletree/${project.version}</bundle>
 		<bundle>mvn:org.mqnaas/core/${project.version}</bundle>
 		<bundle>mvn:org.mqnaas/clientprovider/${project.version}</bundle>
 	</feature>

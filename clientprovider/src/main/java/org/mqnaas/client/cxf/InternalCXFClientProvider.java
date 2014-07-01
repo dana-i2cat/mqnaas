@@ -9,12 +9,16 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is an example implementation of how to implement a specific api provider
  * 
  */
 public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfiguration> {
+
+	private static final Logger	log	= LoggerFactory.getLogger(InternalCXFClientProvider.class);
 
 	@Override
 	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c) {
@@ -37,8 +41,7 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 
 		if (ep == null || ep.getUri() == null) {
 			// FIXME fail gracefully
-			System.out.println("Attempt to create JAX-RS client without target address.");
-			System.out.println("Using dummyClient instead");
+			log.warn("Attempt to create JAX-RS client without target address. Using dummyClient instead");
 			return createDummyClient(apiClass);
 		}
 
@@ -70,7 +73,7 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 			@Override
 			public Object invoke(Object proxy, Method method, Object[] args)
 					throws Throwable {
-				System.out.println("Invoking cxf api method " + method + " with args " + args);
+				log.debug("Invoking cxf api method " + method + " with args " + args);
 				return null;
 			}
 		});

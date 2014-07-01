@@ -11,19 +11,23 @@ import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientApplication implements IApplication {
 
-	@DependingOn
-	IClientProviderFactory	clientProviderFactory;
+	private static final Logger	log	= LoggerFactory.getLogger(ClientApplication.class);
 
 	@DependingOn
-	IAPIProviderFactory		apiProviderFactory;
+	IClientProviderFactory		clientProviderFactory;
+
+	@DependingOn
+	IAPIProviderFactory			apiProviderFactory;
 
 	@Override
 	public void onDependenciesResolved() {
 
-		System.out.println("Running the Client test application...");
+		log.info("Running the Client test application...");
 
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);

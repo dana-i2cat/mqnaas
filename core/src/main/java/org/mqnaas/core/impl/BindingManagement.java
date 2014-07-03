@@ -677,7 +677,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
 		for (ApplicationInstance resolved : resolvedNow) {
 			resolved.initServices();
-			resolved.getInstance().onDependenciesResolved();
+			resolved.getInstance().activate();
 		}
 	}
 
@@ -835,6 +835,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 }

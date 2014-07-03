@@ -25,7 +25,7 @@ public class ClientApplication implements IApplication {
 	IAPIProviderFactory			apiProviderFactory;
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
 
 		log.info("Running the Client test application...");
 
@@ -64,6 +64,12 @@ public class ClientApplication implements IApplication {
 		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

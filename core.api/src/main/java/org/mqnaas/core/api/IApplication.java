@@ -10,11 +10,24 @@ import org.mqnaas.core.api.annotations.DependingOn;
  * <p>
  * Applications may depend on capabilities which will be injected attributes annotated with {@link DependingOn}.
  * </p>
- * 
- * TODO Define how the {@link #onDependenciesResolved()} can be removed and replaced by a mechanism that can also be used to initialize capabilities.
  */
 public interface IApplication {
 
-	void onDependenciesResolved();
+	/**
+	 * Performs initialization required in order to have all its services available.
+	 * 
+	 * It is guaranteed that this method is called only when all dependencies (attributes annotated with {@link DependingOn}) have been injected.
+	 * 
+	 * The use of services provided by dependencies inside this method requires some care. In case of dependency cycles, it cannot be guaranteed that
+	 * dependencies would have been activated before this method is called.
+	 */
+	void activate();
+
+	/**
+	 * Cleans initialization done in {@link IApplication#activate()}
+	 * 
+	 * Nothing can be granted regarding the availability of dependencies when this method is called. Dependencies may not be functional any more.
+	 */
+	void deactivate();
 
 }

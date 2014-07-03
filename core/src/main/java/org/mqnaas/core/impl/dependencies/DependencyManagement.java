@@ -164,7 +164,7 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 		ApplicationInstanceLifeCycleState previous = toActivate.getState();
 		try {
 			toActivate.setState(ApplicationInstanceLifeCycleState.ACTIVATING);
-			// FIXME toActivate.getInstance().activate();
+			toActivate.getInstance().activate();
 			toActivate.setState(ApplicationInstanceLifeCycleState.ACTIVE);
 			// TODO launch activated event
 		} catch (Exception e) {
@@ -178,7 +178,7 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 		if (toDeactivate.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE)) {
 			try {
 				toDeactivate.setState(ApplicationInstanceLifeCycleState.DEACTIVATING);
-				// FIXME toDeactivate.getInstance().deactivate();
+				toDeactivate.getInstance().deactivate();
 			} catch (Exception e) {
 				log.error("Error deactivating application " + toDeactivate, e);
 				// ignored, application is considered deactivated even if its deactivate method failed

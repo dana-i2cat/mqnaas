@@ -88,6 +88,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		boolean execServiceAffected = false;
 		if (dependency.getApplications().contains(IExecutionService.class)) {
 			executionService = (IExecutionService) dependency.getInstance();
+			injectedDependencies.add(dependency);
 			execServiceAffected = true;
 		}
 
@@ -102,6 +103,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		if (dependency.getApplications().contains(IExecutionService.class)) {
 			if (executionService == dependency.getInstance()) {
 				executionService = null;
+				injectedDependencies.remove(dependency);
 				execServiceAffected = true;
 			}
 		}

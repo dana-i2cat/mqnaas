@@ -31,19 +31,46 @@ import com.google.common.collect.Multimap;
  */
 public class ApplicationInstance extends AbstractInstance<IApplication> {
 
-	private IExecutionService									executionService;
+	private IExecutionService											executionService;
 
-	private Multimap<Class<? extends IApplication>, IService>	services;
+	// Holds the services available from this application instance, ordered by the interfaces they belong to
+	private Multimap<Class<? extends IApplication>, IInternalService>	internalServices;
 
-	private IApplication										proxy;
+	private IApplication												proxy;
 
-	// All application interfaces represented application implements
-	private Collection<Class<? extends IApplication>>			applicationClasses;
+	// All application interfaces implemented by the represented application
+	// TODO this information is redundant, it is also available in the services multimap.
+	private Collection<Class<? extends IApplication>>					applicationClasses;
+
+	// InvocationHandler used by the proxy to execute the services offered by this application instance
+	private ExecutionRelayingInvocationHandler							invocationHandler;
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		super(clazz);
 
-		services = ArrayListMultimap.create();
+		internalServices = ArrayListMultimap.create();
+
+		Collection<Class<? extends IApplication>> appClasses = getApplications();
+		// an application without interfaces is not able to offer services
+		// applications are forced to implement interfaces extending IApplication in order to publish services
+		if (appClasses.isEmpty())
+			return;
+
+		// 1. Create the services of the interfaces (backed by the instance)
+		for (Class<? extends IApplication> interfaze : appClasses) {
+			for (Method method : interfaze.getMethods()) {
+				internalServices.put(interfaze, new Service(method, (IApplication) getInstance()));
+			}
+		}
+
+		// 2. Create the InvocationHandler used by the proxy
+		invocationHandler = new ExecutionRelayingInvocationHandler(internalServices.values());
+
+		// 3. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
+		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
+		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
+				appClasses.toArray(new Class[appClasses.size()]), invocationHandler);
+
 	}
 
 	public ApplicationInstance(Class<? extends IApplication> clazz, IApplication instance) {
@@ -89,16 +116,18 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		return affected || execServiceAffected;
 	}
 
-	public void initServices() {
-		initInstanceServicesAndProxy(null);
-	}
+	// public void initServices() {
+	// initInstanceServicesAndProxy(null);
+	// }
 
 	public void stopServices() {
 		clearInstanceServicesAndProxy();
 	}
 
 	public Multimap<Class<? extends IApplication>, IService> getServices() {
-		return ArrayListMultimap.create(services);
+		Multimap<Class<? extends IApplication>, IService> services = ArrayListMultimap.create(internalServices.size(), 3);
+		services.putAll(internalServices);
+		return services;
 	}
 
 	/**
@@ -115,66 +144,23 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		return proxy;
 	}
 
-	@Override
-	public String toString() {
-
-		StringBuilder sb = new StringBuilder();
-		sb.append("Application ").append(clazz.getSimpleName());
-		sb.append(" [pending=(");
-		int i = 0;
-		for (Class<? extends IApplication> clazz : getPendingClasses()) {
-			if (i > 0)
-				sb.append(", ");
-			sb.append(clazz.getSimpleName());
-			i++;
-		}
-
-		sb.append("), resolved=(");
-		i = 0;
-		for (Class<? extends IApplication> clazz : getResolvedClasses()) {
-			if (i > 0)
-				sb.append(", ");
-			sb.append(clazz.getSimpleName());
-			i++;
-		}
-
-		sb.append(")]");
-
-		return sb.toString();
+	/**
+	 * Sets the given {@link Resource} as the resource used when executing the services.
+	 * 
+	 * @param resource
+	 *            The resources used when executing services.
+	 */
+	protected void setResource(IResource resource) {
+		invocationHandler.setResource(resource);
 	}
 
-	protected void initInstanceServicesAndProxy(IResource resource) {
-
-		Collection<Class<? extends IApplication>> appClasses = getApplications();
-		// an application without interfaces is not able to offer services
-		// applications are forced to implement interfaces extending IApplication in order to publish services
-		if (appClasses.isEmpty())
-			return;
-
-		Map<Method, IInternalService> proxyServices = new HashMap<Method, IInternalService>();
-
-		// 1. Create the services of the interfaces (backed by the instance)
-		for (Class<? extends IApplication> interfaze : appClasses) {
-			for (Method method : interfaze.getMethods()) {
-				IInternalService service = new Service(resource, new ServiceMetaData(method, (IApplication) getInstance()));
-
-				// Add the service to the proxy implementation to be able to do the relay
-				proxyServices.put(method, service);
-
-				services.put(interfaze, service);
-			}
-		}
-
-		// 2. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
-		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
-				appClasses.toArray(new Class[appClasses.size()]), new ExecutionRelayingInvocationHandler(proxyServices));
-
+	protected IResource getResource() {
+		return invocationHandler.getResource();
 	}
 
 	protected void clearInstanceServicesAndProxy() {
 		// 1. Clear the services of the interfaces
-		services.clear();
+		internalServices.clear();
 
 		// 2. Clear proxy
 		proxy = null;
@@ -214,8 +200,32 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 		private Map<Method, IInternalService>	relays;
 
-		public ExecutionRelayingInvocationHandler(Map<Method, IInternalService> relays) {
-			this.relays = relays;
+		public ExecutionRelayingInvocationHandler(Collection<IInternalService> relayedServices) {
+
+			relays = new HashMap<Method, IInternalService>();
+
+			for (IInternalService relayedService : relayedServices) {
+				relays.put(relayedService.getMetadata().getMethod(), relayedService);
+			}
+
+		}
+
+		public IResource getResource() {
+
+			return relays.values().iterator().next().getResource();
+		}
+
+		/**
+		 * Sets the given {@link Resource} to all managed relayed {@link IService}s.
+		 * 
+		 * @param resource
+		 *            The Resource handed to the Services.
+		 */
+		public void setResource(IResource resource) {
+
+			for (IInternalService relayedService : relays.values()) {
+				relayedService.setResource(resource);
+			}
 		}
 
 		@Override
@@ -240,6 +250,34 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 			return result;
 		}
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder();
+		sb.append("Application ").append(clazz.getSimpleName());
+		sb.append(" [pending=(");
+		int i = 0;
+		for (Class<? extends IApplication> clazz : getPendingClasses()) {
+			if (i > 0)
+				sb.append(", ");
+			sb.append(clazz.getSimpleName());
+			i++;
+		}
+
+		sb.append("), resolved=(");
+		i = 0;
+		for (Class<? extends IApplication> clazz : getResolvedClasses()) {
+			if (i > 0)
+				sb.append(", ");
+			sb.append(clazz.getSimpleName());
+			i++;
+		}
+
+		sb.append(")]");
+
+		return sb.toString();
 	}
 
 }

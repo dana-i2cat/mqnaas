@@ -24,13 +24,12 @@ import org.slf4j.LoggerFactory;
  * <p>
  * Provides the {@link IService}s for each {@link ICapability} interface implemented by the represented capability class.
  * </p>
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
  */
 public class CapabilityInstance extends ApplicationInstance {
 
 	private static final Logger							log	= LoggerFactory.getLogger(CapabilityInstance.class);
-
-	// The resource this capability is bound to
-	private IResource									resource;
 
 	// All capability interfaces this capability implements
 	private Collection<Class<? extends ICapability>>	capabilityClasses;
@@ -70,7 +69,7 @@ public class CapabilityInstance extends ApplicationInstance {
 			log.error("Exception: ", e);
 		}
 
-		this.resource = resource;
+		setResource(resource);
 	}
 
 	/**
@@ -89,20 +88,7 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	public void unbind() {
-		this.resource = null;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.mqnaas.core.impl.ApplicationInstance#initServices()
-	 */
-	@Override
-	public void initServices() {
-		if (resource == null)
-			throw new IllegalStateException("Resource must be set");
-
-		initInstanceServicesAndProxy(resource);
+		setResource(null);
 	}
 
 	/*
@@ -116,7 +102,28 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	public IResource getResource() {
-		return resource;
+		return super.getResource();
+	}
+
+	protected static Collection<Class<? extends ICapability>> computeCapabilities(Class<? extends IApplication> clazz) {
+		Collection<Class<? extends ICapability>> capabilityClasses = new ArrayList<Class<? extends ICapability>>();
+
+		for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
+			// Ignore the ICapability interface itself
+			if (interfaze.equals(ICapability.class))
+				continue;
+
+			// Ignore all interfaces that do not extend ICapability
+			if (!ICapability.class.isAssignableFrom(interfaze))
+				continue;
+
+			// Now do the cast: this one is safe because we explicitly checked it before
+			@SuppressWarnings("unchecked")
+			Class<? extends ICapability> capabilityInterface = (Class<? extends ICapability>) interfaze;
+			capabilityClasses.add(capabilityInterface);
+		}
+
+		return capabilityClasses;
 	}
 
 	@Override
@@ -145,27 +152,6 @@ public class CapabilityInstance extends ApplicationInstance {
 		sb.append(")]");
 
 		return sb.toString();
-	}
-
-	protected static Collection<Class<? extends ICapability>> computeCapabilities(Class<? extends IApplication> clazz) {
-		Collection<Class<? extends ICapability>> capabilityClasses = new ArrayList<Class<? extends ICapability>>();
-
-		for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
-			// Ignore the ICapability interface itself
-			if (interfaze.equals(ICapability.class))
-				continue;
-
-			// Ignore all interfaces that do not extend ICapability
-			if (!ICapability.class.isAssignableFrom(interfaze))
-				continue;
-
-			// Now do the cast: this one is safe because we explicitly checked it before
-			@SuppressWarnings("unchecked")
-			Class<? extends ICapability> capabilityInterface = (Class<? extends ICapability>) interfaze;
-			capabilityClasses.add(capabilityInterface);
-		}
-
-		return capabilityClasses;
 	}
 
 }

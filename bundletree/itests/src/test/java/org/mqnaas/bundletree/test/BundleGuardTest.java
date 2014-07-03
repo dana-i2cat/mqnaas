@@ -22,6 +22,12 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
+/**
+ * {@link BundleGuard} tests
+ * 
+ * @author Julio Carlos Barrera
+ * 
+ */
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class BundleGuardTest {
@@ -41,7 +47,11 @@ public class BundleGuardTest {
 				// no local and remote consoles
 				KarafDistributionOption.configureConsole().ignoreLocalConsole(),
 				KarafDistributionOption.configureConsole().ignoreRemoteShell(),
+				// keep runtime folder allowing analysing results
 				KarafDistributionOption.keepRuntimeFolder(),
+				// use custom logging configuration file with a custom appender
+				KarafDistributionOption.replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg", new File(
+						"src/test/resources/org.ops4j.pax.logging.cfg")),
 				// add bundletree feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("bundletree").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "bundletree"),
@@ -65,11 +75,12 @@ public class BundleGuardTest {
 
 	Object				bothClassesNotificationLock	= new Object();
 
+	// bundle guard instance as OSGi service
+	@Inject
+	IBundleGuard		bundleGuard;
+
 	@Test(timeout = TEST_TIMEOUT)
 	public void bundleGuardtest() throws Exception {
-
-		// create bundle guard
-		IBundleGuard bundleGuard = new BundleGuard();
 
 		// register to listen for RootClass
 		bundleGuard.registerClassListener(new TestClassFilter(ROOT_CLASS_NAME), new TestClassListener());
@@ -105,10 +116,9 @@ public class BundleGuardTest {
 		}
 
 		synchronized (bothClassesNotificationLock) {
-			// FIXME remove testBundleA (it does not change state on testbundleB and its a dependency?!?!? on Karaf, WTF?!?!?)
+			// remove testBundleA (consequently testBundleB will be stopped because it has unresolved dependencies)
 			System.out.println("Uninstalling testBundleA and testbundleB...");
 			testBundleA.uninstall();
-			testBundleB.uninstall();
 
 			// wait for callback of both classes
 			do {

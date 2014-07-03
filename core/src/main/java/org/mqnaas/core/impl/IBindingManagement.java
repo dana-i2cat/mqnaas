@@ -3,6 +3,7 @@ package org.mqnaas.core.impl;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.exceptions.ApplicationInstanceNotFoundException;
 import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
+import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
 
@@ -15,17 +16,17 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
 public interface IBindingManagement {
 
 	/**
-	 * Adds given resource under the control of given CapabilityInstance in the bindingManagement model.
+	 * Adds given resource under the control of given ApplicationNode in the bindingManagement model.
 	 * 
 	 * @param resource
 	 * @param managedBy
 	 * @throws CapabilityInstanceNotFoundException
 	 *             if given CapabilityInstance is not in the bindingManagement model.
 	 */
-	public void addResourceNode(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException;
+	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy) throws CapabilityInstanceNotFoundException;
 
 	/**
-	 * Removes given resource under the control of given CapabilityInstance from the bindingManagement model.
+	 * Removes given resource under the control of given ApplicationNode from the bindingManagement model.
 	 * 
 	 * @param resource
 	 * @param managedBy
@@ -34,7 +35,7 @@ public interface IBindingManagement {
 	 * @throws ResourceNotFoundException
 	 *             if given IResource is not in the bindingManagement model or is not under the control of given CapabilityInstance.
 	 */
-	public void removeResourceNode(ResourceNode resource, CapabilityNode managedBy) throws CapabilityInstanceNotFoundException,
+	public void removeResourceNode(ResourceNode resource, ApplicationNode managedBy) throws CapabilityInstanceNotFoundException,
 			ResourceNotFoundException;
 
 	/**

@@ -23,10 +23,10 @@ import org.mqnaas.api.mapping.MethodMapper;
 import org.mqnaas.api.writers.InterfaceWriter;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IIdentifiable;
-import org.mqnaas.core.api.RootResourceDescriptor;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 
-public class APITest {
+public class RESTAPIProvider implements ICapability {
 
 	private final class APITestInvocationHandler implements InvocationHandler {
 
@@ -56,7 +56,75 @@ public class APITest {
 
 	private JAXRSServerFactoryBean	sf;
 
-	public APITest() throws Exception {
+	public void publish(ICapability capability, Class<? extends ICapability> interfaceToPublish, String uri) throws Exception {
+
+		InterfaceWriter interfaceWriter = new InterfaceWriter(interfaceToPublish, uri);
+
+		Class<?> apiInterface = interfaceWriter.toClass();
+
+		APIMapper mapper = RESTAPIGenerator.createAPIInterface(apiInterface, interfaceWriter, interfaceToPublish, capability);
+
+		sf.setResourceClasses(apiInterface);
+
+		Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface }, new APITestInvocationHandler(mapper));
+
+		sf.setResourceProvider(apiInterface, new SingletonResourceProvider(proxy));
+
+		// RootResourceManagement rrm = new RootResourceManagement();
+		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE)));
+		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos")));
+		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Cisco")));
+		//
+		// InterfaceWriter interfaceWriter = new InterfaceWriter(IRootResourceManagement.class, "/mqnaas/resources");
+		//
+		// Class<?> apiInterface = interfaceWriter.toClass();
+		//
+		// APIMapper mapper = RESTAPIGenerator.createAPIInterface(apiInterface, interfaceWriter, IRootResourceManagement.class, rrm);
+		//
+		// sf.setResourceClasses(apiInterface);
+		//
+		// Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface }, new APITestInvocationHandler(mapper));
+		//
+		// sf.setResourceProvider(apiInterface, new SingletonResourceProvider(proxy));
+
+		// JunosInterfaceManagement interfaceManagement = new JunosInterfaceManagement();
+		// interfaceManagement.createInterface("Interface 1");
+		// interfaceManagement.createInterface("Interface 2");
+		// interfaceManagement.createInterface("Interface 3");
+		//
+		// InterfaceWriter interfaceWriter2 = new InterfaceWriter(IInterfaceManagement.class, "/mqnaas/interfaces");
+		//
+		// Class<?> apiInterface2 = interfaceWriter2.toClass();
+		//
+		// APIMapper mapper2 = RESTAPIGenerator.createAPIInterface(apiInterface2, interfaceWriter2, IInterfaceManagement.class, interfaceManagement);
+		//
+		// sf.setResourceClasses(apiInterface2);
+		//
+		// Object proxy2 = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface2 }, new
+		// APITestInvocationHandler(mapper2));
+		//
+		// sf.setResourceProvider(apiInterface2, new SingletonResourceProvider(proxy2));
+
+	}
+
+	// public static void main(String[] args) {
+	// try {
+	// RootResourceDescriptor d = RootResourceDescriptor.create(new Specification(Specification.Type.NETWORK, "The best", "1.0"));
+	// System.out.println(org.i2cat.utils.JAXBSerializer.toXml(d));
+	//
+	// new RESTAPIProvider();
+	//
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
+
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType() == Specification.Type.CORE;
+	}
+
+	@Override
+	public void onDependenciesResolved() {
 
 		sf = new JAXRSServerFactoryBean();
 
@@ -115,69 +183,7 @@ public class APITest {
 		});
 
 		sf.create();
-	}
 
-	public void publish(ICapability capability, Class<? extends ICapability> interfaceToPublish, String uri) throws Exception {
-
-		InterfaceWriter interfaceWriter = new InterfaceWriter(interfaceToPublish, uri);
-
-		Class<?> apiInterface = interfaceWriter.toClass();
-
-		APIMapper mapper = RESTAPIGenerator.createAPIInterface(apiInterface, interfaceWriter, interfaceToPublish, capability);
-
-		sf.setResourceClasses(apiInterface);
-
-		Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface }, new APITestInvocationHandler(mapper));
-
-		sf.setResourceProvider(apiInterface, new SingletonResourceProvider(proxy));
-
-		// RootResourceManagement rrm = new RootResourceManagement();
-		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE)));
-		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos")));
-		// rrm.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Cisco")));
-		//
-		// InterfaceWriter interfaceWriter = new InterfaceWriter(IRootResourceManagement.class, "/mqnaas/resources");
-		//
-		// Class<?> apiInterface = interfaceWriter.toClass();
-		//
-		// APIMapper mapper = RESTAPIGenerator.createAPIInterface(apiInterface, interfaceWriter, IRootResourceManagement.class, rrm);
-		//
-		// sf.setResourceClasses(apiInterface);
-		//
-		// Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface }, new APITestInvocationHandler(mapper));
-		//
-		// sf.setResourceProvider(apiInterface, new SingletonResourceProvider(proxy));
-
-		// JunosInterfaceManagement interfaceManagement = new JunosInterfaceManagement();
-		// interfaceManagement.createInterface("Interface 1");
-		// interfaceManagement.createInterface("Interface 2");
-		// interfaceManagement.createInterface("Interface 3");
-		//
-		// InterfaceWriter interfaceWriter2 = new InterfaceWriter(IInterfaceManagement.class, "/mqnaas/interfaces");
-		//
-		// Class<?> apiInterface2 = interfaceWriter2.toClass();
-		//
-		// APIMapper mapper2 = RESTAPIGenerator.createAPIInterface(apiInterface2, interfaceWriter2, IInterfaceManagement.class, interfaceManagement);
-		//
-		// sf.setResourceClasses(apiInterface2);
-		//
-		// Object proxy2 = Proxy.newProxyInstance(getClass().getClassLoader(), new Class<?>[] { apiInterface2 }, new
-		// APITestInvocationHandler(mapper2));
-		//
-		// sf.setResourceProvider(apiInterface2, new SingletonResourceProvider(proxy2));
-
-	}
-
-	public static void main(String[] args) {
-		try {
-			RootResourceDescriptor d = RootResourceDescriptor.create(new Specification(Specification.Type.NETWORK, "The best", "1.0"));
-			System.out.println(org.i2cat.utils.JAXBSerializer.toXml(d));
-
-			new APITest();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 }

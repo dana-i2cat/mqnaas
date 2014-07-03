@@ -19,4 +19,10 @@ public class JunosInterfaceManagement extends AbstractInterfaceManagement {
 				&& specification.getModel().equals("Junos");
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

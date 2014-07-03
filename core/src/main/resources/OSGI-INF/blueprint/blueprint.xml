@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0	http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd ">
+
+	<!-- Instantiate BindingMAnagement required beans -->
+	<bean id="executionService" class="org.mqnaas.core.impl.ExecutionService" />
+	<bean id="rootResourceManagement" class="org.mqnaas.core.impl.RootResourceManagement" />
+	<bean id="binderDecider" class="org.mqnaas.core.impl.BinderDecider" />
+	<!-- BundleGuard is imported as an OSGi service reference -->
+	<reference id="bundleGuard" interface="org.mqnaas.bundletree.IBundleGuard" />
+
+	<bean id="bindingManagement" class="org.mqnaas.core.impl.BindingManagement"
+		init-method="init">
+		<property name="executionService" ref="executionService" />
+		<property name="observationService" ref="executionService" />
+		<property name="resourceManagement" ref="rootResourceManagement" />
+		<property name="bindingDecider" ref="binderDecider" />
+		<property name="bundleGuard" ref="bundleGuard" />
+	</bean>
+
+</blueprint>

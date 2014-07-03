@@ -16,5 +16,5 @@ import org.mqnaas.core.api.annotations.DependingOn;
  * TODO Define a mechanism that can be used to initialize capabilities after dependency resolution (see {@link IApplication} for another use-case of
  * this initialization mechanism).
  */
-public interface ICapability {
+public interface ICapability extends IApplication {
 }

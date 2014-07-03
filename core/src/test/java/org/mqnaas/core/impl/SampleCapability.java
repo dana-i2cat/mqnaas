@@ -12,6 +12,9 @@ public class SampleCapability implements ISampleCapability {
 	private int				counter;
 	private final Object	lock	= new Object();
 
+	@org.mqnaas.core.api.annotations.Resource
+	private IResource		resource;
+
 	@Override
 	public void increment() {
 		synchronized (lock) {
@@ -35,6 +38,15 @@ public class SampleCapability implements ISampleCapability {
 
 	public static boolean isSupporting(IResource resource) {
 		return true;
+	}
+
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+	}
+
+	public IResource getResource() {
+		return resource;
 	}
 
 }

@@ -57,4 +57,10 @@ public class BinderDecider implements IBindingDecider {
 
 		return shouldBeBound;
 	}
+
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
 }

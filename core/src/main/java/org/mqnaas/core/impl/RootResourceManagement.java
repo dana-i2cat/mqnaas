@@ -7,7 +7,6 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
-import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceManagement {
 
@@ -59,4 +58,8 @@ public class RootResourceManagement implements IRootResourceManagement {
 		return getRootResources(Specification.Type.CORE, null, null).get(0);
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+	}
 }

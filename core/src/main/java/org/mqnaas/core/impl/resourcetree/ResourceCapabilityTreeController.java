@@ -7,6 +7,11 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.impl.CapabilityInstance;
 
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
 public class ResourceCapabilityTreeController {
 
 	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent) {
@@ -25,7 +30,7 @@ public class ResourceCapabilityTreeController {
 		return addCapabilityNode(toAdd, parent);
 	}
 
-	public static ResourceNode addResourceNode(ResourceNode toAdd, CapabilityNode parent) {
+	public static ResourceNode addResourceNode(ResourceNode toAdd, ApplicationNode parent) {
 		parent.getChildren().add(toAdd);
 		toAdd.setParent(parent);
 		return toAdd;
@@ -59,7 +64,7 @@ public class ResourceCapabilityTreeController {
 		return null;
 	}
 
-	public static ResourceNode getChidrenWithContent(CapabilityNode parent, IResource content) {
+	public static ResourceNode getChidrenWithContent(ApplicationNode parent, IResource content) {
 		for (ResourceNode child : parent.getChildren()) {
 			if (child.getContent().equals(content))
 				return child;
@@ -171,5 +176,48 @@ public class ResourceCapabilityTreeController {
 		}
 
 		return capabilities;
+	}
+
+	/**
+	 * Looks for a CapabilityNode in the hierarchy starting at startFrom ResourceNode, having given contentInstance in content.getInstance()
+	 * 
+	 * @param startFrom
+	 * @param content
+	 * @return CapabilityNode with given contentInstance in content.getInstance() in the hierarchy starting at startFrom ResourceNode, null if there
+	 *         is no such capability node in this hierarchy.
+	 */
+	public static CapabilityNode getCapabilityNodeWithContentCapability(ResourceNode startFrom, ICapability contentInstance) {
+
+		// search in startFrom node
+		CapabilityNode found = getChidrenWithContentCapability(startFrom, contentInstance);
+		if (found != null)
+			return found;
+
+		// recursively search in children resources
+		for (CapabilityNode capability : startFrom.getChildren()) {
+			for (ResourceNode child : capability.getChildren()) {
+				found = getCapabilityNodeWithContentCapability(child, contentInstance);
+				if (found != null)
+					return found;
+			}
+		}
+
+		// if not found in startFrom capabilities nor in children resources capabilities (if any)
+		return null;
+	}
+
+	/**
+	 * Looks for a child of given parent a CapabilityNode having given contentInstance in CapabilityNode.getContent().getInstance()
+	 * 
+	 * @param parent
+	 * @param contentInstance
+	 * @return CapabilityNode with given contentInstance in content.getInstance(), null if there is no such capability in parent.
+	 */
+	public static CapabilityNode getChidrenWithContentCapability(ResourceNode parent, ICapability contentInstance) {
+		for (CapabilityNode child : parent.getChildren()) {
+			if (child.getContent().getInstance() == contentInstance)
+				return child;
+		}
+		return null;
 	}
 }

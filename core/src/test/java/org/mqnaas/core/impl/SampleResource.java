@@ -11,7 +11,7 @@ public class SampleResource implements IResource {
 
 	@Override
 	public String getId() {
-		return "sample.resource";
+		return "SampleResource";
 	}
 
 }

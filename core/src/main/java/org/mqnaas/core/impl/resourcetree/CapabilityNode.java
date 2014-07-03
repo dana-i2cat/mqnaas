@@ -1,45 +1,50 @@
 package org.mqnaas.core.impl.resourcetree;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.CapabilityInstance;
 
-public class CapabilityNode {
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
+public class CapabilityNode extends ApplicationNode {
 
-	private CapabilityInstance	content;
-
-	private ResourceNode		parent;
-	private List<ResourceNode>	children;
+	private ResourceNode	parent;
 
 	public CapabilityNode() {
-		children = new CopyOnWriteArrayList<ResourceNode>();
+		super();
 	}
 
 	public CapabilityNode(CapabilityInstance ci) {
-		this();
-		content = ci;
+		super(ci);
 	}
 
 	public CapabilityNode(CapabilityInstance ci, ResourceNode parent) {
-		this();
-		content = ci;
+		super(ci);
 		this.parent = parent;
 	}
 
 	/**
 	 * @return the content
 	 */
+	@Override
 	public CapabilityInstance getContent() {
-		return content;
+		return (CapabilityInstance) super.getContent();
 	}
 
 	/**
 	 * @param content
 	 *            the content to set
+	 * @throws IllegalArgumentException
+	 *             if given content is not a CapabilityInstance
 	 */
-	public void setContent(CapabilityInstance content) {
-		this.content = content;
+	@Override
+	public void setContent(ApplicationInstance content) {
+		if (!(content instanceof CapabilityInstance))
+			throw new IllegalArgumentException("Expected CapabilityInstance");
+
+		super.setContent(content);
 	}
 
 	/**
@@ -55,20 +60,5 @@ public class CapabilityNode {
 	 */
 	public void setParent(ResourceNode parent) {
 		this.parent = parent;
-	}
-
-	/**
-	 * @return the children
-	 */
-	public List<ResourceNode> getChildren() {
-		return children;
-	}
-
-	/**
-	 * @param children
-	 *            the children to set
-	 */
-	public void setChildren(List<ResourceNode> children) {
-		this.children = children;
 	}
 }

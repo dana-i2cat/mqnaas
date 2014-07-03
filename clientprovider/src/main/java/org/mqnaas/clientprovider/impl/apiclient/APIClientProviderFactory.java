@@ -61,4 +61,10 @@ public class APIClientProviderFactory extends AbstractProviderFactory implements
 		return null;
 	}
 
+	@Override
+	public void onDependenciesResolved() {
+		// TODO Auto-generated method stub
+
+	}
+
 }

@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
 
@@ -12,20 +13,20 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
 public interface IBindingManagementEventListener {
 
 	/**
-	 * Indicates that given ResourceNode has been added to <code>managedBy</code> CapabilityNode.
+	 * Indicates that given ResourceNode has been added to <code>managedBy</code> ApplicationNode.
 	 * 
 	 * @param added
 	 * @param managedBy
 	 */
-	public void resourceAdded(ResourceNode added, CapabilityNode managedBy);
+	public void resourceAdded(ResourceNode added, ApplicationNode managedBy);
 
 	/**
-	 * Indicates that given ResourceNode has been removed from <code>wasManagedBy</code> CapabilityNode.
+	 * Indicates that given ResourceNode has been removed from <code>wasManagedBy</code> ApplicationNode.
 	 * 
 	 * @param removed
 	 * @param wasManagedBy
 	 */
-	public void resourceRemoved(ResourceNode removed, CapabilityNode wasManagedBy);
+	public void resourceRemoved(ResourceNode removed, ApplicationNode wasManagedBy);
 
 	/**
 	 * Indicates that given CapabilityNode has been bound to <code>boundTo</code> ResourceNode.

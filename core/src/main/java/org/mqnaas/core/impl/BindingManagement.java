@@ -646,7 +646,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Notifying AFTER resolving all dependencies that can be resolved with newRepresentation
 		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
 		for (ApplicationInstance resolved : resolvedNow) {
-			resolved.initServices();
 			resolved.getInstance().onDependenciesResolved();
 		}
 	}

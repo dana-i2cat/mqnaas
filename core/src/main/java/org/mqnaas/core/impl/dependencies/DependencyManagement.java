@@ -151,12 +151,14 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 
 	private void doResolve(ApplicationInstance resolved) {
 		resolved.setState(ApplicationInstanceLifeCycleState.RESOLVED);
-		// TODO launch resolved event
+		// launch resolved event
+		resolved(resolved);
 	}
 
 	private void doUnresolve(ApplicationInstance unresolved) {
 		unresolved.setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
-		// TODO launch unresolved event
+		// launch unresolved event
+		unresolved(unresolved);
 	}
 
 	private void doActivate(ApplicationInstance toActivate) {
@@ -166,7 +168,8 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 			toActivate.setState(ApplicationInstanceLifeCycleState.ACTIVATING);
 			toActivate.getInstance().activate();
 			toActivate.setState(ApplicationInstanceLifeCycleState.ACTIVE);
-			// TODO launch activated event
+			// launch activated event
+			activated(toActivate);
 		} catch (Exception e) {
 			log.error("Error activating application " + toActivate, e);
 			toActivate.setState(previous);
@@ -184,18 +187,21 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 				// ignored, application is considered deactivated even if its deactivate method failed
 			}
 			toDeactivate.setState(ApplicationInstanceLifeCycleState.RESOLVED);
-			// TODO launch deactivated event
+			// launch deactivated event
+			deactivated(toDeactivate);
 		}
 	}
 
-	private void doInstantiate(ApplicationInstance toDestroy) {
-		toDestroy.setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
-		// TODO launch instantiated event
+	private void doInstantiate(ApplicationInstance toInstantiate) {
+		toInstantiate.setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
+		// launch instantiated event
+		instantiated(toInstantiate);
 	}
 
 	private void doDestroy(ApplicationInstance toDestroy) {
 		toDestroy.setState(ApplicationInstanceLifeCycleState.DESTROYING);
-		// TODO launch destroyed event
+		// launch destroyed event
+		destroyed(toDestroy);
 	}
 
 	// ///////////////

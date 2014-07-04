@@ -34,6 +34,9 @@ public class CapabilityInstance extends ApplicationInstance {
 	// All capability interfaces this capability implements
 	private Collection<Class<? extends ICapability>>	capabilityClasses;
 
+	// The resource this capability is bound to
+	private IResource									resource;
+
 	public CapabilityInstance(Class<? extends ICapability> clazz) {
 		super(clazz);
 	}
@@ -72,6 +75,13 @@ public class CapabilityInstance extends ApplicationInstance {
 		setResource(resource);
 	}
 
+	@Override
+	protected void setResource(IResource resource) {
+		super.setResource(resource);
+
+		this.resource = resource;
+	}
+
 	/**
 	 * Injects resource in each field of given capability instance (including his superclasses).
 	 */
@@ -102,7 +112,7 @@ public class CapabilityInstance extends ApplicationInstance {
 	}
 
 	public IResource getResource() {
-		return super.getResource();
+		return resource;
 	}
 
 	protected static Collection<Class<? extends ICapability>> computeCapabilities(Class<? extends IApplication> clazz) {

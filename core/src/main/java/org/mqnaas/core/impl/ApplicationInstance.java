@@ -154,10 +154,6 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		invocationHandler.setResource(resource);
 	}
 
-	protected IResource getResource() {
-		return invocationHandler.getResource();
-	}
-
 	protected void clearInstanceServicesAndProxy() {
 		// 1. Clear the services of the interfaces
 		internalServices.clear();
@@ -208,11 +204,6 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 				relays.put(relayedService.getMetadata().getMethod(), relayedService);
 			}
 
-		}
-
-		public IResource getResource() {
-
-			return relays.values().iterator().next().getResource();
 		}
 
 		/**

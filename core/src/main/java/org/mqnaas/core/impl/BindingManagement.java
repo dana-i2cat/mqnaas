@@ -254,22 +254,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void resourceAdded(IResource resource, IApplication managedBy) {
 
 		try {
-			ApplicationNode parent = null;
-			if (managedBy instanceof ICapability) {
-				parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
-						(ICapability) managedBy);
-				if (parent == null)
-					throw new CapabilityNotFoundException((ICapability) managedBy, "Unknown capability");
-			} else {
-				for (ApplicationNode applicationNode : applications) {
-					if (applicationNode.getContent().getInstance().equals(managedBy)) {
-						parent = applicationNode;
-						break;
-					}
-				}
-				if (parent == null)
-					throw new ApplicationNotFoundException(managedBy, "Unknown application");
-			}
+			ApplicationNode parent = findApplicationNode(managedBy);
 
 			addResourceNode(new ResourceNode(resource), parent);
 
@@ -302,22 +287,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void resourceRemoved(IResource resource, IApplication managedBy) {
 
 		try {
-			ApplicationNode parent = null;
-			if (managedBy instanceof ICapability) {
-				parent = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
-						(ICapability) managedBy);
-				if (parent == null)
-					throw new CapabilityNotFoundException((ICapability) managedBy, "Unknown capability");
-			} else {
-				for (ApplicationNode applicationNode : applications) {
-					if (applicationNode.getContent().getInstance().equals(managedBy)) {
-						parent = applicationNode;
-						break;
-					}
-				}
-				if (parent == null)
-					throw new ApplicationNotFoundException(managedBy, "Unknown application");
-			}
+			ApplicationNode parent = findApplicationNode(managedBy);
 
 			ResourceNode toRemove = ResourceCapabilityTreeController.getChidrenWithContent(parent, resource);
 			if (toRemove == null)
@@ -677,9 +647,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
 		for (ApplicationInstance resolved : resolvedNow) {
 			resolved.initServices();
-		}
-
-		for (ApplicationInstance resolved : resolvedNow) {
 			resolved.getInstance().onDependenciesResolved();
 		}
 	}
@@ -839,5 +806,40 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void onDependenciesResolved() {
+	}
+
+	/**
+	 * Returns the {@link ApplicationNode} of the given {@link IApplication} instance.
+	 * 
+	 * @param application
+	 *            Application which {@link ApplicationNode} is to be retrieved.
+	 * @return The {@link ApplicationNode} of the {@link IApplication} instance
+	 * @throws CapabilityNotFoundException
+	 *             If <code>application</code> is a {@link ICapability} instance but it's an unknown capability.
+	 * @throws ApplicationNotFoundException
+	 *             If <code>application</code> is a {@link IApplication} instance but it's an unknown application. *
+	 * 
+	 */
+	private ApplicationNode findApplicationNode(IApplication application) throws CapabilityNotFoundException, ApplicationNotFoundException {
+		ApplicationNode toReturn = null;
+		if (application instanceof ICapability) {
+			toReturn = ResourceCapabilityTreeController.getCapabilityNodeWithContentCapability(tree.getRootResourceNode(),
+					(ICapability) application);
+			if (toReturn == null)
+				throw new CapabilityNotFoundException((ICapability) application, "Unknown capability");
+		} else {
+			for (ApplicationNode applicationNode : applications) {
+				if (applicationNode.getContent().getInstance().equals(application)) {
+					toReturn = applicationNode;
+					break;
+				}
+			}
+			if (toReturn == null)
+				throw new ApplicationNotFoundException(application, "Unknown application");
+
+		}
+
+		return toReturn;
+
 	}
 }

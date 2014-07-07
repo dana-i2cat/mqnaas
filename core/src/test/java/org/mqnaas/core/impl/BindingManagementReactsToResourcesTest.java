@@ -27,8 +27,8 @@ public class BindingManagementReactsToResourcesTest {
 	static ISampleMgmtCapability	sampleMgmtCapability;
 	static IExecutionService		executionService;
 
-	boolean							addExecuted		= false;
-	boolean							removeExecuted	= false;
+	volatile boolean				addExecuted		= false;
+	volatile boolean				removeExecuted	= false;
 
 	@BeforeClass
 	public static void init() throws Exception {

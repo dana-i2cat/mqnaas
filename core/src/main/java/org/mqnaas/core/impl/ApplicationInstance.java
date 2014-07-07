@@ -46,7 +46,14 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	private ExecutionRelayingInvocationHandler							invocationHandler;
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
+		this(clazz, null);
+
+	}
+
+	public ApplicationInstance(Class<? extends IApplication> clazz, IApplication instance) {
 		super(clazz);
+
+		this.instance = instance;
 
 		internalServices = ArrayListMultimap.create();
 
@@ -71,15 +78,8 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
 				appClasses.toArray(new Class[appClasses.size()]), invocationHandler);
 
-	}
-
-	public ApplicationInstance(Class<? extends IApplication> clazz, IApplication instance) {
-		this(clazz);
-
-		this.instance = instance;
-
-		if (instance instanceof IExecutionService) {
-			executionService = (IExecutionService) instance;
+		if (getInstance() instanceof IExecutionService) {
+			executionService = (IExecutionService) getInstance();
 		}
 	}
 

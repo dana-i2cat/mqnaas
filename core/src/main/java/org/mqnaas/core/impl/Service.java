@@ -41,6 +41,7 @@ public class Service implements IInternalService {
 
 		try {
 			result = metaData.getMethod().invoke(metaData.getApplication(), parameters);
+			// FIXME fail gracefully and/or notify errors
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

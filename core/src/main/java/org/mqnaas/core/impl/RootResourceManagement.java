@@ -51,7 +51,7 @@ public class RootResourceManagement implements IRootResourceManagement {
 			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
 		}
 
-		Resource resource = new Resource(specification, endpoints);
+		RootResource resource = new RootResource(specification, endpoints);
 		resources.add(resource);
 		return resource;
 	}

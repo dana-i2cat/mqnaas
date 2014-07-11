@@ -8,7 +8,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
 import org.mqnaas.core.api.Specification;
 
-public class Resource implements IRootResource {
+public class RootResource implements IRootResource {
 
 	private ITransactionBehavior	transactionBehaviour	= new UnawareTransactionBehaviour();
 
@@ -18,7 +18,7 @@ public class Resource implements IRootResource {
 
 	private Collection<Endpoint>	endpoints;
 
-	protected Resource(Specification specification, Collection<Endpoint> endpoints) {
+	protected RootResource(Specification specification, Collection<Endpoint> endpoints) {
 		this.specification = specification;
 		this.endpoints = endpoints;
 	}
@@ -64,7 +64,7 @@ public class Resource implements IRootResource {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Resource other = (Resource) obj;
+		RootResource other = (RootResource) obj;
 		if (endpoints == null) {
 			if (other.endpoints != null)
 				return false;

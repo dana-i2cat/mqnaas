@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.impl.CapabilityInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -13,6 +16,8 @@ import org.mqnaas.core.impl.CapabilityInstance;
  * 
  */
 public class ResourceCapabilityTreeController {
+
+	private static final Logger	log	= LoggerFactory.getLogger(ResourceCapabilityTreeController.class);
 
 	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent) {
 		if (parent == null)
@@ -134,6 +139,47 @@ public class ResourceCapabilityTreeController {
 
 		// if not found in startFrom nor in children resources (if any)
 		return null;
+	}
+
+	/**
+	 * Looks for first {@link IRootResource} contained by a {@link ResourceNode} walking up the tree starting from the node containing given
+	 * {@link IResource}
+	 * 
+	 * @param tree
+	 *            {@link ResourceCapabilityTree} to be inspected
+	 * @param resource
+	 *            IResource to start the finding
+	 * @return ResourceNode containing the first IRootResource found or null if not found
+	 */
+	public static ResourceNode getRootResourceNodeFromResource(ResourceCapabilityTree tree, IResource resource) {
+		log.debug("Looking for IRootResource associated with this resource: " + resource);
+
+		log.trace("Looking for ResourceNode in the tree containing this resource: " + resource);
+		ResourceNode resourceNode = getResourceNodeWithContent(tree.getRootResourceNode(), resource);
+
+		if (resourceNode == null) {
+			log.warn("Resource not located in the tree! Resource: " + resource);
+			return null;
+		}
+
+		while (true) {
+			// is root resource?
+			if (resourceNode.getContent() != null && resourceNode.getContent() instanceof IRootResource) {
+				log.trace("IRootResource Resource Node found for resource: " + resourceNode.getContent());
+				return resourceNode;
+			}
+
+			// get parent resource of capability parent node
+			CapabilityNode capabilityNode = ((CapabilityNode) resourceNode.getParent());
+			if (capabilityNode == null) {
+				// no more nodes, top of the tree
+				log.warn("No IRootResource found in the tree for resource: " + resource);
+				return null;
+			}
+
+			// next node
+			resourceNode = capabilityNode.getParent();
+		}
 	}
 
 	/**

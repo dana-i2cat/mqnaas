@@ -1,9 +1,11 @@
 package org.mqnaas.clientprovider.api.client;
 
+import org.mqnaas.core.api.IResource;
+
 public interface IClientProvider<T, CC> {
 
-	T getClient();
+	T getClient(IResource resource);
 
-	T getClient(CC clientConfiguration);
+	T getClient(IResource resource, CC clientConfiguration);
 
 }

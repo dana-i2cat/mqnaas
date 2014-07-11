@@ -1,5 +1,8 @@
 package org.mqnaas.examples.testapp;
 
+import java.util.Arrays;
+
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
@@ -60,15 +63,15 @@ public class MyTestApplication implements IApplication {
 
 		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
 
 	}
 

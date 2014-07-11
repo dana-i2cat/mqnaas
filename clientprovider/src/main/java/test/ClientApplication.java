@@ -1,5 +1,7 @@
 package test;
 
+import java.util.Arrays;
+
 import org.mqnaas.client.application.ApplicationConfiguration;
 import org.mqnaas.client.application.IApplicationClient;
 import org.mqnaas.client.cxf.CXFConfiguration;
@@ -9,7 +11,11 @@ import org.mqnaas.client.netconf.NetconfClient;
 import org.mqnaas.client.netconf.NetconfConfiguration;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +23,9 @@ import org.slf4j.LoggerFactory;
 public class ClientApplication implements IApplication {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ClientApplication.class);
+
+	@DependingOn
+	IRootResourceManagement		rootResourceManagement;
 
 	@DependingOn
 	IClientProviderFactory		clientProviderFactory;
@@ -29,17 +38,20 @@ public class ClientApplication implements IApplication {
 
 		log.info("Running the Client test application...");
 
+		// Fake resource
+		IRootResource resource = rootResourceManagement.createRootResource(new Specification(), Arrays.asList(new Endpoint()));
+
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);
 
 		// Client w/o configuration
-		NetconfClient netconfClient1 = cp.getClient();
+		NetconfClient netconfClient1 = cp.getClient(resource);
 		netconfClient1.doNetconfSpecificThing1();
 
 		// Client with (client specific) configuration
 		NetconfConfiguration netconfConfiguration = new NetconfConfiguration();
 
-		NetconfClient netconfClient2 = cp.getClient(netconfConfiguration);
+		NetconfClient netconfClient2 = cp.getClient(resource, netconfConfiguration);
 		netconfClient2.doNetconfSpecificThing2();
 
 		// 2. Dynamic client provisioning

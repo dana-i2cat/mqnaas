@@ -12,6 +12,7 @@ import java.util.Set;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -75,7 +76,7 @@ import com.google.common.collect.Multimap;
  * </p>
  */
 public class BindingManagement implements IServiceProvider, IResourceManagementListener, IBindingManagement,
-		IBindingManagementEventListener {
+		IBindingManagementEventListener, ICoreModelCapability {
 
 	private static final Logger					log	= LoggerFactory.getLogger(BindingManagement.class);
 
@@ -123,7 +124,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE));
+		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE), Arrays.asList(new Endpoint()));
 		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
 
 		// initialize the tree
@@ -840,5 +841,15 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		return toReturn;
 
+	}
+
+	@Override
+	public IRootResource getRootResource(IResource resource) throws IllegalArgumentException {
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getRootResourceNodeFromResource(tree, resource);
+		if (resourceNode == null) {
+			log.error("No IRootResource found for resource: " + resource);
+			throw new IllegalArgumentException("No IRootResource found!");
+		}
+		return (IRootResource) resourceNode.getContent();
 	}
 }

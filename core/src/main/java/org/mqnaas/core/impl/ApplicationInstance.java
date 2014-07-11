@@ -145,7 +145,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	}
 
 	/**
-	 * Sets the given {@link Resource} as the resource used when executing the services.
+	 * Sets the given {@link IResource} as the resource used when executing the services.
 	 * 
 	 * @param resource
 	 *            The resources used when executing services.
@@ -207,7 +207,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		}
 
 		/**
-		 * Sets the given {@link Resource} to all managed relayed {@link IService}s.
+		 * Sets the given {@link IResource} to all managed relayed {@link IService}s.
 		 * 
 		 * @param resource
 		 *            The Resource handed to the Services.

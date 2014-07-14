@@ -4,6 +4,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -106,8 +107,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	public BindingManagement() {
 
-		boundCapabilities = new ArrayList<CapabilityInstance>();
-		applications = new ArrayList<ApplicationNode>();
+		boundCapabilities = Collections.synchronizedList(new ArrayList<CapabilityInstance>());
+		applications = Collections.synchronizedList(new ArrayList<ApplicationNode>());
 
 		knownCapabilities = new HashSet<Class<? extends ICapability>>();
 		knownApplications = new HashSet<Class<? extends IApplication>>();
@@ -559,11 +560,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		knownApplications.removeAll(applicationClasses);
 
-		// remove ApplicationInstances using removed classes
+		Set<ApplicationInstance> appInstancesToBeRemoved = new HashSet<ApplicationInstance>();
+
+		// collect ApplicationInstances to be removed using removed classes
 		for (ApplicationNode applicationNode : applications) {
 			ApplicationInstance application = applicationNode.getContent();
 			if (applicationClasses.contains(application.getClazz()))
-				removeApplicationInstance(application);
+				appInstancesToBeRemoved.add(application);
+		}
+
+		// remove collected application instances
+		for (ApplicationInstance applicationInstance : appInstancesToBeRemoved) {
+			removeApplicationInstance(applicationInstance);
 		}
 
 		printAvailableApplications();

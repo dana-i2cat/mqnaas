@@ -271,8 +271,12 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 		return DependencyChainUtils.getDependencyChain(application, new LinkedList<ApplicationInstance>());
 	}
 
-	private Collection<ApplicationInstance> getApplicationInstancesInSystem() {
-		return inSystem;
+	/**
+	 * 
+	 * @return application in the system. Returned Collection is not the live one but a defensive copy.
+	 */
+	Collection<ApplicationInstance> getApplicationInstancesInSystem() {
+		return new ArrayList<ApplicationInstance>(inSystem);
 	}
 
 	private Collection<ApplicationInstance> getApplicationInstancesResolvedWith(ApplicationInstance application) {

@@ -76,6 +76,32 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		this.state = state;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.AbstractInstance#getPendingClasses()
+	 */
+	@Override
+	public Collection<Class<? extends IApplication>> getPendingClasses() {
+		Collection<Class<? extends IApplication>> pendingClasses = super.getPendingClasses();
+		if (executionService == null)
+			pendingClasses.add(IExecutionService.class);
+		return pendingClasses;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.AbstractInstance#getResolvedClasses()
+	 */
+	@Override
+	public Collection<Class<? extends IApplication>> getResolvedClasses() {
+		Collection<Class<? extends IApplication>> resolvedClasses = super.getResolvedClasses();
+		if (executionService != null)
+			resolvedClasses.add(IExecutionService.class);
+		return resolvedClasses;
+	}
+
 	@Override
 	public boolean isResolved() {
 		return super.isResolved() && executionService != null;
@@ -86,6 +112,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		boolean affected = super.resolve(dependency);
 
 		boolean execServiceAffected = false;
+		// FIXME check executionService is not already resolved!
 		if (dependency.getApplications().contains(IExecutionService.class)) {
 			executionService = (IExecutionService) dependency.getInstance();
 			injectedDependencies.add(dependency);

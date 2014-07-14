@@ -112,13 +112,13 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		boolean affected = super.resolve(dependency);
 
 		boolean execServiceAffected = false;
-		// FIXME check executionService is not already resolved!
-		if (dependency.getApplications().contains(IExecutionService.class)) {
-			executionService = (IExecutionService) dependency.getInstance();
-			injectedDependencies.add(dependency);
-			execServiceAffected = true;
+		if (executionService == null) {
+			if (dependency.getApplications().contains(IExecutionService.class)) {
+				executionService = (IExecutionService) dependency.getInstance();
+				injectedDependencies.add(dependency);
+				execServiceAffected = true;
+			}
 		}
-
 		return affected || execServiceAffected;
 	}
 

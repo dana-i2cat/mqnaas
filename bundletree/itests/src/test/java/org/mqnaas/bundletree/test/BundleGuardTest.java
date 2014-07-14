@@ -52,9 +52,9 @@ public class BundleGuardTest {
 				// use custom logging configuration file with a custom appender
 				KarafDistributionOption.replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg", new File(
 						"src/test/resources/org.ops4j.pax.logging.cfg")),
-				// add bundletree feature
-				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("bundletree").classifier("features")
-						.type("xml").version("0.0.1-SNAPSHOT"), "bundletree"),
+				// add mqnaas-bundletree feature
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
+						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-bundletree"),
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
 		};

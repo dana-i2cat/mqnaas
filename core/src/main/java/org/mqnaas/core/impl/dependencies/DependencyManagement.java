@@ -95,14 +95,20 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 
 		for (ApplicationInstance resolving : toResolve) {
 			if (!resolving.isResolved()) {
+				// resolve unresolved
 				for (ApplicationInstance candidate : toResolveWith) {
 					if (candidate != resolving) {
+						resolving.resolve(candidate);
 						if (resolving.isResolved()) {
 							resolvedNow.add(resolving);
 							break;
 						}
-						resolving.resolve(candidate);
 					}
+				}
+			} else {
+				// doResolve auto-resolved apps
+				if (resolving.getState().equals(ApplicationInstanceLifeCycleState.INSTANTIATED)) {
+					resolvedNow.add(resolving);
 				}
 			}
 		}

@@ -15,11 +15,17 @@ import org.slf4j.LoggerFactory;
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public class DependencyManagement implements ApplicationInstanceLifeCycleStateListener {
+public class DependencyManagement {
 
-	private static final Logger				log			= LoggerFactory.getLogger(DependencyManagement.class);
+	private static final Logger							log			= LoggerFactory.getLogger(DependencyManagement.class);
 
-	private Collection<ApplicationInstance>	inSystem	= new ArrayList<ApplicationInstance>();
+	private Collection<ApplicationInstance>				inSystem	= new ArrayList<ApplicationInstance>();
+
+	private ApplicationInstanceLifeCycleStateListener	eventNotifier;
+
+	public DependencyManagement() {
+		eventNotifier = new ApplicationListener(this);
+	}
 
 	public void addApplicationInTheSystem(ApplicationInstance application) {
 		doInstantiate(application);
@@ -41,46 +47,41 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 
 	}
 
-	// ////////////////////////////////////////////////////////
-	// ApplicationInstanceLifeCycleStateListener implementation
-	// ////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////
+	// ApplicationInstanceLifeCycleStateListener private implementation
+	// invoked by ApplicationListener
+	// ////////////////////////////////////////////////////////////////
 
-	@Override
-	public void instantiated(ApplicationInstance application) {
+	private void instantiated(ApplicationInstance application) {
 		resolve(Arrays.asList(application), getApplicationInstancesInSystem());
 		resolve(getApplicationInstancesInSystem(), Arrays.asList(application));
 	}
 
-	@Override
-	public void resolved(ApplicationInstance application) {
+	private void resolved(ApplicationInstance application) {
 		activate(Arrays.asList(application));
 		activate(getApplicationInstancesResolvedWith(application));
 		if (dependencyChainHasCycle(application))
 			activateAtOnce(getDependencyChain(application));
 	}
 
-	@Override
-	public void activated(ApplicationInstance application) {
+	private void activated(ApplicationInstance application) {
 		// nothing to do by now
 
 	}
 
-	@Override
-	public void deactivated(ApplicationInstance application) {
+	private void deactivated(ApplicationInstance application) {
 		// nothing to do by now
 
 	}
 
-	@Override
-	public void unresolved(ApplicationInstance application) {
+	private void unresolved(ApplicationInstance application) {
 		deactivate(getApplicationInstancesResolvedWith(application));
 		if (dependencyChainHasCycle(application))
 			deactivate(getDependencyChain(application));
 
 	}
 
-	@Override
-	public void destroyed(ApplicationInstance application) {
+	private void destroyed(ApplicationInstance application) {
 		Collection<ApplicationInstance> affected = getApplicationInstancesResolvedWith(application);
 		unresolve(affected, Arrays.asList(application));
 		resolve(affected, getApplicationInstancesInSystem());
@@ -158,13 +159,13 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 	private void doResolve(ApplicationInstance resolved) {
 		resolved.setState(ApplicationInstanceLifeCycleState.RESOLVED);
 		// launch resolved event
-		resolved(resolved);
+		eventNotifier.resolved(resolved);
 	}
 
 	private void doUnresolve(ApplicationInstance unresolved) {
 		unresolved.setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 		// launch unresolved event
-		unresolved(unresolved);
+		eventNotifier.unresolved(unresolved);
 	}
 
 	private void doActivate(ApplicationInstance toActivate) {
@@ -175,7 +176,7 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 			toActivate.getInstance().activate();
 			toActivate.setState(ApplicationInstanceLifeCycleState.ACTIVE);
 			// launch activated event
-			activated(toActivate);
+			eventNotifier.activated(toActivate);
 		} catch (Exception e) {
 			log.error("Error activating application " + toActivate, e);
 			toActivate.setState(previous);
@@ -194,20 +195,20 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 			}
 			toDeactivate.setState(ApplicationInstanceLifeCycleState.RESOLVED);
 			// launch deactivated event
-			deactivated(toDeactivate);
+			eventNotifier.deactivated(toDeactivate);
 		}
 	}
 
 	private void doInstantiate(ApplicationInstance toInstantiate) {
 		toInstantiate.setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 		// launch instantiated event
-		instantiated(toInstantiate);
+		eventNotifier.instantiated(toInstantiate);
 	}
 
 	private void doDestroy(ApplicationInstance toDestroy) {
 		toDestroy.setState(ApplicationInstanceLifeCycleState.DESTROYING);
 		// launch destroyed event
-		destroyed(toDestroy);
+		eventNotifier.destroyed(toDestroy);
 	}
 
 	// ///////////////
@@ -293,6 +294,53 @@ public class DependencyManagement implements ApplicationInstanceLifeCycleStateLi
 			}
 		}
 		return dependent;
+	}
+
+	/**
+	 * ApplicationInstanceLifeCycleStateListener delegating received calls to DependencyManagement given in the constructor.
+	 * 
+	 * This class is used in DependencyManagement to notify itself of ApplicationInstanceLifeCycleState changes.
+	 * 
+	 * In the future, it may be extended to launch broader impact events (i.e. notifying to other components in the system)
+	 */
+	class ApplicationListener implements ApplicationInstanceLifeCycleStateListener {
+
+		DependencyManagement	relay;
+
+		public ApplicationListener(DependencyManagement dependencyManagement) {
+			relay = dependencyManagement;
+		}
+
+		@Override
+		public void instantiated(ApplicationInstance application) {
+			relay.instantiated(application);
+		}
+
+		@Override
+		public void resolved(ApplicationInstance application) {
+			relay.resolved(application);
+		}
+
+		@Override
+		public void activated(ApplicationInstance application) {
+			relay.activated(application);
+		}
+
+		@Override
+		public void deactivated(ApplicationInstance application) {
+			relay.deactivated(application);
+		}
+
+		@Override
+		public void unresolved(ApplicationInstance application) {
+			relay.unresolved(application);
+		}
+
+		@Override
+		public void destroyed(ApplicationInstance application) {
+			relay.destroyed(application);
+		}
+
 	}
 
 }

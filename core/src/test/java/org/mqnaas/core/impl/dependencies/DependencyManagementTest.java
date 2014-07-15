@@ -17,6 +17,7 @@ import org.junit.runners.Parameterized;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.dependencies.samples.IApp;
+import org.mqnaas.core.impl.dummy.DummyExecutionService;
 
 /**
  * 
@@ -54,6 +55,8 @@ public class DependencyManagementTest {
 	@Before
 	public void initDepManager() {
 		depManager = new DependencyManagement();
+		// add execution service that is required for any ApplicationInstance
+		depManager.addApplicationInTheSystem(createApp(new DummyExecutionService()));
 	}
 
 	@Test
@@ -310,8 +313,10 @@ public class DependencyManagementTest {
 
 		for (ApplicationInstance app : depManager.getApplicationInstancesInSystem()) {
 			if (app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE)) {
-				Assert.assertTrue(((IApp) app.getInstance()).activateCalled());
-				Assert.assertTrue(((IApp) app.getInstance()).isActive());
+				if (app instanceof IApp) {
+					Assert.assertTrue(((IApp) app.getInstance()).activateCalled());
+					Assert.assertTrue(((IApp) app.getInstance()).isActive());
+				}
 			}
 		}
 	}
@@ -338,8 +343,10 @@ public class DependencyManagementTest {
 
 			for (ApplicationInstance app : wasActive) {
 				if (!app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE)) {
-					Assert.assertTrue(((IApp) toRemove.getInstance()).deactivateCalled());
-					Assert.assertFalse(((IApp) toRemove.getInstance()).isActive());
+					if (app instanceof IApp) {
+						Assert.assertTrue(((IApp) toRemove.getInstance()).deactivateCalled());
+						Assert.assertFalse(((IApp) toRemove.getInstance()).isActive());
+					}
 				}
 			}
 		}
@@ -351,8 +358,10 @@ public class DependencyManagementTest {
 		ApplicationInstance app = createAppFailingOnActivate();
 		depManager.addApplicationInTheSystem(app);
 
-		Assert.assertTrue(((IApp) app.getInstance()).activateCalled());
-		Assert.assertFalse(((IApp) app.getInstance()).isActive());
+		if (app instanceof IApp) {
+			Assert.assertTrue(((IApp) app.getInstance()).activateCalled());
+			Assert.assertFalse(((IApp) app.getInstance()).isActive());
+		}
 		Assert.assertNotEquals(ApplicationInstanceLifeCycleState.ACTIVE, app.getState());
 	}
 

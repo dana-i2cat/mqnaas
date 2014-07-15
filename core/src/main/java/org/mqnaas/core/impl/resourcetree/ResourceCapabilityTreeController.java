@@ -164,7 +164,7 @@ public class ResourceCapabilityTreeController {
 
 		while (true) {
 			// is root resource?
-			if (resourceNode.getContent() != null && resourceNode.getContent() instanceof IRootResource) {
+			if (resourceNode.getContent() instanceof IRootResource) {
 				log.trace("IRootResource Resource Node found for resource: " + resourceNode.getContent());
 				return resourceNode;
 			}

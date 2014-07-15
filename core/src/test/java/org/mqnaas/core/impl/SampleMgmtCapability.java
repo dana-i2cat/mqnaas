@@ -24,7 +24,15 @@ public class SampleMgmtCapability implements ISampleMgmtCapability {
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

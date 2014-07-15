@@ -35,7 +35,7 @@ public class MyTestApplication implements IApplication {
 	private IObservationService		observationService;
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
 
 		IRootResource mqNaaS;
 		try {
@@ -69,6 +69,12 @@ public class MyTestApplication implements IApplication {
 		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"));
 
 		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"));
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
 
 	}
 

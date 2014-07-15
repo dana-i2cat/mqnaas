@@ -59,7 +59,13 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
 		// TODO Auto-generated method stub
 
 	}

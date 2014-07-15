@@ -38,6 +38,8 @@ public class DependencyManagementTest {
 	/**
 	 * method which provides parameters to be injected into the test class constructor by Parameterized
 	 * 
+	 * This method loads some testing scenarios. Scenarios are described in a README file in the scenario package.
+	 * 
 	 * @return
 	 */
 	@Parameterized.Parameters(name = "{index}: depManagement({1})")

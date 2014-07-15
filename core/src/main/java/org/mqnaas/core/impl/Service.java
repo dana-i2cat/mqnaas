@@ -1,7 +1,9 @@
 package org.mqnaas.core.impl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceMetaData;
 
@@ -13,14 +15,18 @@ public class Service implements IInternalService {
 	// The reflected method
 	private IServiceMetaData	metaData;
 
-	Service(IResource resource, IServiceMetaData metaData) {
-		this.resource = resource;
-		this.metaData = metaData;
+	Service(Method method, IApplication instance) {
+		metaData = new ServiceMetaData(method, instance);
 	}
 
 	@Override
 	public IResource getResource() {
 		return resource;
+	}
+
+	@Override
+	public void setResource(IResource resource) {
+		this.resource = resource;
 	}
 
 	@Override
@@ -35,6 +41,7 @@ public class Service implements IInternalService {
 
 		try {
 			result = metaData.getMethod().invoke(metaData.getApplication(), parameters);
+			// FIXME fail gracefully and/or notify errors
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {

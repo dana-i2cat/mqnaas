@@ -27,8 +27,8 @@ public class BindingManagementReactsToResourcesTest {
 	static ISampleMgmtCapability	sampleMgmtCapability;
 	static IExecutionService		executionService;
 
-	boolean							addExecuted		= false;
-	boolean							removeExecuted	= false;
+	volatile boolean				addExecuted		= false;
+	volatile boolean				removeExecuted	= false;
 
 	@BeforeClass
 	public static void init() throws Exception {
@@ -84,7 +84,7 @@ public class BindingManagementReactsToResourcesTest {
 
 		Method addExecutedM = MyTest.class.getMethod("addExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedAdd),
-				new Service(null, new ServiceMetaData(addExecutedM, null)) {
+				new Service(addExecutedM, null) {
 
 					@Override
 					public Object execute(Object[] parameters) {
@@ -100,7 +100,7 @@ public class BindingManagementReactsToResourcesTest {
 
 		Method removeExecutedM = MyTest.class.getMethod("removeExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedRemove),
-				new Service(null, new ServiceMetaData(removeExecutedM, null)) {
+				new Service(removeExecutedM, null) {
 
 					@Override
 					public Object execute(Object[] parameters) {

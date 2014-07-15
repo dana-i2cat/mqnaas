@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //TODO Redo the security and instantiation aspects
 
@@ -31,8 +33,11 @@ import org.mqnaas.core.api.annotations.DependingOn;
  * 
  * Dependencies are identified using {@link DependingOn} field annotation.
  * 
+ * @author Georg Mansky-Kummert (i2CAT)
  */
 public abstract class AbstractInstance<T> {
+
+	private final Logger								log	= LoggerFactory.getLogger(getClass());
 
 	protected Class<? extends T>						clazz;
 
@@ -116,6 +121,8 @@ public abstract class AbstractInstance<T> {
 				try {
 					// Initialize the field of the application or capability
 					// TODO Security implications?
+					log.debug("Resolving dependency of field {}.{} with {}", clazz.getSimpleName(), field.getName(), capabilityClass);
+
 					field.setAccessible(true);
 					field.set(getInstance(), potentialDependency.getProxy());
 					resolve(capabilityClass);
@@ -153,6 +160,8 @@ public abstract class AbstractInstance<T> {
 					field.setAccessible(true);
 					if (field.get(getInstance()) == potentialDependency.getProxy()) {
 						// dependency is being resolved with potentialDependency
+						log.debug("Unresolving dependency of field {}.{}", clazz.getSimpleName(), field.getName());
+
 						field.set(getInstance(), null);
 						unresolve(capabilityClass);
 						injectedDependencies.remove(potentialDependency);

@@ -56,7 +56,9 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 		JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
 		bean.setAddress(ep.getUri().toString());
 
-		// bean.setProvider(new CustomJSONProvider()); // TODO initialize the rest from the configuration
+		if (!configuration.getProviders().isEmpty())
+			bean.setProviders(configuration.getProviders());
+
 		bean.setResourceClass(apiClass);
 		bean.setClassLoader(classLoader);
 

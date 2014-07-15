@@ -174,7 +174,9 @@ public class DependencyManagementTest {
 			for (ApplicationInstance app : depManager.getApplicationInstancesInSystem()) {
 				if (app.getPendingClasses().isEmpty()) {
 					Assert.assertTrue(app.isResolved());
-					Assert.assertEquals(ApplicationInstanceLifeCycleState.RESOLVED, app.getState());
+					Assert.assertTrue("State of app " + app + " should be RESOLVED or more",
+							app.getState().equals(ApplicationInstanceLifeCycleState.RESOLVED)
+									|| app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE));
 				}
 			}
 		}
@@ -183,7 +185,9 @@ public class DependencyManagementTest {
 		for (ApplicationInstance app : depManager.getApplicationInstancesInSystem()) {
 			if (app.getPendingClasses().isEmpty()) {
 				Assert.assertTrue(app.isResolved());
-				Assert.assertEquals(ApplicationInstanceLifeCycleState.RESOLVED, app.getState());
+				Assert.assertTrue("State of app " + app + " should be RESOLVED or more",
+						app.getState().equals(ApplicationInstanceLifeCycleState.RESOLVED)
+								|| app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE));
 			}
 		}
 	}

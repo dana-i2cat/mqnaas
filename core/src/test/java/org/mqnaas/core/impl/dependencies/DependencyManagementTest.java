@@ -3,9 +3,11 @@ package org.mqnaas.core.impl.dependencies;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -51,6 +53,8 @@ public class DependencyManagementTest {
 		data.add(Arrays.asList(org.mqnaas.core.impl.dependencies.samples._4_multicycle.ScenarioInitializer.getInstances(), "multicycle").toArray());
 		data.add(Arrays.asList(org.mqnaas.core.impl.dependencies.samples._5_minicycle.ScenarioInitializer.getInstances(), "minicycle").toArray());
 		data.add(Arrays.asList(org.mqnaas.core.impl.dependencies.samples._6_4cycle.ScenarioInitializer.getInstances(), "4cycle").toArray());
+		data.add(Arrays.asList(org.mqnaas.core.impl.dependencies.samples._7_multipleimpl.ScenarioInitializer.getInstances(), "multipleimpl")
+				.toArray());
 		return data;
 	}
 
@@ -395,6 +399,64 @@ public class DependencyManagementTest {
 	public void dependencyCycleIsAllDeactivatedWhenAppIsRemoved() {
 
 		// TODO how to test this???
+
+	}
+
+	@Test
+	public void resolveWithExistingImplementationsWhenDependencyIsRemoved() {
+
+		for (IApp iapp : apps) {
+			ApplicationInstance toAdd = createApp(iapp);
+			depManager.addApplicationInTheSystem(toAdd);
+		}
+
+		// get interfaces with multiple implementations
+		Set<Class<? extends IApplication>> withMultipleImpl = new HashSet<Class<? extends IApplication>>();
+		Set<Class<? extends IApplication>> implemented = new HashSet<Class<? extends IApplication>>();
+		for (ApplicationInstance app : depManager.getApplicationInstancesInSystem()) {
+			for (Class<? extends IApplication> iapp : app.getApplications()) {
+				if (implemented.contains(iapp)) {
+					withMultipleImpl.add(iapp);
+				} else {
+					implemented.add(iapp);
+				}
+			}
+		}
+
+		// get used implementations of that applications
+		// and get applications depending on them
+		Set<ApplicationInstance> usingDependencyWithMultipleImpl = new HashSet<ApplicationInstance>();
+		Map<Class<? extends IApplication>, List<ApplicationInstance>> usedImpl = new HashMap<Class<? extends IApplication>, List<ApplicationInstance>>();
+		for (Class<? extends IApplication> clazz : withMultipleImpl) {
+			for (ApplicationInstance app : depManager.getApplicationInstancesInSystem()) {
+				if (app.getResolvedClasses().contains(clazz)) {
+					usingDependencyWithMultipleImpl.add(app);
+					for (ApplicationInstance inUse : app.getInjectedDependencies()) {
+						if (inUse.getApplications().contains(clazz)) {
+							if (!usedImpl.containsKey(clazz)) {
+								usedImpl.put(clazz, Arrays.asList(inUse));
+							} else {
+								usedImpl.get(clazz).add(inUse);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// remove an implementation being used
+		for (Class<? extends IApplication> clazz : usedImpl.keySet()) {
+			depManager.removeApplicationInTheSystem(usedImpl.get(clazz).get(0));
+		}
+
+		// check apps that were depending on removed are still resolved (with other implementations)
+		for (ApplicationInstance app : usingDependencyWithMultipleImpl) {
+			Assert.assertTrue(app.getPendingClasses().isEmpty());
+				Assert.assertTrue(app.isResolved());
+				Assert.assertTrue("State of app " + app + " should be RESOLVED or more",
+						app.getState().equals(ApplicationInstanceLifeCycleState.RESOLVED)
+								|| app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE));
+		}
 
 	}
 

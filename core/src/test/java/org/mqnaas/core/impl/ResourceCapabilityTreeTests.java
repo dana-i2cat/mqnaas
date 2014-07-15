@@ -93,7 +93,27 @@ public class ResourceCapabilityTreeTests {
 
 	private static ResourceNode generateCoreRootResourceNode() {
 		ResourceNode node = new ResourceNode();
-		node.setContent(new IRootResource() {
+		node.setContent(generateRootResource(new Specification(Type.CORE, "MQNaaS Core", "0.0.1"), null));
+		return node;
+	}
+
+	private static ResourceNode generateRouterRootResourceNode() {
+		ResourceNode node = new ResourceNode();
+
+		Endpoint ep = new Endpoint();
+		try {
+			ep.setUri(new URI("http://www.i2cat.net/"));
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+
+		node.setContent(generateRootResource(new Specification(Type.ROUTER, "i2cat router", "dummy"), Arrays.asList(ep)));
+
+		return node;
+	}
+
+	private static IRootResource generateRootResource(Specification specification, Collection<Endpoint> endpoints) {
+		return new IRootResource() {
 
 			@Override
 			public ITransactionBehavior getTransactionBehaviour() {
@@ -114,41 +134,7 @@ public class ResourceCapabilityTreeTests {
 			public Collection<Endpoint> getEndpoints() {
 				return null;
 			}
-		});
-		return node;
-	}
-
-	private static ResourceNode generateRouterRootResourceNode() {
-		ResourceNode node = new ResourceNode();
-		node.setContent(new IRootResource() {
-
-			@Override
-			public ITransactionBehavior getTransactionBehaviour() {
-				return null;
-			}
-
-			@Override
-			public ILockingBehaviour getLockingBehaviour() {
-				return null;
-			}
-
-			@Override
-			public Specification getSpecification() {
-				return new Specification(Type.ROUTER, "i2cat router", "dummy");
-			}
-
-			@Override
-			public Collection<Endpoint> getEndpoints() {
-				Endpoint ep = new Endpoint();
-				try {
-					ep.setUri(new URI("http://www.i2cat.net/"));
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-				return Arrays.asList(ep);
-			}
-		});
-		return node;
+		};
 	}
 
 	private static ResourceNode generateResourceNode() {

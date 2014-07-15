@@ -14,8 +14,13 @@ import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.impl.ICoreModelCapability;
 
 public class ClientProviderFactory extends AbstractProviderFactory implements IClientProviderFactory {
+
+	@DependingOn
+	private ICoreModelCapability	coreModelCapability;
 
 	public static boolean isSupporting(IRootResource resource) {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
@@ -24,8 +29,7 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 	private List<IInternalClientProvider<?, ?>>	internalClientProviders;
 
 	public ClientProviderFactory() {
-		// List of available IInternalClientProvider must be maintained by
-		// classpath scanning
+		// List of available IInternalClientProvider must be maintained by classpath scanning
 		internalClientProviders = new ArrayList<IInternalClientProvider<?, ?>>();
 		internalClientProviders.add(new InternalNetconfClientProvider());
 	}
@@ -49,7 +53,7 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass, 2)) {
 
 				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(), new Class[] { clientProviderClass },
-						new ClientProviderAdapter(internalClientProvider));
+						new ClientProviderAdapter(internalClientProvider, coreModelCapability));
 
 				return c;
 			}

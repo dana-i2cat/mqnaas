@@ -1,9 +1,11 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
@@ -44,8 +46,12 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
-	public IRootResource createRootResource(Specification specification) {
-		Resource resource = new Resource(specification);
+	public IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints) {
+		if (endpoints == null || endpoints.size() < 1) {
+			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
+		}
+
+		RootResource resource = new RootResource(specification, endpoints);
 		resources.add(resource);
 		return resource;
 	}

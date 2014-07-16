@@ -148,8 +148,11 @@ public class ResourceCapabilityTreeTests {
 		CapabilityNode node = new CapabilityNode();
 		node.setContent(new CapabilityInstance((new ICapability() {
 			@Override
-			public void onDependenciesResolved() {
+			public void activate() {
+			}
 
+			@Override
+			public void deactivate() {
 			}
 		}).getClass()));
 		return node;

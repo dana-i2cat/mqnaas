@@ -20,6 +20,10 @@
 			<artifactId>core.api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-bundle</artifactId>
 		</dependency>

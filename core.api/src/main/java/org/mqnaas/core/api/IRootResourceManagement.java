@@ -1,5 +1,6 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -40,7 +41,9 @@ public interface IRootResourceManagement extends ICapability {
 	@PUT
 	IRootResource createRootResource(RootResourceDescriptor descriptor);
 
-	IRootResource createRootResource(Specification specification);
+	@AddsResource
+	@PUT
+	IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints);
 
 	/**
 	 * <p>

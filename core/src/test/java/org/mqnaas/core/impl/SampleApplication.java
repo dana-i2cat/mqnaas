@@ -14,8 +14,14 @@ public class SampleApplication implements IApplication {
 	private static final Logger	log	= LoggerFactory.getLogger(BindingManagement.class);
 
 	@Override
-	public void onDependenciesResolved() {
-		log.info("SampleApplication resolved!");
+	public void activate() {
+		log.info("SampleApplication activated!");
+	}
+
+	@Override
+	public void deactivate() {
+		log.info("SampleApplication deactivated!");
+
 	}
 
 }

@@ -14,6 +14,7 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.impl.dependencies.ApplicationInstanceLifeCycleState;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -45,6 +46,8 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	// InvocationHandler used by the proxy to execute the services offered by this application instance
 	private ExecutionRelayingInvocationHandler							invocationHandler;
 
+	private ApplicationInstanceLifeCycleState					state;
+
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		this(clazz, null);
 
@@ -54,6 +57,8 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		super(clazz);
 
 		this.instance = instance;
+
+		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 
 		internalServices = ArrayListMultimap.create();
 
@@ -83,6 +88,47 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		}
 	}
 
+	/**
+	 * @return the state
+	 */
+	public ApplicationInstanceLifeCycleState getState() {
+		return state;
+	}
+
+	/**
+	 * @param state
+	 *            the state to set
+	 */
+	public void setState(ApplicationInstanceLifeCycleState state) {
+		this.state = state;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.AbstractInstance#getPendingClasses()
+	 */
+	@Override
+	public Collection<Class<? extends IApplication>> getPendingClasses() {
+		Collection<Class<? extends IApplication>> pendingClasses = super.getPendingClasses();
+		if (executionService == null)
+			pendingClasses.add(IExecutionService.class);
+		return pendingClasses;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.mqnaas.core.impl.AbstractInstance#getResolvedClasses()
+	 */
+	@Override
+	public Collection<Class<? extends IApplication>> getResolvedClasses() {
+		Collection<Class<? extends IApplication>> resolvedClasses = super.getResolvedClasses();
+		if (executionService != null)
+			resolvedClasses.add(IExecutionService.class);
+		return resolvedClasses;
+	}
+
 	@Override
 	public boolean isResolved() {
 		return super.isResolved() && executionService != null;
@@ -93,11 +139,13 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		boolean affected = super.resolve(dependency);
 
 		boolean execServiceAffected = false;
-		if (dependency.getApplications().contains(IExecutionService.class)) {
-			executionService = (IExecutionService) dependency.getInstance();
-			execServiceAffected = true;
+		if (executionService == null) {
+			if (dependency.getApplications().contains(IExecutionService.class)) {
+				executionService = (IExecutionService) dependency.getInstance();
+				injectedDependencies.add(dependency);
+				execServiceAffected = true;
+			}
 		}
-
 		return affected || execServiceAffected;
 	}
 
@@ -109,6 +157,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		if (dependency.getApplications().contains(IExecutionService.class)) {
 			if (executionService == dependency.getInstance()) {
 				executionService = null;
+				injectedDependencies.remove(dependency);
 				execServiceAffected = true;
 			}
 		}
@@ -145,7 +194,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	}
 
 	/**
-	 * Sets the given {@link Resource} as the resource used when executing the services.
+	 * Sets the given {@link IResource} as the resource used when executing the services.
 	 * 
 	 * @param resource
 	 *            The resources used when executing services.
@@ -207,7 +256,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 		}
 
 		/**
-		 * Sets the given {@link Resource} to all managed relayed {@link IService}s.
+		 * Sets the given {@link IResource} to all managed relayed {@link IService}s.
 		 * 
 		 * @param resource
 		 *            The Resource handed to the Services.

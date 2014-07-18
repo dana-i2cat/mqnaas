@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,12 +47,16 @@ public abstract class AbstractInstance<T> {
 
 	private Map<Class<? extends IApplication>, Field>	resolvedDependencies;
 
+	protected Collection<ApplicationInstance>			injectedDependencies;
+
 	public AbstractInstance(Class<? extends T> clazz) {
 		this.clazz = clazz;
 
 		pendingDependencies = getDependencies(clazz);
 
 		resolvedDependencies = new HashMap<Class<? extends IApplication>, Field>();
+
+		injectedDependencies = new ArrayList<ApplicationInstance>();
 	}
 
 	protected AbstractInstance(Class<? extends T> clazz, T instance) {
@@ -121,6 +126,7 @@ public abstract class AbstractInstance<T> {
 					field.setAccessible(true);
 					field.set(getInstance(), potentialDependency.getProxy());
 					resolve(capabilityClass);
+					injectedDependencies.add(potentialDependency);
 					affected = true;
 				} catch (IllegalArgumentException e) {
 					// ignore for now
@@ -158,6 +164,7 @@ public abstract class AbstractInstance<T> {
 
 						field.set(getInstance(), null);
 						unresolve(capabilityClass);
+						injectedDependencies.remove(potentialDependency);
 						affected = true;
 					}
 				} catch (IllegalArgumentException e) {
@@ -225,6 +232,13 @@ public abstract class AbstractInstance<T> {
 		}
 
 		return dependencies;
+	}
+
+	/**
+	 * @return the injectedDependencies. Returned collection is not the live one, but a copy.
+	 */
+	public Collection<ApplicationInstance> getInjectedDependencies() {
+		return new ArrayList<ApplicationInstance>(injectedDependencies);
 	}
 
 }

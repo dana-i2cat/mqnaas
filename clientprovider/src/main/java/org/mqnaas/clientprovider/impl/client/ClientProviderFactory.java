@@ -3,10 +3,10 @@ package org.mqnaas.clientprovider.impl.client;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.mqnaas.bundletree.IBundleGuard;
@@ -40,11 +40,12 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
-	private List<IInternalClientProvider<?, ?>>	internalClientProviders;
+	private Map<Class<? extends IInternalClientProvider<?, ?>>, IInternalClientProvider<?, ?>>	internalClientProviders;
 
 	public ClientProviderFactory() {
-		// List of available IInternalClientProvider must be maintained by a class listener
-		internalClientProviders = Collections.synchronizedList(new ArrayList<IInternalClientProvider<?, ?>>());
+		// Map of available IInternalClientProvider must be maintained by a class listener
+		internalClientProviders = Collections
+				.synchronizedMap(new HashMap<Class<? extends IInternalClientProvider<?, ?>>, IInternalClientProvider<?, ?>>());
 	}
 
 	private static Set<Type>	VALID_CLIENT_PROVIDERS;
@@ -60,8 +61,8 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 		log.info("ClientProvider request received for class: " + clientProviderClass.getCanonicalName());
 
 		// Match against list of providers...
-		for (IInternalClientProvider<?, ?> internalClientProvider : internalClientProviders) {
-			Class<?> internalClientProviderClass = internalClientProvider.getClass();
+		for (Class<?> internalClientProviderClass : internalClientProviders.keySet()) {
+			IInternalClientProvider<?, ?> internalClientProvider = internalClientProviders.get(internalClientProviderClass);
 
 			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass, 2)) {
 				// internalClientProvider must be parametrized with <T, CC>
@@ -97,7 +98,7 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 
 	private void internalClientProviderAdded(Class<? extends IInternalClientProvider<?, ?>> clazz) {
 		try {
-			internalClientProviders.add((IInternalClientProvider<?, ?>) clazz.newInstance());
+			internalClientProviders.put(clazz, (IInternalClientProvider<?, ?>) clazz.newInstance());
 		} catch (InstantiationException e) {
 			// this are guaranteed to be an instantiable class
 			log.error("Error instantiating IClientProvider of class: " + clazz, e);
@@ -108,17 +109,8 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 	}
 
 	private void internalClientProviderRemoved(Class<? extends IInternalClientProvider<?, ?>> clazz) {
-		// collect IInternalClientProviders to be removed
-		Set<IInternalClientProvider<?, ?>> internalClientProvidersToBeRemoved = new HashSet<IInternalClientProvider<?, ?>>();
-
-		for (IInternalClientProvider<?, ?> internalClientProvider : internalClientProviders) {
-			if (internalClientProvider.getClass().isAssignableFrom(clazz)) {
-				internalClientProvidersToBeRemoved.add(internalClientProvider);
-			}
-		}
-
 		// remove them
-		internalClientProviders.remove(internalClientProvidersToBeRemoved);
+		internalClientProviders.remove(clazz);
 	}
 
 	private class InternalClassListener implements IClassListener {

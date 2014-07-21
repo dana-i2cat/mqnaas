@@ -19,6 +19,7 @@ import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.impl.ICoreModelCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +29,9 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 
 	// internal {@link IClassListener} instance
 	private InternalClassListener	internalClassListener;
+
+	@DependingOn
+	private ICoreModelCapability	coreModelCapability;
 
 	@DependingOn
 	private IBundleGuard			bundleGuard;
@@ -51,7 +55,6 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 		VALID_CLIENT_PROVIDERS.add(IInternalClientProvider.class);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <T, CC, C extends IClientProvider<T, CC>> C getClientProvider(Class<C> clientProviderClass) {
 		log.info("ClientProvider request received for class: " + clientProviderClass.getCanonicalName());
@@ -61,9 +64,10 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 			Class<?> internalClientProviderClass = internalClientProvider.getClass();
 
 			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass, 2)) {
-
+				// internalClientProvider must be parametrized with <T, CC>
+				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(), new Class[] { clientProviderClass },
-						new ClientProviderAdapter(internalClientProvider));
+						new ClientProviderAdapter<T, CC>((IInternalClientProvider<T, CC>) internalClientProvider, coreModelCapability));
 
 				log.debug("Providing ClientProvider.");
 
@@ -77,11 +81,18 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
 		// register class listeners
 		log.info("Registering as ClassListener with IInternalClientProviderClassFilter");
 		internalClassListener = new InternalClassListener();
 		bundleGuard.registerClassListener(new IInternalClientProviderClassFilter(), internalClassListener);
+	}
+
+	@Override
+	public void deactivate() {
+		// unregister class listeners
+		log.info("Unregistering as ClassListener.");
+		bundleGuard.unregisterClassListener(internalClassListener);
 	}
 
 	private void internalClientProviderAdded(Class<? extends IInternalClientProvider<?, ?>> clazz) {

@@ -1,6 +1,8 @@
 package org.mqnaas.clientprovider.impl.client;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,6 +13,12 @@ import org.mqnaas.clientprovider.api.client.IClientProvider;
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.ILockingBehaviour;
+import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.impl.ICoreModelCapability;
 
 /**
  * Unit tests for {@link ClientProviderFactory}
@@ -24,17 +32,19 @@ public class ClientProviderFactoryTest {
 	public void testClientProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 
 		// generate base objects
+		IRootResource resource = generateIRootResource();
 		TestBundleGuard bg = new TestBundleGuard();
 		ClientProviderFactory cpf = new ClientProviderFactory();
 		injectBundleGuard(cpf, bg);
-		cpf.onDependenciesResolved();
+		injectCoreModelCapability(cpf, new TestCoreModelCapability(resource));
+		cpf.activate();
 
 		// add two InternalClientProvider's
 		bg.throwClassEntered(getInternalClassListener(cpf), TestInternalClientProvider.class);
 
-		//
-		TestClient client = cpf.getClientProvider(TestClientProvider.class).getClient();
-		Assert.assertTrue("", client instanceof TestClient);
+		// obtain a client from client provider
+		TestClient client = cpf.getClientProvider(TestClientProvider.class).getClient(resource);
+		Assert.assertTrue("Client must be an instance of TestClient.", client instanceof TestClient);
 	}
 
 	/*
@@ -43,7 +53,12 @@ public class ClientProviderFactoryTest {
 	private class TestBundleGuard implements IBundleGuard {
 
 		@Override
-		public void onDependenciesResolved() {
+		public void activate() {
+			// nothing to do
+		}
+
+		@Override
+		public void deactivate() {
 			// nothing to do
 		}
 
@@ -79,6 +94,17 @@ public class ClientProviderFactoryTest {
 	}
 
 	/*
+	 * Inject IBundleGuard using reflection
+	 */
+	private static void injectCoreModelCapability(ClientProviderFactory cpf, ICoreModelCapability coreModelCapability) throws SecurityException,
+			NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		Class<ClientProviderFactory> cpfClass = ClientProviderFactory.class;
+		Field bundleGuardField = cpfClass.getDeclaredField("coreModelCapability");
+		bundleGuardField.setAccessible(true);
+		bundleGuardField.set(cpf, coreModelCapability);
+	}
+
+	/*
 	 * Obtain internalClassListener field using reflection
 	 */
 	private static IClassListener getInternalClassListener(ClientProviderFactory cpf) throws SecurityException, NoSuchFieldException,
@@ -107,9 +133,11 @@ public class ClientProviderFactoryTest {
 
 	private interface TestClientProvider extends IClientProvider<TestClient, TesClientConfiguration> {
 
-		public TestClient getClient();
+		@Override
+		public TestClient getClient(IResource resource);
 
-		public TestClient getClient(TesClientConfiguration clientConfiguration);
+		@Override
+		public TestClient getClient(IResource resource, TesClientConfiguration clientConfiguration);
 
 	}
 
@@ -118,4 +146,53 @@ public class ClientProviderFactoryTest {
 
 	private class TesClientConfiguration {
 	}
+
+	private static class TestCoreModelCapability implements ICoreModelCapability {
+
+		private IRootResource	resourceToBeReturned;
+
+		public TestCoreModelCapability(IRootResource resourceToBeReturned) {
+			this.resourceToBeReturned = resourceToBeReturned;
+		}
+
+		@Override
+		public void activate() {
+		}
+
+		@Override
+		public void deactivate() {
+		}
+
+		@Override
+		public IRootResource getRootResource(IResource resource) throws IllegalArgumentException {
+			return resourceToBeReturned;
+		}
+
+	}
+
+	private static IRootResource generateIRootResource() {
+		return new IRootResource() {
+
+			@Override
+			public ITransactionBehavior getTransactionBehaviour() {
+				return null;
+			}
+
+			@Override
+			public Specification getSpecification() {
+				return null;
+			}
+
+			@Override
+			public ILockingBehaviour getLockingBehaviour() {
+				return null;
+			}
+
+			@Override
+			public Collection<Endpoint> getEndpoints() {
+				return Arrays.asList(new Endpoint());
+			}
+		};
+	}
+
 }

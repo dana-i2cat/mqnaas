@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import org.apache.cxf.common.util.ProxyClassLoader;
+import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
@@ -62,7 +64,15 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 		bean.setResourceClass(apiClass);
 		bean.setClassLoader(classLoader);
 
-		return bean.create(apiClass);
+		API api = bean.create(apiClass);
+
+		if (configuration != null && configuration.isCNChecked()) {
+			TLSClientParameters clientParams = new TLSClientParameters();
+			clientParams.setDisableCNCheck(true);
+			WebClient.getConfig(api).getHttpConduit().setTlsClientParameters(clientParams);
+		}
+
+		return api;
 	}
 
 	private <API> API createDummyClient(Class<API> apiClass) {

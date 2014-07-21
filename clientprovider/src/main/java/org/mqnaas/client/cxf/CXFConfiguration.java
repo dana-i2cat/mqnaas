@@ -7,6 +7,7 @@ public class CXFConfiguration {
 
 	private boolean			useDummyClient;
 	private List<Object>	providers;
+	private boolean			checkCN;
 
 	public CXFConfiguration() {
 		providers = new ArrayList<Object>();
@@ -57,6 +58,22 @@ public class CXFConfiguration {
 	@Override
 	public String toString() {
 		return "CXFConfiguration [useDummyClient=" + useDummyClient + "]";
+	}
+
+	/**
+	 * Returns whether or not JSSE omits checking if the host name specified in the URL matches that of the Common Name (CN) on the server's
+	 * certificate.
+	 */
+	public boolean isCNChecked() {
+		return checkCN;
+	}
+
+	/**
+	 * Specifies whether or not JSSE should omit checking if the host name specified in the URL matches that of the Common Name (CN) on the server's
+	 * certificate.
+	 */
+	public void setCheckCN(boolean checkCN) {
+		this.checkCN = checkCN;
 	}
 
 }

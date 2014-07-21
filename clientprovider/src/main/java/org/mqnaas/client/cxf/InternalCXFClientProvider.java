@@ -17,8 +17,11 @@ import org.slf4j.LoggerFactory;
 /**
  * This is an example implementation of how to implement a specific api provider
  * 
+ * @param <CC>
+ *            Specific {@link CXFConfiguration} for the client being created. The goal of this parameterization is to allow specific client providers
+ *            extending this class to initialize client configuration by extending the {@link CXFConfiguration} class.
  */
-public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfiguration> {
+public class InternalCXFClientProvider<CC extends CXFConfiguration> implements IInternalAPIProvider<CC> {
 
 	private static final Logger	log	= LoggerFactory.getLogger(InternalCXFClientProvider.class);
 
@@ -28,12 +31,12 @@ public class InternalCXFClientProvider implements IInternalAPIProvider<CXFConfig
 	}
 
 	@Override
-	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CXFConfiguration configuration) {
+	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CC configuration) {
 		return getClient(apiClass, ep, c, configuration, null);
 	}
 
 	@Override
-	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CXFConfiguration configuration,
+	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CC configuration,
 			Object applicationSpecificConfiguration) {
 
 		if (configuration != null) {

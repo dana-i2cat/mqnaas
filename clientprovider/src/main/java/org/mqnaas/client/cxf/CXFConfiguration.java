@@ -8,6 +8,7 @@ public class CXFConfiguration {
 	private boolean			useDummyClient;
 	private List<Object>	providers;
 	private boolean			checkCN;
+	private boolean			useAsyncHttpConduit;
 
 	public CXFConfiguration() {
 		providers = new ArrayList<Object>();
@@ -48,6 +49,26 @@ public class CXFConfiguration {
 	 */
 	public void setProviders(List<Object> providers) {
 		this.providers = providers;
+	}
+
+	/**
+	 * @return <code>true</code> if CXF client is using Asynchronous HTTP transport. <code>false</code> otherwise.
+	 */
+	public boolean isUsingAsyncHttpConduit() {
+		return useAsyncHttpConduit;
+	}
+
+	/**
+	 * Specifies whether the CXF client should use the Asynchronous HTTP transport.
+	 * <p>
+	 * By enabling async http conduit, as side-effect, support for @Delete methods with body is available.
+	 * </p>
+	 * <p>
+	 * https://issues.apache.org/jira/browse/CXF-5337
+	 * </p>
+	 */
+	public void setUseAsyncHttpConduit(boolean useAsyncHttpConduit) {
+		this.useAsyncHttpConduit = useAsyncHttpConduit;
 	}
 
 	/*

@@ -75,6 +75,11 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 			WebClient.getConfig(api).getHttpConduit().setTlsClientParameters(clientParams);
 		}
 
+		if (configuration != null && configuration.isUsingAsyncHttpConduit())
+			// By enabling async http conduit, as side-effect, support for @Delete methods with body is available.
+			// https://issues.apache.org/jira/browse/CXF-5337
+			WebClient.getConfig(api).getRequestContext().put("use.async.http.conduit", true);
+
 		return api;
 	}
 

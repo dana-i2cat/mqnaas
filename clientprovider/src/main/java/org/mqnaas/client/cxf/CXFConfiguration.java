@@ -85,7 +85,7 @@ public class CXFConfiguration {
 	 * Returns whether or not JSSE omits checking if the host name specified in the URL matches that of the Common Name (CN) on the server's
 	 * certificate.
 	 */
-	public boolean isCNChecked() {
+	public boolean isCNCheckEnabled() {
 		return checkCN;
 	}
 

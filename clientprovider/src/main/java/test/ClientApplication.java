@@ -58,14 +58,14 @@ public class ClientApplication implements IApplication {
 		ICXFAPIProvider ap = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class);
 
 		// Dynamic client w/o configuration
-		IApplicationClient applicationSpecificClient1 = ap.getAPIClient(IApplicationClient.class);
+		IApplicationClient applicationSpecificClient1 = ap.getAPIClient(resource, IApplicationClient.class);
 		applicationSpecificClient1.methodA();
 		applicationSpecificClient1.methodB();
 
 		// Dynamic client with (client specific) configuration
 		CXFConfiguration cxfConf = new CXFConfiguration();
 		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(IApplicationClient.class, cxfConf);
+		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf);
 		applicationSpecificClient2.methodA();
 		applicationSpecificClient2.methodB();
 
@@ -73,7 +73,7 @@ public class ClientApplication implements IApplication {
 		// specific configuration
 		CXFConfiguration cxfConf2 = new CXFConfiguration();
 		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
+		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();
 	}

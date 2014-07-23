@@ -296,6 +296,7 @@
 		<module>bundletree/itests-testbundleA</module>
 		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider</module>
+		<module>test-helpers</module>
 	</modules>
 
 	<repositories>

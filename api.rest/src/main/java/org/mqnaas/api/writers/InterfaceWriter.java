@@ -2,13 +2,7 @@ package org.mqnaas.api.writers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -25,119 +19,45 @@ import javax.ws.rs.QueryParam;
 
 import org.i2cat.utils.StringBuilderUtils;
 import org.mqnaas.api.ContentType;
-import org.mqnaas.api.InvalidCapabilityDefinionException;
 import org.mqnaas.api.RESTAPIGenerator;
+import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
 import org.mqnaas.core.api.ICapability;
-import org.mqnaas.core.api.IIdentifiable;
 import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.ListResources;
+import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
-public class InterfaceWriter extends AbstractWriter {
+public class InterfaceWriter extends AbstractWriter implements Opcodes {
+
+	private RESTAPIGenerator			restAPIGenerator	= new RESTAPIGenerator();
+
+	private CapabilityMetaDataContainer	metaDataContainer;
 
 	private String						name;
+
 	private AnnotationWriter[]			annotationWriters;
 
-	private List<MethodWriter>			methodWriters;
+	// private List<MethodWriter> methodWriters;
 	private Map<Method, MethodWriter>	method2writer;
 
-	private Method						listService;
+	public InterfaceWriter(Class<? extends ICapability> capabilityClass, String endpoint) throws InvalidCapabilityDefinionException {
 
-	public InterfaceWriter(Class<? extends ICapability> capabilityClass, String endpoint) throws Exception {
+		// (1) Collect the metadata necessary to write the REST API interface. This process also checks the validity of the given capability.
+		metaDataContainer = new CapabilityMetaDataContainer(capabilityClass);
 
+		// (2) Generate a name for the REST API interface
 		name = generateAPIInterfaceName(capabilityClass);
-		annotationWriters = new AnnotationWriter[] { new AnnotationWriter(Path.class, new AnnotationParamWriter("value",
-				endpoint)) };
 
-		methodWriters = new ArrayList<MethodWriter>();
+		// (3) Initialize the interfaces' path annotation
+		// annotationWriters = new AnnotationWriter[] { new AnnotationWriter(Path.class, new AnnotationParamWriter("value", endpoint)) };
 
-		// All methods defined in the capability are services.
-		List<Method> services = new ArrayList<Method>(Arrays.asList(capabilityClass.getDeclaredMethods()));
-
-		List<Method> resourceAddingServices = filter(services, AddsResource.class);
-		List<Method> resourceDeletingServices = filter(services, RemovesResource.class);
-		List<Method> resourceListingServices = filter(services, ListResources.class);
-
-		// CHECK THE BASIC CONTRACT
-		for (Method m : resourceAddingServices) {
-			// Either has to returns IIdentifiable or to define a single IIdentifiable parameters
-			boolean returnsIdentifiable = IIdentifiable.class.isAssignableFrom(m.getReturnType());
-			boolean hasIdentifiableParameter = m.getParameterTypes().length == 1 && IIdentifiable.class.isAssignableFrom(m.getParameterTypes()[0]);
-
-			if (!returnsIdentifiable && !hasIdentifiableParameter) {
-				throw new InvalidCapabilityDefinionException(
-						"Creation service " + m.getName() + " has to either: (a) return a subclass of " + IIdentifiable.class + " or (b) has a single parameter subclassing " + IIdentifiable.class);
-			}
-		}
-
-		for (Method m : resourceDeletingServices) {
-			// Have to have one parameter subclassing IIdentifiable
-			if (m.getParameterTypes().length != 1) {
-				throw new InvalidCapabilityDefinionException(
-						"Deletion service " + m.getName() + " has to have exactly one parameter extending " + IIdentifiable.class);
-			} else if (!IIdentifiable.class.isAssignableFrom(m.getParameterTypes()[0])) {
-				throw new InvalidCapabilityDefinionException(
-						"Deletion service " + m.getName() + ": Parameter must be a subclass of " + IIdentifiable.class);
-			}
-		}
-
-		for (Method m : resourceListingServices) {
-			// Has to return a collection of IIdentifiables
-			if (!Collection.class.isAssignableFrom(m.getReturnType())) {
-				throw new InvalidCapabilityDefinionException("List service " + m.getName() + " has to return a collection of " + IIdentifiable.class);
-			}
-
-			Class<?> returnParameterType = getReturnTypeParameter(m);
-
-			if (!IIdentifiable.class.isAssignableFrom(returnParameterType)) {
-				throw new InvalidCapabilityDefinionException(
-						"List service " + m.getName() + " has to return collections of " + IIdentifiable.class);
-			}
-		}
-
-		// COLLECT THE ENTITY TYPES USED
-		Set<Class<?>> entityClasses = new HashSet<Class<?>>();
-
-		for (Method m : resourceAddingServices) {
-			if (IIdentifiable.class.isAssignableFrom(m.getReturnType())) {
-				entityClasses.add(m.getReturnType());
-			} else {
-				entityClasses.add(m.getParameterTypes()[0]);
-			}
-		}
-
-		for (Method m : resourceDeletingServices) {
-			entityClasses.add(m.getParameterTypes()[0]);
-		}
-
-		for (Method m : resourceListingServices) {
-			entityClasses.add(getReturnTypeParameter(m));
-		}
-
-		if (entityClasses.size() != 1) {
-			throw new InvalidCapabilityDefinionException("More than one entity class found: " + entityClasses);
-		}
-
-		// INITIALIZE THE LIST SERVICE
-		for (Method m : resourceListingServices) {
-			if (m.getParameterTypes().length == 0) {
-				listService = m;
-				break;
-			}
-		}
-
-		if (listService == null && !resourceListingServices.isEmpty()) {
-			throw new InvalidCapabilityDefinionException("No list service without parameters found.");
-		}
-
-		Class<?> entityClass = entityClasses.iterator().next();
-
+		// (4) Define all available services, e.g. methods of the interface
 		method2writer = new HashMap<Method, MethodWriter>();
 
-		for (Method m : resourceAddingServices) {
+		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
-			Class<?> resultClass = RESTAPIGenerator.getTranslation(m.getReturnType());
+			Class<?> resultClass = restAPIGenerator.getTranslation(m.getReturnType());
 
 			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
 					new AnnotationWriter(PUT.class),
@@ -146,9 +66,9 @@ public class InterfaceWriter extends AbstractWriter {
 			method2writer.put(m, writer);
 		}
 
-		for (Method m : resourceDeletingServices) {
+		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
 
-			Class<?> parameterClass = RESTAPIGenerator.getTranslation(m.getParameterTypes()[0]);
+			Class<?> parameterClass = restAPIGenerator.getTranslation(m.getParameterTypes()[0]);
 
 			MethodWriter writer = new MethodWriter(m.getName(), void.class, new Class<?>[] { parameterClass },
 					new AnnotationWriter(DELETE.class),
@@ -158,12 +78,12 @@ public class InterfaceWriter extends AbstractWriter {
 			method2writer.put(m, writer);
 		}
 
-		for (Method m : resourceListingServices) {
+		for (Method m : metaDataContainer.getServiceMethods(ListsResources.class)) {
 
 			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(),
 					m.getParameterTypes(),
 					new AnnotationWriter(GET.class),
-					new AnnotationWriter(ContentType.class, new AnnotationParamWriter("value", entityClass)),
+					new AnnotationWriter(ContentType.class, new AnnotationParamWriter("value", metaDataContainer.getEntityClass())),
 					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })));
 
 			// Map all parameters as QueryParams
@@ -178,77 +98,69 @@ public class InterfaceWriter extends AbstractWriter {
 			method2writer.put(m, writer);
 		}
 
-		services.removeAll(resourceAddingServices);
-		services.removeAll(resourceDeletingServices);
-		services.removeAll(resourceListingServices);
+		// Add all the remaining services to the REST API interface
+		// 1. Determine all remaining services
+		List<Method> methods = metaDataContainer.getServiceMethods();
+		methods.removeAll(metaDataContainer.getServiceMethods(AddsResource.class));
+		methods.removeAll(metaDataContainer.getServiceMethods(RemovesResource.class));
+		methods.removeAll(metaDataContainer.getServiceMethods(ListsResources.class));
 
-		for (Method m : services) {
+		// 2. Write them as services methods with their names as path
+		for (Method method : methods) {
 
-			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(), m.getParameterTypes(),
-					new AnnotationWriter(GET.class),
-					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", m.getName())));
+			// Define the HTTP method type
+			Class<? extends Annotation> httpMethod = GET.class;
+
+			String serviceName = method.getName();
+			if (serviceName.startsWith("get") && serviceName.length() > 3) {
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+			}
+
+			// Translate the result
+			Class<?> resultClass = restAPIGenerator.getTranslation(method.getReturnType());
+
+			// Translate the parameters
+			Class<?>[] parameterClasses = new Class<?>[method.getParameterTypes().length];
+			for (int i = 0; i < method.getParameterTypes().length; i++) {
+				parameterClasses[i] = restAPIGenerator.getTranslation(method.getParameterTypes()[i]);
+			}
+
+			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses,
+					new AnnotationWriter(httpMethod),
+					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));
 
 			String[] names = null; // TODO read names using asm
 
-			for (int i = 0; i < m.getParameterTypes().length; i++) {
+			for (int i = 0; i < method.getParameterTypes().length; i++) {
 				String name = names != null ? names[i] : "arg" + i;
 				writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
 			}
 
-			method2writer.put(m, writer);
+			method2writer.put(method, writer);
 		}
 
-		methodWriters.addAll(method2writer.values());
+		Class<?> entityClass = metaDataContainer.getEntityClass();
+		if (entityClass != null) {
+			// If there are entity classes used in the services, then provide a getter for the serialization of the resource
+			MethodWriter methodWriter = new MethodWriter("get" + entityClass.getSimpleName(), entityClass, new Class<?>[] { String.class },
+					new AnnotationWriter(GET.class),
+					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", "{id}")),
+					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })),
+					new AnnotationWriter(0, PathParam.class, new AnnotationParamWriter("value", "id")));
 
-		// Resource Getter with id
-		MethodWriter methodWriter = new MethodWriter("get" + entityClass.getSimpleName(), entityClass, new Class<?>[] { String.class },
-				new AnnotationWriter(GET.class),
-				new AnnotationWriter(Path.class, new AnnotationParamWriter("value", "{id}")),
-				new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })),
-				new AnnotationWriter(0, PathParam.class, new AnnotationParamWriter("value", "id")));
-
-		method2writer.put(null, methodWriter);
-
-		methodWriters.add(methodWriter);
+			method2writer.put(null, methodWriter);
+		}
 
 	}
 
-	private Class<?> getReturnTypeParameter(Method m) {
-
-		Class<?> clazz = null;
-
-		Type returnType = m.getGenericReturnType();
-		if (returnType instanceof ParameterizedType) {
-			ParameterizedType collectionType = (ParameterizedType) returnType;
-
-			Type type = collectionType.getActualTypeArguments()[0];
-			if (type instanceof Class<?>) {
-				clazz = (Class<?>) type;
-			}
-		}
-
-		return clazz;
-	}
-
-	private List<Method> filter(List<Method> services, Class<? extends Annotation> annotationClass) {
-
-		List<Method> filtered = new ArrayList<Method>();
-
-		for (Method service : services) {
-			if (service.getAnnotation(annotationClass) != null) {
-				filtered.add(service);
-			}
-		}
-
-		return filtered;
-	}
-
-	public Class<?> toClass() {
+	public Class<?> toClass(ClassLoader classLoader) {
 
 		String className = name.replace("/", ".");
 		byte[] b = write();
 
-		return loadClass(className, b);
+		Class<?> clazz = loadClass(classLoader, className, b);
+
+		return clazz;
 	}
 
 	/**
@@ -273,7 +185,7 @@ public class InterfaceWriter extends AbstractWriter {
 	public byte[] write() {
 		ClassWriter cw = new ClassWriter(0);
 
-		cw.visit(RESTAPIGenerator.V1_6, RESTAPIGenerator.ACC_PUBLIC + RESTAPIGenerator.ACC_ABSTRACT + RESTAPIGenerator.ACC_INTERFACE, name, null,
+		cw.visit(V1_6, ACC_PUBLIC + ACC_ABSTRACT + ACC_INTERFACE, name, null,
 				"java/lang/Object", null);
 
 		if (annotationWriters != null) {
@@ -282,7 +194,7 @@ public class InterfaceWriter extends AbstractWriter {
 			}
 		}
 
-		for (MethodWriter methodWriter : methodWriters) {
+		for (MethodWriter methodWriter : method2writer.values()) {
 			methodWriter.writeTo(cw);
 		}
 
@@ -291,23 +203,20 @@ public class InterfaceWriter extends AbstractWriter {
 		return cw.toByteArray();
 	}
 
-	public void addMethodWriter(MethodWriter methodWriter) {
-		methodWriters.add(methodWriter);
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = StringBuilderUtils.create("\n", annotationWriters).append("\n");
-		sb.append("class ").append(name).append("\n");
-		StringBuilderUtils.append(sb, "\n", methodWriters);
-		return sb.toString();
-	}
-
 	public Set<Entry<Method, MethodWriter>> getMapping() {
 		return method2writer.entrySet();
 	}
 
 	public Method getListService() {
-		return listService;
+		return metaDataContainer.getListService();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = StringBuilderUtils.create("\n", annotationWriters).append("\n");
+		sb.append("interface ").append(name).append(" {\n");
+		StringBuilderUtils.append(sb, "\n\n", method2writer.values());
+		sb.append("}");
+		return sb.toString();
 	}
 }

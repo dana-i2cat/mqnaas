@@ -22,7 +22,7 @@ public class ClientApplication implements IApplication {
 	IClientProviderFactory		clientProviderFactory;
 
 	@DependingOn
-	IAPClientProviderFactory			apiProviderFactory;
+	IAPClientProviderFactory	apiProviderFactory;
 
 	@Override
 	public void onDependenciesResolved() {
@@ -64,6 +64,7 @@ public class ClientApplication implements IApplication {
 		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
 		applicationSpecificClient3.methodA();
 		applicationSpecificClient3.methodB();
+
 	}
 
 }

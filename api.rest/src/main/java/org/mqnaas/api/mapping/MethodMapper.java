@@ -3,11 +3,9 @@ package org.mqnaas.api.mapping;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class MethodMapper {
+import org.mqnaas.api.translators.Translator;
 
-	public interface Translator {
-		Object translate(Object input);
-	}
+public class MethodMapper {
 
 	private Method			method;
 
@@ -25,29 +23,19 @@ public class MethodMapper {
 		this.resultTranslator = resultTranslator;
 	}
 
-	// public Translator getResultTranslator() {
-	// return resultTranslator;
-	// }
-
 	public void setParametersTranslators(Translator[] parametersTranslators) {
 		this.parametersTranslators = parametersTranslators;
 	}
 
-	// public Translator[] getParametersTranslators() {
-	// return parametersTranslators;
-	// }
-
-	// public Method getMethod() {
-	// return method;
-	// }
-
 	public Object invoke(Object target, Object... params) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 
-		for (int i = 0; i < params.length; i++) {
-			Translator translator = parametersTranslators != null ? parametersTranslators[i] : null;
+		if (params != null) {
+			for (int i = 0; i < params.length; i++) {
+				Translator translator = parametersTranslators != null ? parametersTranslators[i] : null;
 
-			if (translator != null && params[i] != null) {
-				params[i] = translator.translate(params[i]);
+				if (translator != null && params[i] != null) {
+					params[i] = translator.translate(params[i]);
+				}
 			}
 		}
 
@@ -60,7 +48,7 @@ public class MethodMapper {
 	public String toString() {
 		StringBuilder sb = new StringBuilder("maps to ");
 
-		sb.append(method.getReturnType().getName()).append(" ");
+		sb.append(method.getReturnType().getSimpleName()).append(" ");
 
 		sb.append(method.getName());
 		sb.append("(");
@@ -69,7 +57,7 @@ public class MethodMapper {
 		for (Class<?> parameterType : method.getParameterTypes()) {
 			if (i > 0)
 				sb.append(", ");
-			sb.append(parameterType.getName());
+			sb.append(parameterType.getSimpleName());
 			i++;
 		}
 

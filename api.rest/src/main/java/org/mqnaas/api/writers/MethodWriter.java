@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.i2cat.utils.StringBuilderUtils;
 import org.i2cat.utils.StringBuilderUtils.ValueExtractor;
-import org.mqnaas.api.RESTAPIGenerator;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 
@@ -42,7 +41,7 @@ public class MethodWriter extends AbstractWriter {
 		StringBuilder signatureBuilder = StringBuilderUtils.create("", BYTECODE_NAME_EXTRACTOR, paramTypes);
 		signatureBuilder.insert(0, "(").append(")").append(toBytecodeName(returnType));
 
-		MethodVisitor mv = cv.visitMethod(RESTAPIGenerator.ACC_PUBLIC + RESTAPIGenerator.ACC_ABSTRACT, name, signatureBuilder.toString(),
+		MethodVisitor mv = cv.visitMethod(ACC_PUBLIC + ACC_ABSTRACT, name, signatureBuilder.toString(),
 				null, null);
 
 		for (AnnotationWriter annotationWriter : annotationWriters) {

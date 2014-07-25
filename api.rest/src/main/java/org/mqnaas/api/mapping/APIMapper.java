@@ -1,8 +1,12 @@
 package org.mqnaas.api.mapping;
 
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.i2cat.utils.StringBuilderUtils;
 
 /**
  * A collection of {@link IMethodMapper}s to support mapping from methods from a Web API interface to a Java interface.
@@ -10,17 +14,14 @@ import java.util.Map;
  * @author Georg Mansky-Kummert (i2CAT)
  * 
  */
-public class APIMapper {
+public class APIMapper implements InvocationHandler {
 
 	private Class<?>					interfaceAPI;
-
-	// private ResourceProvider resourceProvider;
 
 	private Map<Method, MethodMapper>	methodMappers	= new HashMap<Method, MethodMapper>();
 
 	public APIMapper(Class<?> interfaceAPI, Class<?> interfaceJava) {
 		this.interfaceAPI = interfaceAPI;
-		// this.resourceProvider = new CapabilityResourceProvider(instanceJava);
 	}
 
 	public Class<?> getInterfaceAPI() {
@@ -31,8 +32,20 @@ public class APIMapper {
 		methodMappers.put(apiMethod, mm);
 	}
 
-	public MethodMapper getMethodMapper(Method m) {
-		return methodMappers.get(m);
-	}
+	@Override
+	public Object invoke(Object arg0, Method method, Object[] params) throws Throwable {
+		System.out.println("Invoking " + method.getName() + " on " + arg0.getClass() + " with params " + Arrays.toString(params));
 
+		MethodMapper mm = methodMappers.get(method);
+
+		if (mm == null) {
+			StringBuilder sb = StringBuilderUtils.create(params);
+			sb.insert(0, "No MethodMapper avaiable for ").append(")");
+
+			// TODO Re-think and re-do behavior in case of failure
+			throw new RuntimeException(sb.toString());
+		}
+
+		return mm.invoke(arg0, params);
+	}
 }

@@ -30,7 +30,7 @@ public abstract class StringBuilderUtils {
 	}
 
 	public static <T> StringBuilder create(String delimiter, T[] values) {
-		return create(delimiter, null, Arrays.asList(values));
+		return create(delimiter, null, values != null ? Arrays.asList(values) : null);
 	}
 
 	public static <T> StringBuilder create(String delimiter, Collection<T> values) {
@@ -69,12 +69,14 @@ public abstract class StringBuilderUtils {
 	public static <T> StringBuilder append(StringBuilder sb, String delimiter, ValueExtractor<T> extractor, Collection<T> values) {
 		int i = 0;
 
-		for (T value : values) {
-			if (i > 0) {
-				sb.append(delimiter);
+		if (values != null) {
+			for (T value : values) {
+				if (i > 0) {
+					sb.append(delimiter);
+				}
+				sb.append(extractor != null ? extractor.getValueToAppend(value) : value);
+				i++;
 			}
-			sb.append(extractor != null ? extractor.getValueToAppend(value) : value);
-			i++;
 		}
 
 		return sb;

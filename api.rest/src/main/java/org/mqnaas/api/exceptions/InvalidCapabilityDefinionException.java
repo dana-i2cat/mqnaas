@@ -1,4 +1,4 @@
-package org.mqnaas.api;
+package org.mqnaas.api.exceptions;
 
 public class InvalidCapabilityDefinionException extends Exception {
 

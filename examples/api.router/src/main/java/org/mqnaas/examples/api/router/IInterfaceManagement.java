@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.ListResources;
+import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 
 public interface IInterfaceManagement extends ICapability {
@@ -18,6 +18,6 @@ public interface IInterfaceManagement extends ICapability {
 	@RemovesResource
 	void removeInterface(IInterface interfaze);
 
-	@ListResources
+	@ListsResources
 	List<IInterface> getInterfaces();
 }

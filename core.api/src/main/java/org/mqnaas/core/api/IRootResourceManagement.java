@@ -3,7 +3,7 @@ package org.mqnaas.core.api;
 import java.util.List;
 
 import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.ListResources;
+import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
@@ -56,10 +56,10 @@ public interface IRootResourceManagement extends ICapability {
 	 * @return The currently managed resources
 	 */
 
-	@ListResources
+	@ListsResources
 	List<IRootResource> getRootResources();
 
-	@ListResources
+	@ListsResources
 	List<IRootResource> getRootResources(Specification.Type type, String model, String version);
 
 	IRootResource getCore();

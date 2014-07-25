@@ -4,7 +4,9 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-class AbstractWriter {
+import org.objectweb.asm.Opcodes;
+
+class AbstractWriter implements Opcodes {
 
 	private static Map<Class<?>, String>	PRIMITIVE_CLASS_NAMES	= new HashMap<Class<?>, String>();
 
@@ -38,11 +40,11 @@ class AbstractWriter {
 		return name;
 	}
 
-	protected static Class<?> loadClass(String className, byte[] b) {
+	protected static Class<?> loadClass(ClassLoader loader, String className, byte[] b) {
 		// override classDefine (as it is protected) and define the class.
 		Class<?> clazz = null;
 		try {
-			ClassLoader loader = ClassLoader.getSystemClassLoader();
+			// ClassLoader loader = AbstractWriter.class.getClassLoader(); // ClassLoader.getSystemClassLoader();
 			Class<?> cls = Class.forName("java.lang.ClassLoader");
 			Method method =
 					cls.getDeclaredMethod("defineClass", new Class[] { String.class, byte[].class, int.class, int.class });

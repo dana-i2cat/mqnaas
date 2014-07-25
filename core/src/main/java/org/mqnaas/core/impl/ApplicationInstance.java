@@ -47,7 +47,6 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		this(clazz, null);
-
 	}
 
 	public ApplicationInstance(Class<? extends IApplication> clazz, IApplication instance) {

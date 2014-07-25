@@ -131,10 +131,14 @@ public class BindingManagementReactsToResourcesTest {
 	}
 
 	private class MyTest {
+		// Although the method is not called in the tests, it is used to create a service notifying the test when a resource is added
+		@SuppressWarnings("unused")
 		public void addExecuted() {
 			addExecuted = true;
 		}
 
+		// Although the method is not called in the tests, it is used to create a service notifying the test when a resource is removed
+		@SuppressWarnings("unused")
 		public void removeExecuted() {
 			removeExecuted = true;
 		}

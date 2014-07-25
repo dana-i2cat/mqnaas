@@ -88,7 +88,13 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 		ProxyClassLoader classLoader = new ProxyClassLoader();
 		classLoader.addLoader(apiClass.getClassLoader());
 
-		return (API) Proxy.newProxyInstance(classLoader, new Class[] { apiClass }, new InvocationHandler() {
+		// It is safe to cast returned proxy to one of the interfaces given to newProxyInstance method, according to its contract:
+		// Proxy.newProxyInstance javadoc:
+		// @return a proxy instance with the specified invocation handler of a
+		// proxy class that is defined by the specified class loader
+		// and that implements the specified interfaces
+		@SuppressWarnings("unchecked")
+		API dummyClient = (API) Proxy.newProxyInstance(classLoader, new Class[] { apiClass }, new InvocationHandler() {
 
 			@Override
 			public Object invoke(Object proxy, Method method, Object[] args)
@@ -97,6 +103,8 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 				return null;
 			}
 		});
+
+		return dummyClient;
 	}
 
 }

@@ -6,7 +6,9 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.core.api.IApplication;
@@ -37,10 +39,6 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	// Holds the services available from this application instance, ordered by the interfaces they belong to
 	private Multimap<Class<? extends IApplication>, IInternalService>	internalServices;
 
-	// All application interfaces implemented by the represented application
-	// TODO this information is redundant, it is also available in the services multimap.
-	private Collection<Class<? extends IApplication>>					applicationClasses;
-
 	private IApplication												proxy;
 
 	// InvocationHandler used by the proxy to execute the services offered by this application instance
@@ -62,7 +60,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 		internalServices = ArrayListMultimap.create();
 
-		Collection<Class<? extends IApplication>> appClasses = getApplications();
+		Collection<Class<? extends IApplication>> appClasses = computeApplications(clazz);
 		// an application without interfaces is not able to offer services
 		// applications are forced to implement interfaces extending IApplication in order to publish services
 		if (appClasses.isEmpty())
@@ -180,13 +178,13 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	}
 
 	/**
-	 * Determines and returns all application interfaces implemented by the represented application
+	 * Returns all application interfaces implemented by the represented application
+	 * 
 	 */
 	public Collection<Class<? extends IApplication>> getApplications() {
-		if (applicationClasses == null) {
-			applicationClasses = computeApplications(clazz);
-		}
-		return applicationClasses;
+		Set<Class<? extends IApplication>> appsCopy = new HashSet<Class<? extends IApplication>>();
+		appsCopy.addAll(internalServices.keySet());
+		return appsCopy;
 	}
 
 	public IApplication getProxy() {

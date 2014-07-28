@@ -34,7 +34,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mqnaas</groupId>
-			<artifactId>clientprovider</artifactId>
+			<artifactId>clientprovider-api</artifactId>
 		</dependency>
 	</dependencies>
 

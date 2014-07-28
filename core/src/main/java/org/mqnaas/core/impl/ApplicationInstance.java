@@ -37,16 +37,16 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	// Holds the services available from this application instance, ordered by the interfaces they belong to
 	private Multimap<Class<? extends IApplication>, IInternalService>	internalServices;
 
-	private IApplication												proxy;
-
 	// All application interfaces implemented by the represented application
 	// TODO this information is redundant, it is also available in the services multimap.
 	private Collection<Class<? extends IApplication>>					applicationClasses;
 
+	private IApplication												proxy;
+
 	// InvocationHandler used by the proxy to execute the services offered by this application instance
 	private ExecutionRelayingInvocationHandler							invocationHandler;
 
-	private ApplicationInstanceLifeCycleState					state;
+	private ApplicationInstanceLifeCycleState							state;
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		this(clazz, null);

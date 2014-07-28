@@ -3,10 +3,9 @@ package org.mqnaas.test.helpers.clientprovider;
 import java.lang.reflect.Field;
 
 import org.mqnaas.bundletree.IClassListener;
-import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 
 /**
- * {@link AbstractProviderFactory} helpers to be used for testing purposes.
+ * AbstractProviderFactory helpers to be used for testing purposes.
  * 
  * @author Julio Carlos Barrera
  *
@@ -14,21 +13,22 @@ import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 public class ProviderFactoryHelpers {
 
 	/**
-	 * Allows getting private internal {@link IClassListener} of given {@link AbstractProviderFactory} instance.
+	 * Allows getting private internal {@link IClassListener} of given AbstractProviderFactory instance.
 	 * 
-	 * @param pf
-	 *            AbstractProviderFactory to be used
+	 * @param targetClass
+	 *            class where {@link IClassListener} field is located
+	 * @param providerFactory
+	 *            Provider factory to be used
 	 * @return internal IClassListener
 	 * @throws SecurityException
 	 * @throws NoSuchFieldException
 	 * @throws IllegalArgumentException
 	 * @throws IllegalAccessException
 	 */
-	public static IClassListener getInternalClassListener(AbstractProviderFactory pf) throws SecurityException, NoSuchFieldException,
-			IllegalArgumentException, IllegalAccessException {
-		Class<AbstractProviderFactory> pfClass = AbstractProviderFactory.class;
-		Field internalClassListenerField = pfClass.getDeclaredField("internalClassListener");
+	public static IClassListener getInternalClassListener(Class<?> targetClass, Object providerFactory) throws SecurityException,
+			NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+		Field internalClassListenerField = targetClass.getDeclaredField("internalClassListener");
 		internalClassListenerField.setAccessible(true);
-		return (IClassListener) internalClassListenerField.get(pf);
+		return (IClassListener) internalClassListenerField.get(providerFactory);
 	}
 }

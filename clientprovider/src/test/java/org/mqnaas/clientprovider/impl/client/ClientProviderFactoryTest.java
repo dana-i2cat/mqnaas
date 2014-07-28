@@ -5,6 +5,7 @@ import java.util.Arrays;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.bundletree.IBundleGuard;
+import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.impl.ICoreModelCapability;
@@ -41,7 +42,7 @@ public class ClientProviderFactoryTest {
 		cpf.activate();
 
 		// add InternalClientProvider
-		bg.throwClassEntered(ProviderFactoryHelpers.getInternalClassListener(cpf), TestInternalClientProvider.class);
+		bg.throwClassEntered(ProviderFactoryHelpers.getInternalClassListener(AbstractProviderFactory.class, cpf), TestInternalClientProvider.class);
 
 		// obtain a client from client provider
 		EmptyClient client = cpf.<EmptyClient, EmptyClientConfiguration, TestClientProvider> getClientProvider(TestClientProvider.class)

@@ -58,32 +58,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 
-		internalServices = ArrayListMultimap.create();
-
-		Collection<Class<? extends IApplication>> appClasses = computeApplications(clazz);
-		// an application without interfaces is not able to offer services
-		// applications are forced to implement interfaces extending IApplication in order to publish services
-		if (appClasses.isEmpty())
-			return;
-
-		// 1. Create the services of the interfaces (backed by the instance)
-		for (Class<? extends IApplication> interfaze : appClasses) {
-			for (Method method : interfaze.getMethods()) {
-				internalServices.put(interfaze, new Service(method, (IApplication) getInstance()));
-			}
-		}
-
-		// 2. Create the InvocationHandler used by the proxy
-		invocationHandler = new ExecutionRelayingInvocationHandler(internalServices.values());
-
-		// 3. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
-		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
-				appClasses.toArray(new Class[appClasses.size()]), invocationHandler);
-
-		if (getInstance() instanceof IExecutionService) {
-			executionService = (IExecutionService) getInstance();
-		}
+		initProxyRelatedDataStructures();
 	}
 
 	/**
@@ -210,6 +185,36 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 		// 3. Clear the instance
 		instance = null;
+	}
+
+	protected void initProxyRelatedDataStructures() {
+
+		internalServices = ArrayListMultimap.create();
+
+		Collection<Class<? extends IApplication>> appClasses = computeApplications(clazz);
+		// an application without interfaces is not able to offer services
+		// applications are forced to implement interfaces extending IApplication in order to publish services
+		if (appClasses.isEmpty())
+			return;
+
+		// 1. Create the services of the interfaces (backed by the instance)
+		for (Class<? extends IApplication> interfaze : appClasses) {
+			for (Method method : interfaze.getMethods()) {
+				internalServices.put(interfaze, new Service(method, (IApplication) getInstance()));
+			}
+		}
+
+		// 2. Create the InvocationHandler used by the proxy
+		invocationHandler = new ExecutionRelayingInvocationHandler(internalServices.values());
+
+		// 3. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
+		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
+		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
+				appClasses.toArray(new Class[appClasses.size()]), invocationHandler);
+
+		if (getInstance() instanceof IExecutionService) {
+			executionService = (IExecutionService) getInstance();
+		}
 	}
 
 	private static Collection<Class<? extends IApplication>> computeApplications(Class<? extends IApplication> clazz) {

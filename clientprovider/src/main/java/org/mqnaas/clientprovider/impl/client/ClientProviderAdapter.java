@@ -10,7 +10,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.impl.ICoreModelCapability;
 
-class ClientProviderAdapter<T, CC> implements InvocationHandler {
+public class ClientProviderAdapter<T, CC> implements InvocationHandler {
 
 	private IInternalClientProvider<T, CC>	internalClientProvider;
 
@@ -22,6 +22,7 @@ class ClientProviderAdapter<T, CC> implements InvocationHandler {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 		IResource resource = (IResource) args[0];

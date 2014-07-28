@@ -5,7 +5,7 @@ import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 
 /**
- * {@link IInternalClientProvider} for testing purposed able to return always a new {@link EmptyClient}.
+ * {@link IInternalClientProvider} for testing purposes able to return always a new {@link EmptyClient}.
  * 
  * @author Julio Carlos Barrera
  *

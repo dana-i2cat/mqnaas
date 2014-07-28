@@ -11,8 +11,9 @@ import org.mqnaas.core.impl.ICoreModelCapability;
 import org.mqnaas.test.helpers.ReflectionTestHelper;
 import org.mqnaas.test.helpers.capability.ArtificialBundleGuard;
 import org.mqnaas.test.helpers.capability.ArtificialCoreModelCapability;
-import org.mqnaas.test.helpers.clientprovider.ClientProviderFactoryHelpers;
 import org.mqnaas.test.helpers.clientprovider.EmptyClient;
+import org.mqnaas.test.helpers.clientprovider.EmptyClientConfiguration;
+import org.mqnaas.test.helpers.clientprovider.ProviderFactoryHelpers;
 import org.mqnaas.test.helpers.clientprovider.TestClientProvider;
 import org.mqnaas.test.helpers.clientprovider.TestInternalClientProvider;
 import org.mqnaas.test.helpers.resource.TestResourceFactory;
@@ -40,11 +41,11 @@ public class ClientProviderFactoryTest {
 		cpf.activate();
 
 		// add InternalClientProvider
-		bg.throwClassEntered(ClientProviderFactoryHelpers.getInternalClassListener(cpf), TestInternalClientProvider.class);
+		bg.throwClassEntered(ProviderFactoryHelpers.getInternalClassListener(cpf), TestInternalClientProvider.class);
 
 		// obtain a client from client provider
-		EmptyClient client = cpf.getClientProvider(TestClientProvider.class).getClient(resource);
+		EmptyClient client = cpf.<EmptyClient, EmptyClientConfiguration, TestClientProvider> getClientProvider(TestClientProvider.class)
+				.getClient(resource);
 		Assert.assertTrue("Client must be an instance of EmptyClient.", client instanceof EmptyClient);
 	}
-
 }

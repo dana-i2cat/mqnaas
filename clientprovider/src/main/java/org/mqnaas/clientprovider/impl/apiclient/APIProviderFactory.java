@@ -2,69 +2,72 @@ package org.mqnaas.clientprovider.impl.apiclient;
 
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.mqnaas.client.cxf.InternalCXFClientProvider;
+import org.mqnaas.bundletree.utils.ClassFilterFactory;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
-import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.Specification;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class APIProviderFactory extends AbstractProviderFactory implements IAPIProviderFactory {
+public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProvider<?>> implements IAPIProviderFactory {
 
-	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
-	}
-
-	private static Set<Type>		VALID_API_PROVIDERS;
-
-	static {
-		VALID_API_PROVIDERS = new HashSet<Type>();
-		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
-		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
-	}
-
-	List<IInternalAPIProvider<?>>	internalAPIProviders;
+	private static final Logger	log	= LoggerFactory.getLogger(APIProviderFactory.class);
 
 	public APIProviderFactory() {
-		// List of available IInternalAPIProvider must be maintained by
-		// classpath scanning
-		internalAPIProviders = new ArrayList<IInternalAPIProvider<?>>();
-		internalAPIProviders.add(new InternalCXFClientProvider());
+		super();
+		internalClientProviders = new ConcurrentHashMap<Class<IInternalAPIProvider<?>>, IInternalAPIProvider<?>>();
 	}
 
-	@Override
-	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) {
-		// Match against list of providers...
-		for (IInternalAPIProvider<?> internalApiProvider : internalAPIProviders) {
-			Class<?> internalAPIProviderClass = internalApiProvider.getClass();
-
-			if (doTypeArgumentsMatch(VALID_API_PROVIDERS, apiProviderClass, internalAPIProviderClass, 1)) {
-
-				C c = (C) Proxy.newProxyInstance(internalAPIProviderClass.getClassLoader(), new Class[] { apiProviderClass }, new APIProviderAdapter(
-						internalApiProvider));
-
-				return c;
-			}
-		}
-		return null;
+	static {
+		VALID_CLIENT_PROVIDERS = new HashSet<Type>();
+		VALID_CLIENT_PROVIDERS.add(IAPIClientProvider.class);
+		VALID_CLIENT_PROVIDERS.add(IInternalAPIProvider.class);
 	}
 
 	@Override
 	public void activate() {
-		// TODO Auto-generated method stub
-
+		// register class listener
+		log.info("Registering as ClassListener.");
+		internalClassListener = new InternalClassListener(IInternalAPIProvider.class);
+		bundleGuard.registerClassListener(ClassFilterFactory.getBasicClassFilter(IInternalAPIProvider.class), internalClassListener);
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
+		// unregister class listeners
+		log.info("Unregistering as ClassListener.");
+		bundleGuard.unregisterClassListener(internalClassListener);
+	}
 
+	@Override
+	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) {
+		log.info("ClientProvider request received for class: " + apiProviderClass.getCanonicalName());
+
+		// Match against list of providers...
+		for (Class<?> internalAPIProviderClass : internalClientProviders.keySet()) {
+			@SuppressWarnings("unchecked")
+			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders
+					.get(internalAPIProviderClass);
+
+			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, apiProviderClass, internalAPIProviderClass, 1)) {
+				// internalClientProvider must be parameterized with <T, CC>
+				@SuppressWarnings("unchecked")
+				C c = (C) Proxy.newProxyInstance(apiProviderClass.getClassLoader(), new Class[] { apiProviderClass },
+						new APIProviderAdapter<CC>((IInternalAPIProvider<CC>) internalAPIProvider, coreModelCapability));
+
+				log.debug("Providing ClientProvider.");
+
+				return c;
+			}
+		}
+
+		log.debug("Not able to provide ClientProvider!");
+
+		return null;
 	}
 
 }

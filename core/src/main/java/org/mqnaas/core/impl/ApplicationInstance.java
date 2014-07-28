@@ -1,18 +1,10 @@
 package org.mqnaas.core.impl;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.ClassUtils;
 import org.mqnaas.core.api.IApplication;
-import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
@@ -34,17 +26,11 @@ import com.google.common.collect.Multimap;
  */
 public class ApplicationInstance extends AbstractInstance<IApplication> {
 
-	private IExecutionService											executionService;
+	private IExecutionService					executionService;
 
-	// Holds the services available from this application instance, ordered by the interfaces they belong to
-	private Multimap<Class<? extends IApplication>, IInternalService>	internalServices;
+	private ApplicationProxyHolder				proxyHolder;
 
-	private IApplication												proxy;
-
-	// InvocationHandler used by the proxy to execute the services offered by this application instance
-	private ExecutionRelayingInvocationHandler							invocationHandler;
-
-	private ApplicationInstanceLifeCycleState							state;
+	private ApplicationInstanceLifeCycleState	state;
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		this(clazz, null);
@@ -58,7 +44,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 
 		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 
-		initProxyRelatedDataStructures();
+		proxyHolder = new ApplicationProxyHolder(clazz, getInstance());
 	}
 
 	/**
@@ -147,6 +133,7 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	}
 
 	public Multimap<Class<? extends IApplication>, IService> getServices() {
+		Multimap<Class<? extends IApplication>, IInternalService> internalServices = proxyHolder.getServices();
 		Multimap<Class<? extends IApplication>, IService> services = ArrayListMultimap.create(internalServices.size(), 3);
 		services.putAll(internalServices);
 		return services;
@@ -158,12 +145,12 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	 */
 	public Collection<Class<? extends IApplication>> getApplications() {
 		Set<Class<? extends IApplication>> appsCopy = new HashSet<Class<? extends IApplication>>();
-		appsCopy.addAll(internalServices.keySet());
+		appsCopy.addAll(getServices().keySet());
 		return appsCopy;
 	}
 
 	public IApplication getProxy() {
-		return proxy;
+		return proxyHolder.getProxy();
 	}
 
 	/**
@@ -173,126 +160,16 @@ public class ApplicationInstance extends AbstractInstance<IApplication> {
 	 *            The resources used when executing services.
 	 */
 	protected void setResource(IResource resource) {
-		invocationHandler.setResource(resource);
+		proxyHolder.setResource(resource);
 	}
 
 	protected void clearInstanceServicesAndProxy() {
-		// 1. Clear the services of the interfaces
-		internalServices.clear();
 
-		// 2. Clear proxy
-		proxy = null;
+		// 1. Clear proxy
+		proxyHolder = null;
 
-		// 3. Clear the instance
+		// 2. Clear the instance
 		instance = null;
-	}
-
-	protected void initProxyRelatedDataStructures() {
-
-		internalServices = ArrayListMultimap.create();
-
-		Collection<Class<? extends IApplication>> appClasses = computeApplications(clazz);
-		// an application without interfaces is not able to offer services
-		// applications are forced to implement interfaces extending IApplication in order to publish services
-		if (appClasses.isEmpty())
-			return;
-
-		// 1. Create the services of the interfaces (backed by the instance)
-		for (Class<? extends IApplication> interfaze : appClasses) {
-			for (Method method : interfaze.getMethods()) {
-				internalServices.put(interfaze, new Service(method, (IApplication) getInstance()));
-			}
-		}
-
-		// 2. Create the InvocationHandler used by the proxy
-		invocationHandler = new ExecutionRelayingInvocationHandler(internalServices.values());
-
-		// 3. Create a proxy for all the interfaces implemented by this capability to redirect all calls to the interfaces to the ExecutionService
-		// we use the ClassLoader of getInstance() because it is the only one that has for sure access to all (implemented) interfaces.
-		proxy = (IApplication) Proxy.newProxyInstance(getInstance().getClass().getClassLoader(),
-				appClasses.toArray(new Class[appClasses.size()]), invocationHandler);
-
-		if (getInstance() instanceof IExecutionService) {
-			executionService = (IExecutionService) getInstance();
-		}
-	}
-
-	private static Collection<Class<? extends IApplication>> computeApplications(Class<? extends IApplication> clazz) {
-
-		Collection<Class<? extends IApplication>> applicationClasses = new ArrayList<Class<? extends IApplication>>();
-		for (Class<?> interfaze : ClassUtils.getAllInterfaces(clazz)) {
-			// Ignore the IApplication interface itself
-			if (interfaze.equals(IApplication.class))
-				continue;
-			// Ignore the ICapability interface itself
-			if (interfaze.equals(ICapability.class))
-				continue;
-
-			// Ignore all interfaces that do not extend IApplication
-			if (!IApplication.class.isAssignableFrom(interfaze))
-				continue;
-
-			// Now do the cast: this one is safe because we explicitly checked it before
-			@SuppressWarnings("unchecked")
-			Class<? extends IApplication> applicationInterface = (Class<? extends IApplication>) interfaze;
-			applicationClasses.add(applicationInterface);
-		}
-
-		return applicationClasses;
-	}
-
-	/**
-	 * Relays the call to a capability implementations (an OSGi service) to an MQNaaS Service.
-	 */
-	private class ExecutionRelayingInvocationHandler implements InvocationHandler {
-
-		private Map<Method, IInternalService>	relays;
-
-		public ExecutionRelayingInvocationHandler(Collection<IInternalService> relayedServices) {
-
-			relays = new HashMap<Method, IInternalService>();
-
-			for (IInternalService relayedService : relayedServices) {
-				relays.put(relayedService.getMetadata().getMethod(), relayedService);
-			}
-
-		}
-
-		/**
-		 * Sets the given {@link IResource} to all managed relayed {@link IService}s.
-		 * 
-		 * @param resource
-		 *            The Resource handed to the Services.
-		 */
-		public void setResource(IResource resource) {
-
-			for (IInternalService relayedService : relays.values()) {
-				relayedService.setResource(resource);
-			}
-		}
-
-		@Override
-		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-			IInternalService service = relays.get(method);
-
-			Object result;
-
-			if (service == null) {
-				// A method was called for which no relay exists, e.g.
-				// toString(), it will be invoked directly
-				result = method.invoke(getInstance(), args);
-			} else {
-				if (service.getMetadata().getName().equals("execute") && service.getMetadata().getApplicationClass().equals(ExecutionService.class)) {
-					// This avoid looping infinitely through proxy calls... TODO add more details
-					result = service.execute(args);
-				} else {
-					result = executionService.execute(service, args);
-				}
-			}
-
-			return result;
-		}
 	}
 
 	@Override

@@ -170,6 +170,7 @@ public class ApplicationInstance {
 				executionService = (IExecutionService) dependency.getInstance();
 				injectedDependencies.add(dependency);
 				execServiceAffected = true;
+				proxyHolder.setExecutionService(executionService);
 			}
 		}
 		return affected || execServiceAffected;
@@ -190,6 +191,7 @@ public class ApplicationInstance {
 			if (executionService == dependency.getInstance()) {
 				executionService = null;
 				injectedDependencies.remove(dependency);
+				proxyHolder.setExecutionService(null);
 				execServiceAffected = true;
 			}
 		}
@@ -199,6 +201,11 @@ public class ApplicationInstance {
 
 	/**
 	 * Unresolves all currently resolved dependencies
+	 * 
+	 * FIXME This method should update injectedDependencies and reset fields in the application.
+	 * 
+	 * Implementation details: for (ApplicationInstance app: injectedDependencies) unresolve(app); but iterator-safe :P
+	 * 
 	 */
 	public <D extends IApplication> void unresolveAllDependencies() {
 		// Iterator-safe implementation for the following:

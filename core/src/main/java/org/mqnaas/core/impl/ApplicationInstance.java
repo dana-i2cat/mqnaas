@@ -202,18 +202,14 @@ public class ApplicationInstance {
 	/**
 	 * Unresolves all currently resolved dependencies
 	 * 
-	 * FIXME This method should update injectedDependencies and reset fields in the application.
-	 * 
-	 * Implementation details: for (ApplicationInstance app: injectedDependencies) unresolve(app); but iterator-safe :P
-	 * 
 	 */
-	public <D extends IApplication> void unresolveAllDependencies() {
+	public void unresolveAllDependencies() {
 		// Iterator-safe implementation for the following:
-		// for (Class<? extends ICapability> clazz : resolvedDependencies.keySet()){ unresolve(clazz); }
-		// Due to unresolve producing changes in the map that backs up the foreach iterator, commented code is not safe
-		Set<Class<? extends IApplication>> capabilityClasses = new HashSet<Class<? extends IApplication>>(resolvedDependencies.keySet());
-		for (Class<? extends IApplication> clazz : capabilityClasses) {
-			unresolve(clazz);
+		// for (ApplicationInstance app: injectedDependencies) unresolve(app);
+		// Due to unresolve producing changes in the collections that backs up the foreach iterator, commented code is not safe
+		Collection<ApplicationInstance> dependencies = new HashSet<ApplicationInstance>(injectedDependencies);
+		for (ApplicationInstance app : dependencies) {
+			unresolve(app);
 		}
 	}
 

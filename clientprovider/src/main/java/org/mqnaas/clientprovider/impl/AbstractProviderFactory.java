@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractProviderFactory<CP> {
 
-	private static final Logger		log	= LoggerFactory.getLogger(AbstractProviderFactory.class);
+	private final Logger			log	= LoggerFactory.getLogger(getClass());
 
 	@DependingOn
 	protected ICoreModelCapability	coreModelCapability;

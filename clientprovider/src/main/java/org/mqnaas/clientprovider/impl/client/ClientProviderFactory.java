@@ -28,6 +28,10 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 		VALID_CLIENT_PROVIDERS.add(IInternalClientProvider.class);
 	}
 
+	protected Class<?> getInternalProviderClass() {
+		return IInternalClientProvider.class;
+	}
+
 	@Override
 	public void activate() {
 		// register class listener

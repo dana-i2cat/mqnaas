@@ -28,6 +28,10 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 		VALID_CLIENT_PROVIDERS.add(IInternalAPIProvider.class);
 	}
 
+	protected Class<?> getInternalProviderClass() {
+		return IInternalAPIProvider.class;
+	}
+
 	@Override
 	public void activate() {
 		// register class listener

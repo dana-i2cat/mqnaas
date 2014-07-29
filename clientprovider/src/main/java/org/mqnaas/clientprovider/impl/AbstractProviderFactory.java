@@ -35,6 +35,8 @@ public abstract class AbstractProviderFactory<CP> {
 	// internal {@link IClassListener} instance
 	protected InternalClassListener	internalClassListener;
 
+	protected abstract Class<?> getInternalProviderClass();
+
 	private void internalClientProviderAdded(Class<CP> clazz) {
 		try {
 			internalClientProviders.put(clazz, clazz.newInstance());

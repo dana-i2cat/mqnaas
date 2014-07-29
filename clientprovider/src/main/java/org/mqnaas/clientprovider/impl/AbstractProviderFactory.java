@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassListener;
+import org.mqnaas.bundletree.utils.ClassFilterFactory;
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -14,7 +16,7 @@ import org.mqnaas.core.impl.ICoreModelCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractProviderFactory<CP> {
+public abstract class AbstractProviderFactory<CP> implements ICapability {
 
 	private final Logger			log	= LoggerFactory.getLogger(getClass());
 
@@ -36,6 +38,21 @@ public abstract class AbstractProviderFactory<CP> {
 	protected InternalClassListener	internalClassListener;
 
 	protected abstract Class<?> getInternalProviderClass();
+
+	@Override
+	public void activate() {
+		// register class listener
+		log.info("Registering as ClassListener.");
+		internalClassListener = new InternalClassListener(getInternalProviderClass());
+		bundleGuard.registerClassListener(ClassFilterFactory.getBasicClassFilter(getInternalProviderClass()), internalClassListener);
+	}
+
+	@Override
+	public void deactivate() {
+		// unregister class listeners
+		log.info("Unregistering as ClassListener.");
+		bundleGuard.unregisterClassListener(internalClassListener);
+	}
 
 	private void internalClientProviderAdded(Class<CP> clazz) {
 		try {

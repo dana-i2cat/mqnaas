@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.mqnaas.bundletree.utils.ClassFilterFactory;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
@@ -30,21 +29,6 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 
 	protected Class<?> getInternalProviderClass() {
 		return IInternalAPIProvider.class;
-	}
-
-	@Override
-	public void activate() {
-		// register class listener
-		log.info("Registering as ClassListener.");
-		internalClassListener = new InternalClassListener(IInternalAPIProvider.class);
-		bundleGuard.registerClassListener(ClassFilterFactory.getBasicClassFilter(IInternalAPIProvider.class), internalClassListener);
-	}
-
-	@Override
-	public void deactivate() {
-		// unregister class listeners
-		log.info("Unregistering as ClassListener.");
-		bundleGuard.unregisterClassListener(internalClassListener);
 	}
 
 	@Override

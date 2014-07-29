@@ -53,7 +53,7 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 			IInternalClientProvider<T, CC> internalClientProvider = (IInternalClientProvider<T, CC>) internalClientProviders
 					.get(internalClientProviderClass);
 
-			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass, 2)) {
+			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass)) {
 				// internalClientProvider must be parameterized with <T, CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(), new Class[] { clientProviderClass },

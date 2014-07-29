@@ -50,11 +50,10 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 		// Match against list of providers...
 		for (Class<?> internalAPIProviderClass : internalClientProviders.keySet()) {
 			@SuppressWarnings("unchecked")
-			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders
-					.get(internalAPIProviderClass);
+			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders.get(internalAPIProviderClass);
 
-			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, apiProviderClass, internalAPIProviderClass, 1)) {
-				// internalClientProvider must be parameterized with <T, CC>
+			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, apiProviderClass, internalAPIProviderClass)) {
+				// internalAPIProvider must be parameterized with <CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(apiProviderClass.getClassLoader(), new Class[] { apiProviderClass },
 						new APIProviderAdapter<CC>((IInternalAPIProvider<CC>) internalAPIProvider, coreModelCapability));

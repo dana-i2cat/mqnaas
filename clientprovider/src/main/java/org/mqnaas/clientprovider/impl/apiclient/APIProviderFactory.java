@@ -3,6 +3,7 @@ package org.mqnaas.clientprovider.impl.apiclient;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
@@ -21,10 +22,12 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 		internalClientProviders = new ConcurrentHashMap<Class<IInternalAPIProvider<?>>, IInternalAPIProvider<?>>();
 	}
 
+	private static Set<Type>	VALID_API_PROVIDERS;
+
 	static {
-		VALID_CLIENT_PROVIDERS = new HashSet<Type>();
-		VALID_CLIENT_PROVIDERS.add(IAPIClientProvider.class);
-		VALID_CLIENT_PROVIDERS.add(IInternalAPIProvider.class);
+		VALID_API_PROVIDERS = new HashSet<Type>();
+		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
+		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
 	}
 
 	protected Class<?> getInternalProviderClass() {
@@ -40,7 +43,7 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 			@SuppressWarnings("unchecked")
 			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders.get(internalAPIProviderClass);
 
-			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, apiProviderClass, internalAPIProviderClass)) {
+			if (doTypeArgumentsMatch(VALID_API_PROVIDERS, apiProviderClass, internalAPIProviderClass)) {
 				// internalAPIProvider must be parameterized with <CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(apiProviderClass.getClassLoader(), new Class[] { apiProviderClass },

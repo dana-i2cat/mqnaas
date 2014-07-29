@@ -3,6 +3,7 @@ package org.mqnaas.clientprovider.impl.client;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.clientprovider.api.client.IClientProvider;
@@ -20,6 +21,8 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 		super();
 		internalClientProviders = new ConcurrentHashMap<Class<IInternalClientProvider<?, ?>>, IInternalClientProvider<?, ?>>();
 	}
+
+	protected static Set<Type>	VALID_CLIENT_PROVIDERS;
 
 	static {
 		VALID_CLIENT_PROVIDERS = new HashSet<Type>();

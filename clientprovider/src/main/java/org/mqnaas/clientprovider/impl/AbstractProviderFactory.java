@@ -32,8 +32,6 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 
 	protected Map<Class<CP>, CP>	internalClientProviders;
 
-	protected static Set<Type>		VALID_CLIENT_PROVIDERS;
-
 	// internal {@link IClassListener} instance
 	protected InternalClassListener	internalClassListener;
 

@@ -3,9 +3,7 @@ package org.mqnaas.core.impl;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.mqnaas.core.api.IApplication;
@@ -17,7 +15,9 @@ import org.mqnaas.core.impl.dependencies.ApplicationInstanceLifeCycleState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 
 //TODO Redo the security and instantiation aspects
@@ -49,23 +49,20 @@ import com.google.common.collect.Multimap;
  */
 public class ApplicationInstance {
 
-	private final Logger								log	= LoggerFactory.getLogger(getClass());
+	private final Logger						log	= LoggerFactory.getLogger(getClass());
 
-	protected Class<? extends IApplication>				clazz;
+	protected Class<? extends IApplication>		clazz;
 
-	private IApplication								instance;
+	private IApplication						instance;
 
-	private Map<Class<? extends IApplication>, Field>	pendingDependencies;
+	private Collection<Dependency>				dependencies;
 
-	private Map<Class<? extends IApplication>, Field>	resolvedDependencies;
+	// this field is used through reflection (take caution when refactoring)
+	private IExecutionService					executionService;
 
-	protected Collection<ApplicationInstance>			injectedDependencies;
+	private ApplicationProxyHolder				proxyHolder;
 
-	private IExecutionService							executionService;
-
-	private ApplicationProxyHolder						proxyHolder;
-
-	private ApplicationInstanceLifeCycleState			state;
+	private ApplicationInstanceLifeCycleState	state;
 
 	public ApplicationInstance(Class<? extends IApplication> clazz) {
 		this(clazz, null);
@@ -75,17 +72,13 @@ public class ApplicationInstance {
 
 		this.clazz = clazz;
 
-		pendingDependencies = getDependencies(clazz);
-
-		resolvedDependencies = new HashMap<Class<? extends IApplication>, Field>();
-
-		injectedDependencies = new ArrayList<ApplicationInstance>();
-
 		this.instance = instance;
 
-		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
+		dependencies = computeDependencies(clazz, getInstance());
 
 		proxyHolder = new ApplicationProxyHolder(clazz, getInstance());
+
+		setState(ApplicationInstanceLifeCycleState.INSTANTIATED);
 	}
 
 	public Class<? extends IApplication> getClazz() {
@@ -112,7 +105,11 @@ public class ApplicationInstance {
 	 * @return the injectedDependencies. Returned collection is not the live one, but a copy.
 	 */
 	public Collection<ApplicationInstance> getInjectedDependencies() {
-		return new ArrayList<ApplicationInstance>(injectedDependencies);
+		Collection<ApplicationInstance> injected = new ArrayList<ApplicationInstance>();
+		for (Dependency resolved : getResolvedDependencies()) {
+			injected.add(resolved.getResolvedWith());
+		}
+		return injected;
 	}
 
 	/**
@@ -134,9 +131,10 @@ public class ApplicationInstance {
 	 * Returns the currently pending dependencies, e.g. the missing capability classes.
 	 */
 	public Collection<Class<? extends IApplication>> getPendingClasses() {
-		Collection<Class<? extends IApplication>> pendingClasses = new HashSet<Class<? extends IApplication>>(pendingDependencies.keySet());
-		if (executionService == null)
-			pendingClasses.add(IExecutionService.class);
+		Collection<Class<? extends IApplication>> pendingClasses = new HashSet<Class<? extends IApplication>>();
+		for (Dependency dep : getPendingDependencies()) {
+			pendingClasses.add(dep.getFieldType());
+		}
 		return pendingClasses;
 	}
 
@@ -144,14 +142,19 @@ public class ApplicationInstance {
 	 * Returns the currently resolved dependencies, e.g. the already initialized capability classes.
 	 */
 	public Collection<Class<? extends IApplication>> getResolvedClasses() {
-		Collection<Class<? extends IApplication>> resolvedClasses = new HashSet<Class<? extends IApplication>>(resolvedDependencies.keySet());
-		if (executionService != null)
-			resolvedClasses.add(IExecutionService.class);
+		Collection<Class<? extends IApplication>> resolvedClasses = new HashSet<Class<? extends IApplication>>();
+		for (Dependency dep : getResolvedDependencies()) {
+			resolvedClasses.add(dep.getFieldType());
+		}
 		return resolvedClasses;
 	}
 
 	public boolean isResolved() {
-		return pendingDependencies.isEmpty() && executionService != null;
+		for (Dependency dep : getDependencies()) {
+			if (!dep.isResolved())
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -162,18 +165,15 @@ public class ApplicationInstance {
 	 *         before)
 	 */
 	public <D extends IApplication> boolean resolve(ApplicationInstance dependency) {
-		boolean affected = resolveDependencies(dependency);
+		Collection<Dependency> affected = resolveDependencies(dependency);
 
-		boolean execServiceAffected = false;
-		if (executionService == null) {
-			if (dependency.getApplications().contains(IExecutionService.class)) {
-				executionService = (IExecutionService) dependency.getInstance();
-				injectedDependencies.add(dependency);
-				execServiceAffected = true;
-				proxyHolder.setExecutionService(executionService);
-			}
+		Dependency execServiceDep = getExecutionServiceDependency(affected);
+		if (execServiceDep != null) {
+			// execution service has been resolved
+			proxyHolder.setExecutionService(executionService);
 		}
-		return affected || execServiceAffected;
+
+		return !affected.isEmpty();
 	}
 
 	/**
@@ -184,36 +184,24 @@ public class ApplicationInstance {
 	 *         is no longer)
 	 */
 	public <D extends IApplication> boolean unresolve(ApplicationInstance dependency) {
-		boolean affected = unresolveDependencies(dependency);
+		Collection<Dependency> affected = unresolveDependencies(dependency);
 
-		boolean execServiceAffected = false;
-		if (dependency.getApplications().contains(IExecutionService.class)) {
-			if (executionService == dependency.getInstance()) {
-				executionService = null;
-				injectedDependencies.remove(dependency);
-				proxyHolder.setExecutionService(null);
-				execServiceAffected = true;
-			}
+		Dependency execServiceDep = getExecutionServiceDependency(affected);
+		if (execServiceDep != null) {
+			// execution service has been unresolved
+			proxyHolder.setExecutionService(null);
 		}
-
-		return affected || execServiceAffected;
+		return !affected.isEmpty();
 	}
 
 	/**
 	 * Unresolves all currently resolved dependencies
 	 * 
-	 * FIXME This method should update injectedDependencies and reset fields in the application.
-	 * 
-	 * Implementation details: for (ApplicationInstance app: injectedDependencies) unresolve(app); but iterator-safe :P
-	 * 
 	 */
 	public <D extends IApplication> void unresolveAllDependencies() {
-		// Iterator-safe implementation for the following:
-		// for (Class<? extends ICapability> clazz : resolvedDependencies.keySet()){ unresolve(clazz); }
-		// Due to unresolve producing changes in the map that backs up the foreach iterator, commented code is not safe
-		Set<Class<? extends IApplication>> capabilityClasses = new HashSet<Class<? extends IApplication>>(resolvedDependencies.keySet());
-		for (Class<? extends IApplication> clazz : capabilityClasses) {
-			unresolve(clazz);
+		Collection<ApplicationInstance> injected = new HashSet<ApplicationInstance>(getInjectedDependencies());
+		for (ApplicationInstance app : injected) {
+			unresolve(app);
 		}
 	}
 
@@ -293,6 +281,10 @@ public class ApplicationInstance {
 		return sb.toString();
 	}
 
+	private Collection<Dependency> getDependencies() {
+		return dependencies;
+	}
+
 	/**
 	 * Resolves all dependencies that can be satisfied by the given {@link ApplicationInstance}.
 	 * 
@@ -300,30 +292,32 @@ public class ApplicationInstance {
 	 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was not
 	 *         before)
 	 */
-	private <D extends IApplication> boolean resolveDependencies(ApplicationInstance potentialDependency) {
+	private Collection<Dependency> resolveDependencies(ApplicationInstance potentialDependency) {
+		Collection<Dependency> affected = new ArrayList<Dependency>();
 
-		boolean affected = false;
 		for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
 
-			if (pendingDependencies.containsKey(capabilityClass)) {
-				Field field = pendingDependencies.get(capabilityClass);
+			for (Dependency dep : getPendingDependencies()) {
+				// FIXME shouldn't it be is assignable from?
+				if (dep.getFieldType().equals(capabilityClass)) {
 
-				try {
-					// Initialize the field of the application or capability
-					// TODO Security implications?
-					log.debug("Resolving dependency of field {}.{} with {}", clazz.getSimpleName(), field.getName(), capabilityClass);
+					try {
+						// Initialize the field of the application or capability
+						// TODO Security implications?
+						log.debug("Resolving dependency of field {}.{} with {}", clazz.getSimpleName(), dep.getField().getName(), capabilityClass);
 
-					field.setAccessible(true);
-					field.set(getInstance(), potentialDependency.getProxy());
-					resolve(capabilityClass);
-					injectedDependencies.add(potentialDependency);
-					affected = true;
-				} catch (IllegalArgumentException e) {
-					// ignore for now
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// ignore for now
-					e.printStackTrace();
+						dep.getField().setAccessible(true);
+						dep.getField().set(dep.getInstance(), potentialDependency.getProxy());
+						dep.setResolvedWith(potentialDependency);
+						affected.add(dep);
+					} catch (IllegalArgumentException e) {
+						// ignore for now
+						e.printStackTrace();
+					} catch (IllegalAccessException e) {
+						// ignore for now
+						e.printStackTrace();
+					}
+
 				}
 			}
 		}
@@ -337,26 +331,19 @@ public class ApplicationInstance {
 	 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the call
 	 *         is no longer)
 	 */
-	private <D extends IApplication> boolean unresolveDependencies(ApplicationInstance potentialDependency) {
+	private Collection<Dependency> unresolveDependencies(ApplicationInstance potentialDependency) {
+		Collection<Dependency> affected = new ArrayList<Dependency>();
 
-		boolean affected = false;
-		for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
-
-			if (resolvedDependencies.containsKey(capabilityClass)) {
-				Field field = resolvedDependencies.get(capabilityClass);
-
+		for (Dependency dep : getResolvedDependencies()) {
+			if (dep.getResolvedWith() == potentialDependency) {
+				// dependency is being resolved with potentialDependency
 				try {
+					log.debug("Unresolving dependency of field {}.{}", clazz.getSimpleName(), dep.getField().getName());
 					// TODO Security implications?
-					field.setAccessible(true);
-					if (field.get(getInstance()) == potentialDependency.getProxy()) {
-						// dependency is being resolved with potentialDependency
-						log.debug("Unresolving dependency of field {}.{}", clazz.getSimpleName(), field.getName());
-
-						field.set(getInstance(), null);
-						unresolve(capabilityClass);
-						injectedDependencies.remove(potentialDependency);
-						affected = true;
-					}
+					dep.getField().setAccessible(true);
+					dep.getField().set(dep.getInstance(), null);
+					dep.setResolvedWith(null);
+					affected.add(dep);
 				} catch (IllegalArgumentException e) {
 					// ignore for now
 					e.printStackTrace();
@@ -369,27 +356,35 @@ public class ApplicationInstance {
 		return affected;
 	}
 
-	/**
-	 * Updates the internal dependency state.
-	 */
-	private void resolve(Class<? extends IApplication> capabilityClass) {
-		Field field = pendingDependencies.remove(capabilityClass);
-		resolvedDependencies.put(capabilityClass, field);
-	}
+	private Collection<Dependency> computeDependencies(Class<? extends IApplication> clazz, IApplication instance) {
 
-	/**
-	 * Updates the internal dependency state.
-	 */
-	private void unresolve(Class<? extends IApplication> capabilityClass) {
-		Field field = resolvedDependencies.remove(capabilityClass);
-		pendingDependencies.put(capabilityClass, field);
+		// Compute dependencies based on clazz
+		Collection<Dependency> dependencies = computeApplicationDependencies(clazz);
+		// set instance
+		for (Dependency dependency : dependencies) {
+			dependency.setInstance(instance);
+		}
+
+		// add executionService dependency
+		try {
+			dependencies.add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class, this));
+		} catch (SecurityException e) {
+			// This exception should never happen (a class should has access to its declared private fields)
+			log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+		} catch (NoSuchFieldException e) {
+			// This exception should never happen (unless a programmer removes/renames executionService field)
+			log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+		}
+
+		return dependencies;
 	}
 
 	/**
 	 * Collects and returns all fields in the given class, which have the @DependingOn annotation.
 	 */
-	private Map<Class<? extends IApplication>, Field> getDependencies(Class<? extends IApplication> clazz) {
-		Map<Class<? extends IApplication>, Field> dependencies = new HashMap<Class<? extends IApplication>, Field>();
+	private Collection<Dependency> computeApplicationDependencies(Class<? extends IApplication> clazz) {
+
+		Collection<Dependency> dependencies = new ArrayList<Dependency>();
 
 		for (Field field : clazz.getDeclaredFields()) {
 			if (field.isAnnotationPresent(DependingOn.class)) {
@@ -404,11 +399,118 @@ public class ApplicationInstance {
 				@SuppressWarnings("unchecked")
 				Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
 
-				dependencies.put(type, field);
+				dependencies.add(new Dependency(field, type));
 			}
 		}
 
 		return dependencies;
+	}
+
+	private Iterable<Dependency> getResolvedDependencies() {
+		Predicate<Dependency> isResolved = new Predicate<Dependency>() {
+			@Override
+			public boolean apply(Dependency dep) {
+				return dep.isResolved();
+			}
+		};
+		return Iterables.filter(getDependencies(), isResolved);
+	}
+
+	private Iterable<Dependency> getPendingDependencies() {
+		Predicate<Dependency> isPending = new Predicate<Dependency>() {
+			@Override
+			public boolean apply(Dependency dep) {
+				return !dep.isResolved();
+			}
+		};
+		return Iterables.filter(getDependencies(), isPending);
+	}
+
+	private Dependency getExecutionServiceDependency(Collection<Dependency> dependencies) {
+		for (Dependency dep : dependencies) {
+			if (dep.getInstance() == this && dep.getFieldType().equals(IExecutionService.class))
+				return dep;
+		}
+		return null;
+	}
+
+	/**
+	 * Represents a dependency in an instance that is to be resolved by an ApplicationInstance. Dependencies are identified by its declared type and
+	 * the field that holds it in the instance.
+	 * 
+	 * @author Isart Canyameres Gimenez (i2cat)
+	 * 
+	 */
+	private class Dependency {
+
+		// the field identifying this Dependency
+		private Field							field;
+		// the type of this Dependency
+		private Class<? extends IApplication>	fieldType;
+		// the instance having this Dependency
+		private Object							instance;
+
+		// ApplicationInstance this Dependency is resolvedWith (the field is set with a proxy, not the ApplicationInstance itself)
+		private ApplicationInstance				resolvedWith;
+
+		public Dependency(Field field, Class<? extends IApplication> type) {
+			this.field = field;
+			this.fieldType = type;
+		}
+
+		public Dependency(Field field, Class<? extends IApplication> type, Object instance) {
+			this(field, type);
+			this.instance = instance;
+		}
+
+		/**
+		 * @return the field
+		 */
+		public Field getField() {
+			return field;
+		}
+
+		/**
+		 * @return the fieldType
+		 */
+		public Class<? extends IApplication> getFieldType() {
+			return fieldType;
+		}
+
+		/**
+		 * @return the instance
+		 */
+		public Object getInstance() {
+			return instance;
+		}
+
+		/**
+		 * @param instance
+		 *            the instance to set
+		 */
+		public void setInstance(IApplication instance) {
+			this.instance = instance;
+		}
+
+		/**
+		 * @return the resolvedWith
+		 */
+		public ApplicationInstance getResolvedWith() {
+			return resolvedWith;
+		}
+
+		/**
+		 * @param resolvedWith
+		 *            the resolvedWith to set
+		 */
+		public void setResolvedWith(ApplicationInstance resolvedWith) {
+			this.resolvedWith = resolvedWith;
+		}
+
+		public boolean isResolved() {
+			return getResolvedWith() != null;
+		}
+
 	}
 
 }

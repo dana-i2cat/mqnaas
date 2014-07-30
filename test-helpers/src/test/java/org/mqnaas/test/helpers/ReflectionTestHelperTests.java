@@ -1,7 +1,5 @@
 package org.mqnaas.test.helpers;
 
-import java.util.List;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,13 +45,6 @@ public class ReflectionTestHelperTests {
 		TestClass testClass = new TestClass();
 		ReflectionTestHelper.<TestClass, String> injectPrivateField(testClass, TEST_STRING, "privateCharSequence");
 		Assert.assertEquals("Field must be injected.", TEST_STRING, testClass.getPrivateCharSequence());
-	}
-
-	@Test
-	public void testGetSuperClasses() {
-		List<Class<?>> subClasses = ReflectionTestHelper.getSuperClasses(Integer.class);
-		Assert.assertTrue("Integer is a subclass of Number and Object.", subClasses.size() == 3 &&
-				subClasses.contains(Integer.class) && subClasses.contains(Number.class) && subClasses.contains(Object.class));
 	}
 
 }

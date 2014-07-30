@@ -7,4 +7,9 @@ package org.mqnaas.test.helpers.clientprovider;
  *
  */
 public class EmptyClientConfiguration {
+
+	// package-private constructor
+	EmptyClientConfiguration() {
+	}
+
 }

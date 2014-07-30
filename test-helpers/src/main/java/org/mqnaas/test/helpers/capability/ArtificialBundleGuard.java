@@ -13,6 +13,10 @@ import org.mqnaas.bundletree.IClassListener;
  */
 public class ArtificialBundleGuard implements IBundleGuard {
 
+	// package private constructor
+	ArtificialBundleGuard() {
+	}
+
 	@Override
 	public void activate() {
 		// nothing to do

@@ -10,7 +10,7 @@ import org.mqnaas.core.impl.ICoreModelCapability;
  * @author Julio Carlos Barrera
  *
  */
-public class ArtificialCoreModelCapability implements ICoreModelCapability {
+class ArtificialCoreModelCapability implements ICoreModelCapability {
 
 	private IRootResource	resourceToBeReturned;
 

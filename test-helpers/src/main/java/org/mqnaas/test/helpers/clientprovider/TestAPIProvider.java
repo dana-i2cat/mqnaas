@@ -9,5 +9,4 @@ import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
  *
  */
 public interface TestAPIProvider extends IAPIClientProvider<EmptyClientConfiguration> {
-
 }

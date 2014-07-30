@@ -234,7 +234,7 @@ public class ApplicationInstance {
 		return appsCopy;
 	}
 
-	public IApplication getProxy() {
+	private IApplication getProxy() {
 		return proxyHolder.getProxy();
 	}
 

@@ -20,12 +20,12 @@ public class ClassFilterFactory {
 	 * @param targetClasses
 	 * @return
 	 */
-	public static IClassFilter getBasicClassFilter(Collection<Class<?>> targetClasses) {
+	public static IClassFilter createBasicClassFilter(Collection<Class<?>> targetClasses) {
 		return new BasicProviderClassFilter(targetClasses);
 	}
 
-	public static IClassFilter getBasicClassFilter(Class<?> targetClass) {
-		return getBasicClassFilter(Arrays.<Class<?>> asList(targetClass));
+	public static IClassFilter createBasicClassFilter(Class<?> targetClass) {
+		return createBasicClassFilter(Arrays.<Class<?>> asList(targetClass));
 	}
 
 	private static class BasicProviderClassFilter implements IClassFilter {

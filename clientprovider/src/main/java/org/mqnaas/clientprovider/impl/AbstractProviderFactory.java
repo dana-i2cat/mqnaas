@@ -43,7 +43,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 		// register class listener
 		log.info("Registering as ClassListener.");
 		internalClassListener = new InternalClassListener(getInternalProviderClass());
-		bundleGuard.registerClassListener(ClassFilterFactory.getBasicClassFilter(getInternalProviderClass()), internalClassListener);
+		bundleGuard.registerClassListener(ClassFilterFactory.createBasicClassFilter(getInternalProviderClass()), internalClassListener);
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	 */
 	protected static boolean doTypeArgumentsMatch(Set<Type> validTypes, Class<?> class1, Class<?> class2) {
 		int numTypes;
-		if ((numTypes = getTypeNumber(class1)) != getTypeNumber(class2)) {
+		if ((numTypes = getNumberOfTypes(class1)) != getNumberOfTypes(class2)) {
 			return false;
 		}
 
@@ -164,7 +164,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	 *            target Class
 	 * @return number of types
 	 */
-	private static int getTypeNumber(Class<?> clazz) {
+	private static int getNumberOfTypes(Class<?> clazz) {
 		return ((ParameterizedType) clazz.getGenericInterfaces()[0]).getActualTypeArguments().length;
 	}
 

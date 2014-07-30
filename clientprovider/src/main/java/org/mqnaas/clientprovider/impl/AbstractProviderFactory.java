@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassListener;
@@ -30,7 +31,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 		return resource.getSpecification().getType() == Specification.Type.CORE;
 	}
 
-	protected Map<Class<CP>, CP>	internalClientProviders;
+	protected Map<Class<CP>, CP>	internalClientProviders	= new ConcurrentHashMap<Class<CP>, CP>();
 
 	// internal {@link IClassListener} instance
 	protected InternalClassListener	internalClassListener;

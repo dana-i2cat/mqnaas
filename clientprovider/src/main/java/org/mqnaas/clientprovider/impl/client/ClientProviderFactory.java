@@ -4,7 +4,6 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.clientprovider.api.client.IClientProvider;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
@@ -16,11 +15,6 @@ import org.slf4j.LoggerFactory;
 public class ClientProviderFactory extends AbstractProviderFactory<IInternalClientProvider<?, ?>> implements IClientProviderFactory {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ClientProviderFactory.class);
-
-	public ClientProviderFactory() {
-		super();
-		internalClientProviders = new ConcurrentHashMap<Class<IInternalClientProvider<?, ?>>, IInternalClientProvider<?, ?>>();
-	}
 
 	protected static Set<Type>	VALID_CLIENT_PROVIDERS;
 

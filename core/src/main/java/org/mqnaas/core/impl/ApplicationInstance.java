@@ -164,7 +164,7 @@ public class ApplicationInstance {
 	 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was not
 	 *         before)
 	 */
-	public <D extends IApplication> boolean resolve(ApplicationInstance dependency) {
+	public boolean resolve(ApplicationInstance dependency) {
 		Collection<Dependency> affected = resolveDependencies(dependency);
 
 		Dependency execServiceDep = getExecutionServiceDependency(affected);
@@ -183,7 +183,7 @@ public class ApplicationInstance {
 	 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the call
 	 *         is no longer)
 	 */
-	public <D extends IApplication> boolean unresolve(ApplicationInstance dependency) {
+	public boolean unresolve(ApplicationInstance dependency) {
 		Collection<Dependency> affected = unresolveDependencies(dependency);
 
 		Dependency execServiceDep = getExecutionServiceDependency(affected);
@@ -198,7 +198,7 @@ public class ApplicationInstance {
 	 * Unresolves all currently resolved dependencies
 	 * 
 	 */
-	public <D extends IApplication> void unresolveAllDependencies() {
+	public void unresolveAllDependencies() {
 		// Iterator-safe implementation for the following:
 		// for (ApplicationInstance app: getInjectedDependencies()) unresolve(app);
 		// Due to unresolve producing changes in the collections that backs up the foreach iterator, commented code is not safe

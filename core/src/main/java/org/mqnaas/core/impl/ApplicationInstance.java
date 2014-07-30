@@ -199,6 +199,9 @@ public class ApplicationInstance {
 	 * 
 	 */
 	public <D extends IApplication> void unresolveAllDependencies() {
+		// Iterator-safe implementation for the following:
+		// for (ApplicationInstance app: getInjectedDependencies()) unresolve(app);
+		// Due to unresolve producing changes in the collections that backs up the foreach iterator, commented code is not safe
 		Collection<ApplicationInstance> injected = new HashSet<ApplicationInstance>(getInjectedDependencies());
 		for (ApplicationInstance app : injected) {
 			unresolve(app);

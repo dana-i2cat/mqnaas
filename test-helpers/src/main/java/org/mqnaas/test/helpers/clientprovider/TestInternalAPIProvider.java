@@ -12,22 +12,12 @@ import org.mqnaas.core.api.Endpoint;
  */
 public class TestInternalAPIProvider implements IInternalAPIProvider<EmptyClientConfiguration> {
 
-	@SuppressWarnings("unchecked")
 	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c) {
-		if (apiClass.equals(EmptyClientAPI.class)) {
-			return (API) new EmptyClientAPI() {
-			};
-		}
-		return null;
+		return getClient(apiClass, ep, c, null, null);
 	}
 
-	@SuppressWarnings("unchecked")
 	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, EmptyClientConfiguration configuration) {
-		if (apiClass.equals(EmptyClientAPI.class)) {
-			return (API) new EmptyClientAPI() {
-			};
-		}
-		return null;
+		return getClient(apiClass, ep, c, configuration, null);
 	}
 
 	@SuppressWarnings("unchecked")

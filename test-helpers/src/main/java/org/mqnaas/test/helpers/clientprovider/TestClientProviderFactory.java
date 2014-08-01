@@ -14,7 +14,7 @@ public class TestClientProviderFactory {
 	 * @see EmptyClientConfiguration
 	 * 
 	 */
-	public static EmptyClientConfiguration getEmptyClientConfiguration() {
+	public static EmptyClientConfiguration createEmptyClientConfiguration() {
 		return new EmptyClientConfiguration();
 	}
 }

@@ -27,7 +27,7 @@ public class TestResourceFactory {
 	 * @param endpoints
 	 * @return generated resource
 	 */
-	public static IRootResource generateIRootResource(final ITransactionBehavior transactionBehavior, final Specification specification,
+	public static IRootResource createIRootResource(final ITransactionBehavior transactionBehavior, final Specification specification,
 			final ILockingBehaviour lockingBehaviour, final Collection<Endpoint> endpoints) {
 
 		return new IRootResource() {

@@ -16,7 +16,7 @@ public class TestCapabilitiesFactory {
 	 * @see ArtificialBundleGuard
 	 * 
 	 */
-	public static ArtificialBundleGuard getArtificialBundleGuard() {
+	public static ArtificialBundleGuard createArtificialBundleGuard() {
 		return new ArtificialBundleGuard();
 	}
 
@@ -24,7 +24,7 @@ public class TestCapabilitiesFactory {
 	 * @see ArtificialCoreModelCapability
 	 * 
 	 */
-	public static ICoreModelCapability getArtificialCoreModelCapability(final IRootResource resourceToBeReturned) {
+	public static ICoreModelCapability createArtificialCoreModelCapability(final IRootResource resourceToBeReturned) {
 		return new ArtificialCoreModelCapability(resourceToBeReturned);
 	}
 }

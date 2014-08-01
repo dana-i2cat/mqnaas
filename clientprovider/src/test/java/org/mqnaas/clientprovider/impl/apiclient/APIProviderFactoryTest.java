@@ -32,10 +32,10 @@ public class APIProviderFactoryTest {
 	public void testAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.generateIRootResource(null, null, null, Arrays.asList(new Endpoint()));
-		ArtificialBundleGuard bg = TestCapabilitiesFactory.getArtificialBundleGuard();
-		ICoreModelCapability cmc = TestCapabilitiesFactory.getArtificialCoreModelCapability(resource);
-		EmptyClientConfiguration ecc = TestClientProviderFactory.getEmptyClientConfiguration();
+		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, Arrays.asList(new Endpoint()));
+		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
+		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
+		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();
 
 		// create APIProviderFactory, inject dummy capabilities and start it
 		APIProviderFactory apf = new APIProviderFactory();

@@ -100,6 +100,11 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
 				<artifactId>clientprovider</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -183,6 +188,12 @@
 						<groupId>org.apache.karaf</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -295,6 +306,7 @@
 		<module>bundletree/itests</module>
 		<module>bundletree/itests-testbundleA</module>
 		<module>bundletree/itests-testbundleB</module>
+		<module>clientprovider-api</module>
 		<module>clientprovider</module>
 		<module>test-helpers</module>
 	</modules>

@@ -142,11 +142,7 @@ public class ApplicationInstance {
 	}
 
 	public boolean isResolved() {
-		for (Dependency dep : dependencies) {
-			if (!dep.isResolved())
-				return false;
-		}
-		return true;
+		return dependencies.isResolved();
 	}
 
 	/**
@@ -362,6 +358,14 @@ public class ApplicationInstance {
 				}
 			};
 			return Iterables.filter(this, isPending);
+		}
+
+		public boolean isResolved() {
+			for (Dependency dep : this) {
+				if (!dep.isResolved())
+					return false;
+			}
+			return true;
 		}
 
 		/**

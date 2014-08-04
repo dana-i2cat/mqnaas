@@ -701,8 +701,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		sb.append("\nAVAILABLE APPLICATIONS -------------------------------------------\n");
 
 		for (ApplicationInstance representation : getAllApplicationInstances()) {
-			sb.append(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
-					.getPendingClasses() + "]\n");
+			sb.append(representation + "\n");
 		}
 
 		sb.append("------------------------------------------------------------------\n");
@@ -723,8 +722,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 			for (CapabilityInstance representation : getCapabilityInstancesBoundToResource(resource)) {
 
-				sb.append(representation + " [resolved=" + representation.getResolvedClasses() + ", pending=" + representation
-						.getPendingClasses() + "]\n");
+				sb.append(representation + "\n");
 
 				for (Class<? extends IApplication> capability : representation.getServices().keySet()) {
 					sb.append("  Services of " + capability + "\n");

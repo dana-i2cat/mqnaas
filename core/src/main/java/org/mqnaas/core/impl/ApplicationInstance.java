@@ -55,7 +55,7 @@ public class ApplicationInstance {
 
 	private IApplication						instance;
 
-	private Collection<Dependency>				dependencies;
+	private Dependencies						dependencies;
 
 	// this field is used through reflection (take caution when refactoring)
 	private IExecutionService					executionService;
@@ -74,7 +74,7 @@ public class ApplicationInstance {
 
 		this.instance = instance;
 
-		dependencies = computeDependencies(clazz, getInstance());
+		dependencies = new Dependencies(clazz, getInstance());
 
 		proxyHolder = new ApplicationProxyHolder(clazz, getInstance());
 
@@ -106,7 +106,7 @@ public class ApplicationInstance {
 	 */
 	public Collection<ApplicationInstance> getInjectedDependencies() {
 		Collection<ApplicationInstance> injected = new ArrayList<ApplicationInstance>();
-		for (Dependency resolved : getResolvedDependencies()) {
+		for (Dependency resolved : dependencies.getResolvedDependencies()) {
 			injected.add(resolved.getResolvedWith());
 		}
 		return injected;
@@ -131,26 +131,18 @@ public class ApplicationInstance {
 	 * Returns the currently pending dependencies, e.g. the missing capability classes.
 	 */
 	public Collection<Class<? extends IApplication>> getPendingClasses() {
-		Collection<Class<? extends IApplication>> pendingClasses = new HashSet<Class<? extends IApplication>>();
-		for (Dependency dep : getPendingDependencies()) {
-			pendingClasses.add(dep.getFieldType());
-		}
-		return pendingClasses;
+		return dependencies.getPendingClasses();
 	}
 
 	/**
 	 * Returns the currently resolved dependencies, e.g. the already initialized capability classes.
 	 */
 	public Collection<Class<? extends IApplication>> getResolvedClasses() {
-		Collection<Class<? extends IApplication>> resolvedClasses = new HashSet<Class<? extends IApplication>>();
-		for (Dependency dep : getResolvedDependencies()) {
-			resolvedClasses.add(dep.getFieldType());
-		}
-		return resolvedClasses;
+		return dependencies.getResolvedClasses();
 	}
 
 	public boolean isResolved() {
-		for (Dependency dep : getDependencies()) {
+		for (Dependency dep : dependencies) {
 			if (!dep.isResolved())
 				return false;
 		}
@@ -165,7 +157,7 @@ public class ApplicationInstance {
 	 *         before)
 	 */
 	public boolean resolve(ApplicationInstance dependency) {
-		Collection<Dependency> affected = resolveDependencies(dependency);
+		Collection<Dependency> affected = dependencies.resolveDependencies(dependency);
 
 		Dependency execServiceDep = getExecutionServiceDependency(affected);
 		if (execServiceDep != null) {
@@ -184,7 +176,7 @@ public class ApplicationInstance {
 	 *         is no longer)
 	 */
 	public boolean unresolve(ApplicationInstance dependency) {
-		Collection<Dependency> affected = unresolveDependencies(dependency);
+		Collection<Dependency> affected = dependencies.unresolveDependencies(dependency);
 
 		Dependency execServiceDep = getExecutionServiceDependency(affected);
 		if (execServiceDep != null) {
@@ -234,10 +226,6 @@ public class ApplicationInstance {
 		return appsCopy;
 	}
 
-	private IApplication getProxy() {
-		return proxyHolder.getProxy();
-	}
-
 	/**
 	 * Sets the given {@link IResource} as the resource used when executing the services.
 	 * 
@@ -255,6 +243,18 @@ public class ApplicationInstance {
 
 		// 2. Clear the instance
 		instance = null;
+	}
+
+	private IApplication getProxy() {
+		return proxyHolder.getProxy();
+	}
+
+	private Dependency getExecutionServiceDependency(Collection<Dependency> dependencies) {
+		for (Dependency dep : dependencies) {
+			if (dep.getInstance() == this && dep.getFieldType().equals(IExecutionService.class))
+				return dep;
+		}
+		return null;
 	}
 
 	@Override
@@ -285,157 +285,129 @@ public class ApplicationInstance {
 		return sb.toString();
 	}
 
-	private Collection<Dependency> getDependencies() {
-		return dependencies;
-	}
-
 	/**
-	 * Resolves all dependencies that can be satisfied by the given {@link ApplicationInstance}.
 	 * 
-	 * @param potentialDependency
-	 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was not
-	 *         before)
+	 * @author Georg Mansky-Kummert (i2CAT)
+	 * 
 	 */
-	private Collection<Dependency> resolveDependencies(ApplicationInstance potentialDependency) {
-		Collection<Dependency> affected = new ArrayList<Dependency>();
+	private class Dependencies extends ArrayList<Dependency> {
 
-		for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+		private static final long	serialVersionUID	= 1L;
 
-			for (Dependency dep : getPendingDependencies()) {
-				// FIXME shouldn't it be is assignable from?
-				if (dep.getFieldType().equals(capabilityClass)) {
+		public Dependencies(Class<? extends IApplication> clazz, IApplication instance) {
 
-					try {
-						// Initialize the field of the application or capability
-						// TODO Security implications?
-						log.debug("Resolving dependency of field {}.{} with {}", clazz.getSimpleName(), dep.getField().getName(), capabilityClass);
+			super();
 
-						dep.getField().setAccessible(true);
-						dep.getField().set(dep.getInstance(), potentialDependency.getProxy());
-						dep.setResolvedWith(potentialDependency);
-						affected.add(dep);
-					} catch (IllegalArgumentException e) {
-						// ignore for now
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// ignore for now
-						e.printStackTrace();
+			for (Field field : clazz.getDeclaredFields()) {
+				if (field.isAnnotationPresent(DependingOn.class)) {
+
+					if (!(IApplication.class.isAssignableFrom(field.getType()))) {
+						throw new IllegalArgumentException(
+								"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
+										" and can therefore not be used as a dependency.");
 					}
 
+					// The following cast is safe, because it was explicitly checked above
+					@SuppressWarnings("unchecked")
+					Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
+
+					add(new Dependency(field, type, instance));
 				}
 			}
+
+			// add executionService dependency
+			try {
+				add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class, ApplicationInstance.this));
+			} catch (SecurityException e) {
+				// This exception should never happen (a class should has access to its declared private fields)
+				log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+			} catch (NoSuchFieldException e) {
+				// This exception should never happen (unless a programmer removes/renames executionService field)
+				log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+			}
+
 		}
-		return affected;
-	}
 
-	/**
-	 * Unresolves all dependencies that are being resolved with the given {@link CapabilityInstance}.
-	 * 
-	 * @param potentialDependency
-	 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the call
-	 *         is no longer)
-	 */
-	private Collection<Dependency> unresolveDependencies(ApplicationInstance potentialDependency) {
-		Collection<Dependency> affected = new ArrayList<Dependency>();
+		public Collection<Class<? extends IApplication>> getPendingClasses() {
+			Collection<Class<? extends IApplication>> pendingClasses = new HashSet<Class<? extends IApplication>>();
+			for (Dependency dep : getPendingDependencies()) {
+				pendingClasses.add(dep.getFieldType());
+			}
+			return pendingClasses;
+		}
 
-		for (Dependency dep : getResolvedDependencies()) {
-			if (dep.getResolvedWith() == potentialDependency) {
-				// dependency is being resolved with potentialDependency
-				try {
-					log.debug("Unresolving dependency of field {}.{}", clazz.getSimpleName(), dep.getField().getName());
-					// TODO Security implications?
-					dep.getField().setAccessible(true);
-					dep.getField().set(dep.getInstance(), null);
-					dep.setResolvedWith(null);
+		public Collection<Class<? extends IApplication>> getResolvedClasses() {
+			Collection<Class<? extends IApplication>> resolvedClasses = new HashSet<Class<? extends IApplication>>();
+			for (Dependency dep : getResolvedDependencies()) {
+				resolvedClasses.add(dep.getFieldType());
+			}
+			return resolvedClasses;
+		}
+
+		private Iterable<Dependency> getResolvedDependencies() {
+			Predicate<Dependency> isResolved = new Predicate<Dependency>() {
+				@Override
+				public boolean apply(Dependency dep) {
+					return dep.isResolved();
+				}
+			};
+			return Iterables.filter(this, isResolved);
+		}
+
+		private Iterable<Dependency> getPendingDependencies() {
+			Predicate<Dependency> isPending = new Predicate<Dependency>() {
+				@Override
+				public boolean apply(Dependency dep) {
+					return !dep.isResolved();
+				}
+			};
+			return Iterables.filter(this, isPending);
+		}
+
+		/**
+		 * Unresolves all dependencies that are being resolved with the given {@link CapabilityInstance}.
+		 * 
+		 * @param potentialDependency
+		 * @return whether the internal state of this instance has changed after this call or not (was using given potential dependency and after the
+		 *         call is no longer)
+		 */
+		private Collection<Dependency> unresolveDependencies(ApplicationInstance potentialDependency) {
+			Collection<Dependency> affected = new ArrayList<Dependency>();
+
+			for (Dependency dep : getResolvedDependencies()) {
+				if (dep.getResolvedWith() == potentialDependency) {
+					// dependency is being resolved with potentialDependency
+					dep.unresolve();
 					affected.add(dep);
-				} catch (IllegalArgumentException e) {
-					// ignore for now
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// ignore for now
-					e.printStackTrace();
 				}
 			}
-		}
-		return affected;
-	}
-
-	private Collection<Dependency> computeDependencies(Class<? extends IApplication> clazz, IApplication instance) {
-
-		// Compute dependencies based on clazz
-		Collection<Dependency> dependencies = computeApplicationDependencies(clazz);
-		// set instance
-		for (Dependency dependency : dependencies) {
-			dependency.setInstance(instance);
+			return affected;
 		}
 
-		// add executionService dependency
-		try {
-			dependencies.add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class, this));
-		} catch (SecurityException e) {
-			// This exception should never happen (a class should has access to its declared private fields)
-			log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
-		} catch (NoSuchFieldException e) {
-			// This exception should never happen (unless a programmer removes/renames executionService field)
-			log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
-		}
+		/**
+		 * Resolves all dependencies that can be satisfied by the given {@link ApplicationInstance}.
+		 * 
+		 * @param potentialDependency
+		 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was
+		 *         not before)
+		 */
+		private Collection<Dependency> resolveDependencies(ApplicationInstance potentialDependency) {
 
-		return dependencies;
-	}
+			Collection<Dependency> affected = new ArrayList<Dependency>();
 
-	/**
-	 * Collects and returns all fields in the given class, which have the @DependingOn annotation.
-	 */
-	private Collection<Dependency> computeApplicationDependencies(Class<? extends IApplication> clazz) {
+			for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
 
-		Collection<Dependency> dependencies = new ArrayList<Dependency>();
-
-		for (Field field : clazz.getDeclaredFields()) {
-			if (field.isAnnotationPresent(DependingOn.class)) {
-
-				if (!(IApplication.class.isAssignableFrom(field.getType()))) {
-					throw new IllegalArgumentException(
-							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
-									" and can therefore not be used as a dependency.");
+				for (Dependency dep : getPendingDependencies()) {
+					// FIXME shouldn't it be is assignable from?
+					if (dep.isResolvedBy(capabilityClass)) {
+						dep.resolveWith(potentialDependency);
+						affected.add(dep);
+					}
 				}
-
-				// The following cast is safe, because it was explicitly checked above
-				@SuppressWarnings("unchecked")
-				Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
-
-				dependencies.add(new Dependency(field, type));
 			}
+			return affected;
 		}
 
-		return dependencies;
-	}
-
-	private Iterable<Dependency> getResolvedDependencies() {
-		Predicate<Dependency> isResolved = new Predicate<Dependency>() {
-			@Override
-			public boolean apply(Dependency dep) {
-				return dep.isResolved();
-			}
-		};
-		return Iterables.filter(getDependencies(), isResolved);
-	}
-
-	private Iterable<Dependency> getPendingDependencies() {
-		Predicate<Dependency> isPending = new Predicate<Dependency>() {
-			@Override
-			public boolean apply(Dependency dep) {
-				return !dep.isResolved();
-			}
-		};
-		return Iterables.filter(getDependencies(), isPending);
-	}
-
-	private Dependency getExecutionServiceDependency(Collection<Dependency> dependencies) {
-		for (Dependency dep : dependencies) {
-			if (dep.getInstance() == this && dep.getFieldType().equals(IExecutionService.class))
-				return dep;
-		}
-		return null;
 	}
 
 	/**
@@ -457,21 +429,41 @@ public class ApplicationInstance {
 		// ApplicationInstance this Dependency is resolvedWith (the field is set with a proxy, not the ApplicationInstance itself)
 		private ApplicationInstance				resolvedWith;
 
-		public Dependency(Field field, Class<? extends IApplication> type) {
+		public Dependency(Field field, Class<? extends IApplication> type, Object instance) {
 			this.field = field;
 			this.fieldType = type;
-		}
-
-		public Dependency(Field field, Class<? extends IApplication> type, Object instance) {
-			this(field, type);
 			this.instance = instance;
 		}
 
-		/**
-		 * @return the field
-		 */
-		public Field getField() {
-			return field;
+		public boolean isResolvedBy(Class<? extends IApplication> capabilityClass) {
+			return getFieldType().equals(capabilityClass);
+		}
+
+		public void resolveWith(ApplicationInstance potentialDependency) {
+			log.debug("Resolving dependency of field {}.{} with {}", clazz.getSimpleName(), field.getName(), potentialDependency);
+			resolve(potentialDependency.getProxy());
+			setResolvedWith(potentialDependency);
+		}
+
+		public void unresolve() {
+			log.debug("Unresolving dependency of field {}.{}", clazz.getSimpleName(), field.getName());
+			resolve(null);
+			setResolvedWith(null);
+		}
+
+		private void resolve(Object value) {
+			// Initialize the field of the application or capability
+			// TODO Security implications?
+			try {
+				field.setAccessible(true);
+				field.set(instance, value);
+			} catch (IllegalArgumentException e) {
+				// ignore for now
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// ignore for now
+				e.printStackTrace();
+			}
 		}
 
 		/**
@@ -486,14 +478,6 @@ public class ApplicationInstance {
 		 */
 		public Object getInstance() {
 			return instance;
-		}
-
-		/**
-		 * @param instance
-		 *            the instance to set
-		 */
-		public void setInstance(IApplication instance) {
-			this.instance = instance;
 		}
 
 		/**
@@ -516,5 +500,4 @@ public class ApplicationInstance {
 		}
 
 	}
-
 }

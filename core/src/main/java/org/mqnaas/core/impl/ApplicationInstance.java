@@ -398,7 +398,6 @@ public class ApplicationInstance {
 			for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
 
 				for (Dependency dep : getPendingDependencies()) {
-					// FIXME shouldn't it be is assignable from?
 					if (dep.isResolvedBy(capabilityClass)) {
 						dep.resolveWith(potentialDependency);
 						affected.add(dep);
@@ -435,7 +434,14 @@ public class ApplicationInstance {
 			this.instance = instance;
 		}
 
+		/**
+		 * Tells whether this Dependency can be resolved with given capabilityClass or not.
+		 * 
+		 * @param capabilityClass
+		 * @return
+		 */
 		public boolean isResolvedBy(Class<? extends IApplication> capabilityClass) {
+			// FIXME shouldn't it be is assignable from?
 			return getFieldType().equals(capabilityClass);
 		}
 

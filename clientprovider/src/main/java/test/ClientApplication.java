@@ -16,6 +16,7 @@ import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class ClientApplication implements IApplication {
 		log.info("Running the Client test application...");
 
 		// Fake resource
-		IRootResource resource = rootResourceManagement.createRootResource(new Specification(), Arrays.asList(new Endpoint()));
+		IRootResource resource = rootResourceManagement.createRootResource(new Specification(Type.OTHER), Arrays.asList(new Endpoint()));
 
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);

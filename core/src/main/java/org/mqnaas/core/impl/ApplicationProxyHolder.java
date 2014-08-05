@@ -189,7 +189,8 @@ public class ApplicationProxyHolder {
 				// toString(), it will be invoked directly
 				result = method.invoke(instance, args);
 			} else {
-				if (service.getMetadata().getName().equals("execute") && service.getMetadata().getApplicationClass().equals(ExecutionService.class)) {
+				if (service.getMetadata().getName().equals("execute") && IExecutionService.class.isAssignableFrom(service.getMetadata()
+						.getApplicationClass())) {
 					// This avoid looping infinitely through proxy calls... TODO add more details
 					result = service.execute(args);
 				} else {

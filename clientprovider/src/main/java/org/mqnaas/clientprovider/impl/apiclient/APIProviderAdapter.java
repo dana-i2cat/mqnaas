@@ -5,14 +5,19 @@ import java.lang.reflect.Method;
 
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.impl.ICoreModelCapability;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class APIProviderAdapter<CC> implements InvocationHandler {
+
+	private static final Logger			log	= LoggerFactory.getLogger(APIProviderAdapter.class);
 
 	private IInternalAPIProvider<CC>	internalAPIProvider;
 
@@ -39,6 +44,13 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 		Endpoint ep = (endpointSelectionStrategy != null) ? endpointSelectionStrategy.select(internalAPIProvider.getProtocols(),
 				rootResource.getEndpoints()) : new BasicEndpointSelectionStrategy().select(internalAPIProvider.getProtocols(),
 				rootResource.getEndpoints());
+
+		if (ep == null) {
+			String message = String.format("Unable to find any valid Endpoint from endpoints = %s and protocols = %s.", rootResource.getEndpoints(),
+					internalAPIProvider.getProtocols());
+			log.error(message);
+			throw new EndpointNotFoundException(message);
+		}
 
 		// TODO Get credentials...
 		Credentials c = null;

@@ -12,6 +12,11 @@ import org.mqnaas.core.api.Endpoint;
  */
 public class TestInternalAPIProvider implements IInternalAPIProvider<EmptyClientConfiguration> {
 
+	@Override
+	public String[] getProtocols() {
+		return new String[] { "protocol" };
+	}
+
 	public <API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c) {
 		return getClient(apiClass, ep, c, null, null);
 	}
@@ -29,4 +34,5 @@ public class TestInternalAPIProvider implements IInternalAPIProvider<EmptyClient
 		}
 		return null;
 	}
+
 }

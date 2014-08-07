@@ -3,7 +3,9 @@ package org.mqnaas.clientprovider.impl.apiclient;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
+import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IResource;
@@ -16,13 +18,16 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 
 	private ICoreModelCapability		coreModelCapability;
 
-	public APIProviderAdapter(IInternalAPIProvider<CC> internalAPIProvider, ICoreModelCapability coreModelCapability) {
+	private IEndpointSelectionStrategy	endpointSelectionStrategy;
+
+	public APIProviderAdapter(IInternalAPIProvider<CC> internalAPIProvider, ICoreModelCapability coreModelCapability,
+			IEndpointSelectionStrategy endpointSelectionStrategy) {
 		this.internalAPIProvider = internalAPIProvider;
 		this.coreModelCapability = coreModelCapability;
+		this.endpointSelectionStrategy = endpointSelectionStrategy;
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 		IResource resource = (IResource) args[0];
@@ -30,9 +35,10 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 
 		Class<?> apiClass = (Class<?>) args[1];
 
-		// get first endpoint
-		// FIXME think a better strategy for multi-endpoint resources
-		Endpoint ep = rootResource.getEndpoints().iterator().next();
+		// choose one endpoint using given IEndpointSelectionStrategy or default BasicEndpointSelectionStrategy
+		Endpoint ep = (endpointSelectionStrategy != null) ? endpointSelectionStrategy.select(internalAPIProvider.getProtocols(),
+				rootResource.getEndpoints()) : new BasicEndpointSelectionStrategy().select(internalAPIProvider.getProtocols(),
+				rootResource.getEndpoints());
 
 		// TODO Get credentials...
 		Credentials c = null;
@@ -41,9 +47,11 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 			case 2:
 				return internalAPIProvider.getClient(apiClass, ep, c);
 			case 3:
+				@SuppressWarnings("unchecked")
 				CC clientConfiguration1 = (CC) args[2];
 				return internalAPIProvider.getClient(apiClass, ep, c, clientConfiguration1);
 			case 4:
+				@SuppressWarnings("unchecked")
 				CC clientConfiguration2 = (CC) args[2];
 				Object applicationSpecificConfiguration = args[3];
 				return internalAPIProvider.getClient(apiClass, ep, c, clientConfiguration2, applicationSpecificConfiguration);
@@ -51,5 +59,4 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 
 		throw new IllegalStateException("No mapping for method " + method);
 	}
-
 }

@@ -10,6 +10,12 @@ import org.mqnaas.core.api.Endpoint;
 public class InternalNetconfClientProvider implements IInternalClientProvider<NetconfClient, NetconfConfiguration> {
 
 	@Override
+	public String[] getProtocols() {
+		// Netconf endpoints using SSH as transport layer
+		return new String[] { "ssh" };
+	}
+
+	@Override
 	public NetconfClient getClient(Endpoint ep, Credentials c) {
 		NetconfConfiguration defaultConfiguration = null;
 		return getClient(ep, c, defaultConfiguration);

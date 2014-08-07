@@ -5,6 +5,8 @@ import org.mqnaas.core.api.Endpoint;
 
 public interface IInternalAPIProvider<CC> {
 
+	String[] getProtocols();
+
 	<API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c);
 
 	<API> API getClient(Class<API> apiClass, Endpoint ep, Credentials c, CC configuration);

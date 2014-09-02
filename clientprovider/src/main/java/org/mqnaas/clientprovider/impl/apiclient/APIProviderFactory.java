@@ -10,6 +10,7 @@ import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
+import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +36,7 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 	}
 
 	@Override
-	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass,
-			IEndpointSelectionStrategy endpointSelectionStrategy) {
+	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass, IEndpointSelectionStrategy endpointSelectionStrategy) {
 		log.info("ClientProvider request received for class: " + apiProviderClass.getCanonicalName());
 
 		// Match against list of providers...
@@ -45,6 +45,11 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders.get(internalAPIProviderClass);
 
 			if (doTypeArgumentsMatch(VALID_API_PROVIDERS, apiProviderClass, internalAPIProviderClass)) {
+				// initialize endpointSelectionStrategy if it is null to default one
+				if (endpointSelectionStrategy == null) {
+					endpointSelectionStrategy = new BasicEndpointSelectionStrategy();
+				}
+
 				// internalAPIProvider must be parameterized with <CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(apiProviderClass.getClassLoader(), new Class[] { apiProviderClass },

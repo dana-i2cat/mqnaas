@@ -10,6 +10,7 @@ import org.mqnaas.clientprovider.api.client.IClientProvider;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
+import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,11 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 					.get(internalClientProviderClass);
 
 			if (doTypeArgumentsMatch(VALID_CLIENT_PROVIDERS, clientProviderClass, internalClientProviderClass)) {
+				// initialize endpointSelectionStrategy if it is null to default one
+				if (endpointSelectionStrategy == null) {
+					endpointSelectionStrategy = new BasicEndpointSelectionStrategy();
+				}
+
 				// internalClientProvider must be parameterized with <T, CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(clientProviderClass.getClassLoader(), new Class[] { clientProviderClass },

@@ -6,7 +6,6 @@ import java.lang.reflect.Method;
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
-import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IResource;
@@ -40,10 +39,8 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 
 		Class<?> apiClass = (Class<?>) args[1];
 
-		// choose one endpoint using given IEndpointSelectionStrategy or default BasicEndpointSelectionStrategy
-		Endpoint ep = (endpointSelectionStrategy != null) ? endpointSelectionStrategy.select(internalAPIProvider.getProtocols(),
-				rootResource.getEndpoints()) : new BasicEndpointSelectionStrategy().select(internalAPIProvider.getProtocols(),
-				rootResource.getEndpoints());
+		// choose one endpoint using given IEndpointSelectionStrategy
+		Endpoint ep = endpointSelectionStrategy.select(internalAPIProvider.getProtocols(), rootResource.getEndpoints());
 
 		if (ep == null) {
 			String message = String.format("Unable to find any valid Endpoint from endpoints = %s and protocols = %s.", rootResource.getEndpoints(),

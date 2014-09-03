@@ -11,6 +11,7 @@ import org.mqnaas.client.netconf.NetconfClient;
 import org.mqnaas.client.netconf.NetconfConfiguration;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
+import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
@@ -45,38 +46,43 @@ public class ClientApplication implements IApplication {
 		// 1. Static client provisioning
 		INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);
 
-		// Client w/o configuration
-		NetconfClient netconfClient1 = cp.getClient(resource);
-		netconfClient1.doNetconfSpecificThing1();
+		try {
+			// Client w/o configuration
+			NetconfClient netconfClient1 = cp.getClient(resource);
+			netconfClient1.doNetconfSpecificThing1();
 
-		// Client with (client specific) configuration
-		NetconfConfiguration netconfConfiguration = new NetconfConfiguration();
+			// Client with (client specific) configuration
+			NetconfConfiguration netconfConfiguration = new NetconfConfiguration();
 
-		NetconfClient netconfClient2 = cp.getClient(resource, netconfConfiguration);
-		netconfClient2.doNetconfSpecificThing2();
+			NetconfClient netconfClient2 = cp.getClient(resource, netconfConfiguration);
+			netconfClient2.doNetconfSpecificThing2();
 
-		// 2. Dynamic client provisioning
-		ICXFAPIProvider ap = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class);
+			// 2. Dynamic client provisioning
+			ICXFAPIProvider ap = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class);
 
-		// Dynamic client w/o configuration
-		IApplicationClient applicationSpecificClient1 = ap.getAPIClient(resource, IApplicationClient.class);
-		applicationSpecificClient1.methodA();
-		applicationSpecificClient1.methodB();
+			// Dynamic client w/o configuration
+			IApplicationClient applicationSpecificClient1 = ap.getAPIClient(resource, IApplicationClient.class);
+			applicationSpecificClient1.methodA();
+			applicationSpecificClient1.methodB();
 
-		// Dynamic client with (client specific) configuration
-		CXFConfiguration cxfConf = new CXFConfiguration();
-		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf);
-		applicationSpecificClient2.methodA();
-		applicationSpecificClient2.methodB();
+			// Dynamic client with (client specific) configuration
+			CXFConfiguration cxfConf = new CXFConfiguration();
+			cxfConf.setUseDummyClient(true);
+			IApplicationClient applicationSpecificClient2 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf);
+			applicationSpecificClient2.methodA();
+			applicationSpecificClient2.methodB();
 
-		// Dynamic client with client specific configuration and application
-		// specific configuration
-		CXFConfiguration cxfConf2 = new CXFConfiguration();
-		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
-		applicationSpecificClient3.methodA();
-		applicationSpecificClient3.methodB();
+			// Dynamic client with client specific configuration and application
+			// specific configuration
+			CXFConfiguration cxfConf2 = new CXFConfiguration();
+			cxfConf.setUseDummyClient(true);
+			IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2,
+					new ApplicationConfiguration());
+			applicationSpecificClient3.methodA();
+			applicationSpecificClient3.methodB();
+		} catch (EndpointNotFoundException e) {
+			log.error("Error invoking client.", e);
+		}
 	}
 
 	@Override

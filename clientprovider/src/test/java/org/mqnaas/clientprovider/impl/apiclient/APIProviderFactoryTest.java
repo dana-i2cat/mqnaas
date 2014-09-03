@@ -3,7 +3,6 @@ package org.mqnaas.clientprovider.impl.apiclient;
 import java.util.Collection;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
@@ -32,7 +31,8 @@ import org.mqnaas.test.helpers.resource.TestResourceFactory;
 public class APIProviderFactoryTest {
 
 	@Test
-	public void testAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+	public void testAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
+			EndpointNotFoundException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());
@@ -55,10 +55,9 @@ public class APIProviderFactoryTest {
 		Assert.assertTrue("Client must be an instance of EmptyClientAPI.", client instanceof EmptyClientAPI);
 	}
 
-	// FIXME this test could not pass until proxies unencapsulate exceptions. now it throws an java.lang.reflect.UndeclaredThrowableException
-	@Ignore
 	@Test(expected = EndpointNotFoundException.class)
-	public void testFailureAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+	public void testFailureAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
+			EndpointNotFoundException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());

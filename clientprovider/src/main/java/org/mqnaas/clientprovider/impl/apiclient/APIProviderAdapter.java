@@ -32,7 +32,7 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) throws EndpointNotFoundException {
 
 		IResource resource = (IResource) args[0];
 		IRootResource rootResource = coreModelCapability.getRootResource(resource);

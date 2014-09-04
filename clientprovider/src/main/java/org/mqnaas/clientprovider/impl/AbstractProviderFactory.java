@@ -10,10 +10,10 @@ import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassListener;
 import org.mqnaas.bundletree.utils.ClassFilterFactory;
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.impl.ICoreModelCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

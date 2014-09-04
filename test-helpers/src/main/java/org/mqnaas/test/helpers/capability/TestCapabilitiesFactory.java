@@ -1,8 +1,8 @@
 package org.mqnaas.test.helpers.capability;
 
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.ICoreModelCapability;
 
 /**
  * {@link ICapability}'s factory that provides test implementations useful for tests.

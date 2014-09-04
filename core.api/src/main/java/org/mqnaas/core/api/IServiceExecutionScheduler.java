@@ -1,5 +1,9 @@
 package org.mqnaas.core.api;
 
+import java.util.Set;
+
+import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
+
 /**
  * <p>
  * <code>IServiceExecutionScheduler</code> is one of the core capabilities of MQNaaS.
@@ -13,8 +17,10 @@ package org.mqnaas.core.api;
  */
 public interface IServiceExecutionScheduler extends ICapability {
 
-	public void schedule(ServiceExecution serviceExecution);
+	public void schedule(ServiceExecution serviceExecution) throws ServiceExecutionSchedulerException;
 
-	public void cancel(ServiceExecution serviceExecution);
+	public void cancel(ServiceExecution serviceExecution) throws ServiceExecutionSchedulerException;
+
+	public Set<ServiceExecution> getScheduledServiceExecutions();
 
 }

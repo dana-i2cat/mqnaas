@@ -72,6 +72,12 @@
 		<!-- OPS4J Pax Exam version -->
 		<pax-exam-version>3.5.0</pax-exam-version>
 
+		<!-- PowerMock version -->
+		<powermock.version>1.5.5</powermock.version>
+		
+		<!-- Quartz Scheduler version -->
+		<quartz.version>2.2.1</quartz.version>
+
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
 	</properties>
@@ -143,6 +149,13 @@
 				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
 				<version>${javax.inject-version}</version>
 			</dependency>
+			
+			<!-- Scheduling library -->
+			<dependency>
+				<groupId>org.quartz-scheduler</groupId>
+				<artifactId>quartz</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
 
 			<!-- test dependencies -->
 			<dependency>
@@ -195,6 +208,13 @@
 				<version>0.0.1-SNAPSHOT</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+			
 		</dependencies>
 	</dependencyManagement>
 

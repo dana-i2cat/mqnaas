@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.ICoreModelCapability;
 
 class APIProviderAdapter<CC> implements InvocationHandler {
 

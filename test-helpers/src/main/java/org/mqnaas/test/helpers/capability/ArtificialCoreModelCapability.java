@@ -1,8 +1,8 @@
 package org.mqnaas.test.helpers.capability;
 
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.ICoreModelCapability;
 
 /**
  * Artificial {@link ICoreModelCapability} that always returns given {@link IRootResource} in {@link #getRootResource(IResource)} method.

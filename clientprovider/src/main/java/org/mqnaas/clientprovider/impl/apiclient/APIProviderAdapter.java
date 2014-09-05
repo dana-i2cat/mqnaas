@@ -8,9 +8,9 @@ import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.impl.ICoreModelCapability;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

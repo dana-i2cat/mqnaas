@@ -60,10 +60,7 @@
 				<configuration>
 					<instructions>
 						<Import-Package>*</Import-Package>
-						<Export-Package>
-							org.mqnaas.clientprovider.api.apiclient,
-							org.mqnaas.clientprovider.api.client
-						</Export-Package>
+						<Export-Package></Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -31,9 +31,10 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.clientprovider.exceptions,
+							org.mqnaas.clientprovider.api,
 							org.mqnaas.clientprovider.api.apiclient,
-							org.mqnaas.clientprovider.api.client
+							org.mqnaas.clientprovider.api.client,
+							org.mqnaas.clientprovider.exceptions
 						</Export-Package>
 					</instructions>
 				</configuration>

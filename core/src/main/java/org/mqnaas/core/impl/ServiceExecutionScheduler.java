@@ -13,11 +13,11 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.impl.utils.SchedulerUtils;
 import org.quartz.JobDetail;
-import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.utils.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,14 +40,14 @@ import org.slf4j.LoggerFactory;
  */
 public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 
-	private static final Logger				log	= LoggerFactory.getLogger(ServiceExecutionScheduler.class);
+	private static final Logger			log	= LoggerFactory.getLogger(ServiceExecutionScheduler.class);
 
 	@DependingOn
-	private IExecutionService				executionService;
+	private IExecutionService			executionService;
 
-	private Scheduler						quartzScheduler;
-	private Map<ServiceExecution, JobKey>	scheduledJobs;
-	private IServiceExecutionCallback		serviceExecutionCallback;
+	private Scheduler					quartzScheduler;
+	private Map<ServiceExecution, Key>	scheduledJobs;
+	private IServiceExecutionCallback	serviceExecutionCallback;
 
 	class ServiceExecutionCallback implements IServiceExecutionCallback {
 
@@ -67,7 +67,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 	public void activate() {
 		// FIXME activate() method should launch an exception when there's an error activating the application
 
-		scheduledJobs = new HashMap<ServiceExecution, JobKey>();
+		scheduledJobs = new HashMap<ServiceExecution, Key>();
 		serviceExecutionCallback = new ServiceExecutionCallback();
 
 		try {
@@ -113,7 +113,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 			Trigger trigger = SchedulerUtils.createServiceExecutionSchedulerInternalTrigger(jobDetail);
 			quartzScheduler.scheduleJob(jobDetail, trigger);
 
-			scheduledJobs.put(serviceExecution, trigger.getJobKey());
+			scheduledJobs.put(serviceExecution, jobDetail.getKey());
 
 		} catch (SchedulerException e) {
 			log.error("Could not schedule service execution: ", e);
@@ -130,8 +130,8 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 		log.debug("Cancelling scheduled service execution");
 
 		try {
-			JobKey jobKey = scheduledJobs.get(serviceExecution);
-			quartzScheduler.deleteJob(jobKey);
+			Key jobKey = scheduledJobs.get(serviceExecution);
+			quartzScheduler.deleteJob(jobKey.getName(), jobKey.getGroup());
 
 			scheduledJobs.remove(serviceExecution);
 

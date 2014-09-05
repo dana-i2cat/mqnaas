@@ -8,7 +8,7 @@ import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.JobKey;
+import org.quartz.utils.Key;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +43,7 @@ public class ScheduledJob implements Job {
 		ServiceExecution serviceExecution = (ServiceExecution) jobDataMap.get(SERVICE_EXECUTION_KEY);
 		IServiceExecutionCallback serviceExecutionCallback = (IServiceExecutionCallback) jobDataMap.get(SERVICE_EXECUTION_CALLBACK_KEY);
 
-		JobKey jobKey = context.getJobDetail().getKey();
+		Key jobKey = context.getJobDetail().getKey();
 
 		if (executionService == null)
 			throw new JobExecutionException(

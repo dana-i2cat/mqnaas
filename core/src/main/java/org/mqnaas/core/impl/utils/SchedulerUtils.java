@@ -2,16 +2,16 @@ package org.mqnaas.core.impl.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.mqnaas.core.api.ServiceExecution;
 import org.mqnaas.core.impl.BasicTrigger;
 import org.mqnaas.core.impl.ScheduledJob;
 import org.mqnaas.core.impl.ServiceExecutionScheduler;
-import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
 
 /**
  * Utilities for the {@link ServiceExecutionScheduler}
@@ -27,10 +27,15 @@ public abstract class SchedulerUtils {
 
 		ServiceExecution serviceExecution = (ServiceExecution) jobDetail.getJobDataMap().get(ScheduledJob.SERVICE_EXECUTION_KEY);
 
-		if (serviceExecution.getTrigger() instanceof BasicTrigger)
-			trigger = TriggerBuilder.newTrigger().forJob(jobDetail).startAt(((BasicTrigger) serviceExecution.getTrigger()).getStartDate()).build();
-
 		// TODO add support for other types of trigger: periodical jobs, etc.
+		if (serviceExecution.getTrigger() instanceof BasicTrigger) {
+			trigger = new SimpleTrigger();
+			trigger.setStartTime(((BasicTrigger) serviceExecution.getTrigger()).getStartDate());
+
+		}
+		// Quartz 2 generates randoms ids for the triggers. In Quartz 1, it's mandatory the user defines it.
+		// We set the same as the job one to decrease collisions risks.
+		trigger.setName(jobDetail.getName());
 
 		return trigger;
 
@@ -42,7 +47,12 @@ public abstract class SchedulerUtils {
 		JobDataMap jobDataMap = new JobDataMap(map);
 		jobDataMap.put(ScheduledJob.SERVICE_EXECUTION_KEY, serviceExecution);
 
-		JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class).usingJobData(jobDataMap).build();
+		JobDetail jobDetail = new JobDetail();
+		jobDetail.setJobDataMap(jobDataMap);
+		jobDetail.setJobClass(ScheduledJob.class);
+
+		// Quartz 2 generates randoms ids for the jobs. In Quartz 1, it's mandatory the user defines it.
+		jobDetail.setName(UUID.randomUUID().toString());
 
 		return jobDetail;
 	}

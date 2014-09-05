@@ -76,7 +76,7 @@
 		<powermock.version>1.5.5</powermock.version>
 		
 		<!-- Quartz Scheduler version -->
-		<quartz.version>2.2.1</quartz.version>
+		<quartz.version>1.6.2</quartz.version>
 
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
@@ -152,8 +152,8 @@
 			
 			<!-- Scheduling library -->
 			<dependency>
-				<groupId>org.quartz-scheduler</groupId>
-				<artifactId>quartz</artifactId>
+				<groupId>com.opensymphony.quartz</groupId>
+				<artifactId>com.springsource.org.quartz</artifactId>
 				<version>${quartz.version}</version>
 			</dependency>
 

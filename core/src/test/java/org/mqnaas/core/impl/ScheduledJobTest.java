@@ -10,15 +10,12 @@ import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.ServiceExecution;
 import org.powermock.api.mockito.PowerMockito;
-import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
-import org.quartz.impl.JobExecutionContextImpl;
-import org.quartz.spi.OperableTrigger;
 import org.quartz.spi.TriggerFiredBundle;
 
 /**
@@ -124,12 +121,14 @@ public class ScheduledJobTest {
 		jobDataMap.put(ScheduledJob.EXECUTION_SERVICE_KEY, executionService);
 		jobDataMap.put(ScheduledJob.SERVICE_EXECUTION_KEY, serviceExecution);
 
-		JobDetail jobDetail = JobBuilder.newJob(ScheduledJob.class).usingJobData(jobDataMap).build();
-		Trigger trigger = TriggerBuilder.newTrigger().forJob(jobDetail).build();
+		JobDetail jobDetail = new JobDetail();
+		jobDetail.setJobDataMap(jobDataMap);
 
-		TriggerFiredBundle triggerBundle = new TriggerFiredBundle(jobDetail, (OperableTrigger) trigger, null, false, null, null, null, null);
+		Trigger trigger = new SimpleTrigger();
 
-		return new JobExecutionContextImpl(null, triggerBundle, scheduledJob);
+		TriggerFiredBundle triggerBundle = new TriggerFiredBundle(jobDetail, trigger, null, false, null, null, null, null);
+
+		return new JobExecutionContext(null, triggerBundle, scheduledJob);
 
 	}
 

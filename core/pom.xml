@@ -51,8 +51,8 @@
 		</dependency>
 		<!-- Scheduling mechanism -->
 		<dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
+			<groupId>com.opensymphony.quartz</groupId>
+			<artifactId>com.springsource.org.quartz</artifactId>
 		</dependency>
 		<!-- Testing -->
 		<dependency>

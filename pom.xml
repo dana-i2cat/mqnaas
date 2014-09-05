@@ -54,6 +54,9 @@
 		<!-- Apache Commons Collections 4 version -->
 		<commons-collections4-version>4.0</commons-collections4-version>
 
+		<!-- Apache Commons Collections version -->
+		<commons-collections.version>3.2.1</commons-collections.version>
+
 		<!-- javax.ws.rs API (REST) version -->
 		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
 
@@ -74,7 +77,7 @@
 
 		<!-- PowerMock version -->
 		<powermock.version>1.5.5</powermock.version>
-		
+
 		<!-- Quartz Scheduler version -->
 		<quartz.version>1.6.2</quartz.version>
 
@@ -149,7 +152,7 @@
 				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
 				<version>${javax.inject-version}</version>
 			</dependency>
-			
+
 			<!-- Scheduling library -->
 			<dependency>
 				<groupId>com.opensymphony.quartz</groupId>
@@ -214,7 +217,14 @@
 				<version>${powermock.version}</version>
 				<scope>test</scope>
 			</dependency>
-			
+
+			<!-- Runtime dependencies -->
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>${commons-collections.version}</version>
+				<scope>runtime</scope>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

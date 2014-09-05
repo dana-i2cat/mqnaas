@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceExecutionCallback;
 import org.mqnaas.core.api.IServiceExecutionScheduler;
 import org.mqnaas.core.api.ServiceExecution;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -45,14 +46,29 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 	private IExecutionService				executionService;
 
 	private Scheduler						quartzScheduler;
-
 	private Map<ServiceExecution, JobKey>	scheduledJobs;
+	private IServiceExecutionCallback		serviceExecutionCallback;
+
+	class ServiceExecutionCallback implements IServiceExecutionCallback {
+
+		/**
+		 * Checks the instance type of the {@link ServiceExecution#getTrigger() trigger} and decides if the <code>serviceExecution</code> should be
+		 * removed from the <code>schedyledJobs</code> map or not.
+		 */
+		@Override
+		public void serviceExecutionFinished(ServiceExecution serviceExecution) {
+			if (serviceExecution.getTrigger() instanceof BasicTrigger)
+				scheduledJobs.remove(serviceExecution);
+		}
+
+	}
 
 	@Override
 	public void activate() {
 		// FIXME activate() method should launch an exception when there's an error activating the application
 
 		scheduledJobs = new HashMap<ServiceExecution, JobKey>();
+		serviceExecutionCallback = new ServiceExecutionCallback();
 
 		try {
 			quartzScheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -93,7 +109,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 		try {
 			JobDetail jobDetail = SchedulerUtils.createServiceExecutionSchedulerJobDetail(serviceExecution);
 			jobDetail.getJobDataMap().put(ScheduledJob.EXECUTION_SERVICE_KEY, executionService);
-
+			jobDetail.getJobDataMap().put(ScheduledJob.SERVICE_EXECUTION_CALLBACK_KEY, serviceExecutionCallback);
 			Trigger trigger = SchedulerUtils.createServiceExecutionSchedulerInternalTrigger(jobDetail);
 			quartzScheduler.scheduleJob(jobDetail, trigger);
 
@@ -116,6 +132,8 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 		try {
 			JobKey jobKey = scheduledJobs.get(serviceExecution);
 			quartzScheduler.deleteJob(jobKey);
+
+			scheduledJobs.remove(serviceExecution);
 
 		} catch (SchedulerException e) {
 			log.error("Could not cancel scheduled service execution: ", e);

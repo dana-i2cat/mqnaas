@@ -31,6 +31,9 @@
 		<!-- dependencies features -->		
 		<feature version="${project.version}">mqnaas-core-api</feature>		
 		
+		<!-- runtime dependencies -->
+		<bundle dependency="true">mvn:${project.groupId}/clientprovider-api/${project.version}</bundle>
+		
 		<bundle>mvn:${project.groupId}/clientprovider/${project.version}</bundle>
 	</feature>
 

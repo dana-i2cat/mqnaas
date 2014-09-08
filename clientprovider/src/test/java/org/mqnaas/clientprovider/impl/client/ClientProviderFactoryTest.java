@@ -1,12 +1,9 @@
 package org.mqnaas.clientprovider.impl.client;
 
-import java.util.Arrays;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
-import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.test.helpers.ReflectionTestHelper;
@@ -32,7 +29,7 @@ public class ClientProviderFactoryTest {
 	public void testClientProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, Arrays.asList(new Endpoint()));
+		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();

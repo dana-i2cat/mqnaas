@@ -12,6 +12,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.impl.dependencies.ApplicationInstanceLifeCycleState;
+import org.mqnaas.core.impl.utils.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -294,32 +295,33 @@ public class ApplicationInstance {
 
 			super();
 
-			for (Field field : clazz.getDeclaredFields()) {
-				if (field.isAnnotationPresent(DependingOn.class)) {
+			for (Field field : ReflectionUtils.getAnnotationFields(clazz, DependingOn.class)) {
 
-					if (!(IApplication.class.isAssignableFrom(field.getType()))) {
-						throw new IllegalArgumentException(
-								"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
-										" and can therefore not be used as a dependency.");
-					}
-
-					// The following cast is safe, because it was explicitly checked above
-					@SuppressWarnings("unchecked")
-					Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
-
-					add(new Dependency(field, type, instance));
+				if (!(IApplication.class.isAssignableFrom(field.getType()))) {
+					throw new IllegalArgumentException(
+							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
+									" and can therefore not be used as a dependency.");
 				}
+
+				// The following cast is safe, because it was explicitly checked above
+				@SuppressWarnings("unchecked")
+				Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
+
+				add(new Dependency(field, type, instance));
 			}
 
-			// add executionService dependency
-			try {
-				add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class, ApplicationInstance.this));
-			} catch (SecurityException e) {
-				// This exception should never happen (a class should has access to its declared private fields)
-				log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
-			} catch (NoSuchFieldException e) {
-				// This exception should never happen (unless a programmer removes/renames executionService field)
-				log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+			if (!IExecutionService.class.isAssignableFrom(clazz)) {
+				// add executionService dependency
+				try {
+					add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class,
+							ApplicationInstance.this));
+				} catch (SecurityException e) {
+					// This exception should never happen (a class should has access to its declared private fields)
+					log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+				} catch (NoSuchFieldException e) {
+					// This exception should never happen (unless a programmer removes/renames executionService field)
+					log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
+				}
 			}
 
 		}
@@ -507,6 +509,17 @@ public class ApplicationInstance {
 
 		public boolean isResolved() {
 			return getResolvedWith() != null;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Dependency [");
+			sb.append("type=").append(fieldType);
+			sb.append(", name=").append(field.getName());
+			sb.append(", instance=").append(instance.getClass().getName());
+			sb.append("]");
+			return sb.toString();
 		}
 
 	}

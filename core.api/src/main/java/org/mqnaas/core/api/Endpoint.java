@@ -7,6 +7,21 @@ public class Endpoint {
 	private URI	uri;
 
 	/**
+	 * Creates an empty Endpoint.
+	 */
+	public Endpoint() {
+	}
+
+	/**
+	 * Creates an Endpoint with given {@link URI}.
+	 * 
+	 * @param uri
+	 */
+	public Endpoint(URI uri) {
+		this.uri = uri;
+	}
+
+	/**
 	 * @return the uri
 	 */
 	public URI getUri() {

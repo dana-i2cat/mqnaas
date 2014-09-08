@@ -23,6 +23,12 @@ import org.slf4j.LoggerFactory;
  */
 public class InternalCXFClientProvider<CC extends CXFConfiguration> implements IInternalAPIProvider<CC> {
 
+	@Override
+	public String[] getProtocols() {
+		// HTTP and secured HTTP endpoints
+		return new String[] { "http", "https" };
+	}
+
 	private static final Logger	log	= LoggerFactory.getLogger(InternalCXFClientProvider.class);
 
 	@Override

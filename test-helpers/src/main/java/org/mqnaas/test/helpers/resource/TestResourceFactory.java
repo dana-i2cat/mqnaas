@@ -1,5 +1,8 @@
 package org.mqnaas.test.helpers.resource;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Collection;
 
 import org.mqnaas.core.api.Endpoint;
@@ -52,5 +55,19 @@ public class TestResourceFactory {
 				return endpoints;
 			}
 		};
+	}
+
+	/**
+	 * Generates a {@link Collection} of {@link Endpoint}'s with a single element with a fake {@link URI}.
+	 * 
+	 * @return a fake collection of endpoints with a single fake element
+	 */
+	public static Collection<Endpoint> createFakeEndpoints() {
+		try {
+			return Arrays.asList(new Endpoint(new URI("protocol://server:port/path")));
+		} catch (URISyntaxException e) {
+			// this must not happen
+			return null;
+		}
 	}
 }

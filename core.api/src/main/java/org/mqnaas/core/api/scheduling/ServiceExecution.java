@@ -1,6 +1,8 @@
-package org.mqnaas.core.api;
+package org.mqnaas.core.api.scheduling;
 
 import java.util.Arrays;
+
+import org.mqnaas.core.api.IService;
 
 /**
  * <p>

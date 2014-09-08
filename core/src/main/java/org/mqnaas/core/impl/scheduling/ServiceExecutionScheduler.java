@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.scheduling;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,11 +6,10 @@ import java.util.Set;
 
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
-import org.mqnaas.core.api.IServiceExecutionCallback;
-import org.mqnaas.core.api.IServiceExecutionScheduler;
-import org.mqnaas.core.api.ServiceExecution;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
+import org.mqnaas.core.api.scheduling.IServiceExecutionScheduler;
+import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.impl.utils.SchedulerUtils;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;

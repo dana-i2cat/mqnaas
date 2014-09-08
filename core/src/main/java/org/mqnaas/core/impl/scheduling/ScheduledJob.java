@@ -1,9 +1,8 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.scheduling;
 
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
-import org.mqnaas.core.api.IServiceExecutionCallback;
-import org.mqnaas.core.api.ServiceExecution;
+import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;

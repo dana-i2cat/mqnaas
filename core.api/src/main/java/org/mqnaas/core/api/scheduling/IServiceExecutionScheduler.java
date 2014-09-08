@@ -1,7 +1,9 @@
-package org.mqnaas.core.api;
+package org.mqnaas.core.api.scheduling;
 
 import java.util.Set;
 
+import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 
 /**

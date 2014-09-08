@@ -1,8 +1,8 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.scheduling;
 
 import java.util.Date;
 
-import org.mqnaas.core.api.Trigger;
+import org.mqnaas.core.api.scheduling.Trigger;
 
 /**
  * <p>

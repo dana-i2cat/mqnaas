@@ -1,4 +1,6 @@
-package org.mqnaas.core.api;
+package org.mqnaas.core.impl.scheduling;
+
+import org.mqnaas.core.api.scheduling.ServiceExecution;
 
 /**
  * <p>

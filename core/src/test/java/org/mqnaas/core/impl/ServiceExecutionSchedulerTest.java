@@ -9,9 +9,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
-import org.mqnaas.core.api.ServiceExecution;
-import org.mqnaas.core.api.Trigger;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
+import org.mqnaas.core.api.scheduling.ServiceExecution;
+import org.mqnaas.core.api.scheduling.Trigger;
+import org.mqnaas.core.impl.scheduling.BasicTrigger;
+import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
 import org.mqnaas.test.helpers.ReflectionTestHelper;
 import org.powermock.api.mockito.PowerMockito;
 

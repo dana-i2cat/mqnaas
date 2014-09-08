@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import org.mqnaas.core.api.ServiceExecution;
-import org.mqnaas.core.impl.BasicTrigger;
-import org.mqnaas.core.impl.ScheduledJob;
-import org.mqnaas.core.impl.ServiceExecutionScheduler;
+import org.mqnaas.core.api.scheduling.ServiceExecution;
+import org.mqnaas.core.impl.scheduling.BasicTrigger;
+import org.mqnaas.core.impl.scheduling.ScheduledJob;
+import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.SimpleTrigger;

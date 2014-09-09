@@ -94,13 +94,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 	public void schedule(ServiceExecution serviceExecution) throws ServiceExecutionSchedulerException {
 
 		if (serviceExecution == null)
-			throw new ServiceExecutionSchedulerException("Could not schedule service execution: ServiceExecution is null");
-
-		if (serviceExecution.getService() == null)
-			throw new ServiceExecutionSchedulerException("Could not schedule service execution: No IService defined in ServiceExecution");
-
-		if (serviceExecution.getTrigger() == null)
-			throw new ServiceExecutionSchedulerException("Could not schedule service execution: No Trigger defined in ServiceExecution");
+			throw new IllegalArgumentException("Could not schedule service execution: ServiceExecution is null");
 
 		log.debug("Scheduling new Service Execution for service [" + serviceExecution.getService().getClass().getName() + "]");
 

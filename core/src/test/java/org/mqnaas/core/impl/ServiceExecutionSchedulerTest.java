@@ -51,7 +51,7 @@ public class ServiceExecutionSchedulerTest {
 		parameters[0] = new String("param00");
 		parameters[1] = new String("param01");
 
-		serviceExecution = new ServiceExecution();
+		serviceExecution = new ServiceExecution(service, trigger);
 		serviceExecution.setService(service);
 		serviceExecution.setTrigger(trigger);
 		serviceExecution.setParameters(parameters);
@@ -115,36 +115,11 @@ public class ServiceExecutionSchedulerTest {
 	 * 
 	 * @throws ServiceExecutionSchedulerException
 	 */
-	@Test(expected = ServiceExecutionSchedulerException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void nullServiceExecutionTest() throws ServiceExecutionSchedulerException {
 
 		scheduler.schedule(null);
 
 	}
 
-	/**
-	 * Test checks that the {@link ServiceExecutionScheduler} fails when there's no provided {@link Trigger}
-	 * 
-	 * @throws ServiceExecutionSchedulerException
-	 */
-	@Test(expected = ServiceExecutionSchedulerException.class)
-	public void noTriggerExecutionTest() throws ServiceExecutionSchedulerException {
-
-		serviceExecution.setTrigger(null);
-		scheduler.schedule(serviceExecution);
-
-	}
-
-	/**
-	 * Test checks that the {@link ServiceExecutionScheduler} fails when there's no provided {@link IService}
-	 * 
-	 * @throws ServiceExecutionSchedulerException
-	 */
-	@Test(expected = ServiceExecutionSchedulerException.class)
-	public void noServiceExecutionTest() throws ServiceExecutionSchedulerException {
-
-		serviceExecution.setService(null);
-		scheduler.schedule(serviceExecution);
-
-	}
 }

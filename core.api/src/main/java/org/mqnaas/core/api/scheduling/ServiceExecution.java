@@ -22,11 +22,22 @@ public class ServiceExecution {
 	private Object[]	parameters;
 	private Trigger		trigger;
 
+	public ServiceExecution(IService service, Trigger trigger) {
+		if (service == null || trigger == null)
+			throw new IllegalArgumentException("Service and trigger should not be null");
+
+		this.service = service;
+		this.trigger = trigger;
+	}
+
 	public IService getService() {
 		return service;
 	}
 
 	public void setService(IService service) {
+		if (service == null)
+			throw new IllegalArgumentException("Service should not be null");
+
 		this.service = service;
 	}
 
@@ -43,6 +54,8 @@ public class ServiceExecution {
 	}
 
 	public void setTrigger(Trigger trigger) {
+		if (trigger == null)
+			throw new IllegalArgumentException("Trigger should not be null");
 		this.trigger = trigger;
 	}
 

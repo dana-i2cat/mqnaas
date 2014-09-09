@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
+import org.mqnaas.core.api.scheduling.Trigger;
+import org.mqnaas.core.impl.scheduling.BasicTrigger;
 import org.mqnaas.core.impl.scheduling.ScheduledJob;
 import org.powermock.api.mockito.PowerMockito;
 import org.quartz.JobDataMap;
@@ -16,7 +18,6 @@ import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SimpleTrigger;
-import org.quartz.Trigger;
 import org.quartz.spi.TriggerFiredBundle;
 
 /**
@@ -30,6 +31,7 @@ public class ScheduledJobTest {
 	IExecutionService	executionService;
 	ServiceExecution	serviceExecution;
 	IService			sampleService;
+	Trigger				trigger;
 
 	@Before
 	public void prepareTest() {
@@ -37,9 +39,9 @@ public class ScheduledJobTest {
 		executionService = PowerMockito.mock(IExecutionService.class);
 		scheduledJob = new ScheduledJob();
 		sampleService = new SampleService();
+		trigger = new BasicTrigger();
 
-		serviceExecution = new ServiceExecution();
-		serviceExecution.setService(sampleService);
+		serviceExecution = new ServiceExecution(sampleService, trigger);
 
 	}
 
@@ -105,12 +107,12 @@ public class ScheduledJobTest {
 	 * 
 	 * @throws JobExecutionException
 	 */
-	@Test(expected = JobExecutionException.class)
+	@Test(expected = IllegalArgumentException.class)
 	public void noServiceTest() throws JobExecutionException {
 
 		JobExecutionContext context = generateExecutionContext();
 		context.getJobDetail().getJobDataMap().remove(ServiceExecution.class.getName());
-		context.getJobDetail().getJobDataMap().put(ServiceExecution.class.getName(), new ServiceExecution());
+		context.getJobDetail().getJobDataMap().put(ServiceExecution.class.getName(), new ServiceExecution(null, trigger));
 		scheduledJob.execute(context);
 
 	}
@@ -125,9 +127,9 @@ public class ScheduledJobTest {
 		JobDetail jobDetail = new JobDetail();
 		jobDetail.setJobDataMap(jobDataMap);
 
-		Trigger trigger = new SimpleTrigger();
+		org.quartz.Trigger quartzTrigger = new SimpleTrigger();
 
-		TriggerFiredBundle triggerBundle = new TriggerFiredBundle(jobDetail, trigger, null, false, null, null, null, null);
+		TriggerFiredBundle triggerBundle = new TriggerFiredBundle(jobDetail, quartzTrigger, null, false, null, null, null, null);
 
 		return new JobExecutionContext(null, triggerBundle, scheduledJob);
 

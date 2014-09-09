@@ -78,7 +78,7 @@ public class ScheduledJobTest {
 	public void noExecutionServiceTest() throws JobExecutionException {
 
 		JobExecutionContext context = generateExecutionContext();
-		context.getJobDetail().getJobDataMap().remove(ScheduledJob.EXECUTION_SERVICE_KEY);
+		context.getJobDetail().getJobDataMap().remove(IExecutionService.class.getName());
 
 		scheduledJob.execute(context);
 
@@ -93,7 +93,7 @@ public class ScheduledJobTest {
 	public void noServiceExecutionTest() throws JobExecutionException {
 
 		JobExecutionContext context = generateExecutionContext();
-		context.getJobDetail().getJobDataMap().remove(ScheduledJob.SERVICE_EXECUTION_KEY);
+		context.getJobDetail().getJobDataMap().remove(ServiceExecution.class.getName());
 
 		scheduledJob.execute(context);
 
@@ -109,8 +109,8 @@ public class ScheduledJobTest {
 	public void noServiceTest() throws JobExecutionException {
 
 		JobExecutionContext context = generateExecutionContext();
-		context.getJobDetail().getJobDataMap().remove(ScheduledJob.SERVICE_EXECUTION_KEY);
-		context.getJobDetail().getJobDataMap().put(ScheduledJob.SERVICE_EXECUTION_KEY, new ServiceExecution());
+		context.getJobDetail().getJobDataMap().remove(ServiceExecution.class.getName());
+		context.getJobDetail().getJobDataMap().put(ServiceExecution.class.getName(), new ServiceExecution());
 		scheduledJob.execute(context);
 
 	}
@@ -119,8 +119,8 @@ public class ScheduledJobTest {
 
 		Map<String, Object> map = new HashMap<String, Object>();
 		JobDataMap jobDataMap = new JobDataMap(map);
-		jobDataMap.put(ScheduledJob.EXECUTION_SERVICE_KEY, executionService);
-		jobDataMap.put(ScheduledJob.SERVICE_EXECUTION_KEY, serviceExecution);
+		jobDataMap.put(IExecutionService.class.getName(), executionService);
+		jobDataMap.put(ServiceExecution.class.getName(), serviceExecution);
 
 		JobDetail jobDetail = new JobDetail();
 		jobDetail.setJobDataMap(jobDataMap);

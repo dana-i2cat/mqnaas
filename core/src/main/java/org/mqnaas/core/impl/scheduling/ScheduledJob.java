@@ -38,9 +38,9 @@ public class ScheduledJob implements Job {
 		JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
 
 		// The execution service can not be injected by constructor since it's not supported by the Quartz job factories.
-		IExecutionService executionService = (IExecutionService) jobDataMap.get(EXECUTION_SERVICE_KEY);
-		ServiceExecution serviceExecution = (ServiceExecution) jobDataMap.get(SERVICE_EXECUTION_KEY);
-		IServiceExecutionCallback serviceExecutionCallback = (IServiceExecutionCallback) jobDataMap.get(SERVICE_EXECUTION_CALLBACK_KEY);
+		IExecutionService executionService = (IExecutionService) jobDataMap.get(IExecutionService.class.getName());
+		ServiceExecution serviceExecution = (ServiceExecution) jobDataMap.get(ServiceExecution.class.getName());
+		IServiceExecutionCallback serviceExecutionCallback = (IServiceExecutionCallback) jobDataMap.get(IServiceExecutionCallback.class.getName());
 
 		Key jobKey = context.getJobDetail().getKey();
 

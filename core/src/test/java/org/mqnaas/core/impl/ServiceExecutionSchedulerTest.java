@@ -79,7 +79,7 @@ public class ServiceExecutionSchedulerTest {
 
 		Assert.assertTrue(1 == scheduler.getScheduledServiceExecutions().size());
 
-		Thread.sleep(700);
+		Thread.sleep(1000);
 
 		Assert.assertTrue(scheduler.getScheduledServiceExecutions().isEmpty());
 

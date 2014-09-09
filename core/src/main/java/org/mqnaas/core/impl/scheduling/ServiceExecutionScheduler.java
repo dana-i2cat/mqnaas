@@ -10,7 +10,6 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.IServiceExecutionScheduler;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
-import org.mqnaas.core.impl.utils.SchedulerUtils;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -106,10 +105,12 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 		log.debug("Scheduling new Service Execution for service [" + serviceExecution.getService().getClass().getName() + "]");
 
 		try {
-			JobDetail jobDetail = SchedulerUtils.createServiceExecutionSchedulerJobDetail(serviceExecution);
-			jobDetail.getJobDataMap().put(ScheduledJob.EXECUTION_SERVICE_KEY, executionService);
-			jobDetail.getJobDataMap().put(ScheduledJob.SERVICE_EXECUTION_CALLBACK_KEY, serviceExecutionCallback);
-			Trigger trigger = SchedulerUtils.createServiceExecutionSchedulerInternalTrigger(jobDetail);
+
+			JobDetail jobDetail = new JobDetailBuilder().withExecutionService(executionService).withServiceExecution(serviceExecution)
+					.withServiceExecutionCallback(serviceExecutionCallback).build();
+
+			Trigger trigger = new TriggerBuilder().usingTrigger(serviceExecution.getTrigger()).build();
+
 			quartzScheduler.scheduleJob(jobDetail, trigger);
 
 			scheduledJobs.put(serviceExecution, jobDetail.getKey());

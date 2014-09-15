@@ -9,6 +9,7 @@ import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.client.IClientProvider;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.slf4j.Logger;
@@ -31,13 +32,13 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 	}
 
 	@Override
-	public <T, CC, C extends IClientProvider<T, CC>> C getClientProvider(Class<C> clientProviderClass) {
+	public <T, CC, C extends IClientProvider<T, CC>> C getClientProvider(Class<C> clientProviderClass) throws ProviderNotFoundException {
 		return getClientProvider(clientProviderClass, null);
 	}
 
 	@Override
 	public <T, CC, C extends IClientProvider<T, CC>> C getClientProvider(Class<C> clientProviderClass,
-			IEndpointSelectionStrategy endpointSelectionStrategy) {
+			IEndpointSelectionStrategy endpointSelectionStrategy) throws ProviderNotFoundException {
 		log.info("ClientProvider request received for class: " + clientProviderClass.getCanonicalName());
 
 		// Match against list of providers...
@@ -59,14 +60,12 @@ public class ClientProviderFactory extends AbstractProviderFactory<IInternalClie
 								endpointSelectionStrategy));
 
 				log.debug("Providing ClientProvider.");
-
 				return c;
 			}
 		}
 
-		log.debug("Not able to provide ClientProvider!");
-
-		return null;
+		log.warn("Not able to provide ClientProvider for class: " + clientProviderClass);
+		throw new ProviderNotFoundException("Not able to find a valid client provider for class " + clientProviderClass
+				+ ", Endpoint selection strategy " + endpointSelectionStrategy + " and internal providers " + internalClientProviders);
 	}
-
 }

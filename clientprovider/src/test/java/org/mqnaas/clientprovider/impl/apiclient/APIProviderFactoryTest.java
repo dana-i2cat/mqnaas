@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
@@ -32,7 +33,7 @@ public class APIProviderFactoryTest {
 
 	@Test
 	public void testAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-			EndpointNotFoundException {
+			EndpointNotFoundException, ProviderNotFoundException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());
@@ -57,7 +58,7 @@ public class APIProviderFactoryTest {
 
 	@Test(expected = EndpointNotFoundException.class)
 	public void testFailureAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-			EndpointNotFoundException {
+			EndpointNotFoundException, ProviderNotFoundException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());

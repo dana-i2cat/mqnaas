@@ -3,6 +3,7 @@ package org.mqnaas.clientprovider.impl.client;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.bundletree.IBundleGuard;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
@@ -26,7 +27,8 @@ import org.mqnaas.test.helpers.resource.TestResourceFactory;
 public class ClientProviderFactoryTest {
 
 	@Test
-	public void testClientProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+	public void testClientProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
+			ProviderNotFoundException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());

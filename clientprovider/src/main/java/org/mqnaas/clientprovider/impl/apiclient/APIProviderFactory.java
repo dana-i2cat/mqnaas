@@ -9,6 +9,7 @@ import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.slf4j.Logger;
@@ -31,12 +32,13 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 	}
 
 	@Override
-	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) {
+	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) throws ProviderNotFoundException {
 		return getAPIProvider(apiProviderClass, null);
 	}
 
 	@Override
-	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass, IEndpointSelectionStrategy endpointSelectionStrategy) {
+	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass, IEndpointSelectionStrategy endpointSelectionStrategy)
+			throws ProviderNotFoundException {
 		log.info("ClientProvider request received for class: " + apiProviderClass.getCanonicalName());
 
 		// Match against list of providers...
@@ -56,14 +58,13 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 						new APIProviderAdapter<CC>((IInternalAPIProvider<CC>) internalAPIProvider, coreModelCapability, endpointSelectionStrategy));
 
 				log.debug("Providing ClientProvider.");
-
 				return c;
 			}
 		}
 
-		log.debug("Not able to provide ClientProvider!");
-
-		return null;
+		log.warn("Not able to provide APIProvider for class: " + apiProviderClass);
+		throw new ProviderNotFoundException("Not able to find a valid API provider for class " + apiProviderClass
+				+ ", Endpoint selection strategy " + endpointSelectionStrategy + " and internal providers " + internalClientProviders);
 	}
 
 }

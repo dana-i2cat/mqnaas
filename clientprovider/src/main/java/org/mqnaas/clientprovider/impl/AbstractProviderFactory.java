@@ -2,6 +2,7 @@ package org.mqnaas.clientprovider.impl;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,15 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Offers common methods and attributes for implementations of provider factories.
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ * @author Julio Carlos Barrera
+ *
+ * @param <CP>
+ *            Provider of the implementation
+ */
 public abstract class AbstractProviderFactory<CP> implements ICapability {
 
 	private final Logger			log	= LoggerFactory.getLogger(getClass());
@@ -106,7 +116,8 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	}
 
 	/**
-	 * Returns true if given two classes have common types on first generic interface present in given valid types.
+	 * Returns true if given two classes have common types on first generic interface (or successive first super-interfaces) present in given valid
+	 * types.
 	 * 
 	 * @param validTypes
 	 *            valid types to be checked
@@ -123,7 +134,10 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 		}
 
 		for (int i = 0; i < numTypes; i++) {
-			if (!getTypeArgument(validTypes, i, class1).equals(getTypeArgument(validTypes, i, class2))) {
+			Type type1 = getTypeArgument(validTypes, i, class1);
+			Type type2 = getTypeArgument(validTypes, i, class2);
+
+			if (!getTypeArgument(validTypes, i, class1).equals(getTypeArgument(validTypes, i, class2)) && !compareWithBoundedType(type1, type2)) {
 				return false;
 			}
 		}
@@ -132,7 +146,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	}
 
 	/**
-	 * Retrieves index {@link Type} of the first generic interface implemented in given {@link Class} if it is cpresent in given valid types.
+	 * Retrieves index {@link Type} of the first generic interface implemented in given {@link Class} if it is present in given valid types.
 	 * 
 	 * @param validTypes
 	 *            valid Types to be checked
@@ -147,10 +161,18 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 		// Look for the specific generic interfaces...
 		for (Type type : clazz.getGenericInterfaces()) {
 
-			ParameterizedType parameterizedType = (ParameterizedType) type;
+			if (type instanceof ParameterizedType) {
+				ParameterizedType parameterizedType = (ParameterizedType) type;
 
-			if (validTypes.contains(parameterizedType.getRawType())) {
-				return parameterizedType.getActualTypeArguments()[index];
+				if (validTypes.contains(parameterizedType.getRawType())) {
+					return parameterizedType.getActualTypeArguments()[index];
+				}
+			} else {
+				// only analyzing first interface in each iteration
+				Class<?> superClass = clazz.getInterfaces()[0];
+				if (superClass != null) {
+					return getTypeArgument(validTypes, index, superClass);
+				}
 			}
 		}
 
@@ -158,14 +180,66 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	}
 
 	/**
-	 * Retrieves the number of generic types of first interface of given {@link Class}.
+	 * Retrieves the number of generic types of first interface of given {@link Class} or its implemented super-interfaces.
 	 * 
 	 * @param clazz
 	 *            target Class
 	 * @return number of types
 	 */
 	private static int getNumberOfTypes(Class<?> clazz) {
-		return ((ParameterizedType) clazz.getGenericInterfaces()[0]).getActualTypeArguments().length;
+		for (Type interfaze : clazz.getGenericInterfaces()) {
+			if (interfaze instanceof ParameterizedType) {
+				return ((ParameterizedType) interfaze).getActualTypeArguments().length;
+			} else {
+				// only analyzing first interface in each iteration
+				Class<?> superClass = clazz.getInterfaces()[0];
+				if (superClass != null) {
+					return getNumberOfTypes(superClass);
+				}
+			}
+		}
+		return 0;
+	}
+
+	private static boolean compareWithBoundedType(Type type1, Type type2) {
+		if (type1 instanceof TypeVariable<?> && type2 instanceof TypeVariable<?> && ((TypeVariable<?>) type2).equals(type1)) {
+			if (compareBoundedTypes((TypeVariable<?>) type1, (TypeVariable<?>) type2)) {
+				return true;
+			}
+		}
+		else if (type1 instanceof TypeVariable<?>) {
+			if (compareTypeWithBoundedType(type2, (TypeVariable<?>) type1)) {
+				return true;
+			}
+		} else if (type2 instanceof TypeVariable<?>) {
+			if (compareTypeWithBoundedType(type1, (TypeVariable<?>) type2)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static boolean compareTypeWithBoundedType(Type type, TypeVariable<?> boundedType) {
+		for (Type bound : boundedType.getBounds()) {
+			if (bound.equals(type)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static boolean compareBoundedTypes(TypeVariable<?> type1, TypeVariable<?> type2) {
+		for (Type bound1 : type1.getBounds()) {
+			for (Type bound2 : type2.getBounds()) {
+				if (bound1.equals(bound2)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 }

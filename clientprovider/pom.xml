@@ -60,7 +60,9 @@
 				<configuration>
 					<instructions>
 						<Import-Package>*</Import-Package>
-						<Export-Package></Export-Package>
+						<Export-Package>
+							org.mqnaas.client.cxf
+						</Export-Package>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -10,8 +10,8 @@ import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
-import org.mqnaas.core.impl.scheduling.BasicTrigger;
 import org.mqnaas.core.impl.scheduling.ScheduledJob;
+import org.mqnaas.core.impl.scheduling.TriggerFactory;
 import org.powermock.api.mockito.PowerMockito;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
@@ -39,8 +39,7 @@ public class ScheduledJobTest {
 		executionService = PowerMockito.mock(IExecutionService.class);
 		scheduledJob = new ScheduledJob();
 		sampleService = new SampleService();
-		trigger = new BasicTrigger();
-
+		trigger = TriggerFactory.create(null);
 		serviceExecution = new ServiceExecution(sampleService, trigger);
 
 	}

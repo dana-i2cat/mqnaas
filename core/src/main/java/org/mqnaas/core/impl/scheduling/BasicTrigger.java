@@ -19,12 +19,22 @@ public class BasicTrigger implements Trigger, Comparable<BasicTrigger> {
 
 	private Date	startDate;
 
+	public BasicTrigger(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public BasicTrigger(Date startDate, Date endDate) {
+		this.startDate = startDate;
+	}
+
+	@Override
 	public Date getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(Date startDate) {
-		this.startDate = startDate;
+	@Override
+	public Date getEndDate() {
+		return null;
 	}
 
 	@Override
@@ -61,4 +71,5 @@ public class BasicTrigger implements Trigger, Comparable<BasicTrigger> {
 			return false;
 		return true;
 	}
+
 }

@@ -12,8 +12,8 @@ import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
-import org.mqnaas.core.impl.scheduling.BasicTrigger;
 import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
+import org.mqnaas.core.impl.scheduling.TriggerFactory;
 import org.mqnaas.test.helpers.ReflectionTestHelper;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -43,9 +43,8 @@ public class ServiceExecutionSchedulerTest {
 
 		service = new SampleService();
 
-		trigger = new BasicTrigger();
-		// set trigget to current time + 0.5 seconds.
-		((BasicTrigger) trigger).setStartDate(new Date(System.currentTimeMillis() + 500L));
+		// set trigger to current time + 0.5 seconds.
+		trigger = TriggerFactory.create(new Date(System.currentTimeMillis() + 500L));
 
 		parameters = new Object[2];
 		parameters[0] = new String("param00");

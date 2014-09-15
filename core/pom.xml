@@ -79,6 +79,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,
+							org.mqnaas.core.impl.scheduling,
 							org.mqnaas.core.impl.notificationfilter
 						</Export-Package>
 					</instructions>

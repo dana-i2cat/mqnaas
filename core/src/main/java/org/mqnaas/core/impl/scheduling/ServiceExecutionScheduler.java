@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.mqnaas.core.api.IExecutionService;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.IServiceExecutionScheduler;
@@ -59,6 +61,10 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 				scheduledJobs.remove(serviceExecution);
 		}
 
+	}
+
+	public static boolean isSupporting(IRootResource resource) {
+		return resource.getSpecification().getType().equals(Specification.Type.CORE);
 	}
 
 	@Override

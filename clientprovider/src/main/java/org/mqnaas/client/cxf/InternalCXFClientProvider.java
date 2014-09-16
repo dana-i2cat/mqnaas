@@ -72,13 +72,13 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 
 		bean.setResourceClass(apiClass);
 		bean.setClassLoader(classLoader);
-
 		API api = bean.create(apiClass);
 
 		if (configuration != null && !configuration.isCNCheckEnabled()) {
 			TLSClientParameters clientParams = new TLSClientParameters();
 			clientParams.setDisableCNCheck(true);
 			WebClient.getConfig(api).getHttpConduit().setTlsClientParameters(clientParams);
+
 		}
 
 		if (configuration != null && configuration.isUsingAsyncHttpConduit())

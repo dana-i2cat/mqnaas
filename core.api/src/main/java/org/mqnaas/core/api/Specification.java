@@ -34,6 +34,10 @@ public class Specification {
 		 */
 		BoD("BoD"),
 		/**
+		 * An Openflow Switch
+		 */
+		OF_SWITCH("OFSwitch"),
+		/**
 		 * Other devices
 		 */
 		OTHER("Other");

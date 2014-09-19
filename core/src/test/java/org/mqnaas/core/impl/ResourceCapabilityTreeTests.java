@@ -134,12 +134,22 @@ public class ResourceCapabilityTreeTests {
 			public Collection<Endpoint> getEndpoints() {
 				return null;
 			}
+
+			@Override
+			public String getId() {
+				return null;
+			}
 		};
 	}
 
 	private static ResourceNode generateResourceNode() {
 		ResourceNode node = new ResourceNode();
 		node.setContent(new IResource() {
+
+			@Override
+			public String getId() {
+				return null;
+			}
 		});
 		return node;
 	}

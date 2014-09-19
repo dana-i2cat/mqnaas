@@ -21,7 +21,7 @@ import java.util.Collection;
  * implementation should be bound (see {@link IBindingManagement#shouldBeBound(IResource, Class)}.
  * </p>
  */
-public interface IRootResource extends IResource {
+public interface IRootResource extends IResource, Identifiable {
 
 	ITransactionBehavior getTransactionBehaviour();
 

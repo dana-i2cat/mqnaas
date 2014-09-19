@@ -18,9 +18,17 @@ public class RootResource implements IRootResource {
 
 	private Collection<Endpoint>	endpoints;
 
-	protected RootResource(Specification specification, Collection<Endpoint> endpoints) {
+	private String					id;
+
+	@Override
+	public String getId() {
+		return id;
+	}
+
+	protected RootResource(Specification specification, Collection<Endpoint> endpoints, String id) {
 		this.specification = specification;
 		this.endpoints = endpoints;
+		this.id = id;
 	}
 
 	@Override

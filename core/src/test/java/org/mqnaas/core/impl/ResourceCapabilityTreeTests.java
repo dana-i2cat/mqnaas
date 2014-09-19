@@ -134,6 +134,11 @@ public class ResourceCapabilityTreeTests {
 			public Collection<Endpoint> getEndpoints() {
 				return null;
 			}
+
+			@Override
+			public String getId() {
+				return null;
+			}
 		};
 	}
 

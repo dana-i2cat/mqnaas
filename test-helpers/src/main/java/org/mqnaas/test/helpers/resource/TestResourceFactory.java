@@ -31,7 +31,7 @@ public class TestResourceFactory {
 	 * @return generated resource
 	 */
 	public static IRootResource createIRootResource(final ITransactionBehavior transactionBehavior, final Specification specification,
-			final ILockingBehaviour lockingBehaviour, final Collection<Endpoint> endpoints) {
+			final ILockingBehaviour lockingBehaviour, final Collection<Endpoint> endpoints, final String id) {
 
 		return new IRootResource() {
 
@@ -53,6 +53,11 @@ public class TestResourceFactory {
 			@Override
 			public Collection<Endpoint> getEndpoints() {
 				return endpoints;
+			}
+
+			@Override
+			public String getId() {
+				return id;
 			}
 		};
 	}

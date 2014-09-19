@@ -31,7 +31,7 @@ public class ClientProviderFactoryTest {
 			ProviderNotFoundException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints());
+		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null);
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();

@@ -9,4 +9,9 @@ import org.mqnaas.core.api.IResource;
  */
 public class SampleResource implements IResource {
 
+	@Override
+	public String getId() {
+		return null;
+	}
+
 }

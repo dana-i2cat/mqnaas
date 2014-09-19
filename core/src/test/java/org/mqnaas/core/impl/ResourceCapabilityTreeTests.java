@@ -145,6 +145,11 @@ public class ResourceCapabilityTreeTests {
 	private static ResourceNode generateResourceNode() {
 		ResourceNode node = new ResourceNode();
 		node.setContent(new IResource() {
+
+			@Override
+			public String getId() {
+				return null;
+			}
 		});
 		return node;
 	}

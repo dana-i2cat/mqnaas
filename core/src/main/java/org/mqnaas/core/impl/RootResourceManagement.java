@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
@@ -58,6 +59,16 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
+	public IRootResource getRootResource(String id) throws ResourceNotFoundException {
+		for (IRootResource resource : resources) {
+			if (StringUtils.equals(id, resource.getId()))
+				return resource;
+		}
+
+		throw new ResourceNotFoundException("No resource found with this id: " + id);
+	}
+
+	@Override
 	public void activate() {
 		// TODO Auto-generated method stub
 
@@ -68,4 +79,5 @@ public class RootResourceManagement implements IRootResourceManagement {
 		// TODO Auto-generated method stub
 
 	}
+
 }

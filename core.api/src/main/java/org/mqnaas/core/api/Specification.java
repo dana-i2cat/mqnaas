@@ -40,7 +40,6 @@ public class Specification {
 		/**
 		 * Other devices
 		 */
-
 		OTHER("Other");
 
 		private String	name;

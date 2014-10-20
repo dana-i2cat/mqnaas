@@ -1,5 +1,6 @@
 package org.mqnaas.api.translators;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,29 +17,31 @@ import org.mqnaas.core.api.IResource;
  */
 public class Translators {
 
-	private Map<Pair<Class<?>, Class<?>>, Translator>	translators	= new HashMap<Pair<Class<?>, Class<?>>, Translator>();
+	private Map<Pair<Class<?>, Class<?>>, Translator>	resultTranslators		= new HashMap<Pair<Class<?>, Class<?>>, Translator>();
+	private Map<Pair<Class<?>, Class<?>>, Translator>	parameterTranslators	= new HashMap<Pair<Class<?>, Class<?>>, Translator>();
 
 	private ResourceTranslator							resourceTranslator;
 
 	public Translators() {
-		// Configure default translators...
-		// A generic translator that can be used to translate IIdentifiables to Strings
-		translators.put(new ImmutablePair<Class<?>, Class<?>>(IIdentifiable.class, String.class), new Identifiable2IdTranslator());
-		translators.put(new ImmutablePair<Class<?>, Class<?>>(String.class, IResource.class), resourceTranslator = new ResourceTranslator());
+		// Define default translators...
+		resultTranslators.put(new ImmutablePair<Class<?>, Class<?>>(IIdentifiable.class, String.class), new Identifiable2IdTranslator());
+
+		parameterTranslators.put(new ImmutablePair<Class<?>, Class<?>>(String.class, IResource.class), resourceTranslator = new ResourceTranslator());
+		parameterTranslators.put(new ImmutablePair<Class<?>, Class<?>>(String.class, Class.class), new ClassTranslator());
 	}
 
-	public Translator getTranslator(Class<?> inputClass, Class<?> outputClass) {
+	public Translator getResultTranslator(Class<?> inputClass, Class<?> outputClass) {
 
 		Translator translator = null;
 
 		if (!inputClass.isAssignableFrom(outputClass)) {
-			for (Pair<Class<?>, Class<?>> transition : translators.keySet()) {
+			for (Pair<Class<?>, Class<?>> transition : resultTranslators.keySet()) {
 
 				Class<?> left = transition.getLeft();
 				Class<?> right = transition.getRight();
 
 				if (left.isAssignableFrom(inputClass) && outputClass.isAssignableFrom(right)) {
-					translator = translators.get(transition);
+					translator = resultTranslators.get(transition);
 					break;
 				}
 			}
@@ -47,9 +50,29 @@ public class Translators {
 		return translator;
 	}
 
-	public Class<?> getTranslation(Class<?> clazz) {
+	public Translator getParameterTranslator(Class<?> inputClass, Class<?> outputClass) {
 
-		for (Pair<Class<?>, Class<?>> translation : translators.keySet()) {
+		Translator translator = null;
+
+		if (!inputClass.isAssignableFrom(outputClass)) {
+			for (Pair<Class<?>, Class<?>> transition : parameterTranslators.keySet()) {
+
+				Class<?> left = transition.getLeft();
+				Class<?> right = transition.getRight();
+
+				if (right.isAssignableFrom(outputClass) && inputClass.isAssignableFrom(left)) {
+					translator = parameterTranslators.get(transition);
+					break;
+				}
+			}
+		}
+
+		return translator;
+	}
+
+	public Class<?> getResultTranslation(Class<?> clazz) {
+
+		for (Pair<Class<?>, Class<?>> translation : resultTranslators.keySet()) {
 
 			Class<?> left = translation.getLeft();
 			Class<?> right = translation.getRight();
@@ -60,6 +83,27 @@ public class Translators {
 		}
 
 		return clazz;
+	}
+
+	public Class<?> getParameterTranslation(Class<?> clazz) {
+
+		boolean isArray = clazz.isArray();
+		if (isArray) {
+			clazz = clazz.getComponentType();
+		}
+
+		for (Pair<Class<?>, Class<?>> translation : parameterTranslators.keySet()) {
+
+			Class<?> left = translation.getLeft();
+			Class<?> right = translation.getRight();
+
+			if (right.isAssignableFrom(clazz)) {
+				clazz = left;
+				break;
+			}
+		}
+
+		return isArray ? Array.newInstance(clazz, 0).getClass() : clazz;
 	}
 
 	public void addResourceResolver(ResourceResolver resourceResolver) {

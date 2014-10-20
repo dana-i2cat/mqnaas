@@ -47,6 +47,11 @@ public class ResourceTranslator implements Translator {
 		resourceManager.remove(resourceResolver);
 	}
 
+	@Override
+	public String toString() {
+		return "Simple ID to Resource translator";
+	}
+
 	/*
 	 * Internal class of the ResourceTranslator. Responsible for returning list of {@link IResource}s a specific management instance handles.
 	 */

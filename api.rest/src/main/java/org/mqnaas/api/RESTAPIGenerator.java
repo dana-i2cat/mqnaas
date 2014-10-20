@@ -81,18 +81,18 @@ public class RESTAPIGenerator {
 				Class<?>[] parameterTypesJava = methodJava.getParameterTypes();
 
 				if (parameterTypesREST.length != parameterTypesJava.length) {
-					throw new RuntimeException("Can this happen?. Assure that it can't when translating the methods");
+					throw new RuntimeException("Can this happen? Assure that it can't when translating the methods");
 				}
 
 				Translator[] parametersTranslators = new Translator[parameterTypesREST.length];
 
 				for (int i = 0; i < parameterTypesJava.length; i++) {
-					parametersTranslators[i] = translators.getTranslator(parameterTypesREST[i], parameterTypesJava[i]);
+					parametersTranslators[i] = translators.getParameterTranslator(parameterTypesREST[i], parameterTypesJava[i]);
 				}
 
 				mm.setParametersTranslators(parametersTranslators);
 
-				mm.setResultTranslator(translators.getTranslator(methodJava.getReturnType(), methodREST.getReturnType()));
+				mm.setResultTranslator(translators.getResultTranslator(methodJava.getReturnType(), methodREST.getReturnType()));
 			}
 
 			log.info("Adding MethodMapper for {}: {}", methodREST, mm);
@@ -104,7 +104,12 @@ public class RESTAPIGenerator {
 		return mapper;
 	}
 
-	public Class<?> getTranslation(Class<?> clazz) {
-		return translators.getTranslation(clazz);
+	public Class<?> getResultTranslation(Class<?> clazz) {
+		return translators.getResultTranslation(clazz);
 	}
+
+	public Class<?> getParameterTranslation(Class<?> clazz) {
+		return translators.getParameterTranslation(clazz);
+	}
+
 }

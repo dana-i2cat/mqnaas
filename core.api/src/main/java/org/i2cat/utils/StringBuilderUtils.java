@@ -50,6 +50,10 @@ public abstract class StringBuilderUtils {
 		return append(sb, DEFAULT_DELIMITER, null, values);
 	}
 
+	public static <T> StringBuilder append(StringBuilder sb, Collection<T> values) {
+		return append(sb, DEFAULT_DELIMITER, null, values);
+	}
+
 	public static <T> StringBuilder append(StringBuilder sb, ValueExtractor<T> extractor, T[] values) {
 		return append(sb, DEFAULT_DELIMITER, extractor, values);
 	}

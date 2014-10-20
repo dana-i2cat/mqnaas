@@ -23,7 +23,7 @@ class APIClientProviderAdapter<CC> implements InvocationHandler {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-		Class apiClass = (Class) args[0];
+		Class<?> apiClass = (Class<?>) args[0];
 
 		// TODO Get endpoints and credentials...
 		Endpoint ep = null;
@@ -33,9 +33,13 @@ class APIClientProviderAdapter<CC> implements InvocationHandler {
 			case 1:
 				return internalAPIProvider.getClient(apiClass, ep, c);
 			case 2:
+				// TODO document suppression
+				@SuppressWarnings("unchecked")
 				CC clientConfiguration1 = (CC) args[1];
 				return internalAPIProvider.getClient(apiClass, ep, c, clientConfiguration1);
 			case 3:
+				// TODO document suppression
+				@SuppressWarnings("unchecked")
 				CC clientConfiguration2 = (CC) args[1];
 				Object applicationSpecificConfiguration = args[2];
 				return internalAPIProvider.getClient(apiClass, ep, c, clientConfiguration2, applicationSpecificConfiguration);

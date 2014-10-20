@@ -23,7 +23,7 @@ import org.mqnaas.core.api.Specification;
 public class APIClientProviderFactory extends AbstractProviderFactory implements IAPClientProviderFactory {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private static Set<Type>			VALID_API_PROVIDERS;
@@ -45,6 +45,7 @@ public class APIClientProviderFactory extends AbstractProviderFactory implements
 
 	@Override
 	public <CC, C extends IAPIClientProvider<CC>> C getAPIProvider(Class<C> apiProviderClass) {
+
 		// Match against list of providers...
 		for (IInternalAPIClientProvider<?> internalApiProvider : internalAPIProviders) {
 			Class<?> internalAPIProviderClass = internalApiProvider.getClass();

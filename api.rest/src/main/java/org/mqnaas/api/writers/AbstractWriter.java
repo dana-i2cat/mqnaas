@@ -28,7 +28,7 @@ class AbstractWriter implements Opcodes {
 		String name;
 
 		if (isArray) {
-			name = clazz.getName();
+			name = "[" + toBytecodeName(clazz.getComponentType());
 		} else {
 			if (clazz.isPrimitive()) {
 				name = PRIMITIVE_CLASS_NAMES.get(clazz);
@@ -59,7 +59,6 @@ class AbstractWriter implements Opcodes {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			System.exit(1);
 		}
 
 		return clazz;

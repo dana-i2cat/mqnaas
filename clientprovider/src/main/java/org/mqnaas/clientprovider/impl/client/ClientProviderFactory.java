@@ -37,7 +37,7 @@ public class ClientProviderFactory extends AbstractProviderFactory implements IC
 	private IBundleGuard			bundleGuard;
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private Map<Class<? extends IInternalClientProvider<?, ?>>, IInternalClientProvider<?, ?>>	internalClientProviders;

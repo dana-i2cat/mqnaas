@@ -7,6 +7,7 @@ import java.lang.reflect.Proxy;
 import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;

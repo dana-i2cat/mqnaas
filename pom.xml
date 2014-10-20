@@ -74,6 +74,9 @@
 
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
+		
+		<!-- ASM version -->
+		<asm-version>3.3.1_1</asm-version>
 	</properties>
 
 	<dependencyManagement>
@@ -137,6 +140,11 @@
 				<groupId>org.apache.servicemix.bundles</groupId>
 				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
 				<version>${javax.inject-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.asm</artifactId>
+				<version>${asm-version}</version>
 			</dependency>
 
 			<!-- test dependencies -->

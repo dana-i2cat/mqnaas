@@ -1,5 +1,7 @@
 package org.mqnaas.core.api;
 
+import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+
 import com.google.common.collect.Multimap;
 
 /**
@@ -29,13 +31,13 @@ public interface IServiceProvider extends ICapability {
 	 * Returns the service with a specific name of the given {@link IResource}.
 	 * 
 	 * @param resource
-	 *            The resource for which to return the service
+	 *            The resource for which to return the services
 	 * @param serviceName
 	 *            The name of the service
 	 * @return The service with the given name or <code>null</code>, if no such service exists or if the service exists but is not available at the
 	 *         moment.
 	 */
-	// IService getService(IResource resource, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
+	IService getService(IResource resource, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
 
 	/**
 	 * FIXME This is a service to play with during development and will not be part of the final API

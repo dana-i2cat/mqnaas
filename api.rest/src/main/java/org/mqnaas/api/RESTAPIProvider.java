@@ -67,12 +67,15 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+	}
 
+	@Override
+	public void deactivate() {
 	}
 
 	// System.out.println(org.i2cat.utils.JAXBSerializer.toXml(d));

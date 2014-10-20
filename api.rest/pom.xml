@@ -14,10 +14,6 @@
 	<description>MQNaaS REST API Provider</description>
 	<packaging>bundle</packaging>
 
-	<properties>
-		<asm-version>3.3.1_1</asm-version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.mqnaas</groupId>
@@ -30,7 +26,7 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-bundle-jaxrs</artifactId>
-			<version>2.7.11</version>
+			<version>${cxf-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -39,7 +35,6 @@
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.asm</artifactId>
-			<version>${asm-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>

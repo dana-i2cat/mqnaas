@@ -1,6 +1,5 @@
 package org.mqnaas.core.api;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -41,11 +40,8 @@ public interface IRootResourceManagement extends ICapability {
 
 	@AddsResource
 	@PUT
-	IRootResource createRootResource(RootResourceDescriptor descriptor);
-
-	@AddsResource
-	@PUT
-	IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints);
+	// TODO Rethink the exceptions thrown by this service
+	IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException;
 
 	/**
 	 * <p>

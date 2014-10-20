@@ -57,7 +57,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
-			Class<?> resultClass = restAPIGenerator.getTranslation(m.getReturnType());
+			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
 			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
 					new AnnotationWriter(PUT.class),
@@ -68,7 +68,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
 
-			Class<?> parameterClass = restAPIGenerator.getTranslation(m.getParameterTypes()[0]);
+			Class<?> parameterClass = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[0]);
 
 			MethodWriter writer = new MethodWriter(m.getName(), void.class, new Class<?>[] { parameterClass },
 					new AnnotationWriter(DELETE.class),
@@ -117,12 +117,12 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			}
 
 			// Translate the result
-			Class<?> resultClass = restAPIGenerator.getTranslation(method.getReturnType());
+			Class<?> resultClass = restAPIGenerator.getResultTranslation(method.getReturnType());
 
 			// Translate the parameters
 			Class<?>[] parameterClasses = new Class<?>[method.getParameterTypes().length];
 			for (int i = 0; i < method.getParameterTypes().length; i++) {
-				parameterClasses[i] = restAPIGenerator.getTranslation(method.getParameterTypes()[i]);
+				parameterClasses[i] = restAPIGenerator.getParameterTranslation(method.getParameterTypes()[i]);
 			}
 
 			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses,

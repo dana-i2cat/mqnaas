@@ -34,7 +34,7 @@ class ClientProviderAdapter<T, CC> implements InvocationHandler {
 
 		// get first endpoint
 		// FIXME think a better strategy for multi-endpoint resources
-		Endpoint ep = rootResource.getEndpoints().iterator().next();
+		Endpoint ep = rootResource.getDescriptor().getEndpoints().iterator().next();
 
 		// TODO Get credentials...
 		Credentials c = null;

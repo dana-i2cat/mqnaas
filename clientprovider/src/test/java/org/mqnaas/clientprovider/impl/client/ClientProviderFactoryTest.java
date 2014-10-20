@@ -2,7 +2,6 @@ package org.mqnaas.clientprovider.impl.client;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,14 +16,16 @@ import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.impl.ICoreModelCapability;
 
 /**
  * Unit tests for {@link ClientProviderFactory}
  * 
  * @author Julio Carlos Barrera
- *
+ * 
  */
 public class ClientProviderFactoryTest {
 
@@ -179,18 +180,19 @@ public class ClientProviderFactoryTest {
 			}
 
 			@Override
-			public Specification getSpecification() {
-				return null;
-			}
-
-			@Override
 			public ILockingBehaviour getLockingBehaviour() {
 				return null;
 			}
 
 			@Override
-			public Collection<Endpoint> getEndpoints() {
-				return Arrays.asList(new Endpoint());
+			public String getId() {
+				return "auto-generated-root-resource-id";
+			}
+
+			@Override
+			public RootResourceDescriptor getDescriptor() {
+				return RootResourceDescriptor.create(new Specification(Type.OTHER, "TestResource", getClass().getName()),
+						Arrays.asList(new Endpoint()));
 			}
 		};
 	}

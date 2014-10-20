@@ -56,8 +56,8 @@ public class Specification {
 
 	private String	model, version;
 
-	public Specification() {
-
+	// This constructor is to be used only by serialization
+	private Specification() {
 	}
 
 	public Specification(Type type) {
@@ -135,8 +135,21 @@ public class Specification {
 
 	@Override
 	public String toString() {
-		return "Spec [type=" + type + ", model=" + model + ", version="
-				+ version + "]";
+		StringBuilder sb = new StringBuilder("Specification [");
+
+		sb.append("type=").append(type);
+
+		if (model != null) {
+			sb.append(", model=").append(model);
+		}
+
+		if (version != null) {
+			sb.append(", version=").append(version);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
 	}
 
 }

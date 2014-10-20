@@ -14,11 +14,13 @@
 	<description>MQNaaS Core API</description>
 	<packaging>bundle</packaging>
 
+	<properties>
+		<jsr311-api-version>1.1.1</jsr311-api-version>
+	</properties>
+
 	<dependencies>
-		<!-- dependency>
-			<groupId>org.osgi</groupId>
-			<artifactId>org.osgi.core</artifactId>
-		</dependency-->
+		<!-- dependency> <groupId>org.osgi</groupId> <artifactId>org.osgi.core</artifactId> 
+			</dependency -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -27,9 +29,12 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>jsr311-api</artifactId>
+			<version>${jsr311-api-version}</version>
+		</dependency>
 	</dependencies>
-
 
 	<build>
 		<plugins>

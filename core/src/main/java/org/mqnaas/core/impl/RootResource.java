@@ -3,13 +3,10 @@ package org.mqnaas.core.impl;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.Collection;
-
-import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 
 @XmlRootElement
@@ -19,16 +16,23 @@ public class RootResource implements IRootResource {
 
 	private ILockingBehaviour		lockingBehaviour		= new DefaultLockingBehaviour();
 
-	private Specification			specification;
-	private Collection<Endpoint>	endpoints;
+	private RootResourceDescriptor	descriptor;
 
 	// This constructor is only used by serialization machinery
-	Resource() {
+	RootResource() {
 	}
 
-	protected RootResource(Specification specification, Collection<Endpoint> endpoints) {
-		this.specification = specification;
-		this.endpoints = endpoints;
+	public RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+		this.descriptor = descriptor;
+
+		// If the descriptor contains behavior, initialize them now...
+		if (descriptor.getLockingBehaviourClass() != null) {
+			this.lockingBehaviour = descriptor.getLockingBehaviourClass().newInstance();
+		}
+
+		if (descriptor.getTransactionBehaviourClass() != null) {
+			this.transactionBehaviour = descriptor.getTransactionBehaviourClass().newInstance();
+		}
 	}
 
 	@Override
@@ -41,22 +45,15 @@ public class RootResource implements IRootResource {
 		return lockingBehaviour;
 	}
 
-	public void setSpecification(Specification specification) {
-		this.specification = specification;
-	}
-
 	@Override
-	public Specification getSpecification() {
-		return specification;
-	}
-
-	@Override
-	public Collection<Endpoint> getEndpoints() {
-		return endpoints;
+	public RootResourceDescriptor getDescriptor() {
+		return descriptor;
 	}
 
 	@Override
 	public String getId() {
+		Specification specification = descriptor.getSpecification();
+
 		StringBuilder sb = new StringBuilder(specification.getType().toString());
 
 		if (!StringUtils.isEmpty(specification.getModel())) {
@@ -74,8 +71,8 @@ public class RootResource implements IRootResource {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((endpoints == null) ? 0 : endpoints.hashCode());
-		result = prime * result + ((specification == null) ? 0 : specification.hashCode());
+		result = prime * result + ((descriptor.getEndpoints() == null) ? 0 : descriptor.getEndpoints().hashCode());
+		result = prime * result + ((descriptor.getSpecification() == null) ? 0 : descriptor.getSpecification().hashCode());
 		return result;
 	}
 
@@ -88,28 +85,32 @@ public class RootResource implements IRootResource {
 		if (getClass() != obj.getClass())
 			return false;
 		RootResource other = (RootResource) obj;
-		if (endpoints == null) {
-			if (other.endpoints != null)
+		if (descriptor.getEndpoints() == null) {
+			if (other.descriptor.getEndpoints() != null)
 				return false;
-		} else if (!endpoints.equals(other.endpoints))
+		} else if (!descriptor.getEndpoints().equals(other.descriptor.getEndpoints()))
 			return false;
-		if (specification == null) {
-			if (other.specification != null)
+		if (descriptor.getSpecification() == null) {
+			if (other.descriptor.getSpecification() != null)
 				return false;
-		} else if (!specification.equals(other.specification))
+		} else if (!descriptor.getSpecification().equals(other.descriptor.getSpecification()))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		Specification specification = getSpecification();
+		Specification specification = descriptor.getSpecification();
 
 		StringBuilder sb = new StringBuilder("Resource [");
+		sb.append("specification=").append(specification);
 
-		sb.append("type=").append(specification.getType());
-		sb.append(", model=").append(specification.getModel());
-		sb.append(", endpoints=").append(endpoints);
+		sb.append(", endpoints=");
+		if (descriptor.getEndpoints().isEmpty()) {
+			sb.append("none");
+		} else {
+			sb.append(descriptor.getEndpoints());
+		}
 
 		sb.append(" ]");
 

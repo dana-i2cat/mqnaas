@@ -31,7 +31,7 @@ public class APIConnector implements IApplication {
 	IServiceProvider			serviceProvider;
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
 
 		log.info("Start API test");
 
@@ -44,6 +44,10 @@ public class APIConnector implements IApplication {
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public void deactivate() {
 	}
 
 }

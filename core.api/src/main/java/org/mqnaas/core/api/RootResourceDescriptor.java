@@ -8,39 +8,46 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
+import org.i2cat.utils.StringBuilderUtils;
+
 @XmlRootElement
 @XmlType(propOrder = { "specification", "lockingBehaviour", "transactionBehaviour", "endpoints" })
 public class RootResourceDescriptor {
 
-	private Class<? extends ITransactionBehavior>	transactionBehaviour;
+	private Class<? extends ITransactionBehavior>	transactionBehaviourClass;
 
-	private Class<? extends ILockingBehaviour>		lockingBehaviour;
+	private Class<? extends ILockingBehaviour>		lockingBehaviourClass;
 
 	private Specification							specification;
 
 	private Collection<Endpoint>					endpoints	= new ArrayList<Endpoint>();
 
-	public RootResourceDescriptor() {
+	private RootResourceDescriptor() {
 	}
 
-	private RootResourceDescriptor(Specification specification) {
+	private RootResourceDescriptor(Specification specification, Collection<Endpoint> endpoints) {
+		if (endpoints == null || endpoints.size() < 1) {
+			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
+		}
+
 		this.specification = specification;
+		this.endpoints = endpoints;
 	}
 
-	public Class<? extends ITransactionBehavior> getTransactionBehaviour() {
-		return transactionBehaviour;
+	public Class<? extends ITransactionBehavior> getTransactionBehaviourClass() {
+		return transactionBehaviourClass;
 	}
 
-	public void setTransactionBehaviour(Class<? extends ITransactionBehavior> transactionBehaviour) {
-		this.transactionBehaviour = transactionBehaviour;
+	public void setTransactionBehaviourClass(Class<? extends ITransactionBehavior> transactionBehaviourClass) {
+		this.transactionBehaviourClass = transactionBehaviourClass;
 	}
 
-	public Class<? extends ILockingBehaviour> getLockingBehaviour() {
-		return lockingBehaviour;
+	public Class<? extends ILockingBehaviour> getLockingBehaviourClass() {
+		return lockingBehaviourClass;
 	}
 
-	public void setLockingBehaviour(Class<? extends ILockingBehaviour> lockingBehaviour) {
-		this.lockingBehaviour = lockingBehaviour;
+	public void setLockingBehaviourClass(Class<? extends ILockingBehaviour> lockingBehaviourClass) {
+		this.lockingBehaviourClass = lockingBehaviourClass;
 	}
 
 	@XmlElement(required = true)
@@ -84,14 +91,31 @@ public class RootResourceDescriptor {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		for (Endpoint endpoint : endpoints) {
-			sb.append(endpoint).append(" ");
+		sb.append("RRD [");
+		sb.append("specification=").append(specification);
+
+		if (transactionBehaviourClass != null) {
+			sb.append(", transactionBehavior=").append(transactionBehaviourClass.getName());
 		}
+
+		if (lockingBehaviourClass != null) {
+			sb.append(", lockingBehavior=").append(lockingBehaviourClass.getName());
+		}
+
+		if (endpoints.isEmpty()) {
+			sb.append(", endpoints=(");
+			StringBuilderUtils.append(sb, endpoints);
+			sb.append(")");
+		} else {
+			sb.append(", endpoints=none");
+		}
+
+		sb.append("]");
 
 		return sb.toString();
 	}
 
-	public static RootResourceDescriptor create(Specification specification) {
-		return new RootResourceDescriptor(specification);
+	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
+		return new RootResourceDescriptor(specification, endpoints);
 	}
 }

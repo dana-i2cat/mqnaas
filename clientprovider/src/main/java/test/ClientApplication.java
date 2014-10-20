@@ -15,7 +15,9 @@ import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,51 +40,59 @@ public class ClientApplication implements IApplication {
 
 		log.info("Running the Client test application...");
 
-		// Fake resource
-		IRootResource resource = rootResourceManagement.createRootResource(new Specification(), Arrays.asList(new Endpoint()));
+		try {
+			// Fake resource
+			IRootResource resource = rootResourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.OTHER,
+					"TestResource", getClass().getName()),
+					Arrays.asList(new Endpoint())));
 
-		// 1. Static client provisioning
-		INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);
+			// 1. Static client provisioning
+			INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);
 
-		// Client w/o configuration
-		NetconfClient netconfClient1 = cp.getClient(resource);
-		netconfClient1.doNetconfSpecificThing1();
+			// Client w/o configuration
+			NetconfClient netconfClient1 = cp.getClient(resource);
+			netconfClient1.doNetconfSpecificThing1();
 
-		// Client with (client specific) configuration
-		NetconfConfiguration netconfConfiguration = new NetconfConfiguration();
+			// Client with (client specific) configuration
+			NetconfConfiguration netconfConfiguration = new NetconfConfiguration();
 
-		NetconfClient netconfClient2 = cp.getClient(resource, netconfConfiguration);
-		netconfClient2.doNetconfSpecificThing2();
+			NetconfClient netconfClient2 = cp.getClient(resource, netconfConfiguration);
+			netconfClient2.doNetconfSpecificThing2();
 
-		// 2. Dynamic client provisioning
-		ICXFAPIProvider ap = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class);
+			// 2. Dynamic client provisioning
+			ICXFAPIProvider ap = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class);
 
-		// Dynamic client w/o configuration
-		IApplicationClient applicationSpecificClient1 = ap.getAPIClient(resource, IApplicationClient.class);
-		applicationSpecificClient1.methodA();
-		applicationSpecificClient1.methodB();
+			// Dynamic client w/o configuration
+			IApplicationClient applicationSpecificClient1 = ap.getAPIClient(resource, IApplicationClient.class);
+			applicationSpecificClient1.methodA();
+			applicationSpecificClient1.methodB();
 
-		// Dynamic client with (client specific) configuration
-		CXFConfiguration cxfConf = new CXFConfiguration();
-		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient2 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf);
-		applicationSpecificClient2.methodA();
-		applicationSpecificClient2.methodB();
+			// Dynamic client with (client specific) configuration
+			CXFConfiguration cxfConf = new CXFConfiguration();
+			cxfConf.setUseDummyClient(true);
+			IApplicationClient applicationSpecificClient2 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf);
+			applicationSpecificClient2.methodA();
+			applicationSpecificClient2.methodB();
 
-		// Dynamic client with client specific configuration and application
-		// specific configuration
-		CXFConfiguration cxfConf2 = new CXFConfiguration();
-		cxfConf.setUseDummyClient(true);
-		IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2, new ApplicationConfiguration());
-		applicationSpecificClient3.methodA();
-		applicationSpecificClient3.methodB();
+			// Dynamic client with client specific configuration and application
+			// specific configuration
+			CXFConfiguration cxfConf2 = new CXFConfiguration();
+			cxfConf.setUseDummyClient(true);
+			IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2,
+					new ApplicationConfiguration());
+			applicationSpecificClient3.methodA();
+			applicationSpecificClient3.methodB();
+
+		} catch (InstantiationException e) {
+			log.error("Error when instantiating root resource", e);
+		} catch (IllegalAccessException e) {
+			log.error("Error when instantiating root resource", e);
+		}
 
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

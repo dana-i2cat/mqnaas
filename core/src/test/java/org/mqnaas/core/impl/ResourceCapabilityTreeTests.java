@@ -13,6 +13,7 @@ import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -24,7 +25,7 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
  * Unit Tests of {@link ResourceCapabilityTree} and {@link ResourceCapabilityTreeController}
  * 
  * @author Julio Carlos Barrera
- *
+ * 
  */
 public class ResourceCapabilityTreeTests {
 
@@ -112,8 +113,13 @@ public class ResourceCapabilityTreeTests {
 		return node;
 	}
 
-	private static IRootResource generateRootResource(Specification specification, Collection<Endpoint> endpoints) {
+	private static IRootResource generateRootResource(final Specification specification, final Collection<Endpoint> endpoints) {
 		return new IRootResource() {
+
+			@Override
+			public RootResourceDescriptor getDescriptor() {
+				return null;
+			}
 
 			@Override
 			public ITransactionBehavior getTransactionBehaviour() {
@@ -126,20 +132,22 @@ public class ResourceCapabilityTreeTests {
 			}
 
 			@Override
-			public Specification getSpecification() {
-				return new Specification(Type.CORE, "MQNaaS Core", "0.0.1");
+			public String getId() {
+				Specification spec = getDescriptor().getSpecification();
+				return spec.getType() + ":" + spec.getModel() + ":" + spec.getVersion();
 			}
 
-			@Override
-			public Collection<Endpoint> getEndpoints() {
-				return null;
-			}
 		};
 	}
 
 	private static ResourceNode generateResourceNode() {
 		ResourceNode node = new ResourceNode();
 		node.setContent(new IResource() {
+
+			@Override
+			public String getId() {
+				return "auto-generated-resource-id";
+			}
 		});
 		return node;
 	}

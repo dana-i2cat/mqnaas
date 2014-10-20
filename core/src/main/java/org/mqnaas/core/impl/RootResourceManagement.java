@@ -1,10 +1,8 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
@@ -15,7 +13,7 @@ public class RootResourceManagement implements IRootResourceManagement {
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	@Override
@@ -34,7 +32,7 @@ public class RootResourceManagement implements IRootResourceManagement {
 
 		for (IRootResource resource : getRootResources()) {
 
-			Specification specification = resource.getSpecification();
+			Specification specification = resource.getDescriptor().getSpecification();
 
 			boolean matches = true;
 			matches &= type != null ? specification.getType().equals(type) : true;
@@ -49,19 +47,8 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
-	public IRootResource createRootResource(RootResourceDescriptor descriptor) {
-		RootResource resource = new RootResource(descriptor.getSpecification());
-		resources.add(resource);
-		return resource;
-	}
-
-	@Override
-	public IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints) {
-		if (endpoints == null || endpoints.size() < 1) {
-			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
-		}
-
-		RootResource resource = new RootResource(specification, endpoints);
+	public IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+		RootResource resource = new RootResource(descriptor);
 		resources.add(resource);
 		return resource;
 	}

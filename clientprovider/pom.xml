@@ -19,20 +19,27 @@
 			<groupId>org.mqnaas</groupId>
 			<artifactId>core.api</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
-
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-bundle-jaxrs</artifactId>
-			<version>2.7.10</version>
+			<artifactId>cxf-bundle</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>bundletree</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
 		</dependency>
 	</dependencies>
 

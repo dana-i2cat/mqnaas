@@ -1,5 +1,7 @@
 package org.mqnaas.clientprovider.api.apiclient;
 
+import org.mqnaas.core.api.IResource;
+
 /**
  * TODO Javadoc
  * 
@@ -7,9 +9,9 @@ package org.mqnaas.clientprovider.api.apiclient;
  */
 public interface IAPIClientProvider<CC> {
 
-	<T> T getAPIClient(Class<T> apiClass);
+	<T> T getAPIClient(IResource resource, Class<T> apiClass);
 
-	<T> T getAPIClient(Class<T> apiClass, CC clientConfiguration);
+	<T> T getAPIClient(IResource resource, Class<T> apiClass, CC clientConfiguration);
 
-	<T, AC> T getAPIClient(Class<T> apiClass, CC clientConfiguration, AC applicationSpecificConfiguration);
+	<T, AC> T getAPIClient(IResource resource, Class<T> apiClass, CC clientConfiguration, AC applicationSpecificConfiguration);
 }

@@ -3,31 +3,51 @@
 
 	<!-- Apache CXF features repository -->
 	<repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
-	<repository>mvn:${project.groupId}/bundletree/${project.version}/xml/features</repository>
-	<repository>mvn:${project.groupId}/api.rest/${project.version}/xml/features</repository>
 	
+	<!-- Core API feature -->
 	<feature name="mqnaas-core-api" version="${project.version}">
 	
 		<!-- runtime dependencies -->
 		<bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
 		<bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/${javax.ws.rs-api-version}</bundle>
 		
-		<bundle>mvn:org.mqnaas/core.api/${project.version}</bundle>
+		<bundle>mvn:${project.groupId}/core.api/${project.version}</bundle>
+	</feature>
+	
+	<!-- Bundle Tree feature -->
+	<feature name="mqnaas-bundletree" version="${project.version}">
+		<!-- dependencies features -->
+		<feature version="${project.version}">mqnaas-core-api</feature>
+		
+		<!-- runtime dependencies -->
+		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
+		<bundle dependency="true">mvn:com.google.guava/guava/${guava-version}</bundle>
+
+		<bundle>mvn:${project.groupId}/bundletree/${project.version}</bundle>
+	</feature>
+	
+	<!-- Client Provider feature -->
+	<feature name="mqnaas-clientprovider" version="${project.version}">
+		<!-- dependencies features -->		
+		<feature version="${project.version}">mqnaas-core-api</feature>		
+		
+		<bundle>mvn:${project.groupId}/clientprovider/${project.version}</bundle>
 	</feature>
 
+	<!-- Core feature -->
 	<feature name="${project.artifactId}" version="${project.version}">
 		<!-- dependencies features -->		
 		<feature version="${cxf-version}">cxf</feature>
-		<feature version="${project.version}">mqnaas-core-api</feature>
-		<feature version="${project.version}">bundletree</feature>
-		<feature version="${project.version}">mqnaas-rest-api-provider</feature>				
+		<feature version="${project.version}">mqnaas-core-api</feature>		
+		<feature version="${project.version}">mqnaas-clientprovider</feature>
+		<feature version="${project.version}">mqnaas-bundletree</feature>
+		<feature version="${project.version}">mqnaas-rest-api-provider</feature>
 		
 		<!-- runtime dependencies -->
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-collections4/${commons-collections4-version}</bundle>
 		
-		<bundle>mvn:org.mqnaas/core/${project.version}</bundle>
-		<bundle>mvn:org.mqnaas/clientprovider/${project.version}</bundle>
+		<bundle>mvn:${project.groupId}/core/${project.version}</bundle>
 	</feature>
 
 </features>

@@ -1,6 +1,12 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
 import java.util.List;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.ListsResources;
@@ -18,6 +24,7 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
  * </p>
  * 
  */
+@Path("/mqnaas/resources")
 public interface IRootResourceManagement extends ICapability {
 
 	/**
@@ -33,7 +40,12 @@ public interface IRootResourceManagement extends ICapability {
 	 */
 
 	@AddsResource
+	@PUT
 	IRootResource createRootResource(RootResourceDescriptor descriptor);
+
+	@AddsResource
+	@PUT
+	IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints);
 
 	/**
 	 * <p>
@@ -48,6 +60,7 @@ public interface IRootResourceManagement extends ICapability {
 	 */
 
 	@RemovesResource
+	@DELETE
 	void removeRootResource(IRootResource resource);
 
 	/**
@@ -55,12 +68,12 @@ public interface IRootResourceManagement extends ICapability {
 	 * 
 	 * @return The currently managed resources
 	 */
-
+	@GET
 	@ListsResources
 	List<IRootResource> getRootResources();
 
 	@ListsResources
-	List<IRootResource> getRootResources(Specification.Type type, String model, String version);
+	List<IRootResource> getRootResources(Specification.Type type, String model, String version) throws ResourceNotFoundException;
 
 	IRootResource getCore();
 

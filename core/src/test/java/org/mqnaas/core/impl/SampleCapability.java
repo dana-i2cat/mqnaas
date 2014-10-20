@@ -40,13 +40,20 @@ public class SampleCapability implements ISampleCapability {
 		return true;
 	}
 
-	@Override
-	public void onDependenciesResolved() {
-		// TODO Auto-generated method stub
-	}
-
 	public IResource getResource() {
 		return resource;
+	}
+
+	@Override
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

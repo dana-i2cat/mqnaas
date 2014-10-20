@@ -5,7 +5,11 @@ import org.mqnaas.core.api.ICapability;
 public class RootClass implements ICapability {
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
 	}
 
 }

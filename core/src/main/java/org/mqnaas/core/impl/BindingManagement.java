@@ -4,14 +4,15 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -31,6 +32,7 @@ import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
+import org.mqnaas.core.impl.dependencies.DependencyManagement;
 import org.mqnaas.core.impl.notificationfilter.ResourceMonitoringFilter;
 import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -75,7 +77,7 @@ import com.google.common.collect.Multimap;
  * </p>
  */
 public class BindingManagement implements IServiceProvider, IResourceManagementListener, IBindingManagement,
-		IBindingManagementEventListener {
+		IBindingManagementEventListener, ICoreModelCapability {
 
 	private static final Logger					log	= LoggerFactory.getLogger(BindingManagement.class);
 
@@ -104,10 +106,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	private ResourceCapabilityTree				tree;
 
+	private DependencyManagement				dependencyManagement;
+
 	public BindingManagement() {
 
-		boundCapabilities = new ArrayList<CapabilityInstance>();
-		applications = new ArrayList<ApplicationNode>();
+		boundCapabilities = Collections.synchronizedList(new ArrayList<CapabilityInstance>());
+		applications = Collections.synchronizedList(new ArrayList<ApplicationNode>());
 
 		knownCapabilities = new HashSet<Class<? extends ICapability>>();
 		knownApplications = new HashSet<Class<? extends IApplication>>();
@@ -120,10 +124,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			throw new Exception("Failed to initialize. Required services not set.");
 		}
 
+		dependencyManagement = new DependencyManagement();
+
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Specification.Type.CORE)));
+		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE));
 		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
 
 		// initialize the tree
@@ -329,26 +335,26 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void capabilityInstanceBound(CapabilityNode bound, ResourceNode boundTo) {
-		// revolve bound capability and those depending on it
-		resolve(bound.getContent());
+		// add bound capability in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		dependencyManagement.addApplicationInTheSystem(bound.getContent());
 	}
 
 	@Override
 	public void capabilityInstanceUnbound(CapabilityNode unbound, ResourceNode wasBoundTo) {
-		// unresolve unbound capability and those depending on it
-		unresolve(unbound.getContent());
+		// remove unbound capability from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+		dependencyManagement.removeApplicationInTheSystem(unbound.getContent());
 	}
 
 	@Override
 	public void applicationInstanceAdded(ApplicationInstance added) {
-		// resolve application and those depending on it
-		resolve(added);
+		// add added application in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		dependencyManagement.addApplicationInTheSystem(added);
 	}
 
 	@Override
 	public void applicationInstanceRemoved(ApplicationInstance removed) {
-		// unresolve application and those depending on it
-		unresolve(removed);
+		// remove application from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+		dependencyManagement.removeApplicationInTheSystem(removed);
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////
@@ -559,11 +565,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		knownApplications.removeAll(applicationClasses);
 
-		// remove ApplicationInstances using removed classes
+		Set<ApplicationInstance> appInstancesToBeRemoved = new HashSet<ApplicationInstance>();
+
+		// collect ApplicationInstances to be removed using removed classes
 		for (ApplicationNode applicationNode : applications) {
 			ApplicationInstance application = applicationNode.getContent();
 			if (applicationClasses.contains(application.getClazz()))
-				removeApplicationInstance(application);
+				appInstancesToBeRemoved.add(application);
+		}
+
+		// remove collected application instances
+		for (ApplicationInstance applicationInstance : appInstancesToBeRemoved) {
+			removeApplicationInstance(applicationInstance);
 		}
 
 		printAvailableApplications();
@@ -614,72 +627,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// ///////////////
 	// private methods
 	// ///////////////
-
-	private void resolve(ApplicationInstance newRepresentation) {
-
-		List<ApplicationInstance> resolvedNow = new LinkedList<ApplicationInstance>();
-		boolean wasResolved = newRepresentation.isResolved();
-
-		// Resolve capability dependencies
-		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
-
-			// a. Resolve those already registered that depend on the currently added one
-			if (!representation.isResolved()) {
-				representation.resolve(newRepresentation);
-
-				if (representation.isResolved()) {
-					resolvedNow.add(representation);
-				}
-			}
-
-			// b. Resolve the currently added one with those already registered
-			if (!newRepresentation.isResolved()) {
-				newRepresentation.resolve(representation);
-			}
-		}
-
-		if (!wasResolved && newRepresentation.isResolved()) {
-			resolvedNow.add(newRepresentation);
-		}
-
-		// c. Notify resolved
-		// Notifying AFTER resolving all dependencies that can be resolved with newRepresentation
-		// reduces the amount of applications that will be notified when being resolved with unresolved applications.
-		for (ApplicationInstance resolved : resolvedNow) {
-			resolved.getInstance().onDependenciesResolved();
-		}
-	}
-
-	private void unresolve(ApplicationInstance oldRepresentation) {
-		// a. Unresolve itself
-		boolean resolved = oldRepresentation.isResolved();
-		oldRepresentation.unresolveAllDependencies();
-		if (resolved) {
-			oldRepresentation.stopServices();
-			// oldRepresentation.getInstance().onDependenciesUnresolved();
-		}
-
-		// b. Unresolve those already registered that depend on the old one
-		List<ApplicationInstance> affectedInstances = new LinkedList<ApplicationInstance>();
-		for (ApplicationInstance representation : getAllCapabilityAndApplicationInstances()) {
-			boolean wasResolved = representation.isResolved();
-			boolean affected = representation.unresolve(oldRepresentation);
-			if (affected)
-				affectedInstances.add(representation);
-
-			// c. Notify unresolved
-			if (wasResolved && affected) {
-				representation.stopServices();
-				// representation.getInstance().onDependenciesUnresolved();
-			}
-		}
-
-		// d. try to resolve affected ones
-		for (ApplicationInstance representation : affectedInstances) {
-			resolve(representation);
-		}
-
-	}
 
 	List<CapabilityInstance> getAllCapabilityInstances() {
 		return boundCapabilities;
@@ -804,7 +751,15 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 
 	/**
@@ -840,5 +795,15 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		return toReturn;
 
+	}
+
+	@Override
+	public IRootResource getRootResource(IResource resource) throws IllegalArgumentException {
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getRootResourceNodeFromResource(tree, resource);
+		if (resourceNode == null) {
+			log.error("No IRootResource found for resource: " + resource);
+			throw new IllegalArgumentException("No IRootResource found!");
+		}
+		return (IRootResource) resourceNode.getContent();
 	}
 }

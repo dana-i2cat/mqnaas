@@ -1,8 +1,10 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
@@ -48,7 +50,18 @@ public class RootResourceManagement implements IRootResourceManagement {
 
 	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) {
-		Resource resource = new Resource(descriptor.getSpecification());
+		RootResource resource = new RootResource(descriptor.getSpecification());
+		resources.add(resource);
+		return resource;
+	}
+
+	@Override
+	public IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints) {
+		if (endpoints == null || endpoints.size() < 1) {
+			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
+		}
+
+		RootResource resource = new RootResource(specification, endpoints);
 		resources.add(resource);
 		return resource;
 	}
@@ -59,7 +72,13 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 }

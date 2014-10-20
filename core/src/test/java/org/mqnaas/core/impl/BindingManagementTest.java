@@ -39,7 +39,11 @@ public class BindingManagementTest {
 			}
 
 			@Override
-			public void onDependenciesResolved() {
+			public void activate() {
+			}
+
+			@Override
+			public void deactivate() {
 			}
 		};
 

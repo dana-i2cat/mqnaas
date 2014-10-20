@@ -62,7 +62,13 @@ public class APIClientProviderFactory extends AbstractProviderFactory implements
 	}
 
 	@Override
-	public void onDependenciesResolved() {
+	public void activate() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
 		// TODO Auto-generated method stub
 
 	}

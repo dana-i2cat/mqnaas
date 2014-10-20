@@ -7,7 +7,7 @@ public interface IInternalService extends IService {
 
 	/**
 	 * <p>
-	 * Sets the {@link Resource} coupled to this service.
+	 * Sets the {@link IResource} coupled to this service.
 	 * </p>
 	 * Due to initialization issues, the internal service representation has to provide the possibility to set the coupled Resource.
 	 * 

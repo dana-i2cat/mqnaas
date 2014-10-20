@@ -1,5 +1,7 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
+
 /**
  * <p>
  * <code>IRootResource</code> is the representation of a physical device in MQNaaS.
@@ -8,8 +10,9 @@ package org.mqnaas.core.api;
  * In contrast to other resources, a root resource defines its
  * <ol>
  * <li>transaction behavior (see {@link ITransactionBehavior}), its</li>
- * <li>locking behavior (see {@link ILockingBehaviour}) and its</li>
- * <li>technical specification.</li>
+ * <li>locking behavior (see {@link ILockingBehaviour}), its</li>
+ * <li>technical specification and its</li>
+ * <li>endpoints.</li>
  * </ol>
  * 
  * 
@@ -25,5 +28,7 @@ public interface IRootResource extends IResource {
 	ILockingBehaviour getLockingBehaviour();
 
 	Specification getSpecification();
+
+	Collection<Endpoint> getEndpoints();
 
 }

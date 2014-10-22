@@ -40,7 +40,7 @@ public class BundleGuardTest {
 		return new Option[] {
 				// distribution to test: Karaf 3.0.1
 				KarafDistributionOption.karafDistributionConfiguration()
-						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz"))
+						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").version("3.0.1"))
 						.karafVersion("3.0.1").name("Apache Karaf").useDeployFolder(false)
 						// keep deployed Karaf
 						.unpackDirectory(new File("target/exam")),

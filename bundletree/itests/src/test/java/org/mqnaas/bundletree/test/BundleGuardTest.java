@@ -37,6 +37,8 @@ public class BundleGuardTest {
 
 	@Configuration
 	public Option[] config() {
+		// FIXME Read mqnass features version from maven.
+		// now mqnaas features version in this file must be changed manually in each release!
 		return new Option[] {
 				// distribution to test: Karaf 3.0.1
 				KarafDistributionOption.karafDistributionConfiguration()

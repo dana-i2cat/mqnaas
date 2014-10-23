@@ -2,6 +2,7 @@ package org.mqnaas.client.cxf;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -97,6 +98,10 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 
 		// authentication system
 		if (configuration != null && configuration.getAuthentication() != null) {
+
+			FileInputStream keystoreFis = null;
+			FileInputStream truststoreFis = null;
+
 			try {
 				if (configuration.getAuthentication() instanceof CertificatesAuthentication) {
 
@@ -107,10 +112,12 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 					if (clientParams == null)
 						clientParams = new TLSClientParameters();
 
+					// TODO passwords and keystore should be set in credentials
 					// load keystore
 					KeyStore keyStore = KeyStore.getInstance("JKS");
 					File keyStoreFile = new File(auth.getKeyStoreUri().toString());
-					keyStore.load(new FileInputStream(keyStoreFile), auth.getKeyStorePassword());
+					keystoreFis = new FileInputStream(keyStoreFile);
+					keyStore.load(keystoreFis, auth.getKeyStorePassword());
 					KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 					keyFactory.init(keyStore, auth.getKeyStorePassword());
 					KeyManager[] km = keyFactory.getKeyManagers();
@@ -118,7 +125,8 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 
 					// load truststore
 					File truststore = new File(auth.getTrustStoreUri().toString());
-					keyStore.load(new FileInputStream(truststore), auth.getTrustStorePassword());
+					truststoreFis = new FileInputStream(truststore);
+					keyStore.load(truststoreFis, auth.getTrustStorePassword());
 					TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					trustFactory.init(keyStore);
 					TrustManager[] tm = trustFactory.getTrustManagers();
@@ -131,6 +139,16 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 			} catch (Exception e) {
 				log.error("Error creating CXF client.", e);
 				throw new ClientConfigurationException(e);
+			} finally {
+				try {
+					if (keystoreFis != null)
+						keystoreFis.close();
+					if (truststoreFis != null)
+						truststoreFis.close();
+				} catch (IOException e) {
+					log.warn("Failed to close FileInputStream.", e);
+				}
+
 			}
 		}
 

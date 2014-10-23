@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
@@ -32,7 +33,7 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 	}
 
 	@Override
-	public Object invoke(Object proxy, Method method, Object[] args) throws EndpointNotFoundException {
+	public Object invoke(Object proxy, Method method, Object[] args) throws EndpointNotFoundException, ClientConfigurationException {
 
 		IResource resource = (IResource) args[0];
 		IRootResource rootResource = coreModelCapability.getRootResource(resource);

@@ -38,6 +38,10 @@ public class Specification {
 		 */
 		OF_SWITCH("OFSwitch"),
 		/**
+		 * A Tson
+		 */
+		TSON("Tson"),
+		/**
 		 * Other devices
 		 */
 		OTHER("Other");

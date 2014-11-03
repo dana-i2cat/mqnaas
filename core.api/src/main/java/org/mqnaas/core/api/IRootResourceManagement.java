@@ -73,4 +73,15 @@ public interface IRootResourceManagement extends ICapability {
 
 	IRootResource getCore();
 
+	/**
+	 * Returns the {@link IRootResource} with id <code>id</code>
+	 * 
+	 * @param id
+	 *            Id of the resource to be retrieved.
+	 * @return The <code>IRootResource</code> with id <code>id</code>
+	 * @throws ResourceNotFoundException
+	 *             If there's no managed resource with such id.
+	 */
+	IRootResource getRootResource(String id) throws ResourceNotFoundException;
+
 }

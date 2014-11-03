@@ -1,5 +1,7 @@
 package test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import org.mqnaas.client.application.ApplicationConfiguration;
@@ -9,7 +11,7 @@ import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.client.netconf.INetconfClientProvider;
 import org.mqnaas.client.netconf.NetconfClient;
 import org.mqnaas.client.netconf.NetconfConfiguration;
-import org.mqnaas.clientprovider.api.apiclient.IAPClientProviderFactory;
+import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
@@ -22,6 +24,10 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * FIXME This test application should be moved to a unit test.
+ * 
+ */
 public class ClientApplication implements IApplication {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ClientApplication.class);
@@ -33,19 +39,30 @@ public class ClientApplication implements IApplication {
 	IClientProviderFactory		clientProviderFactory;
 
 	@DependingOn
-	IAPClientProviderFactory	apiProviderFactory;
+	IAPIClientProviderFactory			apiProviderFactory;
 
 	@Override
 	public void activate() {
 
 		log.info("Running the Client test application...");
 
+		// Fake resource
+		IRootResource resource;
 		try {
-			// Fake resource
-			IRootResource resource = rootResourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.OTHER,
-					"TestResource", getClass().getName()),
-					Arrays.asList(new Endpoint())));
+			resource = rootResourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.OTHER),
+					Arrays.asList(new Endpoint(new URI("ssh://localhost/")), new Endpoint(new URI("http://localhost/")))));
+		} catch (URISyntaxException e) {
+			log.error("Error creating SSH URI", e);
+			return;
+		} catch (InstantiationException e) {
+			log.error("Error creating resource", e);
+			return;
+		} catch (IllegalAccessException e) {
+			log.error("Error creating resource", e);
+			return;
+		}
 
+		try {
 			// 1. Static client provisioning
 			INetconfClientProvider cp = clientProviderFactory.getClientProvider(INetconfClientProvider.class);
 
@@ -77,22 +94,19 @@ public class ClientApplication implements IApplication {
 			// Dynamic client with client specific configuration and application
 			// specific configuration
 			CXFConfiguration cxfConf2 = new CXFConfiguration();
-			cxfConf.setUseDummyClient(true);
+			cxfConf2.setUseDummyClient(true);
 			IApplicationClient applicationSpecificClient3 = ap.getAPIClient(resource, IApplicationClient.class, cxfConf2,
 					new ApplicationConfiguration());
 			applicationSpecificClient3.methodA();
 			applicationSpecificClient3.methodB();
-
-		} catch (InstantiationException e) {
-			log.error("Error when instantiating root resource", e);
-		} catch (IllegalAccessException e) {
-			log.error("Error when instantiating root resource", e);
+		} catch (Exception e) {
+			log.error("Error obtaining client provider or invoking client.", e);
 		}
-
 	}
 
 	@Override
 	public void deactivate() {
+		// nothing to do
 	}
 
 }

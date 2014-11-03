@@ -16,14 +16,16 @@ public class RootResource implements IRootResource {
 
 	private ILockingBehaviour		lockingBehaviour		= new DefaultLockingBehaviour();
 
+	private String					id;
+
+	// FIXME descriptor duplicates info in specification and endpoints.
+	// This field is not used in equals and hashcode methods.
 	private RootResourceDescriptor	descriptor;
 
-	// This constructor is only used by serialization machinery
-	RootResource() {
-	}
+	protected RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
 
-	public RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
 		this.descriptor = descriptor;
+		this.id = generateIdFromDescriptor(descriptor);
 
 		// If the descriptor contains behavior, initialize them now...
 		if (descriptor.getLockingBehaviourClass() != null) {
@@ -33,6 +35,15 @@ public class RootResource implements IRootResource {
 		if (descriptor.getTransactionBehaviourClass() != null) {
 			this.transactionBehaviour = descriptor.getTransactionBehaviourClass().newInstance();
 		}
+	}
+
+	// This constructor is only used by serialization machinery
+	RootResource() {
+	}
+
+	@Override
+	public String getId() {
+		return id;
 	}
 
 	@Override
@@ -51,7 +62,22 @@ public class RootResource implements IRootResource {
 	}
 
 	@Override
-	public String getId() {
+	public String toString() {
+		Specification specification = descriptor.getSpecification();
+
+		StringBuilder sb = new StringBuilder("Resource [");
+
+		sb.append("type=").append(specification.getType());
+		sb.append(", model=").append(specification.getModel());
+		sb.append(", endpoints=").append(descriptor.getEndpoints());
+
+		sb.append(" ]");
+
+		return sb.toString();
+	}
+
+	// FIXME Generated ID is not unique! All resources with same specification will have same ID!!!
+	private static String generateIdFromDescriptor(RootResourceDescriptor descriptor) {
 		Specification specification = descriptor.getSpecification();
 
 		StringBuilder sb = new StringBuilder(specification.getType().toString());
@@ -67,15 +93,25 @@ public class RootResource implements IRootResource {
 		return sb.toString();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((descriptor.getEndpoints() == null) ? 0 : descriptor.getEndpoints().hashCode());
-		result = prime * result + ((descriptor.getSpecification() == null) ? 0 : descriptor.getSpecification().hashCode());
+		result = prime * result + ((descriptor == null) ? 0 : descriptor.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		return result;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -85,36 +121,16 @@ public class RootResource implements IRootResource {
 		if (getClass() != obj.getClass())
 			return false;
 		RootResource other = (RootResource) obj;
-		if (descriptor.getEndpoints() == null) {
-			if (other.descriptor.getEndpoints() != null)
+		if (descriptor == null) {
+			if (other.descriptor != null)
 				return false;
-		} else if (!descriptor.getEndpoints().equals(other.descriptor.getEndpoints()))
+		} else if (!descriptor.equals(other.descriptor))
 			return false;
-		if (descriptor.getSpecification() == null) {
-			if (other.descriptor.getSpecification() != null)
+		if (id == null) {
+			if (other.id != null)
 				return false;
-		} else if (!descriptor.getSpecification().equals(other.descriptor.getSpecification()))
+		} else if (!id.equals(other.id))
 			return false;
 		return true;
 	}
-
-	@Override
-	public String toString() {
-		Specification specification = descriptor.getSpecification();
-
-		StringBuilder sb = new StringBuilder("Resource [");
-		sb.append("specification=").append(specification);
-
-		sb.append(", endpoints=");
-		if (descriptor.getEndpoints().isEmpty()) {
-			sb.append("none");
-		} else {
-			sb.append(descriptor.getEndpoints());
-		}
-
-		sb.append(" ]");
-
-		return sb.toString();
-	}
-
 }

@@ -3,10 +3,12 @@ package org.mqnaas.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceManagement {
 
@@ -46,11 +48,45 @@ public class RootResourceManagement implements IRootResourceManagement {
 		return filteredResources;
 	}
 
+	public IRootResource getRootResource(Specification specification) throws ResourceNotFoundException {
+		List<IRootResource> filteredResources = getRootResources(specification);
+
+		if (filteredResources.isEmpty())
+			throw new ResourceNotFoundException("No resource found with this specification: " + specification);
+
+		return filteredResources.get(0);
+	}
+
+	public List<IRootResource> getRootResources(Specification specification) throws ResourceNotFoundException {
+		List<IRootResource> filteredResources = new ArrayList<IRootResource>();
+		for (IRootResource resource : resources) {
+			if (specification.equals(resource.getDescriptor().getSpecification()))
+				filteredResources.add(resource);
+		}
+
+		return filteredResources;
+	}
+
 	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+		if (descriptor.getEndpoints() == null || descriptor.getEndpoints().isEmpty()) {
+			throw new IllegalArgumentException(
+					"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + descriptor.getEndpoints());
+		}
+
 		RootResource resource = new RootResource(descriptor);
 		resources.add(resource);
 		return resource;
+	}
+
+	@Override
+	public IRootResource getRootResource(String id) throws ResourceNotFoundException {
+		for (IRootResource resource : resources) {
+			if (StringUtils.equals(id, resource.getId()))
+				return resource;
+		}
+
+		throw new ResourceNotFoundException("No resource found with this id: " + id);
 	}
 
 	@Override

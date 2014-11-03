@@ -3,12 +3,15 @@ package org.mqnaas.client.cxf;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mqnaas.client.cxf.Authentication;
+
 public class CXFConfiguration {
 
 	private boolean			useDummyClient;
 	private List<Object>	providers;
 	private boolean			checkCN;
 	private boolean			useAsyncHttpConduit;
+	private Authentication	authentication;
 
 	public CXFConfiguration() {
 		providers = new ArrayList<Object>();
@@ -95,6 +98,25 @@ public class CXFConfiguration {
 	 */
 	public void setCheckCN(boolean checkCN) {
 		this.checkCN = checkCN;
+	}
+
+	/**
+	 * Returns the {@link Authentication} system and data being used.
+	 * 
+	 * @return
+	 */
+	public Authentication getAuthentication() {
+		return authentication;
+	}
+
+	/**
+	 * Sets the {@link Authentication} system and data to be used by CXF.
+	 * 
+	 * @param authentication
+	 *            Authentication information to be attached to the CXF client.
+	 */
+	public void setAuthentication(Authentication authentication) {
+		this.authentication = authentication;
 	}
 
 }

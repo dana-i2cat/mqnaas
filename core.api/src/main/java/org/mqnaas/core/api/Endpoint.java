@@ -4,15 +4,22 @@ import java.net.URI;
 
 public class Endpoint {
 
-	public Endpoint() {
+	private URI	uri;
 
+	/**
+	 * Creates an empty Endpoint.
+	 */
+	public Endpoint() {
 	}
 
+	/**
+	 * Creates an Endpoint with given {@link URI}.
+	 * 
+	 * @param uri
+	 */
 	public Endpoint(URI uri) {
 		this.uri = uri;
 	}
-
-	private URI	uri;
 
 	/**
 	 * @return the uri

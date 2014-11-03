@@ -36,10 +36,12 @@ public class BundleUtilsTest {
 
 	@Configuration
 	public Option[] config() {
+		// FIXME Read mqnass features version from maven. Same applies for bundletree-itests-testbundleX version
+		// now mqnaas features version in this file must be changed manually in each release!
 		return new Option[] {
 				// distribution to test: Karaf 3.0.1
 				KarafDistributionOption.karafDistributionConfiguration()
-						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz"))
+						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").version("3.0.1"))
 						.karafVersion("3.0.1").name("Apache Karaf").useDeployFolder(false)
 						// keep deployed Karaf
 						.unpackDirectory(new File("target/exam")),

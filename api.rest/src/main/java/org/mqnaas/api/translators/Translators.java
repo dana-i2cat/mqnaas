@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.mqnaas.api.translators.ResourceTranslator.ResourceResolver;
-import org.mqnaas.core.api.IIdentifiable;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IIdentifiable;
 
 /**
  * Translators manages available {@link Translator} implementation when mapping parameters and results between REST API and Java API interfaces.

@@ -54,6 +54,9 @@
 		<!-- Apache Commons Collections 4 version -->
 		<commons-collections4-version>4.0</commons-collections4-version>
 
+		<!-- Apache Commons Collections version -->
+		<commons-collections.version>3.2.1</commons-collections.version>
+
 		<!-- javax.ws.rs API (REST) version -->
 		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
 
@@ -71,6 +74,12 @@
 
 		<!-- OPS4J Pax Exam version -->
 		<pax-exam-version>3.5.0</pax-exam-version>
+
+		<!-- PowerMock version -->
+		<powermock.version>1.5.5</powermock.version>
+
+		<!-- Quartz Scheduler version -->
+		<quartz.version>1.6.2</quartz.version>
 
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
@@ -99,6 +108,11 @@
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -147,6 +161,13 @@
 				<version>${asm-version}</version>
 			</dependency>
 
+			<!-- Scheduling library -->
+			<dependency>
+				<groupId>com.opensymphony.quartz</groupId>
+				<artifactId>com.springsource.org.quartz</artifactId>
+				<version>${quartz.version}</version>
+			</dependency>
+
 			<!-- test dependencies -->
 			<dependency>
 				<groupId>junit</groupId>
@@ -191,6 +212,26 @@
 						<groupId>org.apache.karaf</groupId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>${powermock.version}</version>
+				<scope>test</scope>
+			</dependency>
+
+			<!-- Runtime dependencies -->
+			<dependency>
+				<groupId>commons-collections</groupId>
+				<artifactId>commons-collections</artifactId>
+				<version>${commons-collections.version}</version>
+				<scope>runtime</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -303,6 +344,7 @@
 		<module>bundletree/itests</module>
 		<module>bundletree/itests-testbundleA</module>
 		<module>bundletree/itests-testbundleB</module>
+		<module>clientprovider-api</module>
 		<module>clientprovider</module>
 		<module>api.rest</module>
  		<module>test-helpers</module>

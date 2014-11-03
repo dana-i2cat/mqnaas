@@ -21,6 +21,10 @@
 		</dependency>
 		<dependency>
 			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
 			<artifactId>core</artifactId>
 		</dependency>
 		<dependency>
@@ -41,6 +45,10 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -53,8 +61,7 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.clientprovider.api.apiclient,
-							org.mqnaas.clientprovider.api.client
+							org.mqnaas.client.cxf
 						</Export-Package>
 					</instructions>
 				</configuration>

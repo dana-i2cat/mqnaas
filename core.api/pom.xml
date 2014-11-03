@@ -19,8 +19,6 @@
 	</properties>
 
 	<dependencies>
-		<!-- dependency> <groupId>org.osgi</groupId> <artifactId>org.osgi.core</artifactId> 
-			</dependency -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -33,6 +31,10 @@
 			<groupId>javax.ws.rs</groupId>
 			<artifactId>jsr311-api</artifactId>
 			<version>${jsr311-api-version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-bundle</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -49,6 +51,7 @@
 							org.mqnaas.core.api,
 							org.mqnaas.core.api.annotations,
 							org.mqnaas.core.api.exceptions,
+							org.mqnaas.core.api.scheduling,
 							org.i2cat.utils
 						</Export-Package>
 					</instructions>

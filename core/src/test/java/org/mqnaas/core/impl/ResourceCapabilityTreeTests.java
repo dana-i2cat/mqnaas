@@ -116,9 +116,11 @@ public class ResourceCapabilityTreeTests {
 	private static IRootResource generateRootResource(final Specification specification, final Collection<Endpoint> endpoints) {
 		return new IRootResource() {
 
+			RootResourceDescriptor	descriptor	= RootResourceDescriptor.create(specification, endpoints);
+
 			@Override
 			public RootResourceDescriptor getDescriptor() {
-				return null;
+				return descriptor;
 			}
 
 			@Override
@@ -133,10 +135,9 @@ public class ResourceCapabilityTreeTests {
 
 			@Override
 			public String getId() {
-				Specification spec = getDescriptor().getSpecification();
+				Specification spec = descriptor.getSpecification();
 				return spec.getType() + ":" + spec.getModel() + ":" + spec.getVersion();
 			}
-
 		};
 	}
 

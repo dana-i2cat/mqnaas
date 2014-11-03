@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
  * {@link IRootResource}s.
  */
-public class Specification {
+public class Specification implements Cloneable {
 
 	/**
 	 * The <code>Type</code> of an {@link IRootResource} is part of the technical specification of a device and serves as a basic classification of
@@ -143,6 +143,13 @@ public class Specification {
 	public String toString() {
 		return "Spec [type=" + type + ", model=" + model + ", version="
 				+ version + "]";
+	}
+
+	@Override
+	public Specification clone() throws CloneNotSupportedException {
+
+		return (Specification) super.clone();
+
 	}
 
 }

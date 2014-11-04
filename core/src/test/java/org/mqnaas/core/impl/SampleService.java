@@ -18,4 +18,10 @@ public class SampleService implements IService {
 		return null;
 	}
 
+	@Override
+	public String getId() {
+		// TODO Auto-generated method stub
+		return "SampleService";
+	}
+
 }

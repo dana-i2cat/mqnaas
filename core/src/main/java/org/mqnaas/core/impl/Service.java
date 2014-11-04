@@ -53,6 +53,11 @@ public class Service implements IInternalService {
 		return result;
 	}
 
+	@Override
+	public String getId() {
+		return metaData.getApplication().getClass().getName() + ":" + metaData.getName();
+	}
+
 	public String toString() {
 		return metaData.getName();
 	}

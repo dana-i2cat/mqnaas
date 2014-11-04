@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * @author Adrián Roselló Rey (i2CAT)
- *
+ * 
  */
 public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 
@@ -64,7 +64,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType().equals(Specification.Type.CORE);
+		return resource.getDescriptor().getSpecification().getType().equals(Specification.Type.CORE);
 	}
 
 	@Override

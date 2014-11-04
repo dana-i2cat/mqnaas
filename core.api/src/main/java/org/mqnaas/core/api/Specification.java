@@ -1,11 +1,13 @@
 package org.mqnaas.core.api;
 
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
 
 /**
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
  * {@link IRootResource}s.
  */
+@XmlType(propOrder = { "type", "model", "version" })
 public class Specification implements Cloneable {
 
 	/**
@@ -58,13 +60,12 @@ public class Specification implements Cloneable {
 		}
 	};
 
-	@XmlElement(required = true)
 	private Type	type;
 
 	private String	model, version;
 
-	public Specification() {
-
+	// This constructor is to be used only by serialization
+	private Specification() {
 	}
 
 	public Specification(Type type) {
@@ -85,6 +86,7 @@ public class Specification implements Cloneable {
 		return type;
 	}
 
+	@XmlElement(required = true)
 	public void setType(Type type) {
 		this.type = type;
 	}
@@ -141,15 +143,27 @@ public class Specification implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "Spec [type=" + type + ", model=" + model + ", version="
-				+ version + "]";
+		StringBuilder sb = new StringBuilder("Specification [");
+
+		sb.append("type=").append(type);
+
+		if (model != null) {
+			sb.append(", model=").append(model);
+		}
+
+		if (version != null) {
+			sb.append(", version=").append(version);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
 	}
 
 	@Override
 	public Specification clone() throws CloneNotSupportedException {
 
 		return (Specification) super.clone();
-
 	}
 
 }

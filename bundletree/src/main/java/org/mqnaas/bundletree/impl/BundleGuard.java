@@ -35,7 +35,7 @@ public class BundleGuard implements IBundleGuard {
 
 	// method declaring this instance as MQNaaS core ICapability
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	ConcurrentBundleGuardData	data			= new ConcurrentBundleGuardData();

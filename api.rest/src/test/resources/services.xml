@@ -1,0 +1,71 @@
+<services>
+	<capability name="org.mqnaas.core.api.IExecutionService">
+		<service>org.mqnaas.core.impl.ExecutionService:execute</service>
+		<service>org.mqnaas.core.impl.ExecutionService:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.core.api.IObservationService">
+		<service>org.mqnaas.core.impl.ExecutionService:registerObservation
+		</service>
+		<service>org.mqnaas.core.impl.ExecutionService:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.core.api.IRootResourceManagement">
+		<service>org.mqnaas.core.impl.RootResourceManagement:removeRootResource
+		</service>
+		<service>org.mqnaas.core.impl.RootResourceManagement:createRootResource
+		</service>
+		<service>org.mqnaas.core.impl.RootResourceManagement:getRootResources
+		</service>
+		<service>org.mqnaas.core.impl.RootResourceManagement:getRootResources
+		</service>
+		<service>org.mqnaas.core.impl.RootResourceManagement:getCore</service>
+		<service>org.mqnaas.core.impl.RootResourceManagement:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.core.api.IResourceManagementListener">
+		<service>org.mqnaas.core.impl.BindingManagement:resourceAdded
+		</service>
+		<service>org.mqnaas.core.impl.BindingManagement:resourceRemoved
+		</service>
+		<service>org.mqnaas.core.impl.BindingManagement:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.bundletree.IBundleGuard">
+		<service>org.mqnaas.bundletree.impl.BundleGuard:registerClassListener
+		</service>
+		<service>org.mqnaas.bundletree.impl.BundleGuard:unregisterClassListener
+		</service>
+		<service>org.mqnaas.bundletree.impl.BundleGuard:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.api.IRESTAPIProvider">
+		<service>org.mqnaas.api.RESTAPIProvider:publish</service>
+		<service>org.mqnaas.api.RESTAPIProvider:onDependenciesResolved
+		</service>
+	</capability>
+	<capability
+		name="org.mqnaas.clientprovider.api.client.IClientProviderFactory">
+		<service>org.mqnaas.clientprovider.impl.client.ClientProviderFactory:getClientProvider
+		</service>
+		<service>org.mqnaas.clientprovider.impl.client.ClientProviderFactory:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.core.api.IServiceProvider">
+		<service>org.mqnaas.core.impl.BindingManagement:getServices</service>
+		<service>org.mqnaas.core.impl.BindingManagement:onDependenciesResolved
+		</service>
+	</capability>
+	<capability
+		name="org.mqnaas.clientprovider.api.apiclient.IAPClientProviderFactory">
+		<service>org.mqnaas.clientprovider.impl.apiclient.APIClientProviderFactory:getAPIProvider
+		</service>
+		<service>org.mqnaas.clientprovider.impl.apiclient.APIClientProviderFactory:onDependenciesResolved
+		</service>
+	</capability>
+	<capability name="org.mqnaas.core.api.IBindingDecider">
+		<service>org.mqnaas.core.impl.BinderDecider:shouldBeBound</service>
+		<service>org.mqnaas.core.impl.BinderDecider:onDependenciesResolved
+		</service>
+	</capability>
+</services>

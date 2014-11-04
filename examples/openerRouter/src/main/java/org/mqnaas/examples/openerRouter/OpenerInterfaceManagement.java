@@ -14,7 +14,7 @@ public class OpenerInterfaceManagement extends AbstractInterfaceManagement {
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		Specification specification = resource.getSpecification();
+		Specification specification = resource.getDescriptor().getSpecification();
 
 		return specification.getType().equals(Type.ROUTER)
 				&& specification.getModel().equals("Opener");

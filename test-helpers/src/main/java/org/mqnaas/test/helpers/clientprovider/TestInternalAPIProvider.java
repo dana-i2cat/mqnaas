@@ -1,16 +1,16 @@
 package org.mqnaas.test.helpers.clientprovider;
 
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 
 /**
- * {@link IInternalAPIProvider} for testing purposes able to return only {@link EmptyClientAPI}.
+ * {@link IInternalAPIClientProvider} for testing purposes able to return only {@link EmptyClientAPI}.
  * 
  * @author Julio Carlos Barrera
  *
  */
-public class TestInternalAPIProvider implements IInternalAPIProvider<EmptyClientConfiguration> {
+public class TestInternalAPIProvider implements IInternalAPIClientProvider<EmptyClientConfiguration> {
 
 	@Override
 	public String[] getProtocols() {

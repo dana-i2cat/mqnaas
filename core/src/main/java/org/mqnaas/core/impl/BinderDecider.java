@@ -17,7 +17,7 @@ public class BinderDecider implements IBindingDecider {
 	private static final Logger	log	= LoggerFactory.getLogger(BinderDecider.class);
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	private static final String	IS_SUPPORTING_METHOD_NAME	= "isSupporting";

@@ -11,8 +11,6 @@ import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResourceManagement;
-import org.mqnaas.core.api.Specification;
-import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -77,7 +75,7 @@ public class BindingManagementTest {
 	@Test
 	public void bindCapabilityInstanceToResource() throws ResourceNotFoundException {
 
-		IResource resource = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource resource = resourceManagement.getCore();
 
 		CapabilityInstance ci = new CapabilityInstance(SampleCapability.class);
 		bindingManagement.bind(new CapabilityNode(ci), bindingManagement.getResourceCapabilityTree().getRootResourceNode());
@@ -97,7 +95,7 @@ public class BindingManagementTest {
 	@Test
 	public void unbindCapabilityInstanceToResource() throws ResourceNotFoundException {
 
-		IResource res = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource res = resourceManagement.getCore();
 		ResourceNode resource = bindingManagement.getResourceCapabilityTree().getRootResourceNode();
 
 		CapabilityInstance ci = getCapabilityInstanceBoundToResource(res, SampleCapability.class);
@@ -115,7 +113,7 @@ public class BindingManagementTest {
 	@Test
 	public void addResourceInCapabilityInstance() throws ResourceNotFoundException {
 
-		IResource core = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource core = resourceManagement.getCore();
 
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
@@ -131,7 +129,7 @@ public class BindingManagementTest {
 	@Test
 	public void removeResourceInCapabilityInstance() throws ResourceNotFoundException {
 
-		IResource core = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource core = resourceManagement.getCore();
 
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
@@ -156,7 +154,7 @@ public class BindingManagementTest {
 		capabilitiyClasses.add(SampleCapability.class);
 		bindingManagement.capabilitiesAdded(capabilitiyClasses);
 
-		IResource core = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource core = resourceManagement.getCore();
 
 		// following check relies on bindingDecider.shouldBeBound(core, SampleCapability.class) returning true
 		// which is the trigger for a CapabilityInstance with SampleCapability being bound to sampleResource
@@ -178,7 +176,7 @@ public class BindingManagementTest {
 		bindingManagement.capabilitiesAdded(capabilitiyClasses);
 
 		// add new resource to bindingManagement
-		IResource core = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource core = resourceManagement.getCore();
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
 		IResource sampleResource = generateSampleResource();
@@ -204,7 +202,7 @@ public class BindingManagementTest {
 		bindingManagement.capabilitiesAdded(capabilitiyClasses);
 
 		// add new resource to bindingManagement
-		IResource core = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource core = resourceManagement.getCore();
 		CapabilityInstance coreSampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(coreSampleCI);
 

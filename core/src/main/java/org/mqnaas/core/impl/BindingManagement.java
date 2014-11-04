@@ -25,6 +25,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
@@ -130,7 +131,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE), Arrays.asList(new Endpoint()));
+		IRootResource mqNaaS = resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE),
+				Arrays.asList(new Endpoint())));
 		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
 
 		// initialize the tree
@@ -201,7 +203,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	// ///////////////////////////////////////
@@ -711,7 +713,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		System.out.println(sb.toString());
 	}
 
-	@Override
+	// @Override
 	public void printAvailableServices() {
 		StringBuffer sb = new StringBuffer();
 

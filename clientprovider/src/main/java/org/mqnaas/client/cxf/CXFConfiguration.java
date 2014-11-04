@@ -3,6 +3,8 @@ package org.mqnaas.client.cxf;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mqnaas.client.cxf.Authentication;
+
 public class CXFConfiguration {
 
 	private boolean			useDummyClient;

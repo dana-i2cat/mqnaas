@@ -17,7 +17,7 @@ import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.configuration.jsse.TLSClientParameters;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
@@ -30,11 +30,11 @@ import org.slf4j.LoggerFactory;
  * @param <CC>
  *            Specific {@link CXFConfiguration} for the client being created. The goal of this parameterization is to allow specific client providers
  *            extending this class to initialize client configuration by extending the {@link CXFConfiguration} class.
- *
+ * 
  * @author Adrian Rosello Rey (i2CAT) - authentication and async http conduit.
- *
+ * 
  */
-public class InternalCXFClientProvider<CC extends CXFConfiguration> implements IInternalAPIProvider<CC> {
+public class InternalCXFClientProvider<CC extends CXFConfiguration> implements IInternalAPIClientProvider<CC> {
 
 	@Override
 	public String[] getProtocols() {

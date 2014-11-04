@@ -14,6 +14,11 @@ import org.mqnaas.core.api.IRootResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO Javadoc
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ */
 public class ClientProviderAdapter<T, CC> implements InvocationHandler {
 
 	private static final Logger				log	= LoggerFactory.getLogger(ClientProviderAdapter.class);
@@ -38,10 +43,11 @@ public class ClientProviderAdapter<T, CC> implements InvocationHandler {
 		IRootResource rootResource = coreModelCapability.getRootResource(resource);
 
 		// choose one endpoint using given IEndpointSelectionStrategy
-		Endpoint ep = endpointSelectionStrategy.select(internalClientProvider.getProtocols(), rootResource.getEndpoints());
+		Endpoint ep = endpointSelectionStrategy.select(internalClientProvider.getProtocols(), rootResource.getDescriptor().getEndpoints());
 
 		if (ep == null) {
-			String message = String.format("Unable to find any valid Endpoint from endpoints = %s and protocols = %s.", rootResource.getEndpoints(),
+			String message = String.format("Unable to find any valid Endpoint from endpoints = %s and protocols = %s.", rootResource.getDescriptor()
+					.getEndpoints(),
 					internalClientProvider.getProtocols());
 			log.error(message);
 			throw new EndpointNotFoundException(message);

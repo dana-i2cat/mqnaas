@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlType;
  * {@link IRootResource}s.
  */
 @XmlType(propOrder = { "type", "model", "version" })
-public class Specification {
+public class Specification implements Cloneable {
 
 	/**
 	 * The <code>Type</code> of an {@link IRootResource} is part of the technical specification of a device and serves as a basic classification of
@@ -39,6 +39,10 @@ public class Specification {
 		 * An Openflow Switch
 		 */
 		OF_SWITCH("OFSwitch"),
+		/**
+		 * A Tson
+		 */
+		TSON("Tson"),
 		/**
 		 * Other devices
 		 */
@@ -154,6 +158,12 @@ public class Specification {
 		sb.append("]");
 
 		return sb.toString();
+	}
+
+	@Override
+	public Specification clone() throws CloneNotSupportedException {
+
+		return (Specification) super.clone();
 	}
 
 }

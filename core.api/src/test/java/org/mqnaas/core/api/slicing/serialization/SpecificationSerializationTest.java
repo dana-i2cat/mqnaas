@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.slicing.SliceUnit;
+import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 
 /**

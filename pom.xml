@@ -224,10 +224,16 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
-				<artifactId>test-helpers</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<artifactId>mqnaas-test-helpers</artifactId>
+				<version>${project.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>			
 			<dependency>
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
@@ -355,6 +361,7 @@
 		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
+		<module>mqnaas-test-helpers</module>
 		<module>test-helpers</module>
 	</modules>
 

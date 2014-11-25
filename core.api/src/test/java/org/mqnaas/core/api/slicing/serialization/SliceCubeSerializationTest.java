@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SliceCube;
+import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 
 /**

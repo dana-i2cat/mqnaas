@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.slicing.serialization;
+package org.mqnaas.general.test.helpers.serialization;
 
 import java.io.InputStream;
 import java.io.StringReader;

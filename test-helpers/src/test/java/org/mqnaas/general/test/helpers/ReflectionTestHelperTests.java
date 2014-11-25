@@ -1,7 +1,8 @@
-package org.mqnaas.test.helpers;
+package org.mqnaas.general.test.helpers;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper; 
 
 /**
  * Unit tests of {@link ReflectionTestHelper}

@@ -48,7 +48,13 @@
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>mqnaas-test-helpers</artifactId>
+			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>

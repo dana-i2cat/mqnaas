@@ -12,7 +12,7 @@ import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.test.helpers.ReflectionTestHelper;
+import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.mqnaas.test.helpers.capability.ArtificialBundleGuard;
 import org.mqnaas.test.helpers.capability.TestCapabilitiesFactory;
 import org.mqnaas.test.helpers.clientprovider.EmptyClientAPI;

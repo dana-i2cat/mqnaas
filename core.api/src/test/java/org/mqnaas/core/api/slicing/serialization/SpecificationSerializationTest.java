@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.slicing;
+package org.mqnaas.core.api.slicing.serialization;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.slicing.SliceUnit;
 import org.xml.sax.SAXException;
 
 /**

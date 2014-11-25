@@ -75,7 +75,7 @@ public class Range implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Range [lowerBound=" + lowerBound + ", upperBound=" + upperBound + "]";
+		return "Range [" + lowerBound + "-" + upperBound + "]";
 	}
 
 }

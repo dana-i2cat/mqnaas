@@ -10,7 +10,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>mqnaas-test-helpers</artifactId>
-	<name>MQNaaS :: Test Helpers</name>
+	<name>MQNaaS :: MQNaaS Test Helpers</name>
 	<description>MQNaaS Test Helpers</description>
 	<packaging>jar</packaging>
 

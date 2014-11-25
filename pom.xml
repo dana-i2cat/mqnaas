@@ -229,6 +229,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>			
+			<dependency>
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
 				<version>${powermock.version}</version>
@@ -356,6 +362,7 @@
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
 		<module>mqnaas-test-helpers</module>
+		<module>test-helpers</module>
 	</modules>
 
 	<repositories>

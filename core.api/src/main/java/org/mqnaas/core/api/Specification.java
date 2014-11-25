@@ -1,11 +1,20 @@
 package org.mqnaas.core.api;
 
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.mqnaas.core.api.slicing.SliceUnit;
 
 /**
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
  * {@link IRootResource}s.
  */
+@XmlRootElement(namespace = "org.mqnaas")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Specification implements Cloneable {
 
 	/**
@@ -59,9 +68,11 @@ public class Specification implements Cloneable {
 	};
 
 	@XmlElement(required = true)
-	private Type	type;
+	private Type			type;
 
-	private String	model, version;
+	private String			model, version;
+
+	private List<SliceUnit>	sliceUnits;
 
 	public Specification() {
 
@@ -105,11 +116,20 @@ public class Specification implements Cloneable {
 		this.version = version;
 	}
 
+	public List<SliceUnit> getSliceUnits() {
+		return sliceUnits;
+	}
+
+	public void setSliceUnits(List<SliceUnit> sliceUnits) {
+		this.sliceUnits = sliceUnits;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
+		result = prime * result + ((sliceUnits == null) ? 0 : sliceUnits.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
@@ -129,6 +149,11 @@ public class Specification implements Cloneable {
 				return false;
 		} else if (!model.equals(other.model))
 			return false;
+		if (sliceUnits == null) {
+			if (other.sliceUnits != null)
+				return false;
+		} else if (!sliceUnits.equals(other.sliceUnits))
+			return false;
 		if (type != other.type)
 			return false;
 		if (version == null) {
@@ -141,8 +166,7 @@ public class Specification implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "Spec [type=" + type + ", model=" + model + ", version="
-				+ version + "]";
+		return "Specification [type=" + type + ", model=" + model + ", version=" + version + ", sliceUnits=" + sliceUnits + "]";
 	}
 
 	@Override

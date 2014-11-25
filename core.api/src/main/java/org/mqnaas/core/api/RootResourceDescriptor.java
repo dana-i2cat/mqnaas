@@ -2,10 +2,13 @@ package org.mqnaas.core.api;
 
 import java.util.Collection;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+@XmlRootElement(namespace = "org.mqnaas")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RootResourceDescriptor {
 
 	private Class<? extends ITransactionBehavior>	transactionBehaviour;

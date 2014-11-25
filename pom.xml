@@ -56,6 +56,8 @@
 
 		<!-- Apache Commons Collections version -->
 		<commons-collections.version>3.2.1</commons-collections.version>
+		<!-- Apache Commons IO version -->
+		<commons-io.version>2.4</commons-io.version>
 
 		<!-- javax.ws.rs API (REST) version -->
 		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
@@ -83,6 +85,9 @@
 
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
+		
+		<!-- XMLUnit version -->
+		<xmlunit.version>1.5</xmlunit.version>
 	</properties>
 
 	<dependencyManagement>
@@ -168,6 +173,18 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>xmlunit</groupId>
+				<artifactId>xmlunit</artifactId>
+				<version>${xmlunit.version}</version>
+				<scope>test</scope>
+			</dependency>			
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.ops4j.pax.exam</groupId>
 				<artifactId>pax-exam-container-karaf</artifactId>
 				<version>${pax-exam-version}</version>
@@ -207,10 +224,16 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
-				<artifactId>test-helpers</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<artifactId>mqnaas-test-helpers</artifactId>
+				<version>${project.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>			
 			<dependency>
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
@@ -338,6 +361,7 @@
 		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
+		<module>mqnaas-test-helpers</module>
 		<module>test-helpers</module>
 	</modules>
 

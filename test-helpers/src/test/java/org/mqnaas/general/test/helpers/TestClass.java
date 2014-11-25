@@ -1,4 +1,4 @@
-package org.mqnaas.test.helpers;
+package org.mqnaas.general.test.helpers;
 
 /**
  * Class for testing purposes

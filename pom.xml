@@ -224,8 +224,8 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
-				<artifactId>test-helpers</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<artifactId>mqnaas-test-helpers</artifactId>
+				<version>${project.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -355,7 +355,7 @@
 		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
-		<module>test-helpers</module>
+		<module>mqnaas-test-helpers</module>
 	</modules>
 
 	<repositories>

@@ -69,46 +69,15 @@ public class Slice {
 
 		compareSliceDefinition(other);
 
-		switch (units.length) {
-			case 1:
-				boolean d1[] = (boolean[]) data;
-				boolean otherD1[] = (boolean[]) other.data;
+		int[] lbs = new int[units.length], ubs = new int[units.length];
 
-				for (int i = 0; i < d1.length; i++)
-					if (otherD1[i] && !d1[i])
-						return false;
-				break;
+		initUpperBounds(ubs);
 
-			case 2:
-				boolean d2[][] = (boolean[][]) data;
-				boolean otherD2[][] = (boolean[][]) other.data;
+		ContainsOperation contains = new ContainsOperation();
+		executeOperation(other, lbs, ubs, contains);
 
-				for (int i = 0; i < d2.length; i++)
-					for (int j = 0; j < d2.length; j++)
-						if (otherD2[i][j] && !d2[i][j])
-							return false;
+		return contains.getResult();
 
-				break;
-
-			case 3:
-
-				boolean d3[][][] = (boolean[][][]) data;
-				boolean otherD3[][][] = (boolean[][][]) other.data;
-
-				for (int i = 0; i < d3.length; i++)
-					for (int j = 0; j < d3[0].length; j++)
-						for (int k = 0; k < d3[0][0].length; k++)
-							if (otherD3[i][j][k] && !d3[i][j][k])
-								return false;
-
-				break;
-
-			default:
-				throw new RuntimeException(
-						"Only up to three dimensions implemented");
-		}
-
-		return true;
 	}
 
 	/**
@@ -453,6 +422,63 @@ public class Slice {
 		}
 
 		return sb.toString();
+	}
+
+	private void initUpperBounds(int[] ubs) {
+		Object it = data;
+
+		for (int i = 0; i < units.length; i++) {
+			ubs[i] = Array.getLength(it) - 1;
+			it = Array.get(it, 0);
+		}
+	}
+
+	private void executeOperation(Slice other, int[] lbs, int[] ubs, Operation operation) {
+		int l = lbs.length;
+
+		int[] c = Arrays.copyOfRange(lbs, 0, l);
+
+		do {
+
+			if (!operation.execute(other, c))
+				return;
+
+			int i = 0;
+			c[i]++;
+			while (i < l - 1 && c[i] > ubs[i]) {
+				c[i] = lbs[i];
+				i++;
+				c[i]++;
+			}
+			// while the value is in range lbs <= x < ubs
+		} while (c[l - 1] <= ubs[l - 1]);
+	}
+
+	private interface Operation {
+
+		boolean execute(Slice other, int[] coords);
+	}
+
+	private class ContainsOperation implements Operation {
+
+		private boolean	result	= true;
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			if (other.get(coords)) {
+				// the other slice needs this element
+				result &= get(coords);
+				return result;
+			}
+
+			// the other slice does not need this element, its value is not important
+			return true;
+		}
+
+		public boolean getResult() {
+			return result;
+		}
+
 	}
 
 }

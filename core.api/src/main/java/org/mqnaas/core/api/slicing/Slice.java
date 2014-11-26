@@ -93,7 +93,7 @@ public class Slice {
 
 		initUpperBounds(ubs);
 
-		CheckAddSliceOperation preAdd = new CheckAddSliceOperation();
+		NotContainsOperation preAdd = new NotContainsOperation();
 		executeOperation(other, lbs, ubs, preAdd);
 
 		if (!preAdd.getResult())
@@ -389,7 +389,7 @@ public class Slice {
 
 	}
 
-	private class CheckAddSliceOperation implements Operation {
+	private class NotContainsOperation implements Operation {
 
 		private boolean	result	= true;
 

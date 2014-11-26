@@ -1,9 +1,7 @@
 package org.mqnaas.core.api.slicing;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,65 +114,21 @@ public class Slice {
 	public void cut(Slice other) throws SlicingException {
 
 		log.info("Cutting slice");
-		List<SliceCube> cubes = new ArrayList<SliceCube>();
 
 		compareSliceDefinition(other);
-		// FIXME it build slicecubes of length 1 for each dimension. We have to improve it.
 
-		switch (units.length) {
-			case 1:
-				boolean d1[] = (boolean[]) data;
-				boolean otherD1[] = (boolean[]) other.data;
+		int[] lbs = new int[units.length], ubs = new int[units.length];
 
-				for (int i = 0; i < d1.length; i++)
-					if (otherD1[i] && !d1[i])
-						throw new SlicingException("Given slice contains values that are already in the original slice.");
-					else if (otherD1[i] && d1[i]) {
-						Range[] ranges = { new Range(i, i) };
-						SliceCube cube = new SliceCube(ranges);
-						cubes.add(cube);
-					}
+		initUpperBounds(ubs);
 
-				break;
+		ContainsOperation contains = new ContainsOperation();
+		executeOperation(other, lbs, ubs, contains);
 
-			case 2:
-				boolean d2[][] = (boolean[][]) data;
-				boolean otherD2[][] = (boolean[][]) other.data;
+		if (!contains.getResult())
+			throw new SlicingException("Given slice contains values that are not in the original slice.");
 
-				for (int i = 0; i < d2.length; i++)
-					for (int j = 0; j < d2.length; j++)
-						if (otherD2[i][j] && !d2[i][j])
-							throw new SlicingException("Given slice contains values that are already in the original slice.");
-						else if (otherD2[i][j] && d2[i][j]) {
-							Range[] ranges = { new Range(i, i), new Range(j, j) };
-							SliceCube cube = new SliceCube(ranges);
-							cubes.add(cube);
-						}
-				break;
-
-			case 3:
-
-				boolean d3[][][] = (boolean[][][]) data;
-				boolean otherD3[][][] = (boolean[][][]) other.data;
-
-				for (int i = 0; i < d3.length; i++)
-					for (int j = 0; j < d3[0].length; j++)
-						for (int k = 0; k < d3[0][0].length; k++)
-							if (otherD3[i][j][k] && !d3[i][j][k])
-								throw new SlicingException("Given slice contains values that are already in the original slice.");
-							else if (otherD3[i][j][k] && d3[i][j][k]) {
-								Range[] ranges = { new Range(i, i), new Range(j, j), new Range(k, k) };
-								SliceCube cube = new SliceCube(ranges);
-								cubes.add(cube);
-							}
-				break;
-
-			default:
-				throw new RuntimeException(
-						"Only up to three dimensions implemented");
-		}
-
-		unset(cubes.toArray(new SliceCube[cubes.size()]));
+		CutOperation cut = new CutOperation();
+		executeOperation(other, lbs, ubs, cut);
 
 		log.info("Slice cut");
 
@@ -463,6 +417,17 @@ public class Slice {
 
 			return true;
 
+		}
+
+	}
+
+	private class CutOperation implements Operation {
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			if (other.get(coords))
+				set(coords, false);
+			return true;
 		}
 
 	}

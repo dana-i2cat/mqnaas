@@ -525,4 +525,105 @@ public class SliceTest {
 		System.out.println(originalSlice);
 
 	}
+
+	@Test
+	public void addSliceEfficiencyTest() throws SlicingException {
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+		SliceUnit[] otherUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+
+		int[] size = { 16, 16, 4096 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(otherUnits, size);
+
+		// original slize contains "false" for all fields. initialize another slice with all values to true
+		Range[] otherRanges = new Range[3];
+		otherRanges[0] = new Range(0, 15);
+		otherRanges[1] = new Range(0, 15);
+		otherRanges[2] = new Range(0, 4095);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		long startTime = System.currentTimeMillis();
+		originalSlice.add(otherSlice);
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("#####################################");
+		System.out.println("## addSliceEfficiencyTest ##");
+		System.out.println("#####################################\n");
+		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+
+	}
+
+	@Test
+	public void cutSliceEfficiencyTest() throws SlicingException {
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+		SliceUnit[] otherUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+
+		int[] size = { 16, 16, 4096 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(otherUnits, size);
+
+		// initialize both slices to true
+
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 15);
+		originalRanges[1] = new Range(0, 15);
+		originalRanges[2] = new Range(0, 4095);
+
+		originalSlice.set(new SliceCube(originalRanges));
+		otherSlice.set(new SliceCube(originalRanges));
+
+		long startTime = System.currentTimeMillis();
+		originalSlice.cut(otherSlice);
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("#####################################");
+		System.out.println("## cutSliceEfficiencyTest ##");
+		System.out.println("#####################################\n");
+		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+
+	}
+
+	@Test
+	public void setEfficiencyTest() throws SlicingException {
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+
+		int[] size = { 16, 16, 4096 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+
+		// initialize both slices to true
+
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 15);
+		originalRanges[1] = new Range(0, 15);
+		originalRanges[2] = new Range(0, 4095);
+
+		long startTime = System.currentTimeMillis();
+		originalSlice.set(new SliceCube(originalRanges));
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("#####################################");
+		System.out.println("## setEfficiencyTest ##");
+		System.out.println("#####################################\n");
+		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+
+	}
 }

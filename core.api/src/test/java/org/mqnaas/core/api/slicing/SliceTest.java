@@ -291,8 +291,22 @@ public class SliceTest {
 		System.out.println(originalSlice);
 		System.out.println("Slice to add :");
 		System.out.println(otherSlice);
+
 		// call to method
 		originalSlice.add(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
 
 		System.out.println("Final slice.");
 		System.out.println(originalSlice);
@@ -355,6 +369,157 @@ public class SliceTest {
 		System.out.println(otherSlice);
 		// call to method
 		originalSlice.add(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
+	public void cutSlice3Dtest() throws SlicingException {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
+		SliceUnit[] otherUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
+
+		int[] size = { 2, 3, 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(otherUnits, size);
+
+		// initialize original slice with cube : ports (0-1), time (0-1), slice(0-2)
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+		originalRanges[2] = new Range(0, 2);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		// initialize another slice with: cube : ports (0-1), time (0-1), slice(1)
+		Range[] otherRanges = new Range[3];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 1);
+		otherRanges[2] = new Range(1, 1);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("####################");
+		System.out.println("## cutSlice3Dtest ##");
+		System.out.println("####################\n");
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to cut :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.cut(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XOXO").append("\n");
+		sb.append("XOXO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+		sb.append("XOXO").append("\n");
+		sb.append("XOXO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
+	public void cutSliceNotContinousCubes3DTest() throws SlicingException {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
+		SliceUnit[] otherUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
+
+		int[] size = { 2, 3, 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(otherUnits, size);
+
+		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,2)
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+		originalRanges[2] = new Range(0, 0);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+		originalRanges[2] = new Range(2, 2);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		// initialize another slice with same cube : ports (0-1), time (0-1), slice(0,2)
+		Range[] otherRanges = new Range[3];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 1);
+		otherRanges[2] = new Range(0, 0);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		otherRanges = new Range[3];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 1);
+		otherRanges[2] = new Range(2, 2);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("#####################################");
+		System.out.println("## cutSliceNotContinousCubes3DTest ##");
+		System.out.println("#####################################\n");
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to cut :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.cut(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("OOOO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("OOOO").append("\n");
+		sb.append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
 
 		System.out.println("Final slice.");
 		System.out.println(originalSlice);

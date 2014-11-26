@@ -185,6 +185,79 @@ public class Slice {
 	}
 
 	/**
+	 * 
+	 * @param other
+	 * @return
+	 * @throws SlicingException
+	 */
+	public void cut(Slice other) throws SlicingException {
+
+		log.info("Cutting slice");
+		List<SliceCube> cubes = new ArrayList<SliceCube>();
+
+		compareSliceDefinition(other);
+		// FIXME it build slicecubes of length 1 for each dimension. We have to improve it.
+
+		switch (units.length) {
+			case 1:
+				boolean d1[] = (boolean[]) data;
+				boolean otherD1[] = (boolean[]) other.data;
+
+				for (int i = 0; i < d1.length; i++)
+					if (otherD1[i] && !d1[i])
+						throw new SlicingException("Given slice contains values that are already in the original slice.");
+					else if (otherD1[i] && d1[i]) {
+						Range[] ranges = { new Range(i, i) };
+						SliceCube cube = new SliceCube(ranges);
+						cubes.add(cube);
+					}
+
+				break;
+
+			case 2:
+				boolean d2[][] = (boolean[][]) data;
+				boolean otherD2[][] = (boolean[][]) other.data;
+
+				for (int i = 0; i < d2.length; i++)
+					for (int j = 0; j < d2.length; j++)
+						if (otherD2[i][j] && !d2[i][j])
+							throw new SlicingException("Given slice contains values that are already in the original slice.");
+						else if (otherD2[i][j] && d2[i][j]) {
+							Range[] ranges = { new Range(i, i), new Range(j, j) };
+							SliceCube cube = new SliceCube(ranges);
+							cubes.add(cube);
+						}
+				break;
+
+			case 3:
+
+				boolean d3[][][] = (boolean[][][]) data;
+				boolean otherD3[][][] = (boolean[][][]) other.data;
+
+				for (int i = 0; i < d3.length; i++)
+					for (int j = 0; j < d3[0].length; j++)
+						for (int k = 0; k < d3[0][0].length; k++)
+							if (otherD3[i][j][k] && !d3[i][j][k])
+								throw new SlicingException("Given slice contains values that are already in the original slice.");
+							else if (otherD3[i][j][k] && d3[i][j][k]) {
+								Range[] ranges = { new Range(i, i), new Range(j, j), new Range(k, k) };
+								SliceCube cube = new SliceCube(ranges);
+								cubes.add(cube);
+							}
+				break;
+
+			default:
+				throw new RuntimeException(
+						"Only up to three dimensions implemented");
+		}
+
+		unset(cubes.toArray(new SliceCube[cubes.size()]));
+
+		log.info("Slice cut");
+
+	}
+
+	/**
 	 * In the original slice cube, marks as used all the positions defined in the received {@link SliceCube slice cubes}.
 	 * 
 	 * @param cubes
@@ -205,6 +278,21 @@ public class Slice {
 			set(lowerBounds, upperBounds, true);
 		}
 
+	}
+
+	void unset(SliceCube... cubes) {
+		int[] lowerBounds = new int[units.length];
+		int[] upperBounds = new int[units.length];
+
+		for (SliceCube cube : cubes) {
+			Range[] ranges = cube.getRanges();
+			for (int i = 0; i < units.length; i++) {
+				lowerBounds[i] = ranges[i].getLowerBound();
+				upperBounds[i] = ranges[i].getUpperBound();
+			}
+
+			set(lowerBounds, upperBounds, false);
+		}
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.slicing;
+package org.mqnaas.core.api.slicing.serialization;
 
 import java.io.IOException;
 
@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mqnaas.core.api.slicing.SliceUnit;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 

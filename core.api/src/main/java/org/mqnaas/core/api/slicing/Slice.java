@@ -1,7 +1,12 @@
 package org.mqnaas.core.api.slicing;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Georg Mansky-Kummert (i2CAT)
@@ -10,8 +15,10 @@ import java.util.Arrays;
  */
 public class Slice {
 
-	private SliceUnit[]	units;
-	private Object		data;
+	private static final Logger	log	= LoggerFactory.getLogger(Slice.class);
+
+	private SliceUnit[]			units;
+	private Object				data;
 
 	public Slice(SliceUnit[] units, int[] sizes) {
 		this.units = units;
@@ -51,26 +58,21 @@ public class Slice {
 	}
 
 	/**
+	 * Checks if the given <code>other</code> {@link Slice} is contained in this one. A slice is contained in another slice if the cubes defining this
+	 * slice do exists in the original one and are part of it.
 	 * 
 	 * @param other
-	 * @return
+	 *            Slice to be compared.
+	 * @return <code>true</code> if the <code>other</code> slice is contained into this one. <code>false</code> otherwise.
 	 */
 	public boolean contains(Slice other) {
 
-		if (other.getUnits().length != this.units.length)
-			throw new IllegalArgumentException("Only slices with same dimensions can be compared.");
-
-		for (int i = 0; i < this.units.length; i++)
-			if (!this.units[i].equals(other.units[i]))
-				throw new IllegalArgumentException("Slices units must be defined in same order.");
+		compareSliceDefinition(other);
 
 		switch (units.length) {
 			case 1:
 				boolean d1[] = (boolean[]) data;
 				boolean otherD1[] = (boolean[]) other.data;
-
-				if (d1.length != otherD1.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
 
 				for (int i = 0; i < d1.length; i++)
 					if (otherD1[i] && !d1[i])
@@ -80,11 +82,6 @@ public class Slice {
 			case 2:
 				boolean d2[][] = (boolean[][]) data;
 				boolean otherD2[][] = (boolean[][]) other.data;
-
-				if (d2.length != otherD2.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
-				if (d2[0].length != otherD2.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[1]);
 
 				for (int i = 0; i < d2.length; i++)
 					for (int j = 0; j < d2.length; j++)
@@ -97,13 +94,6 @@ public class Slice {
 
 				boolean d3[][][] = (boolean[][][]) data;
 				boolean otherD3[][][] = (boolean[][][]) other.data;
-
-				if (d3.length != otherD3.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
-				if (d3[0].length != otherD3[0].length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[1]);
-				if (d3[0][0].length != otherD3[0][0].length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[2]);
 
 				for (int i = 0; i < d3.length; i++)
 					for (int j = 0; j < d3[0].length; j++)
@@ -119,6 +109,79 @@ public class Slice {
 		}
 
 		return true;
+	}
+
+	/**
+	 * 
+	 * @param slice
+	 * @throws SlicingException
+	 */
+	public void add(Slice other) throws SlicingException {
+
+		log.info("Adding slice.");
+
+		compareSliceDefinition(other);
+
+		// FIXME it build slicecubes of length 1 for each dimension. We have to improve it.
+		List<SliceCube> cubes = new ArrayList<SliceCube>();
+
+		switch (units.length) {
+			case 1:
+				boolean d1[] = (boolean[]) data;
+				boolean otherD1[] = (boolean[]) other.data;
+
+				for (int i = 0; i < d1.length; i++)
+					if (otherD1[i] && d1[i])
+						throw new SlicingException("Given slice contains values that are already in the original slice.");
+					else if (otherD1[i] && !d1[i]) {
+						Range[] ranges = { new Range(i, i) };
+						SliceCube cube = new SliceCube(ranges);
+						cubes.add(cube);
+					}
+
+				break;
+
+			case 2:
+				boolean d2[][] = (boolean[][]) data;
+				boolean otherD2[][] = (boolean[][]) other.data;
+
+				for (int i = 0; i < d2.length; i++)
+					for (int j = 0; j < d2.length; j++)
+						if (otherD2[i][j] && d2[i][j])
+							throw new SlicingException("Given slice contains values that are already in the original slice.");
+						else if (otherD2[i][j] && !d2[i][j]) {
+							Range[] ranges = { new Range(i, i), new Range(j, j) };
+							SliceCube cube = new SliceCube(ranges);
+							cubes.add(cube);
+						}
+				break;
+
+			case 3:
+
+				boolean d3[][][] = (boolean[][][]) data;
+				boolean otherD3[][][] = (boolean[][][]) other.data;
+
+				for (int i = 0; i < d3.length; i++)
+					for (int j = 0; j < d3[0].length; j++)
+						for (int k = 0; k < d3[0][0].length; k++)
+							if (otherD3[i][j][k] && d3[i][j][k])
+								throw new SlicingException("Given slice contains values that are already in the original slice.");
+							else if (otherD3[i][j][k] && !d3[i][j][k]) {
+								Range[] ranges = { new Range(i, i), new Range(j, j), new Range(k, k) };
+								SliceCube cube = new SliceCube(ranges);
+								cubes.add(cube);
+							}
+				break;
+
+			default:
+				throw new RuntimeException(
+						"Only up to three dimensions implemented");
+
+		}
+
+		set(cubes.toArray(new SliceCube[cubes.size()]));
+
+		log.info("Slice added");
 	}
 
 	/**
@@ -199,6 +262,58 @@ public class Slice {
 				throw new RuntimeException(
 						"Only up to three dimensions implemented");
 		}
+	}
+
+	private void compareSliceDefinition(Slice other) {
+
+		log.debug("Comparing if both slices have same dimensions and same length for each slice units.");
+
+		if (other.getUnits().length != this.units.length)
+			throw new IllegalArgumentException("Only slices with same dimensions can be compared.");
+
+		for (int i = 0; i < this.units.length; i++)
+			if (!this.units[i].equals(other.units[i]))
+				throw new IllegalArgumentException("Slices units must be defined in same order.");
+
+		switch (units.length) {
+			case 1:
+				boolean d1[] = (boolean[]) data;
+				boolean otherD1[] = (boolean[]) other.data;
+
+				if (d1.length != otherD1.length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
+
+				break;
+			case 2:
+
+				boolean d2[][] = (boolean[][]) data;
+				boolean otherD2[][] = (boolean[][]) other.data;
+
+				if (d2.length != otherD2.length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
+				if (d2[0].length != otherD2.length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[1]);
+
+				break;
+			case 3:
+				boolean d3[][][] = (boolean[][][]) data;
+				boolean otherD3[][][] = (boolean[][][]) other.data;
+
+				if (d3.length != otherD3.length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
+				if (d3[0].length != otherD3[0].length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[1]);
+				if (d3[0][0].length != otherD3[0][0].length)
+					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[2]);
+
+				break;
+			default:
+				throw new RuntimeException(
+						"Only up to three dimensions implemented");
+		}
+
+		log.debug("Slices comparison ended successfully.");
+
 	}
 
 	@Override

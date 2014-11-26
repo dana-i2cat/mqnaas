@@ -91,64 +91,18 @@ public class Slice {
 
 		compareSliceDefinition(other);
 
-		// FIXME it build slicecubes of length 1 for each dimension. We have to improve it.
-		List<SliceCube> cubes = new ArrayList<SliceCube>();
+		int[] lbs = new int[units.length], ubs = new int[units.length];
 
-		switch (units.length) {
-			case 1:
-				boolean d1[] = (boolean[]) data;
-				boolean otherD1[] = (boolean[]) other.data;
+		initUpperBounds(ubs);
 
-				for (int i = 0; i < d1.length; i++)
-					if (otherD1[i] && d1[i])
-						throw new SlicingException("Given slice contains values that are already in the original slice.");
-					else if (otherD1[i] && !d1[i]) {
-						Range[] ranges = { new Range(i, i) };
-						SliceCube cube = new SliceCube(ranges);
-						cubes.add(cube);
-					}
+		CheckAddSliceOperation preAdd = new CheckAddSliceOperation();
+		executeOperation(other, lbs, ubs, preAdd);
 
-				break;
+		if (!preAdd.getResult())
+			throw new SlicingException("Given slice contains values that are already in the original slice.");
 
-			case 2:
-				boolean d2[][] = (boolean[][]) data;
-				boolean otherD2[][] = (boolean[][]) other.data;
-
-				for (int i = 0; i < d2.length; i++)
-					for (int j = 0; j < d2[0].length; j++)
-						if (otherD2[i][j] && d2[i][j])
-							throw new SlicingException("Given slice contains values that are already in the original slice.");
-						else if (otherD2[i][j] && !d2[i][j]) {
-							Range[] ranges = { new Range(i, i), new Range(j, j) };
-							SliceCube cube = new SliceCube(ranges);
-							cubes.add(cube);
-						}
-				break;
-
-			case 3:
-
-				boolean d3[][][] = (boolean[][][]) data;
-				boolean otherD3[][][] = (boolean[][][]) other.data;
-
-				for (int i = 0; i < d3.length; i++)
-					for (int j = 0; j < d3[0].length; j++)
-						for (int k = 0; k < d3[0][0].length; k++)
-							if (otherD3[i][j][k] && d3[i][j][k])
-								throw new SlicingException("Given slice contains values that are already in the original slice.");
-							else if (otherD3[i][j][k] && !d3[i][j][k]) {
-								Range[] ranges = { new Range(i, i), new Range(j, j), new Range(k, k) };
-								SliceCube cube = new SliceCube(ranges);
-								cubes.add(cube);
-							}
-				break;
-
-			default:
-				throw new RuntimeException(
-						"Only up to three dimensions implemented");
-
-		}
-
-		set(cubes.toArray(new SliceCube[cubes.size()]));
+		AddOperation add = new AddOperation();
+		executeOperation(other, lbs, ubs, add);
 
 		log.info("Slice added");
 	}
@@ -477,6 +431,38 @@ public class Slice {
 
 		public boolean getResult() {
 			return result;
+		}
+
+	}
+
+	private class CheckAddSliceOperation implements Operation {
+
+		private boolean	result	= true;
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			if (other.get(coords) && get(coords))
+				result = false;
+
+			return result;
+
+		}
+
+		public boolean getResult() {
+			return result;
+		}
+
+	}
+
+	private class AddOperation implements Operation {
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			if (other.get(coords))
+				set(coords, true);
+
+			return true;
+
 		}
 
 	}

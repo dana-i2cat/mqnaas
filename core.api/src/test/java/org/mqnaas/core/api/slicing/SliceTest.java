@@ -923,7 +923,6 @@ public class SliceTest {
 	}
 
 	@Test
-	@Ignore
 	public void containsEfficiencyTest() throws SlicingException {
 		// test initialization
 		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);

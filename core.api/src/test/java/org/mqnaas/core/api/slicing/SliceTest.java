@@ -1,6 +1,7 @@
 package org.mqnaas.core.api.slicing;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -216,6 +217,100 @@ public class SliceTest {
 
 	}
 
+	@Test
+	public void contains2DTest() {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit };
+
+		int[] size = { 3, 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// #########################
+		// ## TEST EXPECTING TRUE ##
+		// #########################
+
+		// initialize original cube : ports (0-1), time (0-1),
+		Range[] originalRanges = new Range[2];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+
+		// initialize sub-cube, ports(0-1), time(0)Should be contained in original one.
+		Range[] otherRanges = new Range[2];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 0);
+
+		originalSlice.set(new SliceCube(originalRanges));
+		otherSlice.set(new SliceCube(otherRanges));
+
+		Assert.assertTrue("OtherSice should be contained in original slice.", originalSlice.contains(otherSlice));
+
+		// ##########################
+		// ## TEST EXPECTING FALSE ##
+		// ##########################
+
+		// initialize sub-cube, ports(0-1), time(0-2) Should not be contained in original one, since time[2] is not in originaLSlice.
+		otherRanges = new Range[2];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 2);
+
+		otherSlice = new Slice(originalUnits, size);
+		otherSlice.set(new SliceCube(otherRanges));
+
+		Assert.assertFalse("OtherSice should not be contained in original slice.", originalSlice.contains(otherSlice));
+
+	}
+
+	@Test
+	public void contains1DTest() {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit };
+
+		int[] size = { 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// #########################
+		// ## TEST EXPECTING TRUE ##
+		// #########################
+
+		// initialize original cube : ports (0-2)
+		Range[] originalRanges = new Range[1];
+		originalRanges[0] = new Range(0, 2);
+
+		// initialize sub-cube, ports(0-1). Should be contained in original one.
+		Range[] otherRanges = new Range[1];
+		otherRanges[0] = new Range(0, 1);
+
+		originalSlice.set(new SliceCube(originalRanges));
+		otherSlice.set(new SliceCube(otherRanges));
+
+		Assert.assertTrue("OtherSice should be contained in original slice.", originalSlice.contains(otherSlice));
+
+		// ##########################
+		// ## TEST EXPECTING FALSE ##
+		// ##########################
+
+		// initialize sub-cube, ports(0-3)
+		otherRanges = new Range[1];
+		otherRanges[0] = new Range(0, 3);
+
+		otherSlice = new Slice(originalUnits, size);
+		otherSlice.set(new SliceCube(otherRanges));
+
+		Assert.assertFalse("OtherSice should not be contained in original slice.", originalSlice.contains(otherSlice));
+
+	}
+
 	@Test(expected = SlicingException.class)
 	public void addSliceAlreadyExistingValues3DTest() throws SlicingException {
 
@@ -305,6 +400,105 @@ public class SliceTest {
 		sb.append("XXXX").append("\n");
 		sb.append("XXXX").append("\n");
 		sb.append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
+	public void addSlice2DTest() throws SlicingException {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit };
+
+		int[] size = { 3, 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// initialize original cube : ports (0-1), time (0-1)
+		Range[] originalRanges = new Range[2];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+
+		// initialize sub-cube, ports(0-1), time(2-3)
+		Range[] otherRanges = new Range[2];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(2, 3);
+
+		System.out.println("####################");
+		System.out.println("## addSlice2DTest ##");
+		System.out.println("####################\n");
+
+		originalSlice.set(new SliceCube(originalRanges));
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to add :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.add(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XXXX").append("\n");
+		sb.append("XXXX").append("\n");
+		sb.append("OOOO").append("\n");
+
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
+	public void addSlice1DTest() throws SlicingException {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit };
+
+		int[] size = { 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// initialize original cube : ports (0-2)
+		Range[] originalRanges = new Range[1];
+		originalRanges[0] = new Range(0, 2);
+
+		// initialize sub-cube, ports(3)
+		Range[] otherRanges = new Range[1];
+		otherRanges[0] = new Range(3, 3);
+
+		System.out.println("####################");
+		System.out.println("## addSlice1DTest ##");
+		System.out.println("####################\n");
+
+		originalSlice.set(new SliceCube(originalRanges));
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to add :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.add(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XXXX");
 
 		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
 
@@ -451,6 +645,104 @@ public class SliceTest {
 	}
 
 	@Test
+	public void cutSlice2DTest() throws SlicingException {
+
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit };
+
+		int[] size = { 3, 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// initialize original slice with cube : ports (0-1), time (0-1)
+		Range[] originalRanges = new Range[2];
+		originalRanges[0] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 1);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		// initialize another slice with: cube : ports (0-1), time (0)
+		Range[] otherRanges = new Range[2];
+		otherRanges[0] = new Range(0, 1);
+		otherRanges[1] = new Range(0, 0);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("####################");
+		System.out.println("## cutSlice2DTest ##");
+		System.out.println("####################\n");
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to cut :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.cut(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("OXOO").append("\n");
+		sb.append("OXOO").append("\n");
+		sb.append("OOOO").append("\n");
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
+	public void cutSlice1DTest() throws SlicingException {
+		// test initialization
+
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit[] originalUnits = { portSliceUnit };
+
+		int[] size = { 4 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+		Slice otherSlice = new Slice(originalUnits, size);
+
+		// initialize original slice with cube : ports (0-2)
+		Range[] originalRanges = new Range[1];
+		originalRanges[0] = new Range(0, 2);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		// initialize another slice with: cube : ports (1-2)
+		Range[] otherRanges = new Range[1];
+		otherRanges[0] = new Range(1, 2);
+
+		otherSlice.set(new SliceCube(otherRanges));
+
+		System.out.println("####################");
+		System.out.println("## cutSlice1DTest ##");
+		System.out.println("####################\n");
+
+		System.out.println("Original Slice:");
+		System.out.println(originalSlice);
+		System.out.println("Slice to cut :");
+		System.out.println(otherSlice);
+
+		// call to method
+		originalSlice.cut(otherSlice);
+
+		// asserts and print final slice
+		StringBuilder sb = new StringBuilder();
+		sb.append("XOOO");
+		Assert.assertEquals("Final slice does not look like it meant to. ", sb.toString(), originalSlice.toString());
+
+		System.out.println("Final slice.");
+		System.out.println(originalSlice);
+
+	}
+
+	@Test
 	public void cutSliceNotContinousCubes3DTest() throws SlicingException {
 
 		// test initialization
@@ -527,6 +819,7 @@ public class SliceTest {
 	}
 
 	@Test
+	@Ignore
 	public void addSliceEfficiencyTest() throws SlicingException {
 		// test initialization
 		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
@@ -561,6 +854,7 @@ public class SliceTest {
 	}
 
 	@Test
+	@Ignore
 	public void cutSliceEfficiencyTest() throws SlicingException {
 		// test initialization
 		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
@@ -597,6 +891,7 @@ public class SliceTest {
 	}
 
 	@Test
+	@Ignore
 	public void setEfficiencyTest() throws SlicingException {
 		// test initialization
 		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
@@ -622,6 +917,39 @@ public class SliceTest {
 
 		System.out.println("#####################################");
 		System.out.println("## setEfficiencyTest ##");
+		System.out.println("#####################################\n");
+		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+
+	}
+
+	@Test
+	@Ignore
+	public void containsEfficiencyTest() throws SlicingException {
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+
+		int[] size = { 16, 16, 4096 };
+
+		Slice originalSlice = new Slice(originalUnits, size);
+
+		// initialize both slices to true
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 15);
+		originalRanges[1] = new Range(0, 15);
+		originalRanges[2] = new Range(0, 4095);
+
+		originalSlice.set(new SliceCube(originalRanges));
+
+		long startTime = System.currentTimeMillis();
+		originalSlice.contains(originalSlice);
+		long endTime = System.currentTimeMillis();
+
+		System.out.println("#####################################");
+		System.out.println("## containsEfficiencyTest ##");
 		System.out.println("#####################################\n");
 		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
 

@@ -146,7 +146,7 @@ public class Slice {
 				boolean otherD2[][] = (boolean[][]) other.data;
 
 				for (int i = 0; i < d2.length; i++)
-					for (int j = 0; j < d2.length; j++)
+					for (int j = 0; j < d2[0].length; j++)
 						if (otherD2[i][j] && d2[i][j])
 							throw new SlicingException("Given slice contains values that are already in the original slice.");
 						else if (otherD2[i][j] && !d2[i][j]) {
@@ -309,19 +309,19 @@ public class Slice {
 	private void set(int[] lbs, int[] ubs, boolean v) {
 		int l = lbs.length;
 
-		int[] c = Arrays.copyOfRange(lbs, 0, l);
+		int[] coords = Arrays.copyOfRange(lbs, 0, l);
 
 		do {
-			set(c, v);
+			set(coords, v);
 
 			int i = 0;
-			c[i]++;
-			while (i < l - 1 && c[i] > ubs[i]) {
-				c[i] = lbs[i];
+			coords[i]++;
+			while (i < l - 1 && coords[i] > ubs[i]) {
+				coords[i] = lbs[i];
 				i++;
-				c[i]++;
+				coords[i]++;
 			}
-		} while (c[l - 1] <= ubs[l - 1]);
+		} while (coords[l - 1] <= ubs[l - 1]);
 	}
 
 	/**
@@ -379,7 +379,7 @@ public class Slice {
 
 				if (d2.length != otherD2.length)
 					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
-				if (d2[0].length != otherD2.length)
+				if (d2[0].length != otherD2[0].length)
 					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[1]);
 
 				break;

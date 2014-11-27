@@ -116,6 +116,9 @@ public class Slice {
 
 		compareSliceDefinition(other);
 
+		if (other.isInOperationalState())
+			throw new SlicingException("ja");
+
 		int[] lbs = new int[units.length], ubs = new int[units.length];
 
 		initUpperBounds(ubs);
@@ -228,6 +231,24 @@ public class Slice {
 				throw new RuntimeException(
 						"Only up to three dimensions implemented");
 		}
+	}
+
+	boolean isInOperationalState() {
+
+		int[] lbs = new int[units.length], ubs = new int[units.length];
+		initUpperBounds(ubs);
+
+		int sizes[] = new int[ubs.length];
+		for (int i = 0; i < ubs.length; i++)
+			sizes[i] = ubs[i] + 1;
+
+		Slice other = new Slice(units, sizes);
+		other.currentData = this.originalData;
+
+		ContainsOperation contains = new ContainsOperation();
+		executeOperation(other, lbs, ubs, contains);
+
+		return !contains.getResult();
 	}
 
 	private void compareSliceDefinition(Slice other) {

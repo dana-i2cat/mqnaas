@@ -790,6 +790,39 @@ public class SliceTest {
 	}
 
 	@Test
+	public void isInOperationalStateTest() {
+		// test initialization
+		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
+		SliceUnit timeSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
+		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
+
+		SliceUnit[] units = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
+
+		int[] sizes = { 2, 3, 4 };
+
+		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,0)
+		Range[] ranges = new Range[3];
+		ranges[0] = new Range(0, 1);
+		ranges[1] = new Range(0, 1);
+		ranges[2] = new Range(0, 0);
+
+		Slice slice = new Slice(units, sizes, new SliceCube(ranges));
+
+		Assert.assertFalse("Slice should not be in operational state, since it contains same current and original data.",
+				slice.isInOperationalState());
+
+		ranges = new Range[3];
+		ranges[0] = new Range(0, 0);
+		ranges[1] = new Range(0, 1);
+		ranges[2] = new Range(0, 0);
+		slice.unset(new SliceCube(ranges));
+
+		Assert.assertTrue("Slice should  be in operational state, since it does not contain same current and original data.",
+				slice.isInOperationalState());
+
+	}
+
+	@Test
 	@Ignore
 	public void addSliceEfficiencyTest() throws SlicingException {
 		// test initialization

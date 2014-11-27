@@ -20,30 +20,29 @@ public class Slice {
 	private Object				originalData;
 	private Object				currentData;
 
+	/**
+	 * Creates a slice instance with so many dimensions as {@link SliceUnit}, and each dimension with a specific size. <code>size[i]</code> makes
+	 * reference to the slice unit <code>units[i]</code>, so the order of the arrays is important and should match. The slice is initialized with the
+	 * values defined in the different {@link SliceCube}
+	 * 
+	 * @param units
+	 *            Slice units forming the slice.
+	 * @param sizes
+	 *            Size of each slice unit. Order must match the one defined in the <code>units</code> array.
+	 * @param sliceCubes
+	 *            Set of {@link SliceCube} containing the initialization data of the slice.
+	 */
 	public Slice(SliceUnit[] units, int[] sizes, SliceCube... sliceCubes) {
+
+		if (!(units.length == sizes.length))
+			throw new IllegalArgumentException("Each slice unit should contain a specific declared size.");
+
 		this.units = units;
 		currentData = Array.newInstance(boolean.class, sizes);
 		set(sliceCubes);
 
 		cloneSlice();
 
-	}
-
-	private void cloneSlice() {
-		switch (units.length) {
-			case 1:
-				originalData = SerializationUtils.clone((boolean[]) currentData);
-				break;
-			case 2:
-				originalData = SerializationUtils.clone((boolean[][]) currentData);
-				break;
-			case 3:
-				originalData = SerializationUtils.clone((boolean[][][]) currentData);
-				break;
-			default:
-				throw new RuntimeException(
-						"Only up to three dimensions implemented");
-		}
 	}
 
 	/**
@@ -360,6 +359,26 @@ public class Slice {
 		for (int i = 0; i < units.length; i++) {
 			ubs[i] = Array.getLength(it) - 1;
 			it = Array.get(it, 0);
+		}
+	}
+
+	/**
+	 * Clones the <code>currentData</code> slice into the <code>originalData> one. Up to 3D implemented.
+	 */
+	private void cloneSlice() {
+		switch (units.length) {
+			case 1:
+				originalData = SerializationUtils.clone((boolean[]) currentData);
+				break;
+			case 2:
+				originalData = SerializationUtils.clone((boolean[][]) currentData);
+				break;
+			case 3:
+				originalData = SerializationUtils.clone((boolean[][][]) currentData);
+				break;
+			default:
+				throw new RuntimeException(
+						"Only up to three dimensions implemented");
 		}
 	}
 

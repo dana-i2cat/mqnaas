@@ -152,7 +152,9 @@ public class Slice {
 				upperBounds[i] = ranges[i].getUpperBound();
 			}
 
-			set(lowerBounds, upperBounds, true);
+			SetOperation set = new SetOperation();
+			executeOperation(null, lowerBounds, upperBounds, set);
+
 		}
 
 	}
@@ -168,37 +170,9 @@ public class Slice {
 				upperBounds[i] = ranges[i].getUpperBound();
 			}
 
-			set(lowerBounds, upperBounds, false);
+			UnsetOperation set = new UnsetOperation();
+			executeOperation(null, lowerBounds, upperBounds, set);
 		}
-	}
-
-	/**
-	 * Sets the boolean <code>v</code> value in all positions of the slice for each index between the ranges indicated in the arrays of
-	 * <code>lbs</code> and <code>ubs</code>
-	 * 
-	 * @param lbs
-	 *            Array containing the lower bounds of the different ranges of slice units.
-	 * @param ubs
-	 *            Array containing the upper bounds of the different ranges of slices units.
-	 * @param v
-	 *            boolean value to be set in these ranges.
-	 */
-	private void set(int[] lbs, int[] ubs, boolean v) {
-		int l = lbs.length;
-
-		int[] coords = Arrays.copyOfRange(lbs, 0, l);
-
-		do {
-			set(coords, v);
-
-			int i = 0;
-			coords[i]++;
-			while (i < l - 1 && coords[i] > ubs[i]) {
-				coords[i] = lbs[i];
-				i++;
-				coords[i]++;
-			}
-		} while (coords[l - 1] <= ubs[l - 1]);
 	}
 
 	/**
@@ -427,6 +401,28 @@ public class Slice {
 		public boolean execute(Slice other, int[] coords) {
 			if (other.get(coords))
 				set(coords, false);
+			return true;
+		}
+
+	}
+
+	private class SetOperation implements Operation {
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			set(coords, true);
+
+			return true;
+		}
+
+	}
+
+	private class UnsetOperation implements Operation {
+
+		@Override
+		public boolean execute(Slice other, int[] coords) {
+			set(coords, false);
+
 			return true;
 		}
 

@@ -849,7 +849,7 @@ public class SliceTest {
 		System.out.println("#####################################");
 		System.out.println("## addSliceEfficiencyTest ##");
 		System.out.println("#####################################\n");
-		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+		System.out.println("Execution time: " + (endTime - startTime) + "ms");
 
 	}
 
@@ -886,7 +886,7 @@ public class SliceTest {
 		System.out.println("#####################################");
 		System.out.println("## cutSliceEfficiencyTest ##");
 		System.out.println("#####################################\n");
-		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+		System.out.println("Execution time: " + (endTime - startTime) + "ms");
 
 	}
 
@@ -918,11 +918,12 @@ public class SliceTest {
 		System.out.println("#####################################");
 		System.out.println("## setEfficiencyTest ##");
 		System.out.println("#####################################\n");
-		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+		System.out.println("Execution time: " + (endTime - startTime) + "ms");
 
 	}
 
 	@Test
+	@Ignore
 	public void containsEfficiencyTest() throws SlicingException {
 		// test initialization
 		SliceUnit portSliceUnit = new SliceUnit(PORT_SLICE_UNIT_NAME);
@@ -950,7 +951,7 @@ public class SliceTest {
 		System.out.println("#####################################");
 		System.out.println("## containsEfficiencyTest ##");
 		System.out.println("#####################################\n");
-		System.out.println("\n Execution time: " + (endTime - startTime) + "ms");
+		System.out.println("Execution time: " + (endTime - startTime) + "ms");
 
 	}
 }

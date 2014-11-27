@@ -3,6 +3,7 @@ package org.mqnaas.core.api.slicing;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 
+import org.apache.commons.lang.SerializationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +17,33 @@ public class Slice {
 	private static final Logger	log	= LoggerFactory.getLogger(Slice.class);
 
 	private SliceUnit[]			units;
-	private Object				data;
+	private Object				originalData;
+	private Object				currentData;
 
-	public Slice(SliceUnit[] units, int[] sizes) {
+	public Slice(SliceUnit[] units, int[] sizes, SliceCube... sliceCubes) {
 		this.units = units;
-		data = Array.newInstance(boolean.class, sizes);
+		currentData = Array.newInstance(boolean.class, sizes);
+		set(sliceCubes);
+
+		cloneSlice();
+
+	}
+
+	private void cloneSlice() {
+		switch (units.length) {
+			case 1:
+				originalData = SerializationUtils.clone((boolean[]) currentData);
+				break;
+			case 2:
+				originalData = SerializationUtils.clone((boolean[][]) currentData);
+				break;
+			case 3:
+				originalData = SerializationUtils.clone((boolean[][][]) currentData);
+				break;
+			default:
+				throw new RuntimeException(
+						"Only up to three dimensions implemented");
+		}
 	}
 
 	/**
@@ -39,6 +62,10 @@ public class Slice {
 	 * 
 	 */
 	public boolean get(int[] coords) {
+		return get(currentData, coords);
+	}
+
+	private boolean get(Object data, int[] coords) {
 		switch (units.length) {
 			case 1:
 				boolean d1[] = (boolean[]) data;
@@ -186,15 +213,15 @@ public class Slice {
 	private void set(int[] coords, boolean value) {
 		switch (units.length) {
 			case 1:
-				boolean d1[] = (boolean[]) data;
+				boolean d1[] = (boolean[]) currentData;
 				d1[coords[0]] = value;
 				break;
 			case 2:
-				boolean d2[][] = (boolean[][]) data;
+				boolean d2[][] = (boolean[][]) currentData;
 				d2[coords[0]][coords[1]] = value;
 				break;
 			case 3:
-				boolean d3[][][] = (boolean[][][]) data;
+				boolean d3[][][] = (boolean[][][]) currentData;
 				d3[coords[0]][coords[1]][coords[2]] = value;
 				break;
 			default:
@@ -216,8 +243,8 @@ public class Slice {
 
 		switch (units.length) {
 			case 1:
-				boolean d1[] = (boolean[]) data;
-				boolean otherD1[] = (boolean[]) other.data;
+				boolean d1[] = (boolean[]) currentData;
+				boolean otherD1[] = (boolean[]) other.currentData;
 
 				if (d1.length != otherD1.length)
 					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
@@ -225,8 +252,8 @@ public class Slice {
 				break;
 			case 2:
 
-				boolean d2[][] = (boolean[][]) data;
-				boolean otherD2[][] = (boolean[][]) other.data;
+				boolean d2[][] = (boolean[][]) currentData;
+				boolean otherD2[][] = (boolean[][]) other.currentData;
 
 				if (d2.length != otherD2.length)
 					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
@@ -235,8 +262,8 @@ public class Slice {
 
 				break;
 			case 3:
-				boolean d3[][][] = (boolean[][][]) data;
-				boolean otherD3[][][] = (boolean[][][]) other.data;
+				boolean d3[][][] = (boolean[][][]) currentData;
+				boolean otherD3[][][] = (boolean[][][]) other.currentData;
 
 				if (d3.length != otherD3.length)
 					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units[0]);
@@ -262,7 +289,7 @@ public class Slice {
 
 		switch (units.length) {
 			case 1:
-				boolean d1[] = (boolean[]) data;
+				boolean d1[] = (boolean[]) currentData;
 
 				for (int x = 0; x < d1.length; x++) {
 					if (d1[x])
@@ -272,7 +299,7 @@ public class Slice {
 				}
 				break;
 			case 2:
-				boolean d2[][] = (boolean[][]) data;
+				boolean d2[][] = (boolean[][]) currentData;
 
 				for (int x = 0; x < d2.length; x++) {
 					for (int y = 0; y < d2[0].length; y++) {
@@ -285,7 +312,7 @@ public class Slice {
 				}
 				break;
 			case 3:
-				boolean d3[][][] = (boolean[][][]) data;
+				boolean d3[][][] = (boolean[][][]) currentData;
 
 				for (int x = 0; x < d3.length; x++) {
 					for (int y = 0; y < d3[0].length; y++) {
@@ -307,7 +334,7 @@ public class Slice {
 	}
 
 	private void initUpperBounds(int[] ubs) {
-		Object it = data;
+		Object it = currentData;
 
 		for (int i = 0; i < units.length; i++) {
 			ubs[i] = Array.getLength(it) - 1;
@@ -349,7 +376,7 @@ public class Slice {
 		public boolean execute(Slice other, int[] coords) {
 			if (other.get(coords)) {
 				// the other slice needs this element
-				result &= get(coords);
+				result &= (get(currentData, coords) && get(originalData, coords));
 				return result;
 			}
 
@@ -386,7 +413,8 @@ public class Slice {
 
 		@Override
 		public boolean execute(Slice other, int[] coords) {
-			if (other.get(coords))
+			// we can only add elements that were part of the original slice.
+			if (other.get(coords) && get(originalData, coords))
 				set(coords, true);
 
 			return true;

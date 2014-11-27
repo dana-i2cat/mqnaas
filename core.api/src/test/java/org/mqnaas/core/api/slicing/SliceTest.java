@@ -134,9 +134,6 @@ public class SliceTest {
 
 		int[] size = { 2, 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
-
 		// #########################
 		// ## TEST EXPECTING TRUE ##
 		// #########################
@@ -153,8 +150,8 @@ public class SliceTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(0, 2);
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -168,8 +165,7 @@ public class SliceTest {
 		otherRanges[1] = new Range(0, 2);
 		otherRanges[2] = new Range(0, 3);
 
-		otherSlice = new Slice(otherUnits, size);
-		otherSlice.set(new SliceCube(otherRanges));
+		otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -228,9 +224,6 @@ public class SliceTest {
 
 		int[] size = { 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
 		// #########################
 		// ## TEST EXPECTING TRUE ##
 		// #########################
@@ -245,8 +238,8 @@ public class SliceTest {
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 0);
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -259,8 +252,7 @@ public class SliceTest {
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 2);
 
-		otherSlice = new Slice(originalUnits, size);
-		otherSlice.set(new SliceCube(otherRanges));
+		otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -276,9 +268,6 @@ public class SliceTest {
 
 		int[] size = { 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
 		// #########################
 		// ## TEST EXPECTING TRUE ##
 		// #########################
@@ -291,8 +280,8 @@ public class SliceTest {
 		Range[] otherRanges = new Range[1];
 		otherRanges[0] = new Range(0, 1);
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -304,8 +293,7 @@ public class SliceTest {
 		otherRanges = new Range[1];
 		otherRanges[0] = new Range(0, 3);
 
-		otherSlice = new Slice(originalUnits, size);
-		otherSlice.set(new SliceCube(otherRanges));
+		otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges), new SliceCube(otherRanges));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", originalSlice.contains(otherSlice));
 
@@ -356,20 +344,16 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
 		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
-		SliceUnit[] otherUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
 
 		int[] size = { 2, 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
-
-		// initialize original cube : ports (0-1), time (0-1), slice(0-3)
+		// initialize original cube : ports (0-1), time (0-2), lambda(0-3)
 		Range[] originalRanges = new Range[3];
 		originalRanges[0] = new Range(0, 1);
-		originalRanges[1] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 2);
 		originalRanges[2] = new Range(0, 3);
 
-		// initialize sub-cube, ports(0-1), time(2), slice(0-3). Raw time(2) is false in original slice -> should not fail.
+		// initialize sub-cube, ports(0-1), time(2), lambda(0-3).
 		Range[] otherRanges = new Range[3];
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(2, 2);
@@ -379,8 +363,13 @@ public class SliceTest {
 		System.out.println("## addSlice3DTest ##");
 		System.out.println("####################\n");
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
+
+		// we remove ports (0-1), time (2-2), lambda(0-3) from slice (it will remove it from currentData, not originalData!)
+		Range[] ranges = { new Range(0, 1), new Range(2, 2), new Range(0, 3) };
+		SliceCube cube = new SliceCube(ranges);
+		originalSlice.unset(cube);
 
 		System.out.println("Original Slice:");
 		System.out.println(originalSlice);
@@ -419,13 +408,10 @@ public class SliceTest {
 
 		int[] size = { 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
-		// initialize original cube : ports (0-1), time (0-1)
+		// initialize original cube : ports (0-1), time (0-3)
 		Range[] originalRanges = new Range[2];
 		originalRanges[0] = new Range(0, 1);
-		originalRanges[1] = new Range(0, 1);
+		originalRanges[1] = new Range(0, 3);
 
 		// initialize sub-cube, ports(0-1), time(2-3)
 		Range[] otherRanges = new Range[2];
@@ -436,8 +422,13 @@ public class SliceTest {
 		System.out.println("## addSlice2DTest ##");
 		System.out.println("####################\n");
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
+
+		// we remove ports (0-1), time (2-3) from slice (it will remove it from currentData, not originalData!)
+		Range[] ranges = { new Range(0, 1), new Range(2, 3) };
+		SliceCube cube = new SliceCube(ranges);
+		originalSlice.unset(cube);
 
 		System.out.println("Original Slice:");
 		System.out.println(originalSlice);
@@ -470,12 +461,9 @@ public class SliceTest {
 
 		int[] size = { 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
-		// initialize original cube : ports (0-2)
+		// initialize original cube : ports (0-3)
 		Range[] originalRanges = new Range[1];
-		originalRanges[0] = new Range(0, 2);
+		originalRanges[0] = new Range(0, 3);
 
 		// initialize sub-cube, ports(3)
 		Range[] otherRanges = new Range[1];
@@ -485,15 +473,20 @@ public class SliceTest {
 		System.out.println("## addSlice1DTest ##");
 		System.out.println("####################\n");
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
-		System.out.println("Original Slice:");
+		System.out.println("Current Slice:");
 		System.out.println(originalSlice);
 		System.out.println("Slice to add :");
 		System.out.println(otherSlice);
 
-		// call to method
+		// we remove element[3] from slice (it will remove it from currentData, not originalData!)
+		Range[] ranges = { new Range(3, 3) };
+		SliceCube cube = new SliceCube(ranges);
+		originalSlice.unset(cube);
+
+		// call add method
 		originalSlice.add(otherSlice);
 
 		// asserts and print final slice
@@ -516,27 +509,16 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
 		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
-		SliceUnit[] otherUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
 
 		int[] size = { 2, 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
-
-		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,2)
+		// initialize original slice with cube : ports (0-1), time (0-1), slice(0-3)
 		Range[] originalRanges = new Range[3];
 		originalRanges[0] = new Range(0, 1);
 		originalRanges[1] = new Range(0, 1);
-		originalRanges[2] = new Range(0, 0);
+		originalRanges[2] = new Range(0, 3);
 
-		originalSlice.set(new SliceCube(originalRanges));
-
-		originalRanges = new Range[3];
-		originalRanges[0] = new Range(0, 1);
-		originalRanges[1] = new Range(0, 1);
-		originalRanges[2] = new Range(2, 2);
-
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
 
 		// initialize another slice with: cube : ports (0-1), time (0-1), slice(1,3)
 		Range[] otherRanges = new Range[3];
@@ -544,14 +526,18 @@ public class SliceTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(1, 1);
 
-		otherSlice.set(new SliceCube(otherRanges));
+		Range[] secondOtherRanges = new Range[3];
+		secondOtherRanges[0] = new Range(0, 1);
+		secondOtherRanges[1] = new Range(0, 1);
+		secondOtherRanges[2] = new Range(3, 3);
 
-		otherRanges = new Range[3];
-		otherRanges[0] = new Range(0, 1);
-		otherRanges[1] = new Range(0, 1);
-		otherRanges[2] = new Range(3, 3);
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges), new SliceCube(secondOtherRanges));
 
-		otherSlice.set(new SliceCube(otherRanges));
+		// we remove ports (0-1), time (0-1), lambda(1,3) from slice (it will remove it from currentData, not originalData!)
+		Range[] ranges = { new Range(0, 1), new Range(0, 1), new Range(1, 1) };
+		originalSlice.unset(new SliceCube(ranges));
+		Range[] secondRanges = { new Range(0, 1), new Range(0, 1), new Range(3, 3) };
+		originalSlice.unset(new SliceCube(secondRanges));
 
 		System.out.println("#####################################");
 		System.out.println("## addSliceNotContinousCubes3DTest ##");
@@ -591,12 +577,8 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
 		SliceUnit[] originalUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
-		SliceUnit[] otherUnits = { portSliceUnit, timeSliceUnit, lambdaSliceUnit };
 
 		int[] size = { 2, 3, 4 };
-
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
 
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0-2)
 		Range[] originalRanges = new Range[3];
@@ -604,7 +586,7 @@ public class SliceTest {
 		originalRanges[1] = new Range(0, 1);
 		originalRanges[2] = new Range(0, 2);
 
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
 
 		// initialize another slice with: cube : ports (0-1), time (0-1), slice(1)
 		Range[] otherRanges = new Range[3];
@@ -612,7 +594,7 @@ public class SliceTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(1, 1);
 
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		System.out.println("####################");
 		System.out.println("## cutSlice3Dtest ##");
@@ -655,20 +637,19 @@ public class SliceTest {
 
 		int[] size = { 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
 		// initialize original slice with cube : ports (0-1), time (0-1)
 		Range[] originalRanges = new Range[2];
 		originalRanges[0] = new Range(0, 1);
 		originalRanges[1] = new Range(0, 1);
 
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
 
 		// initialize another slice with: cube : ports (0-1), time (0)
 		Range[] otherRanges = new Range[2];
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 0);
+
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		otherSlice.set(new SliceCube(otherRanges));
 
@@ -705,20 +686,17 @@ public class SliceTest {
 
 		int[] size = { 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(originalUnits, size);
-
 		// initialize original slice with cube : ports (0-2)
 		Range[] originalRanges = new Range[1];
 		originalRanges[0] = new Range(0, 2);
 
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges));
 
 		// initialize another slice with: cube : ports (1-2)
 		Range[] otherRanges = new Range[1];
 		otherRanges[0] = new Range(1, 2);
 
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice otherSlice = new Slice(originalUnits, size, new SliceCube(otherRanges));
 
 		System.out.println("####################");
 		System.out.println("## cutSlice1DTest ##");
@@ -755,23 +733,18 @@ public class SliceTest {
 
 		int[] size = { 2, 3, 4 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
-
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,2)
 		Range[] originalRanges = new Range[3];
 		originalRanges[0] = new Range(0, 1);
 		originalRanges[1] = new Range(0, 1);
 		originalRanges[2] = new Range(0, 0);
 
-		originalSlice.set(new SliceCube(originalRanges));
+		Range[] secondOriginalRanges = new Range[3];
+		secondOriginalRanges[0] = new Range(0, 1);
+		secondOriginalRanges[1] = new Range(0, 1);
+		secondOriginalRanges[2] = new Range(2, 2);
 
-		originalRanges = new Range[3];
-		originalRanges[0] = new Range(0, 1);
-		originalRanges[1] = new Range(0, 1);
-		originalRanges[2] = new Range(2, 2);
-
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(originalUnits, size, new SliceCube(originalRanges), new SliceCube(secondOriginalRanges));
 
 		// initialize another slice with same cube : ports (0-1), time (0-1), slice(0,2)
 		Range[] otherRanges = new Range[3];
@@ -779,14 +752,12 @@ public class SliceTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(0, 0);
 
-		otherSlice.set(new SliceCube(otherRanges));
+		Range[] secondOtherRanges = new Range[3];
+		secondOtherRanges[0] = new Range(0, 1);
+		secondOtherRanges[1] = new Range(0, 1);
+		secondOtherRanges[2] = new Range(2, 2);
 
-		otherRanges = new Range[3];
-		otherRanges[0] = new Range(0, 1);
-		otherRanges[1] = new Range(0, 1);
-		otherRanges[2] = new Range(2, 2);
-
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice otherSlice = new Slice(otherUnits, size, new SliceCube(otherRanges), new SliceCube(secondOtherRanges));
 
 		System.out.println("#####################################");
 		System.out.println("## cutSliceNotContinousCubes3DTest ##");
@@ -826,21 +797,20 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
 		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
-		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
-		SliceUnit[] otherUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+		SliceUnit[] units = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
 
 		int[] size = { 16, 16, 4096 };
 
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
-
 		// original slize contains "false" for all fields. initialize another slice with all values to true
-		Range[] otherRanges = new Range[3];
-		otherRanges[0] = new Range(0, 15);
-		otherRanges[1] = new Range(0, 15);
-		otherRanges[2] = new Range(0, 4095);
+		Range[] originalRanges = new Range[3];
+		originalRanges[0] = new Range(0, 15);
+		originalRanges[1] = new Range(0, 15);
+		originalRanges[2] = new Range(0, 4095);
 
-		otherSlice.set(new SliceCube(otherRanges));
+		Slice originalSlice = new Slice(units, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(units, size, new SliceCube(originalRanges));
+
+		originalSlice.unset(new SliceCube(originalRanges));
 
 		long startTime = System.currentTimeMillis();
 		originalSlice.add(otherSlice);
@@ -861,13 +831,9 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
 		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
-		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
-		SliceUnit[] otherUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+		SliceUnit[] units = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
 
 		int[] size = { 16, 16, 4096 };
-
-		Slice originalSlice = new Slice(originalUnits, size);
-		Slice otherSlice = new Slice(otherUnits, size);
 
 		// initialize both slices to true
 
@@ -876,8 +842,8 @@ public class SliceTest {
 		originalRanges[1] = new Range(0, 15);
 		originalRanges[2] = new Range(0, 4095);
 
-		originalSlice.set(new SliceCube(originalRanges));
-		otherSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(units, size, new SliceCube(originalRanges));
+		Slice otherSlice = new Slice(units, size, new SliceCube(originalRanges));
 
 		long startTime = System.currentTimeMillis();
 		originalSlice.cut(otherSlice);
@@ -930,11 +896,9 @@ public class SliceTest {
 		SliceUnit lambdaSliceUnit = new SliceUnit(TIME_SLICE_UNIT_NAME);
 		SliceUnit vlanSliceUnit = new SliceUnit(LAMBDA_SLICE_UNIT_NAME);
 
-		SliceUnit[] originalUnits = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
+		SliceUnit[] units = { portSliceUnit, lambdaSliceUnit, vlanSliceUnit };
 
 		int[] size = { 16, 16, 4096 };
-
-		Slice originalSlice = new Slice(originalUnits, size);
 
 		// initialize both slices to true
 		Range[] originalRanges = new Range[3];
@@ -942,7 +906,7 @@ public class SliceTest {
 		originalRanges[1] = new Range(0, 15);
 		originalRanges[2] = new Range(0, 4095);
 
-		originalSlice.set(new SliceCube(originalRanges));
+		Slice originalSlice = new Slice(units, size, new SliceCube(originalRanges));
 
 		long startTime = System.currentTimeMillis();
 		originalSlice.contains(originalSlice);

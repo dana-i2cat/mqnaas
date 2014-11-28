@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.slicing;
+package org.mqnaas.core.impl.slicing;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

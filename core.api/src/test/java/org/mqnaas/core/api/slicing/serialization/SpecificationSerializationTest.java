@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
-import org.mqnaas.core.api.slicing.SliceUnit;
+import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 
@@ -53,9 +53,9 @@ public class SpecificationSerializationTest {
 
 	private Specification generateSampleSpec() {
 
-		SliceUnit su = new SliceUnit(SLICE_UNIT_NAME);
+		Unit su = new Unit(SLICE_UNIT_NAME);
 
-		List<SliceUnit> sliceUnits = new ArrayList<SliceUnit>();
+		List<Unit> sliceUnits = new ArrayList<Unit>();
 		sliceUnits.add(su);
 
 		Specification spec = new Specification();

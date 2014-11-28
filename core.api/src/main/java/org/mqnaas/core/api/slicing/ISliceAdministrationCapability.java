@@ -9,18 +9,18 @@ import org.mqnaas.core.api.IResource;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public interface ISliceAdministration extends ICapability {
+public interface ISliceAdministrationCapability extends ICapability {
 
 	// used in the init to add dimensions to the slice
 	void addUnit(String name, int size);
 
 	// used in the init to define which cubes are available
-	void set(SliceCube cube);
+	void set(SliceCube... cube);
 
-	boolean contains(IResource slice);
+	boolean contains(IResource slice) throws SlicingException;
 
-	void cut(IResource slice);
+	void cut(IResource slice) throws SlicingException;
 
-	void add(IResource slice);
+	void add(IResource slice) throws SlicingException;
 
 }

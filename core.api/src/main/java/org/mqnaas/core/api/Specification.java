@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.mqnaas.core.api.slicing.SliceUnit;
+import org.mqnaas.core.api.slicing.Unit;
 
 /**
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
@@ -72,7 +72,7 @@ public class Specification implements Cloneable {
 
 	private String			model, version;
 
-	private List<SliceUnit>	sliceUnits;
+	private List<Unit>	sliceUnits;
 
 	public Specification() {
 
@@ -116,11 +116,11 @@ public class Specification implements Cloneable {
 		this.version = version;
 	}
 
-	public List<SliceUnit> getSliceUnits() {
+	public List<Unit> getSliceUnits() {
 		return sliceUnits;
 	}
 
-	public void setSliceUnits(List<SliceUnit> sliceUnits) {
+	public void setSliceUnits(List<Unit> sliceUnits) {
 		this.sliceUnits = sliceUnits;
 	}
 

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:sliceCube xmlns:ns2="org.mqnaas">
+    <ranges>
+        <range>
+            <lowerBound>0</lowerBound>
+            <upperBound>12</upperBound>
+        </range>
+        <range>
+            <lowerBound>24</lowerBound>
+            <upperBound>28</upperBound>
+        </range>
+    </ranges>
+</ns2:sliceCube>

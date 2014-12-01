@@ -1,5 +1,6 @@
 package org.mqnaas.core.api;
 
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 
 import com.google.common.collect.Multimap;
@@ -43,4 +44,18 @@ public interface IServiceProvider extends ICapability {
 	 * FIXME This is a service to play with during development and will not be part of the final API
 	 */
 	void printAvailableServices();
+
+	/**
+	 * Returns the capability instance of type <code>capabilityClass</code> bound to the given {@link IResource}
+	 * 
+	 * @param resource
+	 *            Resource containing the capability to retrieve.
+	 * @param capabilityClass
+	 *            Class defining the capability type.
+	 * @return Capability of type <code>capabilityClass</code> bound to the <code>resource</code> resource.
+	 * 
+	 * @throws CapabilityNotFoundException
+	 *             If the given resource does not contain any capability of type <code>capabilityclass</code>
+	 */
+	<C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException;
 }

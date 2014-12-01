@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SliceUnit implements Serializable {
+public class Unit implements Serializable {
 
 	private static final long	serialVersionUID	= -731594872847650988L;
 
@@ -32,10 +32,10 @@ public class SliceUnit implements Serializable {
 	private SliceType	type;
 
 	// no-arg constructor for JAXB
-	public SliceUnit() {
+	public Unit() {
 	}
 
-	public SliceUnit(String name) {
+	public Unit(String name) {
 		this.name = name;
 		this.type = SliceType.DISCRETE;
 	}
@@ -65,7 +65,7 @@ public class SliceUnit implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SliceUnit other = (SliceUnit) obj;
+		Unit other = (Unit) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;

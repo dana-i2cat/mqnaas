@@ -1,4 +1,4 @@
-<ns2:sliceUnit xmlns:ns2="org.mqnaas">
+<ns2:unit xmlns:ns2="org.mqnaas">
     <name>vlan</name>
     <type>DISCRETE</type>
-</ns2:sliceUnit>
+</ns2:unit>

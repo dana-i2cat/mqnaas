@@ -1,7 +1,9 @@
 package org.mqnaas.core.impl.slicing;
 
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -18,18 +20,26 @@ import org.mqnaas.core.api.slicing.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ * @author Adrián Roselló Rey (i2CAT)
+ *
+ */
 public class SliceAdministrationCapability implements ISliceAdministrationCapability {
 
 	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministrationCapability.class);
 
 	private List<Unit>			units;
 	private List<Integer>		sizes;
-
 	Object						originalData;
 	Object						currentData;
 
 	@DependingOn
 	IServiceProvider			serviceProvider;
+
+	public SliceAdministrationCapability() {
+	}
 
 	@Override
 	public void activate() {
@@ -49,11 +59,13 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
+	 * Initializes the given {@link SliceCube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
+	 *
 	 * IMPORTANT: The original slice information will contain the values of the set of {@link SliceCube} passed as arguments the first time this
 	 * method is called!
 	 */
 	@Override
-	public void set(SliceCube... cubes) {
+	public void setCubes(Collection<SliceCube> cubes) {
 		initData();
 
 		int[] lowerBounds = new int[units.size()];
@@ -71,9 +83,9 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 			executeOperation(null, lowerBounds, upperBounds, set);
 		}
 
+		// if is the first time this method is call, we must initialize the originalData values as a copy of the currentData one.
 		if (originalData == null)
-			cloneSlice();
-
+			originalData = cloneSliceData(currentData, units.size());
 	}
 
 	@Override
@@ -150,6 +162,17 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 	}
 
+	@Override
+	public Collection<SliceCube> getCubes() {
+		return compatize(originalData);
+	}
+
+	@Override
+	public Collection<SliceCube> getAvailableCubes() {
+		return compatize(currentData);
+
+	}
+
 	/**
 	 * Gets the current value of the slice unit specified by the indexes stored in the <code>coords</code> array.
 	 * 
@@ -163,7 +186,12 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		return get(currentData, coords);
 	}
 
-	// TODO add comments
+	/**
+	 * A {@link Slice} is in operational state if it's current space and the original one does not match. That means, if the slice has been divided in
+	 * sub-slices.
+	 * 
+	 * @return <code>true</code> If any of the initial cube of the slice space has been assigned to another sub-slice. <code>false</code> otherwise.
+	 */
 	boolean isInOperationalState() {
 
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
@@ -184,7 +212,12 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		return !contains.getResult();
 	}
 
-	// TODO add comments
+	/**
+	 * Marks the set of cubes as unavailable in the slice space. Operation will be performed in the current space structure.
+	 * 
+	 * @param cubes
+	 *            Cubes that will be markes as unavaiable in the current live space.
+	 */
 	void unset(SliceCube... cubes) {
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
@@ -202,7 +235,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
-	 * Initialize the internal structures of the this capability, i.e., the information of the original and the current slice information.
+	 * Initialize the internal structures of the this capability, i.e., the information of the current slice information.
 	 */
 	private void initData() {
 		if (currentData == null) {
@@ -217,19 +250,16 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
-	 * Clones the <code>currentData</code> slice into the <code>originalData</code> one. Up to 3D implemented.
+	 * Clones the <code>source</code> slice space. Up to 3D implemented.
 	 */
-	private void cloneSlice() {
-		switch (units.size()) {
+	private Object cloneSliceData(Object source, int dimensions) {
+		switch (dimensions) {
 			case 1:
-				originalData = SerializationUtils.clone((boolean[]) currentData);
-				break;
+				return SerializationUtils.clone((boolean[]) source);
 			case 2:
-				originalData = SerializationUtils.clone((boolean[][]) currentData);
-				break;
+				return SerializationUtils.clone((boolean[][]) source);
 			case 3:
-				originalData = SerializationUtils.clone((boolean[][][]) currentData);
-				break;
+				return SerializationUtils.clone((boolean[][][]) source);
 			default:
 				throw new RuntimeException(
 						"Only up to three dimensions implemented");
@@ -307,6 +337,36 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		}
 	}
 
+	/**
+	 * Creates a copy of the <code>original</code> {@link SliceAdministrationCapability}
+	 * 
+	 * @param data
+	 * @param sizes
+	 * 
+	 * @param original
+	 *            SliceAdministrationCapability to be cloned.
+	 */
+	private SliceAdministrationCapability(List<Unit> units, List<Integer> sizes, Object sliceData) {
+		this.units = new CopyOnWriteArrayList<Unit>(units);
+		this.sizes = new CopyOnWriteArrayList<Integer>(sizes);
+		currentData = cloneSliceData(sliceData, units.size());
+		originalData = cloneSliceData(sliceData, units.size());
+
+	}
+
+	private List<SliceCube> compatize(Object data) {
+		SliceAdministrationCapability visited = new SliceAdministrationCapability(this.units, this.sizes, data);
+
+		int[] lbs = new int[units.size()], ubs = new int[units.size()];
+
+		initUpperBounds(ubs);
+
+		CubisizeOperation operation = new CubisizeOperation();
+		executeOperation(visited, lbs, ubs, operation);
+
+		return operation.getCubes();
+	}
+
 	private interface Operation {
 
 		boolean execute(SliceAdministrationCapability other, int[] coords);
@@ -352,8 +412,6 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		public boolean execute(SliceAdministrationCapability other, int[] coords) {
 			if (other.get(coords) && get(coords))
 				result = false;
-
-			System.out.println(Arrays.toString(coords));
 
 			return result;
 
@@ -428,6 +486,115 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 			if (other.get(coords))
 				set(coords, false);
 			return true;
+		}
+
+	}
+
+	/**
+	 * Builds a list of {@link SliceCube} from the slice space.
+	 */
+	private class CubisizeOperation implements Operation {
+
+		private List<SliceCube>	cubes	= new ArrayList<SliceCube>();
+
+		@Override
+		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+			if (get(coords)) {
+
+				// Start the fill along all axis from that point
+				int n = coords.length;
+				int[] dimensions = new int[n];
+				initUpperBounds(dimensions);
+
+				// Initialize the cube: start with a single element
+				Range[] ranges = new Range[n];
+				for (int i = 0; i < n; i++) {
+					ranges[i] = new Range(coords[i], coords[i]);
+				}
+
+				IsPartOfSliceOperation partOfSlice = new IsPartOfSliceOperation();
+
+				int[] lbs = new int[n], ubs = new int[n];
+
+				// Now search as far as possible along each axis
+				for (int searchAxis = 0; searchAxis < n; searchAxis++) {
+
+					// Is a search possible?
+					if (ranges[searchAxis].getUpperBound() >= dimensions[searchAxis]) {
+						continue;
+					}
+
+					partOfSlice.setResult(true);
+
+					do {
+						// Initialize the search cube
+						for (int i = 0; i < n; i++) {
+							lbs[i] = i == searchAxis ? ranges[i].getUpperBound() + 1 : ranges[i].getLowerBound();
+							ubs[i] = i == searchAxis ? ranges[i].getUpperBound() + 1 : ranges[i].getUpperBound();
+						}
+
+						// Search cube contained?
+						other.executeOperation(null, lbs, ubs, partOfSlice);
+
+						if (partOfSlice.getResult()) {
+							// Yes, enlarge our cube on that axis
+							ranges[searchAxis].setUpperBound(ranges[searchAxis].getUpperBound() + 1);
+						}
+
+					} while (partOfSlice.getResult() && ranges[searchAxis].getUpperBound() < dimensions[searchAxis]);
+				}
+
+				// Mark the cube as visited and add to our result list
+				for (int i = 0; i < n; i++) {
+					lbs[i] = ranges[i].getLowerBound();
+					ubs[i] = ranges[i].getUpperBound();
+				}
+
+				executeOperation(other, lbs, ubs, new ClearOperation());
+
+				SliceCube cube = new SliceCube(ranges);
+				cubes.add(cube);
+			}
+			return true;
+		}
+
+		public List<SliceCube> getCubes() {
+			return cubes;
+		}
+
+	}
+
+	private class ClearOperation implements Operation {
+
+		@Override
+		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+			set(coords, false);
+			return true;
+		}
+
+	}
+
+	/**
+	 * Checks if a specific coordinate is part of a slice and if it's available.
+	 */
+	private class IsPartOfSliceOperation implements Operation {
+
+		boolean	result	= true;
+
+		@Override
+		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+
+			this.result = (get(coords));
+
+			return result;
+		}
+
+		public boolean getResult() {
+			return result;
+		}
+
+		public void setResult(boolean result) {
+			this.result = result;
 		}
 
 	}
@@ -576,6 +743,49 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		}
 
 		return sb.toString();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((currentData == null) ? 0 : currentData.hashCode());
+		result = prime * result + ((originalData == null) ? 0 : originalData.hashCode());
+		result = prime * result + ((sizes == null) ? 0 : sizes.hashCode());
+		result = prime * result + ((units == null) ? 0 : units.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		SliceAdministrationCapability other = (SliceAdministrationCapability) obj;
+		if (currentData == null) {
+			if (other.currentData != null)
+				return false;
+		} else if (!currentData.equals(other.currentData))
+			return false;
+		if (originalData == null) {
+			if (other.originalData != null)
+				return false;
+		} else if (!originalData.equals(other.originalData))
+			return false;
+		if (sizes == null) {
+			if (other.sizes != null)
+				return false;
+		} else if (!sizes.equals(other.sizes))
+			return false;
+		if (units == null) {
+			if (other.units != null)
+				return false;
+		} else if (!units.equals(other.units))
+			return false;
+		return true;
 	}
 
 }

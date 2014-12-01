@@ -235,6 +235,28 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
 	}
+	
+	@Override
+	public IService getApplicationService(IApplication application, String serviceName, Class<?>... parameterClasses) throws ServiceNotFoundException {
+		
+		for (ApplicationNode applicationNode : applications) {
+			if (applicationNode.getContent().getInstance().equals(application)){
+				for (Class<? extends IApplication> interfaze : applicationNode.getContent().getServices().keySet()) {
+					for (IService service : applicationNode.getContent().getServices().get(interfaze)) {
+						if (service.getMetadata().getName().equals(serviceName)) {
+							if (Arrays.equals(service.getMetadata().getParameterTypes(), parameterClasses)) {
+								return service;
+							}
+						}
+						
+					}
+				}
+			}
+			
+		}
+		
+		throw new ServiceNotFoundException("Service " + serviceName + " of application " + application + " not found.");
+	}
 
 	// //////////////////////////////////////////////////
 	// {@link IResourceManagementListener} implementation

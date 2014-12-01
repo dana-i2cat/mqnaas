@@ -13,7 +13,7 @@ import org.mockito.Mockito;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.slicing.Range;
-import org.mqnaas.core.api.slicing.SliceCube;
+import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.SlicingException;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.powermock.api.mockito.PowerMockito;
@@ -24,14 +24,14 @@ import org.powermock.api.mockito.PowerMockito;
  *
  *
  */
-public class SliceAdministrationCapabilityTest {
+public class SliceAdministrationTest {
 
 	private final static String		PORT_SLICE_UNIT_NAME	= "port";
 	private final static String		TIME_SLICE_UNIT_NAME	= "time";
 	private final static String		LAMBDA_SLICE_UNIT_NAME	= "lambda";
 
-	SliceAdministrationCapability	sliceCapab;
-	SliceAdministrationCapability	otherSliceCapab;
+	SliceAdministration	sliceCapab;
+	SliceAdministration	otherSliceCapab;
 	IResource						slice;
 	IResource						otherSlice;
 
@@ -44,8 +44,8 @@ public class SliceAdministrationCapabilityTest {
 
 		IServiceProvider serviceProvider = Mockito.mock(IServiceProvider.class);
 
-		sliceCapab = PowerMockito.spy(new SliceAdministrationCapability());
-		otherSliceCapab = new SliceAdministrationCapability();
+		sliceCapab = PowerMockito.spy(new SliceAdministration());
+		otherSliceCapab = new SliceAdministration();
 
 		sliceCapab.activate();
 		otherSliceCapab.activate();
@@ -63,7 +63,7 @@ public class SliceAdministrationCapabilityTest {
 		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
 
 		// initialize cube : interfaces (0-1) and vlans (1-3)
-		SliceCube cube = new SliceCube();
+		Cube cube = new Cube();
 		Range[] ranges = new Range[2];
 		ranges[0] = new Range(0, 1);
 		ranges[1] = new Range(1, 3);
@@ -176,8 +176,8 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(0, 2);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -194,7 +194,7 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 2);
 		otherRanges[2] = new Range(0, 3);
 
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -215,7 +215,7 @@ public class SliceAdministrationCapabilityTest {
 		anotherRanges[1] = new Range(1, 1);
 		anotherRanges[2] = new Range(2, 3);
 
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges), new SliceCube(anotherRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges), new Cube(anotherRanges)));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -239,7 +239,7 @@ public class SliceAdministrationCapabilityTest {
 		anotherRanges[1] = new Range(1, 2);
 		anotherRanges[2] = new Range(2, 3);
 
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges), new SliceCube(anotherRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges), new Cube(anotherRanges)));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -265,8 +265,8 @@ public class SliceAdministrationCapabilityTest {
 		Range[] otherRanges = new Range[1];
 		otherRanges[0] = new Range(0, 1);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -281,7 +281,7 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges = new Range[1];
 		otherRanges[0] = new Range(0, 3);
 
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -311,8 +311,8 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 0);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertTrue("OtherSice should be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -328,7 +328,7 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 2);
 
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		Assert.assertFalse("OtherSice should not be contained in original slice.", sliceCapab.contains(otherSlice));
 
@@ -359,8 +359,8 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(0, 2);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		// call to method -> launch exception
 		sliceCapab.add(otherSlice);
@@ -396,12 +396,12 @@ public class SliceAdministrationCapabilityTest {
 		System.out.println("## addSlice3DTest ##");
 		System.out.println("####################\n");
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		// we remove ports (0-1), time (2-2), lambda(0-3) from slice (it will remove it from currentData, not originalData!)
 		Range[] ranges = { new Range(0, 1), new Range(2, 2), new Range(0, 3) };
-		SliceCube cube = new SliceCube(ranges);
+		Cube cube = new Cube(ranges);
 		sliceCapab.unset(cube);
 
 		System.out.println("Original Slice:");
@@ -455,12 +455,12 @@ public class SliceAdministrationCapabilityTest {
 		System.out.println("## addSlice2DTest ##");
 		System.out.println("####################\n");
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		// we remove ports (0-1), time (2-3) from slice (it will remove it from currentData, not originalData!)
 		Range[] ranges = { new Range(0, 1), new Range(2, 3) };
-		SliceCube cube = new SliceCube(ranges);
+		Cube cube = new Cube(ranges);
 		sliceCapab.unset(cube);
 
 		System.out.println("Original Slice:");
@@ -504,8 +504,8 @@ public class SliceAdministrationCapabilityTest {
 		System.out.println("## addSlice1DTest ##");
 		System.out.println("####################\n");
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		System.out.println("Current Slice:");
 		System.out.println(sliceCapab);
@@ -514,7 +514,7 @@ public class SliceAdministrationCapabilityTest {
 
 		// we remove element[3] from slice (it will remove it from currentData, not originalData!)
 		Range[] ranges = { new Range(3, 3) };
-		SliceCube cube = new SliceCube(ranges);
+		Cube cube = new Cube(ranges);
 		sliceCapab.unset(cube);
 
 		// call add method
@@ -561,14 +561,14 @@ public class SliceAdministrationCapabilityTest {
 		secondOtherRanges[1] = new Range(0, 1);
 		secondOtherRanges[2] = new Range(3, 3);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges), new SliceCube(secondOtherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges), new Cube(secondOtherRanges)));
 
 		// we remove ports (0-1), time (0-1), lambda(1,3) from slice (it will remove it from currentData, not originalData!)
 		Range[] ranges = { new Range(0, 1), new Range(0, 1), new Range(1, 1) };
-		sliceCapab.unset(new SliceCube(ranges));
+		sliceCapab.unset(new Cube(ranges));
 		Range[] secondRanges = { new Range(0, 1), new Range(0, 1), new Range(3, 3) };
-		sliceCapab.unset(new SliceCube(secondRanges));
+		sliceCapab.unset(new Cube(secondRanges));
 
 		System.out.println("#####################################");
 		System.out.println("## addSliceNotContinousCubes3DTest ##");
@@ -624,8 +624,8 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 1);
 		otherRanges[2] = new Range(1, 1);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		System.out.println("####################");
 		System.out.println("## cutSlice3Dtest ##");
@@ -678,8 +678,8 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[0] = new Range(0, 1);
 		otherRanges[1] = new Range(0, 0);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		System.out.println("####################");
 		System.out.println("## cutSlice2DTest ##");
@@ -722,8 +722,8 @@ public class SliceAdministrationCapabilityTest {
 		Range[] otherRanges = new Range[1];
 		otherRanges[0] = new Range(1, 2);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges)));
 
 		System.out.println("####################");
 		System.out.println("## cutSlice1DTest ##");
@@ -782,8 +782,8 @@ public class SliceAdministrationCapabilityTest {
 		secondOtherRanges[1] = new Range(0, 1);
 		secondOtherRanges[2] = new Range(2, 2);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges), new SliceCube(secondOriginalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(otherRanges), new SliceCube(secondOtherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges), new Cube(secondOriginalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(otherRanges), new Cube(secondOtherRanges)));
 
 		System.out.println("#####################################");
 		System.out.println("## cutSliceNotContinousCubes3DTest ##");
@@ -829,7 +829,7 @@ public class SliceAdministrationCapabilityTest {
 		ranges[1] = new Range(0, 1);
 		ranges[2] = new Range(0, 0);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(ranges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(ranges)));
 
 		Assert.assertFalse("Slice should not be in operational state, since it contains same current and original data.",
 				sliceCapab.isInOperationalState());
@@ -838,7 +838,7 @@ public class SliceAdministrationCapabilityTest {
 		ranges[0] = new Range(0, 0);
 		ranges[1] = new Range(0, 1);
 		ranges[2] = new Range(0, 0);
-		sliceCapab.unset(new SliceCube(ranges));
+		sliceCapab.unset(new Cube(ranges));
 
 		Assert.assertTrue("Slice should  be in operational state, since it does not contain same current and original data.",
 				sliceCapab.isInOperationalState());
@@ -855,16 +855,16 @@ public class SliceAdministrationCapabilityTest {
 		Range[] ranges = { new Range(0, 3) };
 		Range[] secondRanges = { new Range(10, 12) };
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(ranges), new SliceCube(secondRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(ranges), new Cube(secondRanges)));
 
-		Collection<SliceCube> cubes = sliceCapab.getCubes();
+		Collection<Cube> cubes = sliceCapab.getCubes();
 
 		Assert.assertEquals("There should be 2 different slice cubes.", 2, cubes.size());
 
-		List<SliceCube> cubeList = new ArrayList<SliceCube>(cubes);
+		List<Cube> cubeList = new ArrayList<Cube>(cubes);
 
-		SliceCube firstCube = cubeList.get(0);
-		SliceCube secondCube = cubeList.get(1);
+		Cube firstCube = cubeList.get(0);
+		Cube secondCube = cubeList.get(1);
 
 		Assert.assertNotNull(firstCube);
 		Assert.assertNotNull(secondCube);
@@ -904,16 +904,16 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 0);
 		otherRanges[2] = new Range(3, 3);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges), new SliceCube(otherRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges), new Cube(otherRanges)));
 
-		Collection<SliceCube> cubes = sliceCapab.getCubes();
+		Collection<Cube> cubes = sliceCapab.getCubes();
 
 		Assert.assertEquals("There should be 2 different slice cubes.", 2, cubes.size());
 
-		List<SliceCube> cubeList = new ArrayList<SliceCube>(cubes);
+		List<Cube> cubeList = new ArrayList<Cube>(cubes);
 
-		SliceCube firstCube = cubeList.get(0);
-		SliceCube secondCube = cubeList.get(1);
+		Cube firstCube = cubeList.get(0);
+		Cube secondCube = cubeList.get(1);
 
 		Assert.assertNotNull(firstCube);
 		Assert.assertNotNull(secondCube);
@@ -956,7 +956,7 @@ public class SliceAdministrationCapabilityTest {
 		wholeRange[1] = new Range(0, 2);
 		wholeRange[2] = new Range(0, 3);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(wholeRange)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(wholeRange)));
 
 		// unset cube : ports (0-1), time (0-2), lambda(0-2)
 		Range[] originalRanges = new Range[3];
@@ -970,16 +970,16 @@ public class SliceAdministrationCapabilityTest {
 		otherRanges[1] = new Range(0, 0);
 		otherRanges[2] = new Range(3, 3);
 
-		sliceCapab.unset(new SliceCube(originalRanges), new SliceCube(otherRanges));
+		sliceCapab.unset(new Cube(originalRanges), new Cube(otherRanges));
 
-		Collection<SliceCube> cubes = sliceCapab.getAvailableCubes();
+		Collection<Cube> cubes = sliceCapab.getAvailableCubes();
 
 		Assert.assertEquals("There should be 2 different slice cubes.", 2, cubes.size());
 
-		List<SliceCube> cubeList = new ArrayList<SliceCube>(cubes);
+		List<Cube> cubeList = new ArrayList<Cube>(cubes);
 
-		SliceCube firstCube = cubeList.get(0);
-		SliceCube secondCube = cubeList.get(1);
+		Cube firstCube = cubeList.get(0);
+		Cube secondCube = cubeList.get(1);
 
 		Assert.assertNotNull(firstCube);
 		Assert.assertNotNull(secondCube);
@@ -1012,22 +1012,22 @@ public class SliceAdministrationCapabilityTest {
 		// initialize whole slice.
 		Range[] ranges = { new Range(0, 15) };
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(ranges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(ranges)));
 
 		// unset slices 0-3 and 10-12
 		Range[] firstRange = { new Range(0, 3) };
 		Range[] secondRange = { new Range(10, 12) };
 
-		sliceCapab.unset(new SliceCube(firstRange), new SliceCube(secondRange));
+		sliceCapab.unset(new Cube(firstRange), new Cube(secondRange));
 
-		Collection<SliceCube> cubes = sliceCapab.getAvailableCubes();
+		Collection<Cube> cubes = sliceCapab.getAvailableCubes();
 
 		Assert.assertEquals("There should be 2 different available slice cubes.", 2, cubes.size());
 
-		List<SliceCube> cubeList = new ArrayList<SliceCube>(cubes);
+		List<Cube> cubeList = new ArrayList<Cube>(cubes);
 
-		SliceCube firstCube = cubeList.get(0);
-		SliceCube secondCube = cubeList.get(1);
+		Cube firstCube = cubeList.get(0);
+		Cube secondCube = cubeList.get(1);
 
 		Assert.assertNotNull(firstCube);
 		Assert.assertNotNull(secondCube);
@@ -1061,10 +1061,10 @@ public class SliceAdministrationCapabilityTest {
 		originalRanges[1] = new Range(0, 15);
 		originalRanges[2] = new Range(0, 4095);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
 
-		sliceCapab.unset(new SliceCube(originalRanges));
+		sliceCapab.unset(new Cube(originalRanges));
 
 		long startTime = System.currentTimeMillis();
 		sliceCapab.add(otherSlice);
@@ -1095,8 +1095,8 @@ public class SliceAdministrationCapabilityTest {
 		originalRanges[1] = new Range(0, 15);
 		originalRanges[2] = new Range(0, 4095);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
 
 		long startTime = System.currentTimeMillis();
 		sliceCapab.contains(otherSlice);
@@ -1125,7 +1125,7 @@ public class SliceAdministrationCapabilityTest {
 		originalRanges[2] = new Range(0, 4095);
 
 		long startTime = System.currentTimeMillis();
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
 		long endTime = System.currentTimeMillis();
 
 		System.out.println("#####################################");
@@ -1154,8 +1154,8 @@ public class SliceAdministrationCapabilityTest {
 		originalRanges[1] = new Range(0, 15);
 		originalRanges[2] = new Range(0, 4095);
 
-		sliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
-		otherSliceCapab.setCubes(Arrays.asList(new SliceCube(originalRanges)));
+		sliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
+		otherSliceCapab.setCubes(Arrays.asList(new Cube(originalRanges)));
 
 		long startTime = System.currentTimeMillis();
 		sliceCapab.cut(otherSlice);

@@ -16,7 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SliceCube implements Serializable {
+public class Cube implements Serializable {
 
 	private static final long	serialVersionUID	= -1939551413576294335L;
 
@@ -25,10 +25,10 @@ public class SliceCube implements Serializable {
 	private Range[]				ranges;
 
 	// no-arg constructor for JAXB
-	public SliceCube() {
+	public Cube() {
 	}
 
-	public SliceCube(Range[] ranges) {
+	public Cube(Range[] ranges) {
 		this.ranges = ranges;
 	}
 
@@ -56,7 +56,7 @@ public class SliceCube implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SliceCube other = (SliceCube) obj;
+		Cube other = (Cube) obj;
 		if (!Arrays.equals(ranges, other.ranges))
 			return false;
 		return true;

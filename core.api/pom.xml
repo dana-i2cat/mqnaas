@@ -45,11 +45,6 @@
 			<artifactId>test-helpers</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-			<version>1.5.5</version>
-		</dependency>
 				
 				
 	</dependencies>

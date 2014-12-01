@@ -9,7 +9,7 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.slicing.Range;
-import org.mqnaas.core.api.slicing.SliceCube;
+import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 
@@ -25,7 +25,7 @@ public class SliceCubeSerializationTest {
 	@Test
 	public void sliceCubeSerializationTest() throws JAXBException, SAXException, IOException {
 
-		SliceCube cube = generateSampleSliceCube();
+		Cube cube = generateSampleSliceCube();
 
 		String serializedXml = SerializationUtils.toXml(cube);
 		String expectedXml = IOUtils.toString(this.getClass().getResourceAsStream(SLICE_CUBE_FILE_1));
@@ -39,20 +39,20 @@ public class SliceCubeSerializationTest {
 
 		String xml = IOUtils.toString(this.getClass().getResourceAsStream(SLICE_CUBE_FILE_1));
 
-		SliceCube deserializedSliceCube = SerializationUtils.fromXml(xml, SliceCube.class);
-		SliceCube expectedSliceCube = generateSampleSliceCube();
+		Cube deserializedSliceCube = SerializationUtils.fromXml(xml, Cube.class);
+		Cube expectedSliceCube = generateSampleSliceCube();
 
 		Assert.assertEquals("Deserialized Slice Cube should be equals as the sample one.", expectedSliceCube, deserializedSliceCube);
 
 	}
 
-	private SliceCube generateSampleSliceCube() {
+	private Cube generateSampleSliceCube() {
 
 		Range[] ranges = new Range[2];
 		ranges[0] = new Range(0, 12);
 		ranges[1] = new Range(24, 28);
 
-		return new SliceCube(ranges);
+		return new Cube(ranges);
 
 	}
 }

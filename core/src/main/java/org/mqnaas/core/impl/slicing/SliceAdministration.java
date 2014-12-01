@@ -12,9 +12,9 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
-import org.mqnaas.core.api.slicing.ISliceAdministrationCapability;
+import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.Range;
-import org.mqnaas.core.api.slicing.SliceCube;
+import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.SlicingException;
 import org.mqnaas.core.api.slicing.Unit;
 import org.slf4j.Logger;
@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public class SliceAdministrationCapability implements ISliceAdministrationCapability {
+public class SliceAdministration implements ISliceAdministration {
 
-	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministrationCapability.class);
+	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministration.class);
 
 	private List<Unit>			units;
 	private List<Integer>		sizes;
@@ -38,7 +38,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	@DependingOn
 	IServiceProvider			serviceProvider;
 
-	public SliceAdministrationCapability() {
+	public SliceAdministration() {
 	}
 
 	@Override
@@ -59,19 +59,19 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
-	 * Initializes the given {@link SliceCube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
+	 * Initializes the given {@link Cube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
 	 *
-	 * IMPORTANT: The original slice information will contain the values of the set of {@link SliceCube} passed as arguments the first time this
+	 * IMPORTANT: The original slice information will contain the values of the set of {@link Cube} passed as arguments the first time this
 	 * method is called!
 	 */
 	@Override
-	public void setCubes(Collection<SliceCube> cubes) {
+	public void setCubes(Collection<Cube> cubes) {
 		initData();
 
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
-		for (SliceCube cube : cubes) {
+		for (Cube cube : cubes) {
 
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
@@ -110,7 +110,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 		initData();
 
-		SliceAdministrationCapability otherSliceAdminCapab = getSliceAdministration(slice);
+		SliceAdministration otherSliceAdminCapab = getSliceAdministration(slice);
 
 		compareSliceDefinition(otherSliceAdminCapab);
 
@@ -138,7 +138,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 		initData();
 
-		SliceAdministrationCapability otherSliceAdminCapab = getSliceAdministration(slice);
+		SliceAdministration otherSliceAdminCapab = getSliceAdministration(slice);
 
 		compareSliceDefinition(otherSliceAdminCapab);
 
@@ -163,12 +163,12 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	@Override
-	public Collection<SliceCube> getCubes() {
+	public Collection<Cube> getCubes() {
 		return compatize(originalData);
 	}
 
 	@Override
-	public Collection<SliceCube> getAvailableCubes() {
+	public Collection<Cube> getAvailableCubes() {
 		return compatize(currentData);
 
 	}
@@ -201,7 +201,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		for (int i = 0; i < ubs.length; i++)
 			sizes[i] = ubs[i] + 1;
 
-		SliceAdministrationCapability other = new SliceAdministrationCapability();
+		SliceAdministration other = new SliceAdministration();
 		other.currentData = this.originalData;
 		other.sizes = this.sizes;
 		other.units = this.units;
@@ -218,11 +218,11 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	 * @param cubes
 	 *            Cubes that will be markes as unavaiable in the current live space.
 	 */
-	void unset(SliceCube... cubes) {
+	void unset(Cube... cubes) {
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
-		for (SliceCube cube : cubes) {
+		for (Cube cube : cubes) {
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
 				lowerBounds[i] = ranges[i].getLowerBound();
@@ -338,7 +338,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
-	 * Creates a copy of the <code>original</code> {@link SliceAdministrationCapability}
+	 * Creates a copy of the <code>original</code> {@link SliceAdministration}
 	 * 
 	 * @param data
 	 * @param sizes
@@ -346,7 +346,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	 * @param original
 	 *            SliceAdministrationCapability to be cloned.
 	 */
-	private SliceAdministrationCapability(List<Unit> units, List<Integer> sizes, Object sliceData) {
+	private SliceAdministration(List<Unit> units, List<Integer> sizes, Object sliceData) {
 		this.units = new CopyOnWriteArrayList<Unit>(units);
 		this.sizes = new CopyOnWriteArrayList<Integer>(sizes);
 		currentData = cloneSliceData(sliceData, units.size());
@@ -354,8 +354,8 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 	}
 
-	private List<SliceCube> compatize(Object data) {
-		SliceAdministrationCapability visited = new SliceAdministrationCapability(this.units, this.sizes, data);
+	private List<Cube> compatize(Object data) {
+		SliceAdministration visited = new SliceAdministration(this.units, this.sizes, data);
 
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
 
@@ -369,7 +369,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 	private interface Operation {
 
-		boolean execute(SliceAdministrationCapability other, int[] coords);
+		boolean execute(SliceAdministration other, int[] coords);
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		private boolean	result	= true;
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			if (other.get(coords)) {
 				// the other slice needs this element
 				result &= (get(currentData, coords) && get(originalData, coords));
@@ -409,7 +409,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		private boolean	result	= true;
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			if (other.get(coords) && get(coords))
 				result = false;
 
@@ -430,7 +430,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	private class SetOperation implements Operation {
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			set(coords, true);
 
 			return true;
@@ -445,7 +445,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	private class UnsetOperation implements Operation {
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			set(coords, false);
 
 			return true;
@@ -462,7 +462,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	private class AddOperation implements Operation {
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			// we can only add elements that were part of the original slice.
 			if (other.get(coords) && get(originalData, coords))
 				set(coords, true);
@@ -482,7 +482,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	private class CutOperation implements Operation {
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			if (other.get(coords))
 				set(coords, false);
 			return true;
@@ -491,14 +491,14 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	}
 
 	/**
-	 * Builds a list of {@link SliceCube} from the slice space.
+	 * Builds a list of {@link Cube} from the slice space.
 	 */
 	private class CubisizeOperation implements Operation {
 
-		private List<SliceCube>	cubes	= new ArrayList<SliceCube>();
+		private List<Cube>	cubes	= new ArrayList<Cube>();
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			if (get(coords)) {
 
 				// Start the fill along all axis from that point
@@ -552,13 +552,13 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 				executeOperation(other, lbs, ubs, new ClearOperation());
 
-				SliceCube cube = new SliceCube(ranges);
+				Cube cube = new Cube(ranges);
 				cubes.add(cube);
 			}
 			return true;
 		}
 
-		public List<SliceCube> getCubes() {
+		public List<Cube> getCubes() {
 			return cubes;
 		}
 
@@ -567,7 +567,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	private class ClearOperation implements Operation {
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 			set(coords, false);
 			return true;
 		}
@@ -582,7 +582,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		boolean	result	= true;
 
 		@Override
-		public boolean execute(SliceAdministrationCapability other, int[] coords) {
+		public boolean execute(SliceAdministration other, int[] coords) {
 
 			this.result = (get(coords));
 
@@ -601,7 +601,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 	/**
 	 * Executes a specific operation involving the {@link Slice} managed by this capability instance and the slice managed by the <code>other</code>
-	 * {@link SliceAdministrationCapability} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays
+	 * {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays
 	 * <code>lbs</code> and <code>ubs</code>
 	 * 
 	 * @param other
@@ -613,7 +613,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 	 * @param operation
 	 *            Operation to be executed.
 	 */
-	private void executeOperation(SliceAdministrationCapability other, int[] lbs, int[] ubs, Operation operation) {
+	private void executeOperation(SliceAdministration other, int[] lbs, int[] ubs, Operation operation) {
 		int l = lbs.length;
 
 		int[] c = Arrays.copyOfRange(lbs, 0, l);
@@ -634,7 +634,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 		} while (c[l - 1] <= ubs[l - 1]);
 	}
 
-	private void compareSliceDefinition(SliceAdministrationCapability other) {
+	private void compareSliceDefinition(SliceAdministration other) {
 
 		log.debug("Comparing if both slices have same dimensions and same length for each slice units.");
 
@@ -686,9 +686,9 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 
 	}
 
-	private SliceAdministrationCapability getSliceAdministration(IResource slice) throws SlicingException {
+	private SliceAdministration getSliceAdministration(IResource slice) throws SlicingException {
 		try {
-			return (SliceAdministrationCapability) serviceProvider.getCapability(slice, ISliceAdministrationCapability.class);
+			return (SliceAdministration) serviceProvider.getCapability(slice, ISliceAdministration.class);
 		} catch (CapabilityNotFoundException c) {
 			throw new SlicingException("Error getting sliceAdministration capability from given resource:" + c.getMessage(), c);
 		}
@@ -764,7 +764,7 @@ public class SliceAdministrationCapability implements ISliceAdministrationCapabi
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SliceAdministrationCapability other = (SliceAdministrationCapability) obj;
+		SliceAdministration other = (SliceAdministration) obj;
 		if (currentData == null) {
 			if (other.currentData != null)
 				return false;

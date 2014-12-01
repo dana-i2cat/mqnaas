@@ -363,6 +363,7 @@
 		<module>clientprovider</module>
 		<module>mqnaas-test-helpers</module>
 		<module>test-helpers</module>
+		<module>network</module>
 	</modules>
 
 	<repositories>

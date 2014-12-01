@@ -78,13 +78,18 @@ public class BindingManagementReactsToResourcesTest {
 	public void addResourceTriggersResourceAddedExecution() throws ServiceNotFoundException, SecurityException, NoSuchMethodException {
 
 		// register service that notifies test when observed resourceAdded is executed
+		Class<?>[] serviceParameters = new Class<?>[3];
+		serviceParameters[0] = IResource.class;
+		serviceParameters[1] = IApplication.class;
+		serviceParameters[2] = Class.class;
+		
 		IService observedAdd = bindingManagement.getService(
 				bindingManagement.getResourceCapabilityTree().getRootResourceNode().getContent(),
-				"resourceAdded", IResource.class, IApplication.class);
+				"resourceAdded", serviceParameters);
 
 		Method addExecutedM = MyTest.class.getMethod("addExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedAdd),
-				new Service(addExecutedM, null) {
+				new Service(addExecutedM, null, null) {
 
 					@Override
 					public Object execute(Object[] parameters) {
@@ -96,11 +101,11 @@ public class BindingManagementReactsToResourcesTest {
 		// register service that notifies test when observed resourceRemoved is executed
 		IService observedRemove = bindingManagement.getService(
 				bindingManagement.getResourceCapabilityTree().getRootResourceNode().getContent(),
-				"resourceRemoved", IResource.class, IApplication.class);
+				"resourceRemoved", serviceParameters);
 
 		Method removeExecutedM = MyTest.class.getMethod("removeExecuted", new Class[0]);
 		observationService.registerObservation(new ServiceFilter(observedRemove),
-				new Service(removeExecutedM, null) {
+				new Service(removeExecutedM, null, null) {
 
 					@Override
 					public Object execute(Object[] parameters) {

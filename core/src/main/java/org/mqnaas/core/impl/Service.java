@@ -15,8 +15,8 @@ public class Service implements IInternalService {
 	// The reflected method
 	private IServiceMetaData	metaData;
 
-	Service(Method method, IApplication instance) {
-		metaData = new ServiceMetaData(method, instance);
+	Service(Method method, IApplication instance, Class<? extends IApplication> applicationInterface) {
+		metaData = new ServiceMetaData(method, instance, applicationInterface);
 	}
 
 	@Override

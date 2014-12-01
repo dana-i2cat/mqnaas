@@ -54,10 +54,13 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 
 		// retrieve application holding the resource
 		IApplication resourceHolder = service.getMetadata().getApplication();
+		
+		Class<? extends IApplication> resourceHolderInterface = service.getMetadata().getApplicationInterface();
 
-		List<Object> parameters = new ArrayList<Object>(2);
+		List<Object> parameters = new ArrayList<Object>(3);
 		parameters.add(affectedResource);
 		parameters.add(resourceHolder);
+		parameters.add(resourceHolderInterface);
 		return parameters.toArray();
 	}
 

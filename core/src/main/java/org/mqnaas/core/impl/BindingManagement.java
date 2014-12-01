@@ -68,8 +68,8 @@ import com.google.common.collect.Multimap;
  * </li>
  * <li><u>Manage the {@link IApplication}s available.</u> An <code>IApplication</code> is third party code requiring utilizing platform services to
  * provide its functionalities.</li>
- * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource, IApplication)} and
- * {@link #resourceRemoved(IResource, IApplication)}) for details and update the set of services available depending on available capability
+ * <li><u>Listen to resource being added and removed (see {@link #resourceAdded(IResource, IApplication, Class)} and
+ * {@link #resourceRemoved(IResource, IApplication, Class)}) for details and update the set of services available depending on available capability
  * implementations and resources.</li>
  * </ol>
  * 
@@ -133,7 +133,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// capability implementations to it...
 		IRootResource mqNaaS = resourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE),
 				Arrays.asList(new Endpoint())));
-		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
+		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null, null);
 
 		// initialize the tree
 		tree = new ResourceCapabilityTree();
@@ -151,16 +151,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
 
 		// Initialize the notifications necessary to track resources dynamically
-		// Register the service {@link IResourceManagementListener#resourceAdded(IResource, IApplication);}
-		// Register the service {@link IResourceManagementListener#resourceRemoved(IResource, IApplication);}
+		// Register the service {@link IResourceManagementListener#resourceAdded(IResource, IApplication, Class<? extends IApplication>);}
+		// Register the service {@link IResourceManagementListener#resourceRemoved(IResource, IApplication, Class<? extends IApplication>);}
 		try {
 			// TODO Ensure these observations are treated BEFORE any other observation of resource creation/removal.
 			// By now, applications willing to react to resource creation or removal should observe services in IResourceManagementListener.
 			// They should not use ResourceMonitoringFilter, as the resource may not be ready to be used.
 			observationService.registerObservation(new ResourceMonitoringFilter(AddsResource.class),
-					getService(mqNaaS, "resourceAdded", IResource.class, IApplication.class));
+					getService(mqNaaS, "resourceAdded", IResource.class, IApplication.class, Class.class));
 			observationService.registerObservation(new ResourceMonitoringFilter(RemovesResource.class),
-					getService(mqNaaS, "resourceRemoved", IResource.class, IApplication.class));
+					getService(mqNaaS, "resourceRemoved", IResource.class, IApplication.class, Class.class));
 		} catch (ServiceNotFoundException e) {
 			log.error("Error registering observation!", e);
 		}
@@ -258,14 +258,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 *            The resource added to the platform
 	 * @param managedBy
 	 *            The IApplication managing given resource
+	 * @param parentInterface
+	 * 			  The interface managing given resource in managedBy instance           
 	 */
 	@Override
-	public void resourceAdded(IResource resource, IApplication managedBy) {
+	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) {
 
 		try {
 			ApplicationNode parent = findApplicationNode(managedBy);
 
-			addResourceNode(new ResourceNode(resource), parent);
+			addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
 
 		} catch (ApplicationNotFoundException e) {
 			log.error("No parent found!", e);
@@ -291,9 +293,11 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 *            The resource removed from the platform
 	 * @param managedBy
 	 *            The ICapability managing given resource
+	 * @param parentInterface
+	 * 			  The interface managing given resource in managedBy instance (UNUSED)
 	 */
 	@Override
-	public void resourceRemoved(IResource resource, IApplication managedBy) {
+	public void resourceRemoved(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) {
 
 		try {
 			ApplicationNode parent = findApplicationNode(managedBy);
@@ -423,12 +427,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// /////////////////////////////////////////
 
 	@Override
-	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy) {
+	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy, Class<? extends IApplication> parentInterface) {
 
 		log.info("Adding resource " + resource.getContent() + " managed by application " + managedBy.getContent());
 
 		// 1. Update the model
-		ResourceCapabilityTreeController.addResourceNode(resource, managedBy);
+		ResourceCapabilityTreeController.addResourceNode(resource, managedBy, parentInterface);
 
 		// 2. Notify this class about the addition
 		// (it will attempt to bind available capabilities to the new resource)

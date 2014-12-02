@@ -5,7 +5,7 @@ import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.api.infrastructure.IInfrastructureProvider;
+import org.mqnaas.network.api.infrastructure.IInfrastructureProvider;
 import org.mqnaas.network.impl.RequestResource;
 
 /**

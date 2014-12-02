@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.infrastructure.IInfrastructureAdministration;
+import org.mqnaas.network.api.infrastructure.IInfrastructureAdministration;
 import org.mqnaas.network.impl.topology.device.DeviceResource;
 
 /**

@@ -1,5 +1,5 @@
 
-package org.mqnaas.core.api.infrastructure;
+package org.mqnaas.network.api.infrastructure;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;

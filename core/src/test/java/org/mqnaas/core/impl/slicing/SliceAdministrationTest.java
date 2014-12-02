@@ -12,9 +12,10 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
-import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.Cube;
+import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SlicingException;
+import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -26,14 +27,35 @@ import org.powermock.api.mockito.PowerMockito;
  */
 public class SliceAdministrationTest {
 
-	private final static String		PORT_SLICE_UNIT_NAME	= "port";
-	private final static String		TIME_SLICE_UNIT_NAME	= "time";
-	private final static String		LAMBDA_SLICE_UNIT_NAME	= "lambda";
+	private final static Unit		PORT_UNIT	= new Unit("port");
+	private final static Unit		TIME_UNIT	= new Unit("time");
+	private final static Unit		LAMBDA_UNIT	= new Unit("lambda");
 
 	SliceAdministration	sliceCapab;
 	SliceAdministration	otherSliceCapab;
 	IResource						slice;
 	IResource						otherSlice;
+
+	private static void init1DSlice(SliceAdministration sliceAdministration, Unit u, int n) {
+		sliceAdministration.addUnit(u);
+		sliceAdministration.setRange(u, new Range(0, n - 1));
+	}
+	
+	private static void init2DSlice(SliceAdministration sliceAdministration, Unit u1, int n1, Unit u2, int n2) {
+		sliceAdministration.addUnit(u1);
+		sliceAdministration.setRange(u1, new Range(0, n1 - 1));
+		sliceAdministration.addUnit(u2);
+		sliceAdministration.setRange(u2, new Range(0, n2 - 1));
+	}
+	
+	private static void init3DSlice(SliceAdministration sliceAdministration, Unit u1, int n1, Unit u2, int n2, Unit u3, int n3) {
+		sliceAdministration.addUnit(u1);
+		sliceAdministration.setRange(u1, new Range(0, n1 - 1));
+		sliceAdministration.addUnit(u2);
+		sliceAdministration.setRange(u2, new Range(0, n2 - 1));
+		sliceAdministration.addUnit(u3);
+		sliceAdministration.setRange(u3, new Range(0, n3 - 1));
+	}
 
 	@SuppressWarnings("unchecked")
 	@Before
@@ -43,7 +65,7 @@ public class SliceAdministrationTest {
 		otherSlice = new Slice();
 
 		IServiceProvider serviceProvider = Mockito.mock(IServiceProvider.class);
-
+		
 		sliceCapab = PowerMockito.spy(new SliceAdministration());
 		otherSliceCapab = new SliceAdministration();
 
@@ -59,8 +81,7 @@ public class SliceAdministrationTest {
 	public void setSliceCube2DTest() {
 
 		// initialize sliceAdministrationCapability, define port-time slice with 2x4 dimensions.
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		init2DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 4);
 
 		// initialize cube : interfaces (0-1) and vlans (1-3)
 		Cube cube = new Cube();
@@ -113,14 +134,12 @@ public class SliceAdministrationTest {
 	public void containsSliceDifferentDimensionsTest() throws Exception {
 
 		// initialize sliceAdministrationCapability, define port slice with size 2
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
+		init1DSlice(sliceCapab, PORT_UNIT, 2);
 
 		// initialize another sliceAdministrationCapability, define port-time slice with 2x3 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
+		init2DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3);
 
 		sliceCapab.contains(otherSlice);
-
 	}
 
 	//
@@ -131,15 +150,15 @@ public class SliceAdministrationTest {
 	public void containsSliceDifferentSliceOrder() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
+		init2DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3);
 
 		// initialize sliceAdministrationCapability, define inverse slice: time-port
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
+		otherSliceCapab.addUnit(TIME_UNIT);
+		otherSliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		otherSliceCapab.addUnit(PORT_UNIT);
+		otherSliceCapab.setRange(PORT_UNIT, new Range(0, 1));
 
 		sliceCapab.contains(otherSlice);
-
 	}
 
 	@Test
@@ -151,15 +170,21 @@ public class SliceAdministrationTest {
 		// #########################
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		sliceCapab.addUnit(PORT_UNIT);
+		sliceCapab.setRange(PORT_UNIT, new Range(0, 1));
+		sliceCapab.addUnit(TIME_UNIT);
+		sliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		sliceCapab.addUnit(LAMBDA_UNIT);
+		sliceCapab.setRange(LAMBDA_UNIT, new Range(0, 3));
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
-
+		otherSliceCapab.addUnit(PORT_UNIT);
+		otherSliceCapab.setRange(PORT_UNIT, new Range(0, 1));
+		otherSliceCapab.addUnit(TIME_UNIT);
+		otherSliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		otherSliceCapab.addUnit(LAMBDA_UNIT);
+		otherSliceCapab.setRange(LAMBDA_UNIT, new Range(0, 3));
+		
 		// #########################
 		// ## TEST EXPECTING TRUE ##
 		// #########################
@@ -249,9 +274,10 @@ public class SliceAdministrationTest {
 	public void contains1DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port slice of size 4
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
+		init1DSlice(sliceCapab, PORT_UNIT, 4);
+		
 		// initialize another sliceAdministrationCapability, define port slice of size 4
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
+		init1DSlice(otherSliceCapab, PORT_UNIT, 4);
 
 		// #########################
 		// ## TEST EXPECTING TRUE ##
@@ -286,16 +312,15 @@ public class SliceAdministrationTest {
 		Assert.assertFalse("OtherSice should not be contained in original slice.", sliceCapab.contains(otherSlice));
 
 	}
-
+	
 	@Test
 	public void contains2DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time 3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
-		// initialize another sliceAdministrationCapability, define port slice of size 4
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		init2DSlice(sliceCapab, PORT_UNIT, 3, TIME_UNIT, 4);
+		
+		// initialize another sliceAdministrationCapability, define port-time slice of size 3x4
+		init2DSlice(otherSliceCapab, PORT_UNIT, 3, TIME_UNIT, 4);
 
 		// #########################
 		// ## TEST EXPECTING TRUE ##
@@ -338,14 +363,15 @@ public class SliceAdministrationTest {
 	public void addSliceAlreadyExistingValues3DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		otherSliceCapab.addUnit(PORT_UNIT);
+		otherSliceCapab.setRange(PORT_UNIT, new Range(0, 1));
+		otherSliceCapab.addUnit(TIME_UNIT);
+		otherSliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		otherSliceCapab.addUnit(LAMBDA_UNIT);
+		otherSliceCapab.setRange(LAMBDA_UNIT, new Range(0, 3));
 
 		// initialize original cube : ports (0-1), time (0-1), slice(0-3)
 		Range[] originalRanges = new Range[3];
@@ -371,14 +397,20 @@ public class SliceAdministrationTest {
 	public void addSlice3DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		sliceCapab.addUnit(PORT_UNIT);
+		sliceCapab.setRange(PORT_UNIT, new Range(0, 1));
+		sliceCapab.addUnit(TIME_UNIT);
+		sliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		sliceCapab.addUnit(LAMBDA_UNIT);
+		sliceCapab.setRange(LAMBDA_UNIT, new Range(0, 3));
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		otherSliceCapab.addUnit(PORT_UNIT);
+		otherSliceCapab.setRange(PORT_UNIT, new Range(0, 1));
+		otherSliceCapab.addUnit(TIME_UNIT);
+		otherSliceCapab.setRange(TIME_UNIT, new Range(0, 2));
+		otherSliceCapab.addUnit(LAMBDA_UNIT);
+		otherSliceCapab.setRange(LAMBDA_UNIT, new Range(0, 3));
 
 		// initialize original cube : ports (0-1), time (0-2), lambda(0-3)
 		Range[] originalRanges = new Range[3];
@@ -434,12 +466,16 @@ public class SliceAdministrationTest {
 	public void addSlice2DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time 3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		sliceCapab.addUnit(PORT_UNIT);
+		sliceCapab.setRange(PORT_UNIT, new Range(0, 2));
+		sliceCapab.addUnit(TIME_UNIT);
+		sliceCapab.setRange(TIME_UNIT, new Range(0, 3));
 
 		// initialize another sliceAdministrationCapability, define port-time 3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		otherSliceCapab.addUnit(PORT_UNIT);
+		otherSliceCapab.setRange(PORT_UNIT, new Range(0, 2));
+		otherSliceCapab.addUnit(TIME_UNIT);
+		otherSliceCapab.setRange(TIME_UNIT, new Range(0, 3));
 
 		// initialize original cube : ports (0-1), time (0-3)
 		Range[] originalRanges = new Range[2];
@@ -488,17 +524,15 @@ public class SliceAdministrationTest {
 	public void addSlice1DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port slice of size 4
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
-		// initialize another sliceAdministrationCapability, define port slize of size 4
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
+		init1DSlice(sliceCapab, PORT_UNIT, 4);
+		// initialize another sliceAdministrationCapability, define port slice of size 4
+		init1DSlice(otherSliceCapab, PORT_UNIT, 4);
 
 		// initialize original cube : ports (0-3)
-		Range[] originalRanges = new Range[1];
-		originalRanges[0] = new Range(0, 3);
+		Range[] originalRanges = new Range[] { new Range(0, 3) };
 
 		// initialize sub-cube, ports(3)
-		Range[] otherRanges = new Range[1];
-		otherRanges[0] = new Range(3, 3);
+		Range[] otherRanges = new Range[] { new Range(3, 3) };
 
 		System.out.println("####################");
 		System.out.println("## addSlice1DTest ##");
@@ -528,21 +562,16 @@ public class SliceAdministrationTest {
 
 		System.out.println("Final slice.");
 		System.out.println(sliceCapab);
-
 	}
 
 	@Test
 	public void addSliceNotContinousCubes3DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0-3)
 		Range[] originalRanges = new Range[3];
@@ -603,14 +632,10 @@ public class SliceAdministrationTest {
 	public void cutSlice3Dtest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0-2)
 		Range[] originalRanges = new Range[3];
@@ -661,12 +686,10 @@ public class SliceAdministrationTest {
 	public void cutSlice2DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time 3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		init2DSlice(sliceCapab, PORT_UNIT, 3, TIME_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time 3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 4);
+		init2DSlice(otherSliceCapab, PORT_UNIT, 3, TIME_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-1), time (0-1)
 		Range[] originalRanges = new Range[2];
@@ -709,10 +732,10 @@ public class SliceAdministrationTest {
 	public void cutSlice1DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port slice of size 4
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
+		init1DSlice(sliceCapab, PORT_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port slice of size 4
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 4);
+		init1DSlice(otherSliceCapab, PORT_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-2)
 		Range[] originalRanges = new Range[1];
@@ -751,14 +774,10 @@ public class SliceAdministrationTest {
 	public void cutSliceNotContinousCubes3DTest() throws SlicingException {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,2)
 		Range[] originalRanges = new Range[3];
@@ -819,9 +838,7 @@ public class SliceAdministrationTest {
 	public void isInOperationalStateTest() {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize original slice with cube : ports (0-1), time (0-1), slice(0,0)
 		Range[] ranges = new Range[3];
@@ -849,7 +866,7 @@ public class SliceAdministrationTest {
 	public void getCubes1DTest() {
 
 		// initialize sliceAdministrationCapability, define port slice of 16 size
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
+		init1DSlice(sliceCapab, PORT_UNIT, 16);
 
 		// initialize slices 0-3 and 10-12
 		Range[] ranges = { new Range(0, 3) };
@@ -883,14 +900,10 @@ public class SliceAdministrationTest {
 	public void getCubes3DTest() {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize original cube : ports (0-1), time (0-2), lambda(0-2)
 		Range[] originalRanges = new Range[3];
@@ -941,14 +954,10 @@ public class SliceAdministrationTest {
 	public void getAvailableCubes3Dtest() {
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(sliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 2);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 3);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 2, TIME_UNIT, 3, LAMBDA_UNIT, 4);
 
 		// initialize slice with all cubes available
 		Range[] wholeRange = new Range[3];
@@ -1007,7 +1016,7 @@ public class SliceAdministrationTest {
 	public void getAvailableCubes1DTest() {
 
 		// initialize sliceAdministrationCapability, define port slice of 16 size
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
+		init1DSlice(sliceCapab, PORT_UNIT, 16);
 
 		// initialize whole slice.
 		Range[] ranges = { new Range(0, 15) };
@@ -1047,13 +1056,8 @@ public class SliceAdministrationTest {
 	public void addSliceEfficiencyTest() throws SlicingException {
 
 		// test initialization
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
-
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
+		init3DSlice(sliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
 
 		// original slize contains "false" for all fields. initialize another slice with all values to true
 		Range[] originalRanges = new Range[3];
@@ -1081,13 +1085,8 @@ public class SliceAdministrationTest {
 	@Ignore
 	public void containsEfficiencyTest() throws SlicingException {
 
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
-
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
+		init3DSlice(sliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
 
 		// initialize both slices to true
 		Range[] originalRanges = new Range[3];
@@ -1113,9 +1112,7 @@ public class SliceAdministrationTest {
 	@Ignore
 	public void setEfficiencyTest() throws SlicingException {
 
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
+		init3DSlice(sliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
 
 		// initialize both slices to true
 
@@ -1139,13 +1136,8 @@ public class SliceAdministrationTest {
 	@Ignore
 	public void cutSliceEfficiencyTest() throws SlicingException {
 
-		sliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		sliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
-
-		otherSliceCapab.addUnit(PORT_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(TIME_SLICE_UNIT_NAME, 16);
-		otherSliceCapab.addUnit(LAMBDA_SLICE_UNIT_NAME, 4096);
+		init3DSlice(sliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
+		init3DSlice(otherSliceCapab, PORT_UNIT, 16, TIME_UNIT, 16, LAMBDA_UNIT, 4096);
 
 		// initialize both slices to true
 

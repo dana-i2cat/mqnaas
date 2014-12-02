@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang.SerializationUtils;
@@ -12,9 +14,9 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.Range;
-import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.SlicingException;
 import org.mqnaas.core.api.slicing.Unit;
 import org.slf4j.Logger;
@@ -31,7 +33,7 @@ public class SliceAdministration implements ISliceAdministration {
 	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministration.class);
 
 	private List<Unit>			units;
-	private List<Integer>		sizes;
+	private Map<Unit, Range>		ranges;
 	Object						originalData;
 	Object						currentData;
 
@@ -44,7 +46,7 @@ public class SliceAdministration implements ISliceAdministration {
 	@Override
 	public void activate() {
 		units = new CopyOnWriteArrayList<Unit>();
-		sizes = new CopyOnWriteArrayList<Integer>();
+		ranges = new ConcurrentHashMap<Unit, Range>();
 	}
 
 	@Override
@@ -53,9 +55,23 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	@Override
-	public void addUnit(String name, int size) {
-		units.add(new Unit(name));
-		sizes.add(size);
+	public void addUnit(Unit unit) {
+		units.add(unit);
+	}
+	
+	@Override
+	public Unit[] getUnits() {
+		return units.toArray(new Unit[units.size()]);
+	}
+
+	@Override
+	public void setRange(Unit unit, Range range) {
+		ranges.put(unit, range);
+	}
+
+	@Override
+	public Range getRange(Unit unit) {
+		return ranges.get(unit);
 	}
 
 	/**
@@ -75,8 +91,8 @@ public class SliceAdministration implements ISliceAdministration {
 
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
-				lowerBounds[i] = ranges[i].getLowerBound();
-				upperBounds[i] = ranges[i].getUpperBound();
+				lowerBounds[i] = ranges[i].getLowerBound() - this.ranges.get(units.get(i)).getLowerBound();
+				upperBounds[i] = ranges[i].getUpperBound() - this.ranges.get(units.get(i)).getLowerBound();
 			}
 
 			SetOperation set = new SetOperation();
@@ -164,12 +180,12 @@ public class SliceAdministration implements ISliceAdministration {
 
 	@Override
 	public Collection<Cube> getCubes() {
-		return compatize(originalData);
+		return compactize(originalData);
 	}
 
 	@Override
 	public Collection<Cube> getAvailableCubes() {
-		return compatize(currentData);
+		return compactize(currentData);
 
 	}
 
@@ -182,7 +198,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 *         otherwise.
 	 * 
 	 */
-	public boolean get(int[] coords) {
+	boolean get(int[] coords) {
 		return get(currentData, coords);
 	}
 
@@ -203,7 +219,7 @@ public class SliceAdministration implements ISliceAdministration {
 
 		SliceAdministration other = new SliceAdministration();
 		other.currentData = this.originalData;
-		other.sizes = this.sizes;
+		other.ranges = this.ranges;
 		other.units = this.units;
 
 		ContainsOperation contains = new ContainsOperation();
@@ -225,8 +241,8 @@ public class SliceAdministration implements ISliceAdministration {
 		for (Cube cube : cubes) {
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
-				lowerBounds[i] = ranges[i].getLowerBound();
-				upperBounds[i] = ranges[i].getUpperBound();
+				lowerBounds[i] = ranges[i].getLowerBound() - this.ranges.get(units.get(i)).getLowerBound();
+				upperBounds[i] = ranges[i].getUpperBound() - this.ranges.get(units.get(i)).getLowerBound();
 			}
 
 			UnsetOperation set = new UnsetOperation();
@@ -239,10 +255,10 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	private void initData() {
 		if (currentData == null) {
-			int[] dimensions = new int[sizes.size()];
+			int[] dimensions = new int[ranges.size()];
 			int i = 0;
-			for (int size : sizes)
-				dimensions[i++] = size;
+			for (Unit unit : units)
+				dimensions[i++] = ranges.get(unit).size();
 
 			currentData = Array.newInstance(boolean.class, dimensions);
 
@@ -346,22 +362,22 @@ public class SliceAdministration implements ISliceAdministration {
 	 * @param original
 	 *            SliceAdministrationCapability to be cloned.
 	 */
-	private SliceAdministration(List<Unit> units, List<Integer> sizes, Object sliceData) {
+	private SliceAdministration(List<Unit> units, Map<Unit, Range> ranges, Object sliceData) {
 		this.units = new CopyOnWriteArrayList<Unit>(units);
-		this.sizes = new CopyOnWriteArrayList<Integer>(sizes);
+		this.ranges = new ConcurrentHashMap<Unit, Range>(ranges);
 		currentData = cloneSliceData(sliceData, units.size());
 		originalData = cloneSliceData(sliceData, units.size());
 
 	}
 
-	private List<Cube> compatize(Object data) {
-		SliceAdministration visited = new SliceAdministration(this.units, this.sizes, data);
+	private List<Cube> compactize(Object data) {
+		SliceAdministration visited = new SliceAdministration(this.units, this.ranges, data);
 
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
 
 		initUpperBounds(ubs);
 
-		CubisizeOperation operation = new CubisizeOperation();
+		CompatizeOperation operation = new CompatizeOperation();
 		executeOperation(visited, lbs, ubs, operation);
 
 		return operation.getCubes();
@@ -493,7 +509,7 @@ public class SliceAdministration implements ISliceAdministration {
 	/**
 	 * Builds a list of {@link Cube} from the slice space.
 	 */
-	private class CubisizeOperation implements Operation {
+	private class CompatizeOperation implements Operation {
 
 		private List<Cube>	cubes	= new ArrayList<Cube>();
 
@@ -751,7 +767,7 @@ public class SliceAdministration implements ISliceAdministration {
 		int result = 1;
 		result = prime * result + ((currentData == null) ? 0 : currentData.hashCode());
 		result = prime * result + ((originalData == null) ? 0 : originalData.hashCode());
-		result = prime * result + ((sizes == null) ? 0 : sizes.hashCode());
+		result = prime * result + ((ranges == null) ? 0 : ranges.hashCode());
 		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
@@ -775,10 +791,10 @@ public class SliceAdministration implements ISliceAdministration {
 				return false;
 		} else if (!originalData.equals(other.originalData))
 			return false;
-		if (sizes == null) {
-			if (other.sizes != null)
+		if (ranges == null) {
+			if (other.ranges != null)
 				return false;
-		} else if (!sizes.equals(other.sizes))
+		} else if (!ranges.equals(other.ranges))
 			return false;
 		if (units == null) {
 			if (other.units != null)

@@ -72,6 +72,11 @@ public class Range implements Serializable {
 			return false;
 		return true;
 	}
+	
+	public int size() {
+		return upperBound - lowerBound + 1;
+	}
+
 
 	@Override
 	public String toString() {

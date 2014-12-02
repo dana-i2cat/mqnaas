@@ -17,19 +17,13 @@ import org.mqnaas.core.api.IResource;
 public interface ISliceAdministration extends ICapability {
 
 	/**
-	 * Adds a new axis with the given <code>name<code> and <code>size</code> to
-	 * the slice space.
-	 * 
-	 * @param name
-	 *            Name of the slice unit to add.
-	 * @param size
-	 *            Length of the slice unit to be added.
-	 * 
+	 * Adds a slice unit, e.g. a new axis the slice space.
 	 */
 	void addUnit(Unit unit);
 
 	/**
-	 * Returns all units defined in this cube in the order the were defined.
+	 * Returns all units defined in this slice space in the order the were
+	 * defined.
 	 */
 	Unit[] getUnits();
 
@@ -38,7 +32,12 @@ public interface ISliceAdministration extends ICapability {
 	 * of the available slicing elements along that axis.
 	 */
 	void setRange(Unit unit, Range range);
-	
+
+	/**
+	 * Returns the {@link Range} defined for the given slice {@link Unit}. If
+	 * the give <code>unit</code> is not defined in this slice,
+	 * <code>null</code> is returned.
+	 */
 	Range getRange(Unit unit);
 
 	/**
@@ -66,12 +65,12 @@ public interface ISliceAdministration extends ICapability {
 	Collection<Cube> getAvailableCubes();
 
 	/**
-	 * Cheks either the space of the given <code>slice</code> resource is
+	 * Checks either the space of the given <code>slice</code> resource is
 	 * available in the slice managed by this capability.
 	 * 
 	 * @param slice
 	 *            Slice resource containing the space to be compared.
-	 * @return <code>true</code> if the <code>slice</code> space is avaiable in
+	 * @return <code>true</code> if the <code>slice</code> space is available in
 	 *         the slice managed by this capability. <code>false</code>
 	 *         otherwise.
 	 * @throws SlicingException

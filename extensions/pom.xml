@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.mqnaas.extensions</groupId>
+	<artifactId>extensions</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<packaging>pom</packaging>
+
+	<name>MQNaaS :: Extensions</name>
+	<description>MQNaaS extensions bundles</description>
+
+
+	<modules>
+		<module>network</module>
+	</modules>
+
+	<properties>
+		<!-- UTF-8 encoding -->
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- MQNaaS version -->
+		<mqnaas-version>0.0.1-SNAPSHOT</mqnaas-version>
+
+		<!-- Maven compiler plugin version -->
+		<maven-compiler-plugin-version>3.1</maven-compiler-plugin-version>
+
+		<!-- Maven Resources plugin version -->
+		<maven-resources-plugin-version>2.6</maven-resources-plugin-version>
+
+		<!-- Build Helper Maven plugin version -->
+		<build-helper-maven-plugin-version>1.8</build-helper-maven-plugin-version>
+
+		<!-- Apache Felix Maven bundle plugin version -->
+		<maven-bundle-plugin-version>2.4.0</maven-bundle-plugin-version>
+
+		<!-- SLF4J version -->
+		<slf4j-version>1.7.7</slf4j-version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- MQNaaS modules -->
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core.api</artifactId>
+				<version>${mqnaas-version}</version>
+			</dependency>
+		</dependencies>
+
+	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<!-- Maven bundle plugin allowing the creation of OSGI bundles -->
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>${maven-bundle-plugin-version}</version>
+					<configuration>
+						<instructions>
+							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+						</instructions>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

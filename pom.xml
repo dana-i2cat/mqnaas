@@ -124,11 +124,6 @@
 				<artifactId>clientprovider</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.mqnaas</groupId>
-				<artifactId>network.api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<!-- Other libraries -->
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -371,7 +366,6 @@
 		<module>clientprovider</module>
 		<module>mqnaas-test-helpers</module>
 		<module>test-helpers</module>
-		<module>network</module>
 	</modules>
 
 	<repositories>

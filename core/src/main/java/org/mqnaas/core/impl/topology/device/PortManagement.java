@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.topology.device.IPortManagement;
+import org.mqnaas.network.api.topology.device.IPortManagement;
 
 /**
  * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}.

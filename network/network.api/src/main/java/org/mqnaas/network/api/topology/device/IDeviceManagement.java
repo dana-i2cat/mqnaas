@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.topology.link;
+package org.mqnaas.network.api.topology.device;
 
 import java.util.List;
 
@@ -10,19 +10,19 @@ import org.mqnaas.core.api.annotations.RemovesResource;
 
 
 /**
- * Manages a topology's links. To be bound to a topology resource.
+ * Manages a topology's devices. To be bound to a topology resource.
  * 
  * @author Georg Mansky-Kummert
  */
-public interface ILinkManagement extends ICapability {
+public interface IDeviceManagement extends ICapability {
 	
 	@AddsResource
-	IResource createLink();
+	IResource createDevice();
 	
 	@RemovesResource
-	void removeLink(IResource link);
+	void removeDevice(IResource device);
 	
 	@ListsResources
-	List<IResource> getLinks();
-	
+	List<IResource> getDevices();
+
 }

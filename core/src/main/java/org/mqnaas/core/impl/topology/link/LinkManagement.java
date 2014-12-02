@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.topology.link.ILinkManagement;
 import org.mqnaas.core.impl.topology.TopologyResource;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 
 /**
  * Implementation of the {@link ILinkManagement} capability backed by a

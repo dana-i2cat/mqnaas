@@ -30,6 +30,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>network.api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>

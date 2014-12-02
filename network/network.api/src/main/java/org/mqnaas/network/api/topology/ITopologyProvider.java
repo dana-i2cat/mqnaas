@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.topology;
+package org.mqnaas.network.api.topology;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
@@ -9,7 +9,7 @@ import org.mqnaas.core.api.IResource;
  * @author Georg Mansky-Kummert
  */
 public interface ITopologyProvider extends ICapability {
-
+ 
 	IResource getTopology();	
 	
 }

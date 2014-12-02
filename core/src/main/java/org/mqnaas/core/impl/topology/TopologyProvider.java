@@ -5,8 +5,8 @@ import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.api.topology.ITopologyProvider;
 import org.mqnaas.core.impl.network.RequestResource;
+import org.mqnaas.network.api.topology.ITopologyProvider;
 
 /**
  * Implementation of the {@link ITopologyProvider} capability that binds to

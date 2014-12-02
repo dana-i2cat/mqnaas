@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.topology.device;
+package org.mqnaas.network.api.topology.device;
 
 import java.util.List;
 
@@ -8,21 +8,20 @@ import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 
-
 /**
- * Manages a topology's devices. To be bound to a topology resource.
+ * Manages a {@link Device}'s ports. To be bound to a {@link Device}; 
  * 
  * @author Georg Mansky-Kummert
  */
-public interface IDeviceManagement extends ICapability {
-	
+public interface IPortManagement extends ICapability {
+
 	@AddsResource
-	IResource createDevice();
+	IResource createPort();
 	
 	@RemovesResource
-	void removeDevice(IResource device);
+	void removePort(IResource port);
 	
 	@ListsResources
-	List<IResource> getDevices();
+	List<IResource> getPorts();
 
 }

@@ -3,8 +3,8 @@ package org.mqnaas.core.impl.topology.link;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.api.topology.link.ILinkAdministration;
 import org.mqnaas.core.impl.topology.device.PortResource;
+import org.mqnaas.network.api.topology.link.ILinkAdministration;
 
 /**
  * Implementation of the {@link ILinkAdministration} capability which is bound

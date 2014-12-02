@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.topology.link;
+package org.mqnaas.network.api.topology.link;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;

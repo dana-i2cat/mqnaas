@@ -18,13 +18,13 @@ import org.mqnaas.core.api.infrastructure.IInfrastructureProvider;
 import org.mqnaas.core.api.network.IRequestBasedNetworkManagement;
 import org.mqnaas.core.api.network.ISliceAssignment;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
-import org.mqnaas.core.api.topology.ITopologyProvider;
-import org.mqnaas.core.api.topology.device.IDeviceAdministration;
-import org.mqnaas.core.api.topology.device.IDeviceManagement;
-import org.mqnaas.core.api.topology.device.IPortAdministration;
-import org.mqnaas.core.api.topology.device.IPortManagement;
-import org.mqnaas.core.api.topology.link.ILinkAdministration;
-import org.mqnaas.core.api.topology.link.ILinkManagement;
+import org.mqnaas.network.api.topology.ITopologyProvider;
+import org.mqnaas.network.api.topology.device.IDeviceAdministration;
+import org.mqnaas.network.api.topology.device.IDeviceManagement;
+import org.mqnaas.network.api.topology.device.IPortAdministration;
+import org.mqnaas.network.api.topology.device.IPortManagement;
+import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 
 /**
  * Manages network resources and provides services to create and release new

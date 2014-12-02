@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.topology.device;
+package org.mqnaas.network.api.topology.device;
 
 import org.mqnaas.core.api.ICapability;
 

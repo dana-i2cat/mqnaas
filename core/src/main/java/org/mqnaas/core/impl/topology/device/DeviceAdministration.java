@@ -6,8 +6,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.Specification.Type;
-import org.mqnaas.core.api.topology.device.IDeviceAdministration;
-import org.mqnaas.core.api.topology.device.IPortManagement;
+import org.mqnaas.network.api.topology.device.IDeviceAdministration;
+import org.mqnaas.network.api.topology.device.IPortManagement;
 
 /**
  * A device administration capability bound to a {@link DeviceResource}. Manages

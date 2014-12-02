@@ -31,9 +31,10 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.network.api.topology
+							org.mqnaas.network.api.topology,
 							org.mqnaas.network.api.topology.device,
-							org.mqnaas.network.api.topology.link
+							org.mqnaas.network.api.topology.link,
+							org.mqnaas.network.api.infrastructure
 						</Export-Package>
 					</instructions>
 				</configuration>

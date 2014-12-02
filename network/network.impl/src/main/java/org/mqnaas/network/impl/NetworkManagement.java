@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl.network;
+package org.mqnaas.network.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;

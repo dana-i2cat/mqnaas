@@ -14,6 +14,20 @@
 	<name>MQNaaS :: Network Implementation</name>
 	<description>MQNaaSS Network capabilities implementations</description>
 
+	<dependencies>
+		
+		<!-- MQNaaS modules -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>network.api</artifactId>
+		</dependency>
+		
+	</dependencies>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -24,7 +38,11 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							<!-- TODO to be added -->
+							org.mqnaas.network.impl,
+							org.mqnaas.network.impl.infrastructure,
+							org.mqnaas.network.impl.topology,
+							org.mqnaas.network.impl.topology.device,
+							org.mqnaas.network.impl.topology.link
 						</Export-Package>
 					</instructions>
 				</configuration>

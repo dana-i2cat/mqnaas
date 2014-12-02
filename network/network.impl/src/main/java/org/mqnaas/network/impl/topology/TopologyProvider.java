@@ -1,16 +1,15 @@
-package org.mqnaas.core.impl.topology;
+package org.mqnaas.network.impl.topology;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.impl.network.RequestResource;
 import org.mqnaas.network.api.topology.ITopologyProvider;
+import org.mqnaas.network.impl.RequestResource;
 
 /**
- * Implementation of the {@link ITopologyProvider} capability that binds to
- * {@link Type#NETWORK}s and {@link RequestResource}s.
+ * Implementation of the {@link ITopologyProvider} capability that binds to {@link Type#NETWORK}s and {@link RequestResource}s.
  * 
  * On activation the topology resource is created and bound.
  * 
@@ -27,9 +26,9 @@ public class TopologyProvider implements ITopologyProvider {
 	}
 
 	@DependingOn
-	private IResourceManagementListener resourceManagementListener;
+	private IResourceManagementListener	resourceManagementListener;
 
-	private IResource topology;
+	private IResource					topology;
 
 	@Override
 	public IResource getTopology() {

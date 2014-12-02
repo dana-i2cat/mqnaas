@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl.infrastructure;
+package org.mqnaas.network.impl.infrastructure;
 
 import java.util.Collection;
 import java.util.Map;
@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.infrastructure.IInfrastructureAdministration;
-import org.mqnaas.core.impl.topology.device.DeviceResource;
+import org.mqnaas.network.impl.topology.device.DeviceResource;
 
 /**
  * Implementation of the {@link IInfrastructureAdministration} capability backed by two {@link ConcurrentHashMap}s.

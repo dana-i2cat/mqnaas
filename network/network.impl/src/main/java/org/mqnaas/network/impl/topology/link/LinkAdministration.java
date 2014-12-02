@@ -1,10 +1,10 @@
-package org.mqnaas.core.impl.topology.link;
+package org.mqnaas.network.impl.topology.link;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.impl.topology.device.PortResource;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.impl.topology.device.PortResource;
 
 /**
  * Implementation of the {@link ILinkAdministration} capability which is bound

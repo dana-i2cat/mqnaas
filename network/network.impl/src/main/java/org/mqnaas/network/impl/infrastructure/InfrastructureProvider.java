@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl.infrastructure;
+package org.mqnaas.network.impl.infrastructure;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
@@ -6,7 +6,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.infrastructure.IInfrastructureProvider;
-import org.mqnaas.core.impl.network.RequestResource;
+import org.mqnaas.network.impl.RequestResource;
 
 /**
  * Implementation of the {@link IInfrastructureProvider} capability that binds to

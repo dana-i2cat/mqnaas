@@ -1,22 +1,22 @@
-package org.mqnaas.core.impl.topology;
+package org.mqnaas.network.impl.topology.device;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.mqnaas.core.api.IResource;
 
 /**
- * Basic topology resource implementation providing a simple unique id.
+ * Basic port resource implementation providing a simple unique id.
  * 
  * @author Georg Mansky-Kummert
  */
-public class TopologyResource implements IResource {
+public class PortResource implements IResource {
 
 	private static AtomicInteger ID_COUNTER = new AtomicInteger();
 
 	private String id;
 
-	public TopologyResource() {
-		id = "topo-" + ID_COUNTER.incrementAndGet();
+	public PortResource() {
+		id = "port-" + ID_COUNTER.incrementAndGet();
 	}
 
 	@Override

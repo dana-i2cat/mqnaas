@@ -1,12 +1,12 @@
-package org.mqnaas.core.impl.topology.device;
+package org.mqnaas.network.impl.topology.device;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.impl.topology.TopologyResource;
 import org.mqnaas.network.api.topology.device.IDeviceManagement;
+import org.mqnaas.network.impl.topology.TopologyResource;
 
 /**
  * Implementation of the {@link IDeviceManagement} capabilty using a

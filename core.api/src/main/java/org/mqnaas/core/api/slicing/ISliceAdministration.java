@@ -14,7 +14,7 @@ import org.mqnaas.core.api.IResource;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public interface ISliceAdministrationCapability extends ICapability {
+public interface ISliceAdministration extends ICapability {
 
 	/**
 	 * Adds a new axis with the given <code>name<code> and <code>size</code> to the slice space.
@@ -28,24 +28,24 @@ public interface ISliceAdministrationCapability extends ICapability {
 	void addUnit(String name, int size);
 
 	/**
-	 * Initializes the given {@link SliceCube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
+	 * Initializes the given {@link Cube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
 	 */
-	void setCubes(Collection<SliceCube> cube);
+	void setCubes(Collection<Cube> cube);
 
 	/**
 	 * <p>
-	 * Returns the smallest collection of {@link SliceCube}s representing the definition of this slice.
+	 * Returns the smallest collection of {@link Cube}s representing the definition of this slice.
 	 * </p>
 	 * This representation may not coincide with the list of cubes used to initialize the space using {@link #set(Cube)}, although the contained slice
 	 * elements will be the same.
 	 */
-	Collection<SliceCube> getCubes();
+	Collection<Cube> getCubes();
 
 	/**
 	 * Returns the smallest collection of {@link Cube} representing the available slicing units of this slice. This corresponds to the current state
 	 * of the slice.
 	 */
-	Collection<SliceCube> getAvailableCubes();
+	Collection<Cube> getAvailableCubes();
 
 	/**
 	 * Cheks either the space of the given <code>slice</code> resource is available in the slice managed by this capability.

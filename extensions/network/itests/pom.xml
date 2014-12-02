@@ -20,13 +20,15 @@
 			<groupId>org.mqnaas</groupId>
 			<artifactId>core.api</artifactId>
 		</dependency>
-
 		<!-- Network modules -->		
 		<dependency>
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>network.api</artifactId>
 		</dependency>
-				
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.impl</artifactId>
+		</dependency>				
 		<!-- Tests libraries-->
 		<dependency>
 			<groupId>junit</groupId>

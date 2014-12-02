@@ -92,11 +92,13 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- OSGI -->
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
 				<version>${osgi.core-version}</version>
 			</dependency>
+			<!-- MqNaaS modules -->
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core.api</artifactId>
@@ -122,6 +124,7 @@
 				<artifactId>clientprovider</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- Other libraries -->
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>

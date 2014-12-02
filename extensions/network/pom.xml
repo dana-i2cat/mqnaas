@@ -18,6 +18,7 @@
 	<modules>
 		<module>network.api</module>
 		<module>network.impl</module>
+		<module>itests</module>
 	</modules>
 
 	<properties>

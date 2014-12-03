@@ -37,8 +37,15 @@ public class BinderDecider implements IBindingDecider {
 		// Now for the process of binding, which for the moment is a very simple implementation: look for a static isSupporting method in the
 		// capability and use it to determine the binding
 		try {
+
 			Method isSupportingMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IResource.class);
 			shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
+
+			if (!shouldBeBound) {
+				Method isSupportingRootResourceMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IRootResource.class);
+				shouldBeBound = (Boolean) isSupportingRootResourceMethod.invoke(null, resource);
+			}
+
 		} catch (Exception e1) {
 			if (resource instanceof IRootResource) {
 				try {

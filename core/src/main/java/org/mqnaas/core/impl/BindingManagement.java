@@ -40,6 +40,8 @@ import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTree;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,6 +164,17 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		} catch (ServiceNotFoundException e) {
 			log.error("Error registering observation!", e);
 		}
+		// register proxies as OSGI services
+		BundleContext context = FrameworkUtil.getBundle(BindingManagement.class).getBundleContext();
+
+		// only register with interfaces that extends ICapability (as the proxy)
+		String[] bindingManagementIfaces = { IServiceProvider.class.getName(), ICoreModelCapability.class.getName() };
+		context.registerService(bindingManagementIfaces, bindingManagementCI.getProxy(), null);
+
+		context.registerService((Class<IRootResourceManagement>) IRootResourceManagement.class,
+				(IRootResourceManagement) resourceManagementCI.getProxy(), null);
+		context.registerService((Class<IExecutionService>) IExecutionService.class, (IExecutionService) executionServiceCI.getProxy(), null);
+		context.registerService((Class<IBindingDecider>) IBindingDecider.class, (IBindingDecider) binderDeciderCI.getProxy(), null);
 
 		// register class listeners
 		log.info("Registering as ClassListener with IApplicationClassFilter ICapabilityClassFilter");

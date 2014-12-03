@@ -828,7 +828,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		for (CapabilityInstance capabilityInstance : resourceCapabilities) {
 			if (capabilityInstance.getCapabilities().contains(capabilityClass))
 
-				return (C) capabilityInstance.getInstance();
+				return (C) capabilityInstance.getProxy();
 
 		}
 

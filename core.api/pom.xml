@@ -36,6 +36,27 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-bundle</artifactId>
 		</dependency>
+		<!-- Testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -52,6 +73,8 @@
 							org.mqnaas.core.api.annotations,
 							org.mqnaas.core.api.exceptions,
 							org.mqnaas.core.api.scheduling,
+							org.mqnaas.core.api.slicing,
+							org.mqnaas.core.api.network,
 							org.i2cat.utils
 						</Export-Package>
 					</instructions>

@@ -22,13 +22,13 @@
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>bundletree</artifactId>
-			<exclusions>
+	<!-- 		<exclusions>
 				<exclusion>
 					<groupId>org.osgi</groupId>
 					<artifactId>org.osgi.core</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+ -->		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -53,6 +53,11 @@
 			<artifactId>com.springsource.org.quartz</artifactId>
 		</dependency>
 		<!-- Testing -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>mqnaas-test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>test-helpers</artifactId>

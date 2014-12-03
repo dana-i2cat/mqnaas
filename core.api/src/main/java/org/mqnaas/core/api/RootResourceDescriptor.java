@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.i2cat.utils.StringBuilderUtils;
 
-@XmlRootElement
+@XmlRootElement(namespace = "org.mqnaas")
 @XmlType(propOrder = { "specification", "lockingBehaviour", "transactionBehaviour", "endpoints" })
 public class RootResourceDescriptor {
 

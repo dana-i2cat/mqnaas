@@ -56,6 +56,8 @@
 
 		<!-- Apache Commons Collections version -->
 		<commons-collections.version>3.2.1</commons-collections.version>
+		<!-- Apache Commons IO version -->
+		<commons-io.version>2.4</commons-io.version>
 
 		<!-- javax.ws.rs API (REST) version -->
 		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
@@ -84,17 +86,22 @@
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
 		
+		<!-- XMLUnit version -->
+		<xmlunit.version>1.5</xmlunit.version>
+
 		<!-- ASM version -->
 		<asm-version>3.3.1_1</asm-version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- OSGI -->
 			<dependency>
 				<groupId>org.osgi</groupId>
 				<artifactId>org.osgi.core</artifactId>
 				<version>${osgi.core-version}</version>
 			</dependency>
+			<!-- MqNaaS modules -->
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core.api</artifactId>
@@ -120,6 +127,7 @@
 				<artifactId>clientprovider</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- Other libraries -->
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
@@ -176,6 +184,18 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>xmlunit</groupId>
+				<artifactId>xmlunit</artifactId>
+				<version>${xmlunit.version}</version>
+				<scope>test</scope>
+			</dependency>			
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons-io.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.ops4j.pax.exam</groupId>
 				<artifactId>pax-exam-container-karaf</artifactId>
 				<version>${pax-exam-version}</version>
@@ -215,10 +235,16 @@
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
-				<artifactId>test-helpers</artifactId>
-				<version>0.0.1-SNAPSHOT</version>
+				<artifactId>mqnaas-test-helpers</artifactId>
+				<version>${project.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
+			</dependency>			
 			<dependency>
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
@@ -347,7 +373,8 @@
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
 		<module>api.rest</module>
- 		<module>test-helpers</module>
+		<module>mqnaas-test-helpers</module>
+		<module>test-helpers</module>
 	</modules>
 
 	<repositories>

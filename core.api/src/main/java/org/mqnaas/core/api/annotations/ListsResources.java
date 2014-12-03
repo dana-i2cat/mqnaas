@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <code>RemovesResource</code> is a method annotation which has to be used to define a service, which removes a resource from the platform.
+ * <code>ListsResources</code> is a method annotation which has to be used to define a service that is returning a listing of resource of a management capability.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

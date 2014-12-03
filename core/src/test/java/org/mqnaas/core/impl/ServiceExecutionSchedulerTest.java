@@ -14,7 +14,7 @@ import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
 import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
 import org.mqnaas.core.impl.scheduling.TriggerFactory;
-import org.mqnaas.test.helpers.ReflectionTestHelper;
+import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.powermock.api.mockito.PowerMockito;
 
 /**

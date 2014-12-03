@@ -63,7 +63,7 @@ public class ResourcesIntegrationTest {
 						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").version("3.0.1"))
 						.karafVersion("3.0.1").name("Apache Karaf").useDeployFolder(false)
 						// keep deployed Karaf
-						.unpackDirectory(new File("target/exam")),
+						.unpackDirectory(new File("target/paxexam")),
 				// no local and remote consoles
 				KarafDistributionOption.configureConsole().ignoreLocalConsole(),
 				KarafDistributionOption.configureConsole().ignoreRemoteShell(),

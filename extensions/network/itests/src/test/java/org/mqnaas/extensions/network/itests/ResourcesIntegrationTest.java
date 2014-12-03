@@ -1,7 +1,7 @@
 package org.mqnaas.extensions.network.itests;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.inject.Inject;
 
@@ -21,7 +21,6 @@ import org.mqnaas.network.api.infrastructure.IInfrastructureProvider;
 import org.mqnaas.network.api.topology.ITopologyProvider;
 import org.mqnaas.network.api.topology.device.IDeviceAdministration;
 import org.mqnaas.network.api.topology.device.IDeviceManagement;
-import org.mqnaas.network.api.topology.device.IPortAdministration;
 import org.mqnaas.network.api.topology.device.IPortManagement;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
@@ -72,6 +71,8 @@ public class ResourcesIntegrationTest {
 				// use custom logging configuration file with a custom appender
 				KarafDistributionOption.replaceConfigurationFile("etc/org.ops4j.pax.logging.cfg", new File(
 						"src/test/resources/org.ops4j.pax.logging.cfg")),
+				// maintain our log configuration
+				KarafDistributionOption.doNotModifyLogConfiguration(),
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
@@ -85,7 +86,9 @@ public class ResourcesIntegrationTest {
 
 		Specification spec = new Specification(Type.NETWORK);
 
-		IRootResource networkResource = rootResourceMgmt.createRootResource(spec, new ArrayList<Endpoint>());
+		Endpoint endpoint = null;
+
+		IRootResource networkResource = rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
 
 		// network resource capabilities.
 		ITopologyProvider topologyProviderCapab = serviceProvider.getCapability(networkResource, ITopologyProvider.class);
@@ -114,9 +117,6 @@ public class ResourcesIntegrationTest {
 		ILinkManagement linkManagementCapab = serviceProvider.getCapability(topology, ILinkManagement.class);
 		Assert.assertNotNull("Topology resource should contain a bound ILinkManagement capability.", linkManagementCapab);
 
-		IPortManagement portManagementCapab = serviceProvider.getCapability(topology, IPortManagement.class);
-		Assert.assertNotNull("Topology resource should contain a bound IPortManagement capability.", portManagementCapab);
-
 		// link resource capabilities
 		IResource link = linkManagementCapab.createLink();
 		Assert.assertNotNull(link);
@@ -130,16 +130,20 @@ public class ResourcesIntegrationTest {
 		Assert.assertNotNull(device);
 		Assert.assertTrue(device instanceof DeviceResource);
 
-		IDeviceAdministration deviceAdminCapab = serviceProvider.getCapability(link, IDeviceAdministration.class);
+		IDeviceAdministration deviceAdminCapab = serviceProvider.getCapability(device, IDeviceAdministration.class);
 		Assert.assertNotNull("Device resource should contain a bound IDeviceAdministration capability", deviceAdminCapab);
+
+		IPortManagement portManagementCapab = serviceProvider.getCapability(device, IPortManagement.class);
+		Assert.assertNotNull("Device resource should contain a bound IPortManagement capability.", portManagementCapab);
 
 		// port resource capabilities
 		IResource port = portManagementCapab.createPort();
 		Assert.assertNotNull(port);
 		Assert.assertTrue(port instanceof PortResource);
 
-		IPortAdministration portAdminCapab = serviceProvider.getCapability(link, IPortAdministration.class);
-		Assert.assertNotNull("Device resource should contain a bound IPortAdministration capability", portAdminCapab);
+		// TODO uncomment once PortAdministration capability is implemented.
+		// IPortAdministration portAdminCapab = serviceProvider.getCapability(port, IPortAdministration.class);
+		// Assert.assertNotNull("Port resource should contain a bound IPortAdministration capability", portAdminCapab);
 
 		// remove all resources
 		portManagementCapab.removePort(port);

@@ -104,7 +104,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private InternalClassListener				internalClassListener;
 
 	// Holds known capability implementations that will be checked for compatibility with resources in the system.
-	private Set<Class<? extends ICapability>>	knownCapabilities;
+	Set<Class<? extends ICapability>>			knownCapabilities;
 	// Holds known application implementations
 	private Set<Class<? extends IApplication>>	knownApplications;
 

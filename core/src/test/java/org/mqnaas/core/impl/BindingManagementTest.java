@@ -6,22 +6,35 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceCapabilityTreeController;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
+ * http://www.codeproject.com/Articles/806508/Using-PowerMockito-to-Mock-Final-and-Static-Method
  * 
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
+// needed to mock static method of FrameworkUtil class.
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(FrameworkUtil.class)
 public class BindingManagementTest {
 
 	static IRootResourceManagement	resourceManagement;
@@ -46,6 +59,15 @@ public class BindingManagementTest {
 			public void deactivate() {
 			}
 		};
+
+		// mock OSGI related code
+		BundleContext mockedContext = PowerMockito.mock(BundleContext.class);
+		Bundle mockedBundle = PowerMockito.mock(Bundle.class);
+
+		PowerMockito.when(mockedContext.registerService(Class.class, Class.class, null)).thenReturn(null);
+		PowerMockito.when(mockedBundle.getBundleContext()).thenReturn(mockedContext);
+		PowerMockito.mockStatic(FrameworkUtil.class);
+		PowerMockito.when(FrameworkUtil.getBundle(BindingManagement.class)).thenReturn(mockedBundle);
 
 		ExecutionService executionServiceInstance = new ExecutionService();
 
@@ -113,6 +135,12 @@ public class BindingManagementTest {
 	@Test
 	public void addResourceInCapabilityInstance() throws ResourceNotFoundException {
 
+		if (!bindingManagement.knownCapabilities.contains(SampleCapability.class)) {
+			List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
+			capabilitiyClasses.add(SampleCapability.class);
+			bindingManagement.capabilitiesAdded(capabilitiyClasses);
+		}
+
 		IResource core = resourceManagement.getCore();
 
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
@@ -128,6 +156,12 @@ public class BindingManagementTest {
 
 	@Test
 	public void removeResourceInCapabilityInstance() throws ResourceNotFoundException {
+
+		if (!bindingManagement.knownCapabilities.contains(SampleCapability.class)) {
+			List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
+			capabilitiyClasses.add(SampleCapability.class);
+			bindingManagement.capabilitiesAdded(capabilitiyClasses);
+		}
 
 		IResource core = resourceManagement.getCore();
 

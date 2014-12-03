@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -18,7 +19,16 @@ import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+//needed to mock static method of FrameworkUtil class.
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(FrameworkUtil.class)
 public class BindingManagementReactsToResourcesTest {
 
 	static IRootResourceManagement	resourceManagement;
@@ -49,6 +59,15 @@ public class BindingManagementReactsToResourcesTest {
 			public void deactivate() {
 			}
 		};
+
+		// mock OSGI related code
+		BundleContext mockedContext = PowerMockito.mock(BundleContext.class);
+		Bundle mockedBundle = PowerMockito.mock(Bundle.class);
+
+		PowerMockito.when(mockedContext.registerService(Class.class, Class.class, null)).thenReturn(null);
+		PowerMockito.when(mockedBundle.getBundleContext()).thenReturn(mockedContext);
+		PowerMockito.mockStatic(FrameworkUtil.class);
+		PowerMockito.when(FrameworkUtil.getBundle(BindingManagement.class)).thenReturn(mockedBundle);
 
 		ExecutionService executionServiceInstance = new ExecutionService();
 

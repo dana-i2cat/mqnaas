@@ -4,7 +4,6 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
-import org.mqnaas.network.impl.topology.device.PortResource;
 
 /**
  * Implementation of the {@link ILinkAdministration} capability which is bound
@@ -26,8 +25,6 @@ public class LinkAdministration implements ILinkAdministration {
 	@Override
 	public void activate() {
 		// TODO: persistence
-		srcPort = new PortResource();
-		destPort = new PortResource();
 	}
 
 	@Override

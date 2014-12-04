@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.exceptions.ApplicationInstanceNotFoundException;
 import org.mqnaas.core.impl.exceptions.CapabilityInstanceNotFoundException;
@@ -14,7 +15,7 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public interface IBindingManagement {
+public interface IBindingManagement extends ICapability {
 
 	/**
 	 * Adds given resource under the control of given ApplicationNode in the bindingManagement model.

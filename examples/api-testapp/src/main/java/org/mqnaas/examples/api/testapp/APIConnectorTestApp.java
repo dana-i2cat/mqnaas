@@ -34,6 +34,12 @@ public class APIConnectorTestApp implements IApplication {
 
 	@DependingOn
 	IServiceProvider			serviceProvider;
+	
+	/**
+	 * Forces this App to be activated AFTER apiConnector
+	 */
+	@DependingOn
+	IAPIConnector apiConnector;
 
 	@Override
 	public void activate() {

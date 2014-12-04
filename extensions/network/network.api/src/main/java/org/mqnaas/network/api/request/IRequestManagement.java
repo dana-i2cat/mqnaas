@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.network;
+package org.mqnaas.network.api.request;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 
 /**
- * Management capability for network request.
+ * Management capability for the network request.
  *  
  * @author Georg Mansky-Kummert
  */

@@ -1,7 +1,5 @@
 package org.mqnaas.network.impl;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.Period;

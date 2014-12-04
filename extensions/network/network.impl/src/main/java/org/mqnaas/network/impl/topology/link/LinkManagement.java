@@ -5,12 +5,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
+import org.mqnaas.network.impl.RequestResource;
 import org.mqnaas.network.impl.topology.TopologyResource;
 
 /**
- * Implementation of the {@link ILinkManagement} capability backed by a
- * {@link CopyOnWriteArrayList}, which is bound to a {@link TopologyResource}.
+ * Implementation of the {@link ILinkManagement} capability backed by a {@link CopyOnWriteArrayList}, which is bound to a {@link TopologyResource}.
  * 
  * @author Georg Mansky-Kummert
  *
@@ -18,10 +19,14 @@ import org.mqnaas.network.impl.topology.TopologyResource;
 public class LinkManagement implements ILinkManagement {
 
 	public static boolean isSupporting(IResource resource) {
-		return resource instanceof TopologyResource;
+		return resource instanceof RequestResource;
 	}
 
-	private List<LinkResource> links;
+	public static boolean isSupporting(IRootResource resource) {
+		return true;
+	}
+
+	private List<LinkResource>	links;
 
 	@Override
 	public IResource createLink() {

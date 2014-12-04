@@ -5,20 +5,23 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.device.IPortManagement;
 
 /**
- * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}.
+ * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation should be bound to all
+ * IRootResources except core and network ones.
  * 
  * @author Georg Mansky-Kummert
  */
 public class PortManagement implements IPortManagement {
 
-	public static boolean isSupporting(IResource resource) {
-		return resource instanceof DeviceResource;
+	public static boolean isSupporting(IRootResource resource) {
+		return (!resource.getSpecification().getType().equals(Type.CORE) && !resource.getSpecification().getType().equals(Type.NETWORK));
 	}
-	
-	private List<PortResource> ports;
+
+	private List<PortResource>	ports;
 
 	@Override
 	public void activate() {

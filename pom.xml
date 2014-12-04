@@ -129,6 +129,11 @@
 			</dependency>
 			<!-- Other libraries -->
 			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>api.rest</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>${guava-version}</version>
@@ -370,17 +375,17 @@
 	</build>
 
 	<modules>
+		<module>test-helpers</module>
 		<module>core.api</module>
 		<module>core</module>
 		<module>bundletree</module>
-		<module>bundletree/itests</module>
-		<module>bundletree/itests-testbundleA</module>
-		<module>bundletree/itests-testbundleB</module>
 		<module>clientprovider-api</module>
 		<module>clientprovider</module>
 		<module>api.rest</module>
 		<module>mqnaas-test-helpers</module>
-		<module>test-helpers</module>
+		<module>bundletree/itests</module>
+		<module>bundletree/itests-testbundleA</module>
+		<module>bundletree/itests-testbundleB</module>
 	</modules>
 
 	<repositories>

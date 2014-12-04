@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author Isart Canyameres Gimenez (i2cat)
  *
  */
-public class APIConnector implements IApplication {
+public class APIConnector implements IAPIConnector {
 	
 	private static final Logger					log	= LoggerFactory.getLogger(APIConnector.class);
 	

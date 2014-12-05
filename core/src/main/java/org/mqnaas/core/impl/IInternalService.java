@@ -1,5 +1,7 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 
@@ -23,6 +25,6 @@ public interface IInternalService extends IService {
 	 *            The parameters used when executing the service
 	 * @return The service execution result
 	 */
-	public Object execute(Object[] parameters);
+	public Object execute(Object[] parameters) throws InvocationTargetException;
 
 }

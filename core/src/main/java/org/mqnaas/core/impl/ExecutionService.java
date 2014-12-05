@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public class ExecutionService implements IExecutionService, IObservationService 
 	}
 
 	@Override
-	public Object execute(IService service, Object[] parameters) {
+	public Object execute(IService service, Object[] parameters) throws InvocationTargetException {
 
 		// Permission?
 
@@ -83,7 +84,11 @@ public class ExecutionService implements IExecutionService, IObservationService 
 
 		@Override
 		public void run() {
-			execute(service, parameters);
+			try {
+				execute(service, parameters);
+			} catch (InvocationTargetException e) {
+				log.error("Error executing service  " + service.getMetadata().getName() + " asynchronously.", e);
+			}
 		}
 
 	}

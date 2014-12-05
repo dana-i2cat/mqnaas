@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl.topology.device;
+package org.mqnaas.network.impl.topology.port;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ public class ScheduledJobTest {
 	}
 
 	@Test
-	public void scheduledJobExecutionWithoutParamsTest() throws JobExecutionException {
+	public void scheduledJobExecutionWithoutParamsTest() throws JobExecutionException, InvocationTargetException {
 
 		JobExecutionContext context = generateExecutionContext();
 		scheduledJob.execute(context);
@@ -55,7 +56,7 @@ public class ScheduledJobTest {
 	}
 
 	@Test
-	public void scheduledJobExecutionWithParamsTest() throws JobExecutionException {
+	public void scheduledJobExecutionWithParamsTest() throws JobExecutionException, InvocationTargetException {
 
 		Object[] parameters = new Object[2];
 		parameters[0] = new String("param00");

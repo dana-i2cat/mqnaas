@@ -1,9 +1,10 @@
-package org.mqnaas.core.api.network;
+package org.mqnaas.network.api.request;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.annotations.AddsResource;
+import org.mqnaas.network.api.IBaseNetworkManagement;
 
 /**
  * A network management capability that uses network requests to create new

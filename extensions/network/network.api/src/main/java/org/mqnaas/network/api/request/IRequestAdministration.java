@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.network;
+package org.mqnaas.network.api.request;
 
 import org.mqnaas.core.api.ICapability;
 

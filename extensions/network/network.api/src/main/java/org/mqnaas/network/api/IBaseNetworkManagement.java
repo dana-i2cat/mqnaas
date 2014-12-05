@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.network;
+package org.mqnaas.network.api;
 
 import java.util.Collection;
 

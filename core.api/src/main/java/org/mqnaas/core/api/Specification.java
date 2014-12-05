@@ -1,13 +1,22 @@
 package org.mqnaas.core.api;
 
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+
+import org.mqnaas.core.api.slicing.Unit;
 
 /**
  * The <code>Specification</code> contains all the configuration information available about a (physical) device. It is used to describe
  * {@link IRootResource}s.
  */
-@XmlType(propOrder = { "type", "model", "version" })
+@XmlRootElement(namespace = "org.mqnaas")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "type", "model", "version", "sliceUnits" })
 public class Specification implements Cloneable {
 
 	/**
@@ -60,9 +69,12 @@ public class Specification implements Cloneable {
 		}
 	};
 
-	private Type	type;
+	@XmlElement(required = true)
+	private Type			type;
 
-	private String	model, version;
+	private String			model, version;
+
+	private List<Unit>	sliceUnits;
 
 	// This constructor is to be used only by serialization
 	private Specification() {
@@ -86,7 +98,6 @@ public class Specification implements Cloneable {
 		return type;
 	}
 
-	@XmlElement(required = true)
 	public void setType(Type type) {
 		this.type = type;
 	}
@@ -107,11 +118,20 @@ public class Specification implements Cloneable {
 		this.version = version;
 	}
 
+	public List<Unit> getSliceUnits() {
+		return sliceUnits;
+	}
+
+	public void setSliceUnits(List<Unit> sliceUnits) {
+		this.sliceUnits = sliceUnits;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((model == null) ? 0 : model.hashCode());
+		result = prime * result + ((sliceUnits == null) ? 0 : sliceUnits.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		result = prime * result + ((version == null) ? 0 : version.hashCode());
 		return result;
@@ -130,6 +150,11 @@ public class Specification implements Cloneable {
 			if (other.model != null)
 				return false;
 		} else if (!model.equals(other.model))
+			return false;
+		if (sliceUnits == null) {
+			if (other.sliceUnits != null)
+				return false;
+		} else if (!sliceUnits.equals(other.sliceUnits))
 			return false;
 		if (type != other.type)
 			return false;
@@ -155,6 +180,10 @@ public class Specification implements Cloneable {
 			sb.append(", version=").append(version);
 		}
 
+		if (sliceUnits != null) {
+			sb.append(", sliceUnits=").append(sliceUnits);
+		}
+
 		sb.append("]");
 
 		return sb.toString();
@@ -164,6 +193,7 @@ public class Specification implements Cloneable {
 	public Specification clone() throws CloneNotSupportedException {
 
 		return (Specification) super.clone();
+
 	}
 
 }

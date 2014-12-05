@@ -92,9 +92,11 @@ public class ApplicationInstance {
 				instance = clazz.newInstance();
 			} catch (InstantiationException e) {
 				// ignore for now
+				log.error("Failed to instantiate application " +  clazz.getName(), e);
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// ignore for now
+				log.error("Failed to instantiate application " +  clazz.getName(), e);
 				e.printStackTrace();
 			}
 		}
@@ -242,7 +244,7 @@ public class ApplicationInstance {
 		instance = null;
 	}
 
-	private IApplication getProxy() {
+	IApplication getProxy() {
 		return proxyHolder.getProxy();
 	}
 

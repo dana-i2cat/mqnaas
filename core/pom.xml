@@ -22,13 +22,13 @@
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>bundletree</artifactId>
-			<exclusions>
+	<!-- 		<exclusions>
 				<exclusion>
 					<groupId>org.osgi</groupId>
 					<artifactId>org.osgi.core</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+ -->		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -55,6 +55,11 @@
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.mqnaas</groupId>
+			<artifactId>mqnaas-test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
 			<artifactId>test-helpers</artifactId>
 			<scope>test</scope>
 		</dependency>
@@ -63,7 +68,11 @@
 			<artifactId>powermock-api-mockito</artifactId>
 			<scope>test</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -77,8 +86,9 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,
-							org.mqnaas.core.impl.scheduling,
-							org.mqnaas.core.impl.notificationfilter
+							org.mqnaas.core.impl.notificationfilter,
+							org.mqnaas.core.impl.resourcetree,
+							org.mqnaas.core.impl.scheduling
 						</Export-Package>
 					</instructions>
 				</configuration>

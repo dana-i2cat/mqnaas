@@ -31,7 +31,7 @@ public interface IRootResourceManagement extends ICapability {
 	 * Adds the given {@link IResource} to the resources managed by the platform.
 	 * </p>
 	 * <p>
-	 * The service {@link IBindingManagement#resourceAdded(IResource)} is notified, whenever this service was executed successfully.
+	 * The service {@link IResourceManagementListener#resourceAdded(IResource, IApplication, Class)} is notified, whenever this service was executed successfully.
 	 * </p>
 	 * 
 	 * @param resource
@@ -49,7 +49,7 @@ public interface IRootResourceManagement extends ICapability {
 	 * </p>
 	 * 
 	 * <p>
-	 * The service {@link IBindingManagement#resourceRemoved(IResource)} is notified whenever this service was executed successfully.
+	 * The service {@link IResourceManagementListener#resourceRemoved(IResource, IApplication, Class)} is notified whenever this service was executed successfully.
 	 * 
 	 * @param resource
 	 *            The resource to be removed from the platform

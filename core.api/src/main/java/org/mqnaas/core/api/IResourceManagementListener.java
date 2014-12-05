@@ -18,8 +18,10 @@ public interface IResourceManagementListener extends ICapability {
 	 *            The resource added to the platform
 	 * @param managedBy
 	 *            The IApplication managing given resource
+	 * @param parentInterface
+	 * 			  The interface managing given resource in managedBy instance
 	 */
-	void resourceAdded(IResource resource, IApplication managedBy);
+	void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface);
 
 	/**
 	 * <p>
@@ -31,6 +33,8 @@ public interface IResourceManagementListener extends ICapability {
 	 *            The resource removed from the platform
 	 * @param managedBy
 	 *            The IApplication managing given resource
+	 * @param parentInterface
+	 * 			  The interface managing given resource in managedBy instance
 	 */
-	void resourceRemoved(IResource resource, IApplication managedBy);
+	void resourceRemoved(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface);
 }

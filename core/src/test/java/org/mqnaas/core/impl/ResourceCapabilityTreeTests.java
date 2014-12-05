@@ -79,15 +79,15 @@ public class ResourceCapabilityTreeTests {
 		ResourceCapabilityTreeController.addCapabilityNode(capabilityNodeC, coreResourceNode);
 
 		// 3 child root resource nodes of capabilityNodeA
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeA, capabilityNodeA);
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeB, capabilityNodeA);
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeC, capabilityNodeA);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeA, capabilityNodeA, ICapability.class);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeB, capabilityNodeA, ICapability.class);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeC, capabilityNodeA, ICapability.class);
 
 		// 1 capability child node of rootResourceNodeA
 		ResourceCapabilityTreeController.addCapabilityNode(capabilityNodeAA, rootResourceNodeA);
 
 		// 1 resource child node of capabilityNodeAA
-		ResourceCapabilityTreeController.addResourceNode(resourceNodeA, capabilityNodeAA);
+		ResourceCapabilityTreeController.addResourceNode(resourceNodeA, capabilityNodeAA, ICapability.class);
 
 		return tree;
 	}

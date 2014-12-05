@@ -13,11 +13,10 @@ import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
-import org.mqnaas.core.api.network.IRequestBasedNetworkManagement;
-import org.mqnaas.core.api.network.ISliceAssignment;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.network.api.infrastructure.IInfrastructureAdministration;
 import org.mqnaas.network.api.infrastructure.IInfrastructureProvider;
+import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.topology.ITopologyProvider;
 import org.mqnaas.network.api.topology.device.IDeviceAdministration;
 import org.mqnaas.network.api.topology.device.IDeviceManagement;
@@ -81,7 +80,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 						.getDeviceMapping(requestedDevice);
 
 				// Get the slice, if available...
-				IResource slice = request.getSlice(requestedDevice);
+				IResource slice = null;
 
 				IResource resource;
 
@@ -130,17 +129,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		public RequestWrapper(IResource request) {
 			this.request = request;
-		}
-
-		private ISliceAssignment getSliceManagement()
-				throws CapabilityNotFoundException {
-			return serviceProvider.getCapability(request,
-					ISliceAssignment.class);
-		}
-
-		public IResource getSlice(DeviceWrapper device)
-				throws CapabilityNotFoundException {
-			return getSliceManagement().getSlice(device.getResource());
 		}
 
 		public InfrastructureWrapper getInfrastructure()

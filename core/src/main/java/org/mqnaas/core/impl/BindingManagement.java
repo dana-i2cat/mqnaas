@@ -111,6 +111,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private ResourceCapabilityTree				tree;
 
 	private DependencyManagement				dependencyManagement;
+	
+	// Proxies. Required to execute methods as Services.
+	private IBindingManagement bindingManagement;
 
 	public BindingManagement() {
 
@@ -151,6 +154,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		bind(new CapabilityNode(executionServiceCI), mqNaaSNode);
 		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
+		
+		// init proxies
+		bindingManagement = (IBindingManagement) bindingManagementCI.getProxy();
 
 		// Initialize the notifications necessary to track resources dynamically
 		// Register the service {@link IResourceManagementListener#resourceAdded(IResource, IApplication, Class<? extends IApplication>);}
@@ -183,7 +189,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		internalClassListener = new InternalClassListener();
 		bundleGuard.registerClassListener(new IApplicationClassFilter(), internalClassListener);
 		bundleGuard.registerClassListener(new ICapabilityClassFilter(), internalClassListener);
-
 	}
 
 	public void setExecutionService(IExecutionService executionService) {
@@ -302,7 +307,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		try {
 			ApplicationNode parent = findApplicationNode(managedBy);
 
-			addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
+			bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
 
 		} catch (ApplicationNotFoundException e) {
 			log.error("No parent found!", e);
@@ -341,7 +346,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			if (toRemove == null)
 				throw new ResourceNotFoundException("Resource is not provided by given application");
 
-			removeResourceNode(toRemove, parent);
+			bindingManagement.removeResourceNode(toRemove, parent);
 
 		} catch (ApplicationNotFoundException e) {
 			log.error("No parent found!", e);
@@ -362,7 +367,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
 			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
 				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)) {
-					bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
+					bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
 				} else {
 					log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
 				}
@@ -482,7 +487,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// 1. Remove on cascade (remove capabilities bound to this resource)
 		// Notice recursivity between removeResource and unbind methods
 		for (CapabilityNode bound : toRemove.getChildren()) {
-			unbind(bound, toRemove);
+			bindingManagement.unbind(bound, toRemove);
 		}
 
 		// 2. Update the model
@@ -528,7 +533,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// 1. Remove on cascade (resources provided by toUnbind capability)
 		// Notice recursivity between unbind and removeResource methods
 		for (ResourceNode provided : toUnbind.getChildren()) {
-			removeResourceNode(provided, toUnbind);
+			bindingManagement.removeResourceNode(provided, toUnbind);
 		}
 
 		// 2. Update the model
@@ -590,7 +595,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		for (Class<? extends IApplication> applicationClass : applicationClasses) {
 			ApplicationInstance application = new ApplicationInstance(applicationClass);
 
-			addApplicationInstance(application);
+			if (bindingManagement != null) {
+				bindingManagement.addApplicationInstance(application);
+			} else {
+				// calling the method directly without using a service
+				// listeners will not be notified
+				addApplicationInstance(application);
+			}
+			
 		}
 
 		printAvailableApplications();
@@ -618,7 +630,13 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		// remove collected application instances
 		for (ApplicationInstance applicationInstance : appInstancesToBeRemoved) {
-			removeApplicationInstance(applicationInstance);
+			if (bindingManagement != null) {
+				bindingManagement.removeApplicationInstance(applicationInstance);
+			} else {
+				// calling the method directly without using a service
+				// listeners will not be notified
+				removeApplicationInstance(applicationInstance);
+			}
 		}
 
 		printAvailableApplications();
@@ -640,7 +658,13 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
 				if (bindingDecider.shouldBeBound(resourceNode.getContent(), capabilityClass)) {
 					if (!ResourceCapabilityTreeController.isBound(capabilityClass, resourceNode))
-						bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
+						if (bindingManagement != null) {
+							bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
+						} else {
+							// calling the method directly without using a service
+							// listeners will not be notified
+							bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
+						}
 				}
 			}
 		}
@@ -660,7 +684,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// unbind logic
 		for (CapabilityNode capabilityNode : ResourceCapabilityTreeController.getAllCapabilityNodes(tree.getRootResourceNode())) {
 			if (capabilityClasses.contains(capabilityNode.getContent().getClazz())) {
-				unbind(capabilityNode, capabilityNode.getParent());
+				
+				if (bindingManagement != null) {
+					bindingManagement.unbind(capabilityNode, capabilityNode.getParent());
+				} else {
+					// calling the method directly without using a service
+					// listeners will not be notified
+					unbind(capabilityNode, capabilityNode.getParent());
+				}
 			}
 		}
 

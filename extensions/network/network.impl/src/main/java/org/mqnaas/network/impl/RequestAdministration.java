@@ -1,22 +1,22 @@
 package org.mqnaas.network.impl;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.network.IRequestAdministration;
-import org.mqnaas.core.api.network.Period;
+import org.mqnaas.network.api.request.IRequestAdministration;
+import org.mqnaas.network.api.request.Period;
 
 /**
- * Implementation of the {@link IRequestAdministration} capabilities, which is bound to a {@link RequestResource}.
+ * Implementation of the {@link IRequestAdministration} capability, which is
+ * bound to a {@link RequestResource}.
  * 
  * @author Georg Mansky-Kummert
  */
-public class RequestAdministration implements IRequestAdministration
-{
+public class RequestAdministration implements IRequestAdministration {
 
 	public static boolean isSupporting(IResource resource) {
 		return resource instanceof RequestResource;
 	}
 
-	private Period	period;
+	private Period period;
 
 	@Override
 	public void setPeriod(Period period) {

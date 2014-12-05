@@ -62,14 +62,14 @@ public class APIConnectorTestApp implements IApplication {
 			serviceProvider.getCapability(sampleResource, ISampleCapability.class);
 			
 			// TODO wait for capabilities API being published
-			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/sampleMgmtCapability/s0/sampleMgmtCapability");
-			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/sampleMgmtCapability/s0/sampleCapability");
+			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/ISampleMgmtCapability/s0/ISampleMgmtCapability");
+			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/ISampleMgmtCapability/s0/ISampleCapability");
 			
 			
 			sampleMgmtCapability.addSampleResource(new SampleResource("s1"));
 			// TODO wait for capabilities API being published
-			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/sampleMgmtCapability/s0/sampleMgmtCapability/s1/sampleMgmtCapability");
-			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/sampleMgmtCapability/s0/sampleMgmtCapability/s1/sampleCapability");
+			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/ISampleMgmtCapability/s0/ISampleMgmtCapability/s1/ISampleMgmtCapability");
+			//checkEndpointWADLIsAccessible("http://localhost:9000/mqnaas/ISampleMgmtCapability/s0/ISampleMgmtCapability/s1/ISampleCapability");
 
 		} catch (Exception e) {
 			e.printStackTrace();

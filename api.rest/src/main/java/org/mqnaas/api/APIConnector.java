@@ -12,7 +12,7 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.IBindingManagement;
-import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
+import org.mqnaas.core.impl.notificationfilter.ServiceFilterWithParams;
 import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
@@ -87,12 +87,12 @@ public class APIConnector implements IAPIConnector {
 			IService unpublishApplicationService = serviceProvider.getApplicationService(this, "unpublishApplication", ApplicationInstance.class);
 			
 			// register publishServices for them being executed after each bind
-			observationService.registerObservation(new ServiceFilter(bindService), publishCapabilityService);
-			observationService.registerObservation(new ServiceFilter(addApplicationInstance), publishApplicationService);
+			observationService.registerObservation(new ServiceFilterWithParams(bindService), publishCapabilityService);
+			observationService.registerObservation(new ServiceFilterWithParams(addApplicationInstance), publishApplicationService);
 			
 			// register unpublishServices for them being executed after each unbind
-			observationService.registerObservation(new ServiceFilter(unbindService), unpublishCapabilityService);
-			observationService.registerObservation(new ServiceFilter(removeApplicationInstance), unpublishApplicationService);
+			observationService.registerObservation(new ServiceFilterWithParams(unbindService), unpublishCapabilityService);
+			observationService.registerObservation(new ServiceFilterWithParams(removeApplicationInstance), unpublishApplicationService);
 			
 			// TODO Get already registered capabilities and apps publish them. 
 			

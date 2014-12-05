@@ -7,11 +7,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.device.IDeviceAdministration;
-import org.mqnaas.network.api.topology.device.IPortManagement;
+import org.mqnaas.network.api.topology.port.IPortManagement;
+import org.mqnaas.network.impl.topology.port.PortResource;
 
 /**
- * A device administration capability bound to a {@link DeviceResource}. Manages
- * ports and modifies the device's {@link Type}.
+ * A device administration capability bound to a {@link DeviceResource}. Manages ports and modifies the device's {@link Type}.
  * 
  * @author Georg Mansky-Kummert
  */
@@ -22,9 +22,9 @@ public class DeviceAdministration implements IPortManagement,
 		return resource instanceof DeviceResource;
 	}
 
-	private Type type;
+	private Type				type;
 
-	private List<PortResource> ports;
+	private List<PortResource>	ports;
 
 	@Override
 	public void setType(Type type) {

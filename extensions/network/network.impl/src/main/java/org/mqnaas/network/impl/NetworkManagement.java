@@ -20,14 +20,13 @@ import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.topology.ITopologyProvider;
 import org.mqnaas.network.api.topology.device.IDeviceAdministration;
 import org.mqnaas.network.api.topology.device.IDeviceManagement;
-import org.mqnaas.network.api.topology.device.IPortAdministration;
-import org.mqnaas.network.api.topology.device.IPortManagement;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
+import org.mqnaas.network.api.topology.port.IPortAdministration;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 
 /**
- * Manages network resources and provides services to create and release new
- * networks based on network request.
+ * Manages network resources and provides services to create and release new networks based on network request.
  * 
  * @author Georg Mansky-Kummert
  */
@@ -38,15 +37,15 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	@DependingOn
-	IRootResourceManagement rootResourceManagement;
+	IRootResourceManagement				rootResourceManagement;
 
 	@DependingOn
-	private IResourceManagementListener resourceManagementListener;
+	private IResourceManagementListener	resourceManagementListener;
 
 	@DependingOn
-	private IServiceProvider serviceProvider;
+	private IServiceProvider			serviceProvider;
 
-	private List<IRootResource> networks;
+	private List<IRootResource>			networks;
 
 	@Override
 	public IRootResource createNetwork(IResource requestResource) {
@@ -121,11 +120,11 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class RequestWrapper {
 
-		private IResource request;
+		private IResource				request;
 
-		private TopologyWrapper topologyWrapper;
+		private TopologyWrapper			topologyWrapper;
 
-		private InfrastructureWrapper infrastructureWrapper;
+		private InfrastructureWrapper	infrastructureWrapper;
 
 		public RequestWrapper(IResource request) {
 			this.request = request;
@@ -155,11 +154,11 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class NetworkWrapper {
 
-		private IResource network;
+		private IResource				network;
 
-		private TopologyWrapper topologyWrapper;
+		private TopologyWrapper			topologyWrapper;
 
-		private InfrastructureWrapper infrastructureWrapper;
+		private InfrastructureWrapper	infrastructureWrapper;
 
 		public NetworkWrapper(IResource network) {
 			this.network = network;
@@ -207,7 +206,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class TopologyWrapper {
 
-		private IResource topology;
+		private IResource	topology;
 
 		public TopologyWrapper(IResource topology) {
 			this.topology = topology;
@@ -248,7 +247,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class InfrastructureWrapper {
 
-		private IResource infrastructure;
+		private IResource	infrastructure;
 
 		public InfrastructureWrapper(IResource infrastructure) {
 			this.infrastructure = infrastructure;
@@ -275,7 +274,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class DeviceWrapper {
 
-		private IResource device;
+		private IResource	device;
 
 		public DeviceWrapper(IResource device) {
 			this.device = device;
@@ -308,7 +307,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class PortWrapper {
 
-		private IResource port;
+		private IResource	port;
 
 		public PortWrapper(IResource port) {
 			this.port = port;
@@ -332,7 +331,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class LinkWrapper {
 
-		private IResource link;
+		private IResource	link;
 
 		public LinkWrapper(IResource link) {
 			this.link = link;
@@ -358,7 +357,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	private class SliceWrapper {
 
-		private IResource slice;
+		private IResource	slice;
 
 		public SliceWrapper(IResource slice) {
 			this.slice = slice;

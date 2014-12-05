@@ -6,12 +6,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.impl.RequestResource;
-import org.mqnaas.network.impl.topology.TopologyResource;
 
 /**
- * Implementation of the {@link ILinkManagement} capability backed by a {@link CopyOnWriteArrayList}, which is bound to a {@link TopologyResource}.
+ * Implementation of the {@link ILinkManagement} capability backed by a {@link CopyOnWriteArrayList}, which is bound to all {@link IRootResource}s as
+ * well as to {@link RequestResource}.
  * 
  * @author Georg Mansky-Kummert
  *
@@ -23,7 +24,7 @@ public class LinkManagement implements ILinkManagement {
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		return true;
+		return (!resource.getSpecification().getType().equals(Type.CORE));
 	}
 
 	private List<LinkResource>	links;

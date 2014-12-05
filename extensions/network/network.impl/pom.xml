@@ -39,9 +39,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.network.impl,
-							org.mqnaas.network.impl.infrastructure,
-							org.mqnaas.network.impl.topology,
-							org.mqnaas.network.impl.topology.device,
+							org.mqnaas.network.impl.topology.port,
 							org.mqnaas.network.impl.topology.link
 						</Export-Package>
 					</instructions>

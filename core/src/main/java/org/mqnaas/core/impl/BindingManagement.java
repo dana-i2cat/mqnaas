@@ -825,12 +825,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public <C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException {
 
 		Iterable<CapabilityInstance> resourceCapabilities = filterResolved(getCapabilityInstancesBoundToResource(resource));
-		for (CapabilityInstance capabilityInstance : resourceCapabilities) {
+		for (CapabilityInstance capabilityInstance : resourceCapabilities)
 			if (capabilityInstance.getCapabilities().contains(capabilityClass))
-
 				return (C) capabilityInstance.getProxy();
-
-		}
 
 		throw new CapabilityNotFoundException(
 				"Resource + " + resource.getId() + " does not contain any resolved capability of type " + capabilityClass.getName());

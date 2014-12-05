@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl.topology.device;
+package org.mqnaas.network.impl.topology.port;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
-import org.mqnaas.network.api.topology.device.IPortManagement;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 
 /**
  * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation should be bound to all

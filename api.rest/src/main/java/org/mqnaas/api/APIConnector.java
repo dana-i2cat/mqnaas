@@ -141,7 +141,7 @@ public class APIConnector implements IAPIConnector {
 		if (resourceNode.getContent() instanceof IRootResource && 
 				(((IRootResource) resourceNode.getContent()).getDescriptor().getSpecification().getType()).equals(Specification.Type.CORE)) {
 			
-			alreadyComputedPath.insert(0, "mqnaas/");
+			alreadyComputedPath.insert(0, "/mqnaas/");
 			return alreadyComputedPath;
 		}
 		
@@ -167,7 +167,7 @@ public class APIConnector implements IAPIConnector {
 			
 		} else {
 			
-			alreadyComputedPath.insert(0, "app/" + applicationName + "/");
+			alreadyComputedPath.insert(0, "/app/" + applicationName + "/");
 			return alreadyComputedPath;
 		}
 	}

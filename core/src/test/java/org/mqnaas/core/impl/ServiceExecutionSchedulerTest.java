@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 
 import org.junit.After;
@@ -68,9 +69,10 @@ public class ServiceExecutionSchedulerTest {
 	 * 
 	 * @throws ServiceExecutionSchedulerException
 	 * @throws InterruptedException
+	 * @throws InvocationTargetException
 	 */
 	@Test
-	public void correctSchedulingTest() throws ServiceExecutionSchedulerException, InterruptedException {
+	public void correctSchedulingTest() throws ServiceExecutionSchedulerException, InterruptedException, InvocationTargetException {
 
 		Assert.assertTrue(scheduler.getScheduledServiceExecutions().isEmpty());
 
@@ -91,9 +93,10 @@ public class ServiceExecutionSchedulerTest {
 	 * 
 	 * @throws ServiceExecutionSchedulerException
 	 * @throws InterruptedException
+	 * @throws InvocationTargetException
 	 */
 	@Test
-	public void cancelSchedulingTest() throws ServiceExecutionSchedulerException, InterruptedException {
+	public void cancelSchedulingTest() throws ServiceExecutionSchedulerException, InterruptedException, InvocationTargetException {
 
 		Assert.assertTrue(scheduler.getScheduledServiceExecutions().isEmpty());
 

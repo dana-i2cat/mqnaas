@@ -67,8 +67,8 @@ public class ResourcesIntegrationTest {
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
-				// debug option
-				KarafDistributionOption.debugConfiguration()
+		// debug option
+		// KarafDistributionOption.debugConfiguration()
 		};
 	}
 

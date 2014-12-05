@@ -1,5 +1,7 @@
 package org.mqnaas.core.impl.scheduling;
 
+import java.lang.reflect.InvocationTargetException;
+
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
@@ -57,17 +59,20 @@ public class ScheduledJob implements Job {
 					"Scheduled Job \"" + jobKey.getGroup() + ":" + jobKey.getName() + "\" could not be executed: There's no IService defined in job's context");
 
 		log.debug("Executing scheduled service [" + serviceExecution.getService().getClass().getName() + "]");
+		try {
+			executionService.execute(serviceExecution.getService(), serviceExecution.getParameters());
 
-		executionService.execute(serviceExecution.getService(), serviceExecution.getParameters());
+			if (serviceExecutionCallback != null) {
+				log.debug("Calling callback service for job \"" + jobKey.getGroup() + ":" + jobKey.getName() + "\" and service [" + serviceExecution
+						.getService().getClass().getName() + "]");
 
-		if (serviceExecutionCallback != null) {
-			log.debug("Calling callback service for job \"" + jobKey.getGroup() + ":" + jobKey.getName() + "\" and service [" + serviceExecution
-					.getService().getClass().getName() + "]");
-
-			serviceExecutionCallback.serviceExecutionFinished(serviceExecution);
+				serviceExecutionCallback.serviceExecutionFinished(serviceExecution);
+			}
+			else
+				log.debug("No callback service defined for job \"" + jobKey.getGroup() + ":" + jobKey.getName() + "\" and service [" + serviceExecution
+						.getService().getClass().getName() + "]");
+		} catch (InvocationTargetException e) {
+			throw new JobExecutionException(e.getCause());
 		}
-		else
-			log.debug("No callback service defined for job \"" + jobKey.getGroup() + ":" + jobKey.getName() + "\" and service [" + serviceExecution
-					.getService().getClass().getName() + "]");
 	}
 }

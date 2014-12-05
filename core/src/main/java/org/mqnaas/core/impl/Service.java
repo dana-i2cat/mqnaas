@@ -35,7 +35,7 @@ public class Service implements IInternalService {
 	}
 
 	@Override
-	public Object execute(Object[] parameters) {
+	public Object execute(Object[] parameters) throws InvocationTargetException {
 
 		Object result = null;
 
@@ -45,8 +45,6 @@ public class Service implements IInternalService {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
 

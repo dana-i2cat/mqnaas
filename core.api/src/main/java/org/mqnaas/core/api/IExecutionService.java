@@ -1,5 +1,7 @@
 package org.mqnaas.core.api;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * <p>
  * <code>IExecutionService</code> is one of the core capabilities of MQNaaS.
@@ -36,6 +38,6 @@ public interface IExecutionService extends ICapability {
 	 * 
 	 * @return The result of the service execution
 	 */
-	Object execute(IService service, Object[] parameters);
+	Object execute(IService service, Object[] parameters) throws InvocationTargetException;
 
 }

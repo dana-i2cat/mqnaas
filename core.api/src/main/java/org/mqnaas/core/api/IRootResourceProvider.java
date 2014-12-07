@@ -49,4 +49,6 @@ public interface IRootResourceProvider extends ICapability {
 	 */
 	IRootResource getRootResource(String id) throws ResourceNotFoundException;
 
+	IRootResource getRootResource(Specification specification) throws ResourceNotFoundException;
+
 }

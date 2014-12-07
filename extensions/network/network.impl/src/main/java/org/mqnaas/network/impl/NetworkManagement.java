@@ -8,7 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -37,7 +38,10 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	@DependingOn
-	IRootResourceManagement				rootResourceManagement;
+	IRootResourceAdministration			rootResourceAdministration;
+
+	@DependingOn
+	IRootResourceProvider				rootResourceProvider;
 
 	@DependingOn
 	private IResourceManagementListener	resourceManagementListener;
@@ -167,7 +171,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		public void addResource(IResource resource)
 				throws CapabilityNotFoundException {
 			getResourceManagementListener().resourceAdded(resource,
-					getRootResourceManagement());
+					getRootResourceAdministration());
 		}
 
 		private IResourceManagementListener getResourceManagementListener()
@@ -176,10 +180,10 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 					IResourceManagementListener.class);
 		}
 
-		private IRootResourceManagement getRootResourceManagement()
+		private IRootResourceAdministration getRootResourceAdministration()
 				throws CapabilityNotFoundException {
 			return serviceProvider.getCapability(network,
-					IRootResourceManagement.class);
+					IRootResourceAdministration.class);
 		}
 
 		public TopologyWrapper getTopology() throws CapabilityNotFoundException {

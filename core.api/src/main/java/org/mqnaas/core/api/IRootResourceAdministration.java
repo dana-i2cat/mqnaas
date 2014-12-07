@@ -1,5 +1,8 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
+
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
@@ -29,6 +32,19 @@ public interface IRootResourceAdministration extends ICapability {
 	IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException;
 
 	/**
+	 * Creates a {@link IRootResource} instance based on the given {@link Specification} and with the set of specified <code>endpoints</code> The rest
+	 * of components of the <code>IRootResource</code> will be set by default by the capability implementation. Please be aware this method is not
+	 * annotated with the {@link AddsResource} annotation.
+	 * 
+	 * @param specification
+	 *            Specification containig the {@link Type}, model and version of the resource to be created.
+	 * @param endpoints
+	 *            Set of endpoints of the resource.
+	 * @return A new {@link IRootResource} instance with the given specification and set of endponts.
+	 */
+	IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints);
+
+	/**
 	 * Removes a specific {@link IRootResource} instance from the framework. This <code>resource</code> should have been created by this capability.
 	 * 
 	 * @param resource
@@ -38,4 +54,5 @@ public interface IRootResourceAdministration extends ICapability {
 	 */
 	@RemovesResource
 	void removeRootResource(IRootResource resource) throws ResourceNotFoundException;
+
 }

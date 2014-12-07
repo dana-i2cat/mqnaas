@@ -5,16 +5,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
-public class RootResourceManagement implements IRootResourceManagement {
+public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
 
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
@@ -33,6 +34,12 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
+	public void setRootResources(List<IRootResource> resources) {
+		this.resources = new ArrayList<IRootResource>(resources);
+
+	}
+
+	@Override
 	public IRootResource getRootResource(Specification specification) throws ResourceNotFoundException {
 		for (IRootResource resource : resources) {
 			if (specification.equals(resource.getSpecification()))
@@ -43,8 +50,22 @@ public class RootResourceManagement implements IRootResourceManagement {
 	}
 
 	@Override
+	public List<IRootResource> getRootResources(Type type, String model, String version) throws ResourceNotFoundException {
+
+		List<IRootResource> resources = new ArrayList<IRootResource>();
+
+		for (IRootResource resource : resources) {
+			Specification spec = resource.getSpecification();
+			if (spec.getModel().equals(model) && spec.getType().equals(type) && spec.getVersion().equals(version))
+				resources.add(resource);
+		}
+
+		return resources;
+	}
+
+	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

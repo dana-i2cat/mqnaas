@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
@@ -38,7 +37,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FrameworkUtil.class)
 public class ServiceProviderImplTest {
 
-	static IRootResourceManagement	resourceManagement;
+	static RootResourceManagement	resourceManagement;
 	static BindingManagement		bindingManagement;
 
 	@BeforeClass
@@ -72,7 +71,8 @@ public class ServiceProviderImplTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setResourceAdministration(resourceManagement);
+		bindingManagement.setResourceProvider(resourceManagement);
 		bindingManagement.setBindingDecider(bindingDecider);
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);

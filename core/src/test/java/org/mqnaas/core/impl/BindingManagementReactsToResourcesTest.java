@@ -15,7 +15,6 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
@@ -32,7 +31,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FrameworkUtil.class)
 public class BindingManagementReactsToResourcesTest {
 
-	static IRootResourceManagement	resourceManagement;
+	static RootResourceManagement	resourceManagement;
 	static BindingManagement		bindingManagement;
 	static IObservationService		observationService;
 	static ISampleMgmtCapability	sampleMgmtCapability;
@@ -73,7 +72,8 @@ public class BindingManagementReactsToResourcesTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setResourceAdministration(resourceManagement);
+		bindingManagement.setResourceProvider(resourceManagement);
 		bindingManagement.setBindingDecider(bindingDecider);
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);

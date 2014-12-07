@@ -22,7 +22,8 @@ import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
@@ -95,7 +96,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	// Injected core services
 	private IExecutionService					executionService;
 	private IObservationService					observationService;
-	private IRootResourceManagement				resourceManagement;
+	private IRootResourceAdministration			resourceAdministration;
+	private IRootResourceProvider				resourceProvider;
 	private IBindingDecider						bindingDecider;
 	private IBundleGuard						bundleGuard;
 
@@ -123,7 +125,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	public void init() throws Exception {
 
-		if (executionService == null || observationService == null || resourceManagement == null || bindingDecider == null || bundleGuard == null) {
+		if (executionService == null || observationService == null || resourceProvider == null || resourceAdministration == null || bindingDecider == null || bundleGuard == null) {
 			throw new Exception("Failed to initialize. Required services not set.");
 		}
 
@@ -132,20 +134,20 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceManagement.createRootResource(new Specification(Type.CORE), Arrays.asList(new Endpoint()));
+		IRootResource mqNaaS = resourceAdministration.createRootResource(new Specification(Type.CORE), Arrays.asList(new Endpoint()));
 		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null);
 
 		// initialize the tree
 		tree = new ResourceCapabilityTree();
 		tree.setRootResourceNode(mqNaaSNode);
 
-		CapabilityInstance resourceManagementCI = new CapabilityInstance(RootResourceManagement.class, resourceManagement);
+		CapabilityInstance resouceAdministrationCI = new CapabilityInstance(RootResourceManagement.class, resourceAdministration);
 		CapabilityInstance executionServiceCI = new CapabilityInstance(ExecutionService.class, executionService);
 		CapabilityInstance binderDeciderCI = new CapabilityInstance(BinderDecider.class, bindingDecider);
 		CapabilityInstance bindingManagementCI = new CapabilityInstance(BindingManagement.class, this);
 
 		// Do the first binds manually
-		bind(new CapabilityNode(resourceManagementCI), mqNaaSNode);
+		bind(new CapabilityNode(resouceAdministrationCI), mqNaaSNode);
 		bind(new CapabilityNode(executionServiceCI), mqNaaSNode);
 		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
@@ -171,8 +173,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		String[] bindingManagementIfaces = { IServiceProvider.class.getName(), ICoreModelCapability.class.getName() };
 		context.registerService(bindingManagementIfaces, bindingManagementCI.getProxy(), null);
 
-		context.registerService((Class<IRootResourceManagement>) IRootResourceManagement.class,
-				(IRootResourceManagement) resourceManagementCI.getProxy(), null);
+		String[] rootResourceManagementIfaces = { IRootResourceAdministration.class.getName(), IRootResourceProvider.class.getName() };
+		context.registerService(rootResourceManagementIfaces, resouceAdministrationCI.getProxy(), null);
+
 		context.registerService((Class<IExecutionService>) IExecutionService.class, (IExecutionService) executionServiceCI.getProxy(), null);
 		context.registerService((Class<IBindingDecider>) IBindingDecider.class, (IBindingDecider) binderDeciderCI.getProxy(), null);
 
@@ -194,11 +197,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		this.observationService = observationService;
 	}
 
-	public void setResourceManagement(IRootResourceManagement resourceManagement) {
-		log.info("Setting IRootResourceManagement");
-		this.resourceManagement = resourceManagement;
-	}
-
 	public void setBindingDecider(IBindingDecider bindingDecider) {
 		log.info("Setting IBindingDecider");
 		this.bindingDecider = bindingDecider;
@@ -207,6 +205,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void setBundleGuard(IBundleGuard bundleGuard) {
 		log.info("Setting IBundleGuard");
 		this.bundleGuard = bundleGuard;
+	}
+
+	public void setResourceAdministration(IRootResourceAdministration resourceAdministration) {
+		log.info("Setting IRootResourceAdministration");
+		this.resourceAdministration = resourceAdministration;
+	}
+
+	public void setResourceProvider(IRootResourceProvider resourceProvider) {
+		log.info("Setting IRootResourceProvider");
+		this.resourceProvider = resourceProvider;
 	}
 
 	ResourceCapabilityTree getResourceCapabilityTree() {
@@ -730,7 +738,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		sb.append("\nAVAILABLE SERVICES -----------------------------------------------\n");
 
-		for (IResource resource : resourceManagement.getRootResources()) {
+		for (IResource resource : resourceProvider.getRootResources()) {
 
 			sb.append("Resource " + resource + "\n");
 
@@ -832,4 +840,5 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		throw new CapabilityNotFoundException(
 				"Resource + " + resource.getId() + " does not contain any resolved capability of type " + capabilityClass.getName());
 	}
+
 }

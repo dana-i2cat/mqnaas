@@ -11,11 +11,13 @@ import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
@@ -38,10 +40,10 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 public class ResourcesIntegrationTest {
 
 	@Inject
-	IRootResourceManagement	rootResourceMgmt;
+	IRootResourceAdministration	rootResourceMgmt;
 
 	@Inject
-	IServiceProvider		serviceProvider;
+	IServiceProvider			serviceProvider;
 
 	@Configuration
 	public Option[] config() {
@@ -89,7 +91,7 @@ public class ResourcesIntegrationTest {
 	}
 
 	@Test
-	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException {
+	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
 
 		// network resource
 		IRootResource rootResource = createRootResource(Type.TSON);
@@ -110,7 +112,7 @@ public class ResourcesIntegrationTest {
 	}
 
 	@Test
-	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException {
+	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
 
 		// network resource
 		IRootResource rootResource = createRootResource(Type.NETWORK);
@@ -130,7 +132,7 @@ public class ResourcesIntegrationTest {
 	}
 
 	@Test
-	public void linkAdministrationBindingTest() throws CapabilityNotFoundException {
+	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
 
 		IRootResource rootResource = createRootResource(Type.TSON);
 
@@ -153,9 +155,13 @@ public class ResourcesIntegrationTest {
 
 	private IRootResource createRootResource(Specification.Type resourceType) {
 
-		// core resource
+		RootResourceDescriptor descriptor = new RootResourceDescriptor();
+
 		Specification spec = new Specification(resourceType);
 		Endpoint endpoint = null;
+
+		descriptor.setEndpoints(Arrays.asList(endpoint));
+		descriptor.setSpecification(spec);
 
 		return rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
 

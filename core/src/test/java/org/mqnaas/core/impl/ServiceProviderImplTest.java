@@ -13,10 +13,13 @@ import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
@@ -128,6 +131,28 @@ public class ServiceProviderImplTest {
 					Arrays.equals(method.getParameterTypes(), retrieved.getMetadata().getParameterTypes()));
 		}
 
+	}
+
+	@Test
+	public void getCapabilityTest() throws ResourceNotFoundException, CapabilityNotFoundException {
+		IResource resource = resourceManagement.getRootResource(new Specification(Type.CORE));
+
+		IRootResourceAdministration resourceAdmin = bindingManagement.getCapability(resource, IRootResourceAdministration.class);
+		Assert.assertNotNull("Core resource should contain a bound IRootResourceAdministration capability", resourceAdmin);
+
+		IRootResourceProvider resourceProvider = bindingManagement.getCapability(resource, IRootResourceProvider.class);
+		Assert.assertNotNull("Core resource should contain a bound IRootResourceProvier capability", resourceProvider);
+
+		ISample2Capability sampleCapab = bindingManagement.getCapability(resource, ISample2Capability.class);
+		Assert.assertNotNull("Core resource should contain a bound ISample2Capability capability", sampleCapab);
+
+	}
+
+	@Test(expected = CapabilityNotFoundException.class)
+	public void getUnboundCapabilityTest() throws CapabilityNotFoundException, ResourceNotFoundException {
+		IResource resource = resourceManagement.getRootResource(new Specification(Type.CORE));
+
+		bindingManagement.getCapability(resource, ISampleMgmtCapability.class);
 	}
 
 	private CapabilityInstance getCapabilityInstanceBoundToResource(IResource resource, Class<? extends ICapability> clazz) {

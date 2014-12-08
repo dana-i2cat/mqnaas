@@ -47,7 +47,8 @@
 		<!-- bundle dependencies -->
 		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm-version}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
-		<bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
+		<bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/${javax.ws.rs-api-version}</bundle>
+		
 		<!-- TODO Uncommenting this dependency leads to a runtime dependency problem -->
 		<!-- bundle dependency="true">mvn:org.slf4j/slf4j-api/${slf4j-version}</bundle-->
 		

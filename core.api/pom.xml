@@ -14,10 +14,6 @@
 	<description>MQNaaS Core API</description>
 	<packaging>bundle</packaging>
 
-	<properties>
-		<jsr311-api-version>1.1.1</jsr311-api-version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>com.google.guava</groupId>
@@ -29,8 +25,7 @@
 		</dependency>
 		<dependency>
 			<groupId>javax.ws.rs</groupId>
-			<artifactId>jsr311-api</artifactId>
-			<version>${jsr311-api-version}</version>
+			<artifactId>javax.ws.rs-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>

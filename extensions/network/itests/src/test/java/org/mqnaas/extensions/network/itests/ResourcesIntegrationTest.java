@@ -13,6 +13,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
@@ -157,7 +158,13 @@ public class ResourcesIntegrationTest {
 		Specification spec = new Specification(resourceType);
 		Endpoint endpoint = null;
 
-		return rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
+		try {
+			return rootResourceMgmt.createRootResource(RootResourceDescriptor.create(spec, Arrays.asList(endpoint)));
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
 
 	}
 }

@@ -13,5 +13,10 @@ public class SampleResource implements IResource {
 	public String getId() {
 		return "SampleResource";
 	}
+	
+	@Override
+	public String toString() {
+		return getId();
+	}
 
 }

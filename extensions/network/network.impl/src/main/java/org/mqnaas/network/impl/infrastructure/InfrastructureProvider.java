@@ -20,7 +20,7 @@ import org.mqnaas.network.impl.RequestResource;
 public class InfrastructureProvider implements IInfrastructureProvider {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Type.NETWORK;
+		return resource.getDescriptor().getSpecification().getType() == Type.NETWORK;
 	}
 	
 	public static boolean isSupporting(IResource resource) {
@@ -43,7 +43,7 @@ public class InfrastructureProvider implements IInfrastructureProvider {
 		infrastructure = new InfrastructureResource();
 		
 		// Add resource manually to the platform
-		resourceManagementListener.resourceAdded(infrastructure, this);
+		resourceManagementListener.resourceAdded(infrastructure, this, IInfrastructureProvider.class);
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class InfrastructureProvider implements IInfrastructureProvider {
 		// TODO: persistence
 		
 		// Remove resource manually from the platform
-		resourceManagementListener.resourceRemoved(infrastructure, this);
+		resourceManagementListener.resourceRemoved(infrastructure, this, IInfrastructureProvider.class);
 	}
 
 }

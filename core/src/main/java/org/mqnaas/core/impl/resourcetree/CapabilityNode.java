@@ -61,4 +61,15 @@ public class CapabilityNode extends ApplicationNode {
 	public void setParent(ResourceNode parent) {
 		this.parent = parent;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getClass().getSimpleName()).append(" [");
+		
+//		sb.append("parent=").append(parent);
+		sb.append(getContent());
+		
+		sb.append("]");
+		return sb.toString();
+	}
 }

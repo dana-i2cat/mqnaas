@@ -97,5 +97,24 @@ public class ResourceNode {
 	public void setParentInterface(Class<? extends IApplication> parentInterface) {
 		this.parentInterface = parentInterface;
 	}
+	
+	@Override
+	public String toString() {
+
+		StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+		sb.append(" [");
+		
+		sb.append("resource=").append(content);
+//		sb.append(", parent=").append(parent).append(" (").append(parentInterface).append(")");
+		sb.append(", children:");
+		
+		for ( CapabilityNode child : children ) {
+			sb.append("\n  ").append(child);
+		}
+
+		sb.append("]");
+		
+		return sb.toString();
+	}
 
 }

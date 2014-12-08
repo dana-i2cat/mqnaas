@@ -3,6 +3,7 @@ package org.mqnaas.core.impl.resourcetree;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
@@ -19,12 +20,12 @@ public class ResourceCapabilityTreeController {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ResourceCapabilityTreeController.class);
 
-	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent) {
+	public static ResourceNode createResourceNode(IResource resource, CapabilityNode parent, Class<? extends IApplication> parentInterface) {
 		if (parent == null)
 			return new ResourceNode(resource);
 
-		ResourceNode toAdd = new ResourceNode(resource);
-		return addResourceNode(toAdd, parent);
+		ResourceNode toAdd = new ResourceNode(resource, parent, parentInterface);
+		return addResourceNode(toAdd, parent, parentInterface);
 	}
 
 	public static CapabilityNode createCapabilityNode(CapabilityInstance ci, ResourceNode parent) {
@@ -35,9 +36,10 @@ public class ResourceCapabilityTreeController {
 		return addCapabilityNode(toAdd, parent);
 	}
 
-	public static ResourceNode addResourceNode(ResourceNode toAdd, ApplicationNode parent) {
+	public static ResourceNode addResourceNode(ResourceNode toAdd, ApplicationNode parent, Class<? extends IApplication> parentInterface) {
 		parent.getChildren().add(toAdd);
 		toAdd.setParent(parent);
+		toAdd.setParentInterface(parentInterface);
 		return toAdd;
 	}
 
@@ -45,6 +47,7 @@ public class ResourceCapabilityTreeController {
 		if (toRemove.getParent() != null)
 			toRemove.getParent().getChildren().remove(toRemove);
 		toRemove.setParent(null);
+		toRemove.setParentInterface(null);
 		return toRemove;
 	}
 

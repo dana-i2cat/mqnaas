@@ -21,6 +21,11 @@ public class AbstractInterface implements IInterface {
 	}
 
 	@Override
+	public String getId() {
+		return getName();
+	}
+
+	@Override
 	public String toString() {
 		return "Interface [name=" + getName() + "]";
 	}

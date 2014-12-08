@@ -88,6 +88,9 @@
 		
 		<!-- XMLUnit version -->
 		<xmlunit.version>1.5</xmlunit.version>
+
+		<!-- ASM version -->
+		<asm-version>3.3.1_1</asm-version>
 	</properties>
 
 	<dependencyManagement>
@@ -126,6 +129,11 @@
 			</dependency>
 			<!-- Other libraries -->
 			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>api.rest</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
 				<version>${guava-version}</version>
@@ -159,6 +167,11 @@
 				<groupId>org.apache.servicemix.bundles</groupId>
 				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
 				<version>${javax.inject-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.asm</artifactId>
+				<version>${asm-version}</version>
 			</dependency>
 
 			<!-- Scheduling library -->
@@ -362,16 +375,17 @@
 	</build>
 
 	<modules>
+		<module>test-helpers</module>
 		<module>core.api</module>
 		<module>core</module>
 		<module>bundletree</module>
+		<module>clientprovider-api</module>
+		<module>clientprovider</module>
+		<module>api.rest</module>
+		<module>mqnaas-test-helpers</module>
 		<module>bundletree/itests</module>
 		<module>bundletree/itests-testbundleA</module>
 		<module>bundletree/itests-testbundleB</module>
-		<module>clientprovider-api</module>
-		<module>clientprovider</module>
-		<module>mqnaas-test-helpers</module>
-		<module>test-helpers</module>
 	</modules>
 
 	<repositories>

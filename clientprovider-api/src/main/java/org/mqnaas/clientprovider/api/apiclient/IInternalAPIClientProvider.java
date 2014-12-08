@@ -4,7 +4,7 @@ import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 
-public interface IInternalAPIProvider<CC> {
+public interface IInternalAPIClientProvider<CC> {
 
 	String[] getProtocols();
 

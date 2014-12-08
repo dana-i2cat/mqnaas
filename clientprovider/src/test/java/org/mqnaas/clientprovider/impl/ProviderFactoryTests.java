@@ -10,7 +10,7 @@ import org.mqnaas.client.cxf.CXFConfiguration;
 import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.client.cxf.InternalCXFClientProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.core.api.IResource;
 
@@ -21,7 +21,7 @@ public class ProviderFactoryTests {
 	static {
 		VALID_API_PROVIDERS = new HashSet<Type>();
 		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
-		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
+		VALID_API_PROVIDERS.add(IInternalAPIClientProvider.class);
 	}
 
 	private class TestCXFAPIProvider implements ICXFAPIProvider {

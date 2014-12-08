@@ -102,7 +102,7 @@ public class ServiceProviderImplTest {
 	@Test
 	public void getServicesTest() throws ResourceNotFoundException, ServiceNotFoundException {
 
-		IResource resource = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource resource = resourceManagement.getCore();
 
 		CapabilityInstance ci = getCapabilityInstanceBoundToResource(resource, Sample2Capability.class);
 		Assert.assertNotNull("Sample2Capability should be bound to the resource", ci);

@@ -11,12 +11,13 @@ import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.client.netconf.INetconfClientProvider;
 import org.mqnaas.client.netconf.NetconfClient;
 import org.mqnaas.client.netconf.NetconfConfiguration;
-import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
+import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -25,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * FIXME This test application should be moved to a unit test.
- *
+ * 
  */
 public class ClientApplication implements IApplication {
 
@@ -38,7 +39,7 @@ public class ClientApplication implements IApplication {
 	IClientProviderFactory		clientProviderFactory;
 
 	@DependingOn
-	IAPIProviderFactory			apiProviderFactory;
+	IAPIClientProviderFactory	apiProviderFactory;
 
 	@Override
 	public void activate() {
@@ -48,10 +49,16 @@ public class ClientApplication implements IApplication {
 		// Fake resource
 		IRootResource resource;
 		try {
-			resource = rootResourceManagement.createRootResource(new Specification(Type.OTHER),
-					Arrays.asList(new Endpoint(new URI("ssh://localhost/")), new Endpoint(new URI("http://localhost/"))));
+			resource = rootResourceManagement.createRootResource(RootResourceDescriptor.create(new Specification(Type.OTHER),
+					Arrays.asList(new Endpoint(new URI("ssh://localhost/")), new Endpoint(new URI("http://localhost/")))));
 		} catch (URISyntaxException e) {
 			log.error("Error creating SSH URI", e);
+			return;
+		} catch (InstantiationException e) {
+			log.error("Error creating resource", e);
+			return;
+		} catch (IllegalAccessException e) {
+			log.error("Error creating resource", e);
 			return;
 		}
 

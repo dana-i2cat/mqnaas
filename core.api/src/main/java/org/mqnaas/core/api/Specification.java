@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
 import org.mqnaas.core.api.slicing.Unit;
 
@@ -15,6 +16,7 @@ import org.mqnaas.core.api.slicing.Unit;
  */
 @XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "type", "model", "version", "sliceUnits" })
 public class Specification implements Cloneable {
 
 	/**
@@ -74,8 +76,8 @@ public class Specification implements Cloneable {
 
 	private List<Unit>	sliceUnits;
 
-	public Specification() {
-
+	// This constructor is to be used only by serialization
+	private Specification() {
 	}
 
 	public Specification(Type type) {
@@ -166,7 +168,25 @@ public class Specification implements Cloneable {
 
 	@Override
 	public String toString() {
-		return "Specification [type=" + type + ", model=" + model + ", version=" + version + ", sliceUnits=" + sliceUnits + "]";
+		StringBuilder sb = new StringBuilder("Specification [");
+
+		sb.append("type=").append(type);
+
+		if (model != null) {
+			sb.append(", model=").append(model);
+		}
+
+		if (version != null) {
+			sb.append(", version=").append(version);
+		}
+
+		if (sliceUnits != null) {
+			sb.append(", sliceUnits=").append(sliceUnits);
+		}
+
+		sb.append("]");
+
+		return sb.toString();
 	}
 
 	@Override

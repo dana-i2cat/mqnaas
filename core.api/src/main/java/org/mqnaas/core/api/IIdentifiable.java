@@ -8,7 +8,7 @@ package org.mqnaas.core.api;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public interface Identifiable {
+public interface IIdentifiable {
 
 	public String getId();
 }

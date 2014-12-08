@@ -14,16 +14,28 @@
 	<description>MQNaaS Core API</description>
 	<packaging>bundle</packaging>
 
+	<properties>
+		<jsr311-api-version>1.1.1</jsr311-api-version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>jsr311-api</artifactId>
+			<version>${jsr311-api-version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-bundle</artifactId>
 		</dependency>
-		
 		<!-- Testing -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -45,10 +57,7 @@
 			<artifactId>test-helpers</artifactId>
 			<scope>test</scope>
 		</dependency>
-				
-				
 	</dependencies>
-
 
 	<build>
 		<plugins>
@@ -66,6 +75,7 @@
 							org.mqnaas.core.api.scheduling,
 							org.mqnaas.core.api.slicing,
 							org.mqnaas.core.api.network,
+							org.i2cat.utils
 						</Export-Package>
 					</instructions>
 				</configuration>

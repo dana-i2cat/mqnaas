@@ -38,7 +38,7 @@ public class CapabilityInstance extends ApplicationInstance {
 	private IResource									resource;
 
 	public CapabilityInstance(Class<? extends ICapability> clazz) {
-		this(clazz, null);
+		super(clazz);
 	}
 
 	public CapabilityInstance(Class<? extends ICapability> clazz, ICapability instance) {

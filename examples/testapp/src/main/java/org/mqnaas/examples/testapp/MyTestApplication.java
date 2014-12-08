@@ -57,7 +57,7 @@ public class MyTestApplication implements IApplication {
 		IService observedService = null;
 		IService notifiedService = null;
 		try {
-			observedService = serviceProvider.getService(mqNaaS, "resourceAdded", IResource.class, IApplication.class);
+			observedService = serviceProvider.getService(mqNaaS, "resourceAdded", IResource.class, IApplication.class, Class.class);
 			notifiedService = serviceProvider.getService(mqNaaS, "printAvailableServices");
 		} catch (ServiceNotFoundException e) {
 			log.error("No CORE services found!", e);

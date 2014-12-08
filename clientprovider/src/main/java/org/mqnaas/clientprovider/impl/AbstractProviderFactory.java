@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Georg Mansky-Kummert (i2CAT)
  * @author Julio Carlos Barrera
- *
+ * 
  * @param <CP>
  *            Provider of the implementation
  */
@@ -38,7 +38,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	protected IBundleGuard			bundleGuard;
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	protected Map<Class<CP>, CP>	internalClientProviders	= new ConcurrentHashMap<Class<CP>, CP>();

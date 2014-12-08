@@ -36,6 +36,23 @@
 		
 		<bundle>mvn:${project.groupId}/clientprovider/${project.version}</bundle>
 	</feature>
+	
+	<!-- REST API feature -->
+	<feature name="mqnaas-rest-api-provider" version="${project.version}">
+		<!-- feature dependencies -->		
+		<feature version="${cxf-version}">cxf</feature>
+
+		<feature version="${project.version}">mqnaas-core-api</feature>		
+		
+		<!-- bundle dependencies -->
+		<bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm-version}</bundle>
+		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
+		<bundle dependency="true">mvn:javax.ws.rs/javax.ws.rs-api/2.0</bundle>
+		<!-- TODO Uncommenting this dependency leads to a runtime dependency problem -->
+		<!-- bundle dependency="true">mvn:org.slf4j/slf4j-api/${slf4j-version}</bundle-->
+		
+		<bundle>mvn:${project.groupId}/api.rest/${project.version}</bundle>
+	</feature>
 
 	<!-- Core feature -->
 	<feature name="${project.artifactId}" version="${project.version}">
@@ -44,6 +61,7 @@
 		<feature version="${project.version}">mqnaas-core-api</feature>		
 		<feature version="${project.version}">mqnaas-clientprovider</feature>
 		<feature version="${project.version}">mqnaas-bundletree</feature>
+		<feature version="${project.version}">mqnaas-rest-api-provider</feature>
 		
 		<!-- runtime dependencies -->
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>

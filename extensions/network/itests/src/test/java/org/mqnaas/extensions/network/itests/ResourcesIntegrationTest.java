@@ -69,29 +69,42 @@ public class ResourcesIntegrationTest {
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
-		// debug option
-		// KarafDistributionOption.debugConfiguration()
+				// debug option
+				KarafDistributionOption.debugConfiguration()
 		};
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
-	public void portManagementCoreBindingTest() throws CapabilityNotFoundException {
+	public void portManagementCoreBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
+			ResourceNotFoundException {
+		IRootResource rootResource = null;
 
-		IRootResource rootResource = createRootResource(Type.CORE);
+		try {
+			rootResource = createRootResource(Type.CORE);
 
-		serviceProvider.getCapability(rootResource, IPortManagement.class);
+			serviceProvider.getCapability(rootResource, IPortManagement.class);
+		} finally {
+			rootResourceMgmt.removeRootResource(rootResource);
+		}
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
-	public void portManagementNetworkBindingTest() throws CapabilityNotFoundException {
+	public void portManagementNetworkBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
+			ResourceNotFoundException {
 
-		// network resource
-		IRootResource rootResource = createRootResource(Type.NETWORK);
-		serviceProvider.getCapability(rootResource, IPortManagement.class);
+		IRootResource rootResource = null;
+
+		try {
+			rootResource = createRootResource(Type.NETWORK);
+			serviceProvider.getCapability(rootResource, IPortManagement.class);
+		} finally {
+			rootResourceMgmt.removeRootResource(rootResource);
+		}
 	}
 
 	@Test
-	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
+	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
+			IllegalAccessException {
 
 		// network resource
 		IRootResource rootResource = createRootResource(Type.TSON);
@@ -105,14 +118,22 @@ public class ResourcesIntegrationTest {
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
-	public void linkManagementCoreBindingTest() throws CapabilityNotFoundException {
-		IRootResource rootResource = createRootResource(Type.CORE);
+	public void linkManagementCoreBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
+			ResourceNotFoundException {
+		IRootResource rootResource = null;
+		try {
+			rootResource = createRootResource(Type.CORE);
 
-		serviceProvider.getCapability(rootResource, ILinkManagement.class);
+			serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		} finally {
+
+			rootResourceMgmt.removeRootResource(rootResource);
+		}
 	}
 
 	@Test
-	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
+	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
+			IllegalAccessException {
 
 		// network resource
 		IRootResource rootResource = createRootResource(Type.NETWORK);
@@ -132,7 +153,8 @@ public class ResourcesIntegrationTest {
 	}
 
 	@Test
-	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException {
+	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
+			IllegalAccessException {
 
 		IRootResource rootResource = createRootResource(Type.TSON);
 
@@ -153,17 +175,14 @@ public class ResourcesIntegrationTest {
 
 	}
 
-	private IRootResource createRootResource(Specification.Type resourceType) {
-
-		RootResourceDescriptor descriptor = new RootResourceDescriptor();
+	private IRootResource createRootResource(Specification.Type resourceType) throws InstantiationException, IllegalAccessException {
 
 		Specification spec = new Specification(resourceType);
 		Endpoint endpoint = null;
 
-		descriptor.setEndpoints(Arrays.asList(endpoint));
-		descriptor.setSpecification(spec);
+		RootResourceDescriptor descriptor = RootResourceDescriptor.create(spec, Arrays.asList(endpoint));
 
-		return rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
+		return rootResourceMgmt.createRootResource(descriptor);
 
 	}
 }

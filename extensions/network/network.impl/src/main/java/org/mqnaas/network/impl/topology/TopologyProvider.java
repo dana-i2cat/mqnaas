@@ -18,7 +18,7 @@ import org.mqnaas.network.impl.RequestResource;
 public class TopologyProvider implements ITopologyProvider {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Type.NETWORK;
+		return resource.getDescriptor().getSpecification().getType() == Type.NETWORK;
 	}
 
 	public static boolean isSupporting(IResource resource) {
@@ -41,7 +41,7 @@ public class TopologyProvider implements ITopologyProvider {
 		topology = new TopologyResource();
 
 		// Add resource manually to the platform
-		resourceManagementListener.resourceAdded(topology, this);
+		resourceManagementListener.resourceAdded(topology, this, ITopologyProvider.class);
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class TopologyProvider implements ITopologyProvider {
 		// TODO: persistence
 
 		// Remove resource manually from the platform
-		resourceManagementListener.resourceRemoved(topology, this);
+		resourceManagementListener.resourceRemoved(topology, this, ITopologyProvider.class);
 	}
 
 }

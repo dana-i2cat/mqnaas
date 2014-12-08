@@ -34,7 +34,7 @@ import org.mqnaas.network.api.topology.port.IPortManagement;
 public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	public static boolean isSupporting(IRootResource rootResource) {
-		return rootResource.getSpecification().getType() == Type.CORE;
+		return rootResource.getDescriptor().getSpecification().getType() == Type.CORE;
 	}
 
 	@DependingOn
@@ -61,7 +61,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		NetworkWrapper network = new NetworkWrapper(networkResource);
 
 		// Manual bind, so that capabilities exist
-		resourceManagementListener.resourceAdded(networkResource, this);
+		resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
 
 		try {
 			TopologyWrapper topology = network.getTopology();
@@ -117,7 +117,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	@Override
 	public void releaseNetwork(IRootResource network) {
 		// I) Release all resource of the network
-		resourceManagementListener.resourceRemoved(network, this);
+		resourceManagementListener.resourceRemoved(network, this, IRequestBasedNetworkManagement.class);
 
 		// II) Delete the network
 	}
@@ -171,7 +171,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		public void addResource(IResource resource)
 				throws CapabilityNotFoundException {
 			getResourceManagementListener().resourceAdded(resource,
-					getRootResourceAdministration());
+					getRootResourceAdministration(), IRootResourceAdministration.class);
 		}
 
 		private IResourceManagementListener getResourceManagementListener()

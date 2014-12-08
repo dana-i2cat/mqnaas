@@ -9,8 +9,7 @@ import org.mqnaas.network.api.infrastructure.IInfrastructureProvider;
 import org.mqnaas.network.impl.RequestResource;
 
 /**
- * Implementation of the {@link IInfrastructureProvider} capability that binds to
- * {@link Type#NETWORK}s and {@link RequestResource}s.
+ * Implementation of the {@link IInfrastructureProvider} capability that binds to {@link Type#NETWORK}s and {@link RequestResource}s.
  * 
  * On activation the infrastructure resource is created and bound.
  * 
@@ -20,18 +19,18 @@ import org.mqnaas.network.impl.RequestResource;
 public class InfrastructureProvider implements IInfrastructureProvider {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Type.NETWORK;
+		return resource.getDescriptor().getSpecification().getType() == Type.NETWORK;
 	}
-	
+
 	public static boolean isSupporting(IResource resource) {
 		return resource instanceof RequestResource;
 	}
-	
+
 	@DependingOn
-	private IResourceManagementListener resourceManagementListener; 
-	
-	private IResource infrastructure;
-	
+	private IResourceManagementListener	resourceManagementListener;
+
+	private IResource					infrastructure;
+
 	@Override
 	public IResource getInfrastructure() {
 		return infrastructure;
@@ -41,17 +40,17 @@ public class InfrastructureProvider implements IInfrastructureProvider {
 	public void activate() {
 		// TODO: persistence
 		infrastructure = new InfrastructureResource();
-		
+
 		// Add resource manually to the platform
-		resourceManagementListener.resourceAdded(infrastructure, this);
+		resourceManagementListener.resourceAdded(infrastructure, this, IInfrastructureProvider.class);
 	}
 
 	@Override
 	public void deactivate() {
 		// TODO: persistence
-		
+
 		// Remove resource manually from the platform
-		resourceManagementListener.resourceRemoved(infrastructure, this);
+		resourceManagementListener.resourceRemoved(infrastructure, this, IInfrastructureProvider.class);
 	}
 
 }

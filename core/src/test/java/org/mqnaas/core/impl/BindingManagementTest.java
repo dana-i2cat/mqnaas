@@ -13,8 +13,6 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
-import org.mqnaas.core.api.Specification;
-import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -54,10 +52,6 @@ public class BindingManagementTest {
 				
 				if ( !shouldBeBound ) {
 					shouldBeBound = ISampleCapability.class.isAssignableFrom(capabilityClass);
-				}
-				
-				if ( shouldBeBound ) {
-					System.out.println("Binding " + capabilityClass.getSimpleName() + " to " + resource);	
 				}
 				
 				return shouldBeBound;
@@ -104,14 +98,10 @@ public class BindingManagementTest {
 		List<Class<? extends IApplication>> knownApplications = new ArrayList<Class<? extends IApplication>>();
 		knownApplications.add(SampleApplication.class);
 		bindingManagement.applicationsAdded(knownApplications);
-		
-		System.out.println("S E T U P  complete!");
 	}
 
 	@Test
 	public void bindAndUnbindCapabilityInstanceToResource() throws ResourceNotFoundException {
-		
-		System.out.println("Running bindCapabilityInstanceToResource!");
 
 		IResource core = resourceManagement.getCore();
 
@@ -147,8 +137,6 @@ public class BindingManagementTest {
 	@Test
 	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException {
 		
-		System.out.println("Running addResourceInCapabilityInstance!");
-
 		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
@@ -180,8 +168,6 @@ public class BindingManagementTest {
 	@Test
 	public void newCapabilitiesAreAutomaticallyBoundToResources() throws ResourceNotFoundException {
 		
-		System.out.println("Running newCapabilitiesAreAutomaticallyBoundToResources!");
-
 		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
@@ -202,8 +188,6 @@ public class BindingManagementTest {
 	@Test
 	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException {
 		
-		System.out.println("Running knownCapabilitiesAreAutomaticallyBoundToNewResources!");
-
 		addSampleCapability();
 
 		// add new resource to bindingManagement
@@ -229,8 +213,6 @@ public class BindingManagementTest {
 	@Test
 	public void capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved() throws ResourceNotFoundException {
 		
-		System.out.println("Running capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved!");
-
 		// adding SampleCapability used in this test
 		addSampleCapability();
 

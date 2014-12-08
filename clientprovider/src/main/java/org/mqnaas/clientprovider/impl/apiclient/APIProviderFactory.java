@@ -7,15 +7,20 @@ import java.util.Set;
 
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProvider;
-import org.mqnaas.clientprovider.api.apiclient.IAPIProviderFactory;
-import org.mqnaas.clientprovider.api.apiclient.IInternalAPIProvider;
+import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
+import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.clientprovider.impl.BasicEndpointSelectionStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProvider<?>> implements IAPIProviderFactory {
+/**
+ * TODO Javadoc
+ * 
+ * @author Georg Mansky-Kummert (i2CAT)
+ */
+public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIClientProvider<?>> implements IAPIClientProviderFactory {
 
 	private static final Logger	log	= LoggerFactory.getLogger(APIProviderFactory.class);
 
@@ -24,11 +29,11 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 	static {
 		VALID_API_PROVIDERS = new HashSet<Type>();
 		VALID_API_PROVIDERS.add(IAPIClientProvider.class);
-		VALID_API_PROVIDERS.add(IInternalAPIProvider.class);
+		VALID_API_PROVIDERS.add(IInternalAPIClientProvider.class);
 	}
 
 	protected Class<?> getInternalProviderClass() {
-		return IInternalAPIProvider.class;
+		return IInternalAPIClientProvider.class;
 	}
 
 	@Override
@@ -44,7 +49,7 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 		// Match against list of providers...
 		for (Class<?> internalAPIProviderClass : internalClientProviders.keySet()) {
 			@SuppressWarnings("unchecked")
-			IInternalAPIProvider<CC> internalAPIProvider = (IInternalAPIProvider<CC>) internalClientProviders.get(internalAPIProviderClass);
+			IInternalAPIClientProvider<CC> internalAPIProvider = (IInternalAPIClientProvider<CC>) internalClientProviders.get(internalAPIProviderClass);
 
 			if (doTypeArgumentsMatch(VALID_API_PROVIDERS, apiProviderClass, internalAPIProviderClass)) {
 				// initialize endpointSelectionStrategy if it is null to default one
@@ -55,7 +60,7 @@ public class APIProviderFactory extends AbstractProviderFactory<IInternalAPIProv
 				// internalAPIProvider must be parameterized with <CC>
 				@SuppressWarnings("unchecked")
 				C c = (C) Proxy.newProxyInstance(apiProviderClass.getClassLoader(), new Class[] { apiProviderClass },
-						new APIProviderAdapter<CC>((IInternalAPIProvider<CC>) internalAPIProvider, coreModelCapability, endpointSelectionStrategy));
+						new APIProviderAdapter<CC>((IInternalAPIClientProvider<CC>) internalAPIProvider, coreModelCapability, endpointSelectionStrategy));
 
 				log.debug("Providing ClientProvider.");
 				return c;

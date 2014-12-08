@@ -58,10 +58,7 @@ public class SpecificationSerializationTest {
 		List<Unit> sliceUnits = new ArrayList<Unit>();
 		sliceUnits.add(su);
 
-		Specification spec = new Specification();
-		spec.setType(Type.SWITCH);
-		spec.setVersion(VERSION);
-		spec.setModel(MODEL);
+		Specification spec = new Specification(Type.SWITCH, MODEL, VERSION);
 		spec.setSliceUnits(sliceUnits);
 
 		return spec;

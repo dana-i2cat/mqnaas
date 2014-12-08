@@ -3,7 +3,7 @@ package org.mqnaas.core.api;
 /**
  * The <code>IService</code>
  */
-public interface IService {
+public interface IService extends IIdentifiable {
 
 	IResource getResource();
 

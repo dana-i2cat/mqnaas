@@ -37,10 +37,8 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-collections4</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-bundle</artifactId>
-		</dependency>
+		<!-- >dependency> <groupId>org.apache.cxf</groupId> <artifactId>cxf-bundle</artifactId> 
+			</dependency -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -88,8 +86,9 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,
-							org.mqnaas.core.impl.scheduling,
-							org.mqnaas.core.impl.notificationfilter
+							org.mqnaas.core.impl.notificationfilter,
+							org.mqnaas.core.impl.resourcetree,
+							org.mqnaas.core.impl.scheduling
 						</Export-Package>
 					</instructions>
 				</configuration>

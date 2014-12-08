@@ -98,7 +98,7 @@ public class ApplicationProxyHolder {
 		// 1. Create the services of the interfaces (backed by the instance)
 		for (Class<? extends IApplication> interfaze : appClasses) {
 			for (Method method : interfaze.getMethods()) {
-				internalServices.put(interfaze, new Service(method, instance));
+				internalServices.put(interfaze, new Service(method, instance, interfaze));
 			}
 		}
 

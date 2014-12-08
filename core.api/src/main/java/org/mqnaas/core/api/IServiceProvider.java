@@ -35,15 +35,24 @@ public interface IServiceProvider extends ICapability {
 	 *            The resource for which to return the service
 	 * @param serviceName
 	 *            The name of the service
+	 * @param parameters
 	 * @return The service with the given name or <code>null</code>, if no such service exists or if the service exists but is not available at the
 	 *         moment.
 	 */
 	IService getService(IResource resource, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
 
 	/**
-	 * FIXME This is a service to play with during development and will not be part of the final API
+	 * Returns the service with a specific name of the given {@link IApplication}.
+	 * 
+	 * @param application
+	 * @param serviceName The name of the service
+	 * @param parameters service parameter types
+	 * @return The service with the given name.
+	 * @throws ServiceNotFoundException if there is no such service available at the moment.
 	 */
-	void printAvailableServices();
+	IService getApplicationService(IApplication application, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
+
+
 
 	/**
 	 * Returns the capability instance of type <code>capabilityClass</code> bound to the given {@link IResource}
@@ -58,4 +67,9 @@ public interface IServiceProvider extends ICapability {
 	 *             If the given resource does not contain any capability of type <code>capabilityclass</code>
 	 */
 	<C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException;
+
+	/**
+	 * FIXME This is a service to play with during development and will not be part of the final API
+	 */
+	void printAvailableServices();
 }

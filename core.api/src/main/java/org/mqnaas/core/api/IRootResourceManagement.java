@@ -1,6 +1,5 @@
 package org.mqnaas.core.api;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.DELETE;
@@ -9,6 +8,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 
 import org.mqnaas.core.api.annotations.AddsResource;
+import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
@@ -31,19 +31,17 @@ public interface IRootResourceManagement extends ICapability {
 	 * Adds the given {@link IResource} to the resources managed by the platform.
 	 * </p>
 	 * <p>
-	 * The service {@link IBindingManagement#resourceAdded(IResource)} is notified, whenever this service was executed successfully.
+	 * The service {@link IResourceManagementListener#resourceAdded(IResource, IApplication, Class)} is notified, whenever this service was executed successfully.
 	 * </p>
 	 * 
 	 * @param resource
 	 *            The resource to be added to the platform
 	 */
-	@AddsResource
-	@PUT
-	IRootResource createRootResource(RootResourceDescriptor descriptor);
 
 	@AddsResource
 	@PUT
-	IRootResource createRootResource(Specification specification, Collection<Endpoint> endpoints);
+	// TODO Rethink the exceptions thrown by this service
+	IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException;
 
 	/**
 	 * <p>
@@ -51,11 +49,12 @@ public interface IRootResourceManagement extends ICapability {
 	 * </p>
 	 * 
 	 * <p>
-	 * The service {@link IBindingManagement#resourceRemoved(IResource)} is notified whenever this service was executed successfully.
+	 * The service {@link IResourceManagementListener#resourceRemoved(IResource, IApplication, Class)} is notified whenever this service was executed successfully.
 	 * 
 	 * @param resource
 	 *            The resource to be removed from the platform
 	 */
+
 	@RemovesResource
 	@DELETE
 	void removeRootResource(IRootResource resource);
@@ -66,12 +65,13 @@ public interface IRootResourceManagement extends ICapability {
 	 * @return The currently managed resources
 	 */
 	@GET
+	@ListsResources
 	List<IRootResource> getRootResources();
 
-	/**
-	 * TODO This method a draft method. May not be part of the final API.
-	 */
-	IRootResource getRootResource(Specification specification) throws ResourceNotFoundException;
+	@ListsResources
+	List<IRootResource> getRootResources(Specification.Type type, String model, String version) throws ResourceNotFoundException;
+
+	IRootResource getCore();
 
 	/**
 	 * Returns the {@link IRootResource} with id <code>id</code>

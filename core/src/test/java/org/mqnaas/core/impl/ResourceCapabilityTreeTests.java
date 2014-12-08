@@ -13,6 +13,7 @@ import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -24,7 +25,7 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
  * Unit Tests of {@link ResourceCapabilityTree} and {@link ResourceCapabilityTreeController}
  * 
  * @author Julio Carlos Barrera
- *
+ * 
  */
 public class ResourceCapabilityTreeTests {
 
@@ -78,15 +79,15 @@ public class ResourceCapabilityTreeTests {
 		ResourceCapabilityTreeController.addCapabilityNode(capabilityNodeC, coreResourceNode);
 
 		// 3 child root resource nodes of capabilityNodeA
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeA, capabilityNodeA);
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeB, capabilityNodeA);
-		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeC, capabilityNodeA);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeA, capabilityNodeA, ICapability.class);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeB, capabilityNodeA, ICapability.class);
+		ResourceCapabilityTreeController.addResourceNode(rootResourceNodeC, capabilityNodeA, ICapability.class);
 
 		// 1 capability child node of rootResourceNodeA
 		ResourceCapabilityTreeController.addCapabilityNode(capabilityNodeAA, rootResourceNodeA);
 
 		// 1 resource child node of capabilityNodeAA
-		ResourceCapabilityTreeController.addResourceNode(resourceNodeA, capabilityNodeAA);
+		ResourceCapabilityTreeController.addResourceNode(resourceNodeA, capabilityNodeAA, ICapability.class);
 
 		return tree;
 	}
@@ -112,8 +113,15 @@ public class ResourceCapabilityTreeTests {
 		return node;
 	}
 
-	private static IRootResource generateRootResource(Specification specification, Collection<Endpoint> endpoints) {
+	private static IRootResource generateRootResource(final Specification specification, final Collection<Endpoint> endpoints) {
 		return new IRootResource() {
+
+			RootResourceDescriptor	descriptor	= RootResourceDescriptor.create(specification, endpoints);
+
+			@Override
+			public RootResourceDescriptor getDescriptor() {
+				return descriptor;
+			}
 
 			@Override
 			public ITransactionBehavior getTransactionBehaviour() {
@@ -126,18 +134,9 @@ public class ResourceCapabilityTreeTests {
 			}
 
 			@Override
-			public Specification getSpecification() {
-				return new Specification(Type.CORE, "MQNaaS Core", "0.0.1");
-			}
-
-			@Override
-			public Collection<Endpoint> getEndpoints() {
-				return null;
-			}
-
-			@Override
 			public String getId() {
-				return null;
+				Specification spec = descriptor.getSpecification();
+				return spec.getType() + ":" + spec.getModel() + ":" + spec.getVersion();
 			}
 		};
 	}
@@ -148,7 +147,7 @@ public class ResourceCapabilityTreeTests {
 
 			@Override
 			public String getId() {
-				return null;
+				return "auto-generated-resource-id";
 			}
 		});
 		return node;

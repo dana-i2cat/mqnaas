@@ -3,6 +3,7 @@ package org.mqnaas.core.impl.resourcetree;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IResource;
 
 /**
@@ -15,7 +16,10 @@ public class ResourceNode {
 	private IResource				content;
 
 	private ApplicationNode			parent;
+	private Class<? extends IApplication> parentInterface;
+	
 	private List<CapabilityNode>	children;
+	
 
 	public ResourceNode() {
 		children = new CopyOnWriteArrayList<CapabilityNode>();
@@ -26,10 +30,11 @@ public class ResourceNode {
 		content = resource;
 	}
 
-	public ResourceNode(IResource resource, ApplicationNode parent) {
+	public ResourceNode(IResource resource, ApplicationNode parent, Class<? extends IApplication> parentInterface) {
 		this();
 		content = resource;
 		this.parent = parent;
+		this.parentInterface = parentInterface;
 	}
 
 	/**
@@ -75,6 +80,22 @@ public class ResourceNode {
 	 */
 	public void setChildren(List<CapabilityNode> children) {
 		this.children = children;
+	}
+
+	/**
+	 * 
+	 * @return the parentInterface
+	 */
+	public Class<? extends IApplication> getParentInterface() {
+		return parentInterface;
+	}
+
+	/**
+	 * 
+	 * @param parentInterface the parentInterface to set
+	 */
+	public void setParentInterface(Class<? extends IApplication> parentInterface) {
+		this.parentInterface = parentInterface;
 	}
 
 }

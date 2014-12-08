@@ -44,6 +44,11 @@
 				<version>${mqnaas-version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>api.rest</artifactId>
+				<version>${mqnaas-version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j-version}</version>
@@ -140,6 +145,8 @@
 		<module>junosRouter</module>
 		<module>openerRouter</module>
 		<module>testapp</module>
+		<module>sampleResource</module>
+		<module>api-testapp</module>
 	</modules>
 
 	<repositories>

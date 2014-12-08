@@ -21,7 +21,7 @@ public class ExecutionService implements IExecutionService, IObservationService 
 	private Map<IObservationFilter, IService>	observationFilters;
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getSpecification().getType() == Specification.Type.CORE;
+		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
 	}
 
 	public ExecutionService() {

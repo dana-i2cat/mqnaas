@@ -16,8 +16,6 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
-import org.mqnaas.core.api.Specification;
-import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
@@ -99,7 +97,7 @@ public class ServiceProviderImplTest {
 	@Test
 	public void getServicesTest() throws ResourceNotFoundException, ServiceNotFoundException {
 
-		IResource resource = resourceManagement.getRootResource(new Specification(Type.CORE));
+		IResource resource = resourceManagement.getCore();
 
 		CapabilityInstance ci = getCapabilityInstanceBoundToResource(resource, Sample2Capability.class);
 		Assert.assertNotNull("Sample2Capability should be bound to the resource", ci);

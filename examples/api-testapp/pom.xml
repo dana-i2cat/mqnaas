@@ -1,0 +1,56 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>api-testapp</artifactId>
+	<name>MQNaaS :: Examples :: API TestApp</name>
+	<description>MQNaaS Examples -- API Test Application</description>
+	<packaging>bundle</packaging>
+
+	<parent>
+		<groupId>org.mqnaas.examples</groupId>
+		<artifactId>examples</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>api.rest</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.examples</groupId>
+			<artifactId>sample-resource</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>*</Import-Package>
+						<Export-Package>
+							org.mqnaas.examples.testapp
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

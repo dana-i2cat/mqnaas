@@ -11,13 +11,14 @@ import org.mqnaas.core.api.ILockingBehaviour;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 
 /**
  * {@link IResource} factory able to generate artificial resources.
  * 
  * @author Julio Carlos Barrera
- *
+ * 
  */
 public class TestResourceFactory {
 
@@ -35,14 +36,11 @@ public class TestResourceFactory {
 
 		return new IRootResource() {
 
+			RootResourceDescriptor	descriptor	= RootResourceDescriptor.create(specification, endpoints);
+
 			@Override
 			public ITransactionBehavior getTransactionBehaviour() {
 				return transactionBehavior;
-			}
-
-			@Override
-			public Specification getSpecification() {
-				return specification;
 			}
 
 			@Override
@@ -51,13 +49,13 @@ public class TestResourceFactory {
 			}
 
 			@Override
-			public Collection<Endpoint> getEndpoints() {
-				return endpoints;
+			public String getId() {
+				return id;
 			}
 
 			@Override
-			public String getId() {
-				return id;
+			public RootResourceDescriptor getDescriptor() {
+				return descriptor;
 			}
 		};
 	}

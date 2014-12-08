@@ -39,7 +39,7 @@ public class Service implements IInternalService {
 	}
 
 	@Override
-	public Object execute(Object[] parameters) {
+	public Object execute(Object[] parameters) throws InvocationTargetException {
 
 		Object result = null;
 

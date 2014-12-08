@@ -1,5 +1,6 @@
 package org.mqnaas.core.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +95,8 @@ public class BindingManagementReactsToResourcesTest {
 	}
 
 	@Test
-	public void addResourceTriggersResourceAddedExecution() throws ServiceNotFoundException, SecurityException, NoSuchMethodException {
+	public void addResourceTriggersResourceAddedExecution() throws ServiceNotFoundException, SecurityException, NoSuchMethodException,
+			InvocationTargetException {
 
 		// register service that notifies test when observed resourceAdded is executed
 		Class<?>[] serviceParameters = new Class<?>[3];

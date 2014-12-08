@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -184,18 +185,23 @@ public class ApplicationProxyHolder {
 
 			Object result;
 
-			if (service == null) {
-				// A method was called for which no relay exists, e.g.
-				// toString(), it will be invoked directly
-				result = method.invoke(instance, args);
-			} else {
-				if (service.getMetadata().getName().equals("execute") && IExecutionService.class.isAssignableFrom(service.getMetadata()
-						.getApplicationClass())) {
-					// This avoid looping infinitely through proxy calls... TODO add more details
-					result = service.execute(args);
+			try {
+				if (service == null) {
+					// A method was called for which no relay exists, e.g.
+					// toString(), it will be invoked directly
+					result = method.invoke(instance, args);
 				} else {
-					result = executionService.execute(service, args);
+					if (service.getMetadata().getName().equals("execute") && IExecutionService.class.isAssignableFrom(service.getMetadata()
+							.getApplicationClass())) {
+						// This avoid looping infinitely through proxy calls... TODO add more details
+						result = service.execute(args);
+					} else {
+						result = executionService.execute(service, args);
+					}
 				}
+
+			} catch (InvocationTargetException e) {
+				throw e.getCause();
 			}
 
 			return result;

@@ -16,18 +16,9 @@ import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
-import org.mqnaas.network.api.infrastructure.IInfrastructureAdministration;
-import org.mqnaas.network.api.infrastructure.IInfrastructureProvider;
-import org.mqnaas.network.api.topology.ITopologyProvider;
-import org.mqnaas.network.api.topology.device.IDeviceAdministration;
-import org.mqnaas.network.api.topology.device.IDeviceManagement;
-import org.mqnaas.network.api.topology.device.IPortManagement;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
-import org.mqnaas.network.impl.infrastructure.InfrastructureResource;
-import org.mqnaas.network.impl.topology.TopologyResource;
-import org.mqnaas.network.impl.topology.device.DeviceResource;
-import org.mqnaas.network.impl.topology.device.PortResource;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -81,41 +72,70 @@ public class ResourcesIntegrationTest {
 		};
 	}
 
+	@Test(expected = CapabilityNotFoundException.class)
+	public void portManagementCoreBindingTest() throws CapabilityNotFoundException {
+
+		IRootResource rootResource = createRootResource(Type.CORE);
+
+		serviceProvider.getCapability(rootResource, IPortManagement.class);
+	}
+
+	@Test(expected = CapabilityNotFoundException.class)
+	public void portManagementNetworkBindingTest() throws CapabilityNotFoundException {
+
+		// network resource
+		IRootResource rootResource = createRootResource(Type.NETWORK);
+		serviceProvider.getCapability(rootResource, IPortManagement.class);
+	}
+
 	@Test
-	public void networkResourceCapabilityTest() throws CapabilityNotFoundException {
+	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException {
 
-		Specification spec = new Specification(Type.NETWORK);
+		// network resource
+		IRootResource rootResource = createRootResource(Type.TSON);
+		IPortManagement portManagementCapab = serviceProvider.getCapability(rootResource, IPortManagement.class);
 
-		Endpoint endpoint = null;
+		Assert.assertNotNull("All RootResources, except network and core, should contain a bound IPortManagement capability.",
+				portManagementCapab);
 
-		IRootResource networkResource = rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
+		// remove created resources
+		rootResourceMgmt.removeRootResource(rootResource);
+	}
 
-		// network resource capabilities.
-		ITopologyProvider topologyProviderCapab = serviceProvider.getCapability(networkResource, ITopologyProvider.class);
-		Assert.assertNotNull("Network resource should contain a bound ITopologyProvider capability.", topologyProviderCapab);
+	@Test(expected = CapabilityNotFoundException.class)
+	public void linkManagementCoreBindingTest() throws CapabilityNotFoundException {
+		IRootResource rootResource = createRootResource(Type.CORE);
 
-		IInfrastructureProvider infrastructureProviderCapab = serviceProvider.getCapability(networkResource, IInfrastructureProvider.class);
-		Assert.assertNotNull("Network resource should contain a bound IInfrastructureProvider capability.", infrastructureProviderCapab);
+		serviceProvider.getCapability(rootResource, ILinkManagement.class);
+	}
 
-		IResource topology = topologyProviderCapab.getTopology();
-		Assert.assertNotNull("Network should contain a topology, provided by the ITopologyProvider capability.", topology);
-		Assert.assertTrue("TopologyProvider capability should provide topology resources.", topology instanceof TopologyResource);
+	@Test
+	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException {
 
-		IResource infrastructure = infrastructureProviderCapab.getInfrastructure();
-		Assert.assertNotNull("Network should contain an infrastructure, provided by the IInfrastructureProvider capability.", infrastructure);
-		Assert.assertTrue("InfrastructureProvider capability should provide infrastructure resources.",
-				infrastructure instanceof InfrastructureResource);
+		// network resource
+		IRootResource rootResource = createRootResource(Type.NETWORK);
+		ILinkManagement linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		Assert.assertNotNull("Network resource should contain a bound ILinkManagement capability.", linkManagementCapab);
+		rootResourceMgmt.removeRootResource(rootResource);
 
-		// infrastructure resource capabilities
-		IInfrastructureAdministration infrastructureAdminCapab = serviceProvider.getCapability(infrastructure, IInfrastructureAdministration.class);
-		Assert.assertNotNull("Infrastructure resource should contain a bound IInfrastructureAdministration capability.", infrastructureAdminCapab);
+		// other resource (for example, tson)
+		rootResource = createRootResource(Type.TSON);
+		linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		Assert.assertNotNull("All RootResources should contain a bound ILinkManagement capability.",
+				linkManagementCapab);
 
-		// topology resource capabilities
-		IDeviceManagement deviceManagementCapab = serviceProvider.getCapability(topology, IDeviceManagement.class);
-		Assert.assertNotNull("Topology resource should contain a bound IDeviceManagement capability.", deviceManagementCapab);
+		// remove created resources
+		rootResourceMgmt.removeRootResource(rootResource);
 
-		ILinkManagement linkManagementCapab = serviceProvider.getCapability(topology, ILinkManagement.class);
-		Assert.assertNotNull("Topology resource should contain a bound ILinkManagement capability.", linkManagementCapab);
+	}
+
+	@Test
+	public void linkAdministrationBindingTest() throws CapabilityNotFoundException {
+
+		IRootResource rootResource = createRootResource(Type.TSON);
+
+		ILinkManagement linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		Assert.assertNotNull("TSON resource should contain a bound ILinkManagement capability.", linkManagementCapab);
 
 		// link resource capabilities
 		IResource link = linkManagementCapab.createLink();
@@ -125,32 +145,19 @@ public class ResourcesIntegrationTest {
 		ILinkAdministration linkAdminCapab = serviceProvider.getCapability(link, ILinkAdministration.class);
 		Assert.assertNotNull("Link resource should contain a bound ILinkAdministration capability", linkAdminCapab);
 
-		// device resource capabilities
-		IResource device = deviceManagementCapab.createDevice();
-		Assert.assertNotNull(device);
-		Assert.assertTrue(device instanceof DeviceResource);
-
-		IDeviceAdministration deviceAdminCapab = serviceProvider.getCapability(device, IDeviceAdministration.class);
-		Assert.assertNotNull("Device resource should contain a bound IDeviceAdministration capability", deviceAdminCapab);
-
-		IPortManagement portManagementCapab = serviceProvider.getCapability(device, IPortManagement.class);
-		Assert.assertNotNull("Device resource should contain a bound IPortManagement capability.", portManagementCapab);
-
-		// port resource capabilities
-		IResource port = portManagementCapab.createPort();
-		Assert.assertNotNull(port);
-		Assert.assertTrue(port instanceof PortResource);
-
-		// TODO uncomment once PortAdministration capability is implemented.
-		// IPortAdministration portAdminCapab = serviceProvider.getCapability(port, IPortAdministration.class);
-		// Assert.assertNotNull("Port resource should contain a bound IPortAdministration capability", portAdminCapab);
-
-		// remove all resources
-		portManagementCapab.removePort(port);
+		// remove created resources
 		linkManagementCapab.removeLink(link);
-		deviceManagementCapab.removeDevice(device);
+		rootResourceMgmt.removeRootResource(rootResource);
 
-		rootResourceMgmt.removeRootResource(networkResource);
+	}
+
+	private IRootResource createRootResource(Specification.Type resourceType) {
+
+		// core resource
+		Specification spec = new Specification(resourceType);
+		Endpoint endpoint = null;
+
+		return rootResourceMgmt.createRootResource(spec, Arrays.asList(endpoint));
 
 	}
 }

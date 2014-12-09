@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:rootResourceDescriptor xmlns:ns2="org.mqnaas">
+    <specification>
+        <type>SWITCH</type>
+        <model>Juniper</model>
+        <version>1.0</version>
+        <sliceUnits>
+            <name>vlan</name>
+            <type>DISCRETE</type>
+        </sliceUnits>
+    </specification>
+    <endpoints>
+        <endpoint>
+            <uri>http://localhost:9999/path1</uri>
+        </endpoint>
+        <endpoint>
+            <uri>http://localhost:9999/path2</uri>
+        </endpoint>
+    </endpoints>
+</ns2:rootResourceDescriptor>

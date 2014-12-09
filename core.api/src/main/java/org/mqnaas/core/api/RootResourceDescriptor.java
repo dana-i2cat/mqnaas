@@ -4,22 +4,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.i2cat.utils.StringBuilderUtils;
 
 @XmlRootElement(namespace = "org.mqnaas")
-@XmlType(propOrder = { "specification", "lockingBehaviour", "transactionBehaviour", "endpoints" })
+@XmlType(propOrder = { "specification", "lockingBehaviourClass", "transactionBehaviourClass", "endpoints" })
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RootResourceDescriptor {
 
+	
 	private Class<? extends ITransactionBehavior>	transactionBehaviourClass;
 
 	private Class<? extends ILockingBehaviour>		lockingBehaviourClass;
 
+	@XmlElement(required = true)
 	private Specification							specification;
 
+	@XmlElementWrapper(name = "endpoints")
+	@XmlElement(name = "endpoint")
 	private Collection<Endpoint>					endpoints	= new ArrayList<Endpoint>();
 
 	private RootResourceDescriptor() {
@@ -34,6 +42,7 @@ public class RootResourceDescriptor {
 		this.endpoints = endpoints;
 	}
 
+	
 	public Class<? extends ITransactionBehavior> getTransactionBehaviourClass() {
 		return transactionBehaviourClass;
 	}
@@ -50,7 +59,7 @@ public class RootResourceDescriptor {
 		this.lockingBehaviourClass = lockingBehaviourClass;
 	}
 
-	@XmlElement(required = true)
+	
 	public Specification getSpecification() {
 		return specification;
 	}
@@ -70,8 +79,6 @@ public class RootResourceDescriptor {
 		return endpoints.remove(endpoint);
 	}
 
-	// @XmlElementWrapper(name = "endpoints")
-	// @XmlElement(name = "endpoint")
 	public void setEndpoints(Collection<Endpoint> endpoints) {
 
 		this.endpoints.clear();
@@ -118,4 +125,5 @@ public class RootResourceDescriptor {
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
 		return new RootResourceDescriptor(specification, endpoints);
 	}
+
 }

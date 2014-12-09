@@ -109,7 +109,7 @@ public class RootResourceDescriptor {
 			sb.append(", lockingBehavior=").append(lockingBehaviourClass.getName());
 		}
 
-		if (endpoints.isEmpty()) {
+		if (! endpoints.isEmpty()) {
 			sb.append(", endpoints=(");
 			StringBuilderUtils.append(sb, endpoints);
 			sb.append(")");

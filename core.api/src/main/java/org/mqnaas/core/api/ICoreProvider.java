@@ -13,7 +13,7 @@ import org.mqnaas.core.api.Specification.Type;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public interface ICoreProvider {
+public interface ICoreProvider extends ICapability {
 
 	/**
 	 * Returns the instance of the core {@link IRootResource}.

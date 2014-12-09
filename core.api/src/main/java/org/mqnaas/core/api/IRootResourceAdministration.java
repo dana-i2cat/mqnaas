@@ -38,4 +38,5 @@ public interface IRootResourceAdministration extends ICapability {
 	 */
 	@RemovesResource
 	void removeRootResource(IRootResource resource) throws ResourceNotFoundException;
+
 }

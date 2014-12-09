@@ -1,5 +1,7 @@
 package org.mqnaas.examples.router;
 
+import java.util.UUID;
+
 import org.mqnaas.examples.api.router.IInterface;
 
 public class AbstractInterface implements IInterface {
@@ -26,6 +28,11 @@ public class AbstractInterface implements IInterface {
 	@Override
 	public String toString() {
 		return "Interface [name=" + getName() + "]";
+	}
+
+	@Override
+	public String getId() {
+		return UUID.randomUUID().toString();
 	}
 
 }

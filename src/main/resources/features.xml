@@ -63,14 +63,20 @@
 		<feature version="${project.version}">mqnaas-clientprovider</feature>
 		<feature version="${project.version}">mqnaas-bundletree</feature>
 		<feature version="${project.version}">mqnaas-rest-api-provider</feature>
-		
+		<feature version="${project.version}">mqnaas-core-impl</feature>
+
+	</feature>
+	
+	<feature name="mqnaas-core-impl" version="${project.version}">
+		<feature version="${project.version}">mqnaas-core-api</feature>		
+		<feature version="${project.version}">mqnaas-bundletree</feature>
+
 		<!-- runtime dependencies -->
 		<bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
 		<bundle dependency="true">mvn:org.apache.commons/commons-collections4/${commons-collections4-version}</bundle>
 		
 		<bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections.version}</bundle>
 		<bundle dependency="true">mvn:com.opensymphony.quartz/com.springsource.org.quartz/${quartz.version}</bundle>
-		<bundle>mvn:${project.groupId}/core/${project.version}</bundle>
+		<bundle>mvn:${project.groupId}/core/${project.version}</bundle>		
 	</feature>
-
 </features>

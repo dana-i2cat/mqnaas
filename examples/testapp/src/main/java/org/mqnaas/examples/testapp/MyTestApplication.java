@@ -1,5 +1,6 @@
 package org.mqnaas.examples.testapp;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 import org.mqnaas.core.api.Endpoint;
@@ -8,7 +9,8 @@ import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
@@ -23,26 +25,29 @@ import org.slf4j.LoggerFactory;
 
 public class MyTestApplication implements IApplication {
 
-	private static final Logger		log	= LoggerFactory.getLogger(BindingManagement.class);
+	private static final Logger			log	= LoggerFactory.getLogger(BindingManagement.class);
 
 	@DependingOn
-	private IRootResourceManagement	resourceManagement;
+	private IRootResourceAdministration	resourceAdministration;
 
 	@DependingOn
-	private IServiceProvider		serviceProvider;
+	IRootResourceProvider				resourceProvider;
 
 	@DependingOn
-	private IExecutionService		executionService;
+	private IServiceProvider			serviceProvider;
 
 	@DependingOn
-	private IObservationService		observationService;
+	private IExecutionService			executionService;
+
+	@DependingOn
+	private IObservationService			observationService;
 
 	@Override
 	public void activate() {
 
 		IRootResource mqNaaS;
 		try {
-			mqNaaS = resourceManagement.getRootResource(new Specification(Specification.Type.CORE));
+			mqNaaS = resourceProvider.getRootResource(new Specification(Specification.Type.CORE));
 		} catch (ResourceNotFoundException e) {
 			// this should not happen
 			log.error("No CORE resource found!", e);
@@ -59,19 +64,24 @@ public class MyTestApplication implements IApplication {
 			return;
 		}
 
-		executionService.execute(notifiedService, null);
+		try {
+			executionService.execute(notifiedService, null);
 
-		observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
+			observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
 
-		resourceManagement.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+
+		} catch (InvocationTargetException e) {
+			log.error("Could not activate MyTestApplication:", e.getCause());
+		}
 
 	}
 

@@ -12,7 +12,6 @@ import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -36,7 +35,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(FrameworkUtil.class)
 public class BindingManagementTest {
 
-	static IRootResourceManagement	resourceManagement;
+	static RootResourceManagement	resourceManagement;
 	static BindingManagement		bindingManagement;
 
 	@BeforeClass
@@ -47,13 +46,13 @@ public class BindingManagementTest {
 		IBindingDecider bindingDecider = new IBindingDecider() {
 			@Override
 			public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
-				
-				boolean shouldBeBound = resource instanceof IRootResource; 
-				
-				if ( !shouldBeBound ) {
+
+				boolean shouldBeBound = resource instanceof IRootResource;
+
+				if (!shouldBeBound) {
 					shouldBeBound = ISampleCapability.class.isAssignableFrom(capabilityClass);
 				}
-				
+
 				return shouldBeBound;
 			}
 
@@ -78,7 +77,8 @@ public class BindingManagementTest {
 		ExecutionService executionServiceInstance = new ExecutionService();
 
 		bindingManagement = new BindingManagement();
-		bindingManagement.setResourceManagement(resourceManagement);
+		bindingManagement.setResourceAdministration(resourceManagement);
+		bindingManagement.setResourceProvider(resourceManagement);
 		bindingManagement.setBindingDecider(bindingDecider);
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);
@@ -136,7 +136,7 @@ public class BindingManagementTest {
 
 	@Test
 	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException {
-		
+
 		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
@@ -161,13 +161,13 @@ public class BindingManagementTest {
 
 		Assert.assertFalse("SampleResource should NOT provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
-		
+
 		removeSampleCapability();
 	}
 
 	@Test
 	public void newCapabilitiesAreAutomaticallyBoundToResources() throws ResourceNotFoundException {
-		
+
 		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
@@ -181,13 +181,13 @@ public class BindingManagementTest {
 				bindingManagement.getServices(core).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for the resource",
 				bindingManagement.getServices(core).get(ISampleCapability.class).isEmpty());
-		
+
 		removeSampleCapability();
 	}
 
 	@Test
 	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException {
-		
+
 		addSampleCapability();
 
 		// add new resource to bindingManagement
@@ -206,13 +206,13 @@ public class BindingManagementTest {
 				bindingManagement.getServices(sampleResource).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for the resource",
 				bindingManagement.getServices(sampleResource).get(ISampleCapability.class).isEmpty());
-		
+
 		removeSampleCapability();
 	}
 
 	@Test
 	public void capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved() throws ResourceNotFoundException {
-		
+
 		// adding SampleCapability used in this test
 		addSampleCapability();
 
@@ -254,21 +254,21 @@ public class BindingManagementTest {
 			Assert.assertTrue("Resource should NOT be provided by capability",
 					bindingManagement.getResourcesProvidedByCapabilityInstance(chainCapabilityInstances.get(i)).isEmpty());
 		}
-		
+
 		removeSampleCapability();
 	}
 
-	private static List<Class<? extends ICapability>> sampleCapability;
-	
+	private static List<Class<? extends ICapability>>	sampleCapability;
+
 	static {
 		sampleCapability = new ArrayList<Class<? extends ICapability>>(1);
 		sampleCapability.add(SampleCapability.class);
 	}
-	
+
 	private static void addSampleCapability() {
 		bindingManagement.capabilitiesAdded(sampleCapability);
 	}
-	
+
 	private static void removeSampleCapability() {
 		bindingManagement.capabilitiesRemoved(sampleCapability);
 	}

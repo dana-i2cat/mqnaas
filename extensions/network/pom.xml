@@ -23,6 +23,8 @@
 
 	<properties>
 		<project.version>0.0.1-SNAPSHOT</project.version>
+		<!-- Apache Commons Lang 3 version -->
+		<commons-lang3>3.3.1</commons-lang3>
 	</properties>
 
 	<dependencyManagement>
@@ -37,6 +39,11 @@
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>network.impl</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-lang3</artifactId>
+				<version>${commons-lang3}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

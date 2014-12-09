@@ -11,7 +11,7 @@ import org.mqnaas.api.IAPIConnector;
 import org.mqnaas.api.IRESTAPIProvider;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IExecutionService;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.examples.sampleresource.ISampleCapability;
@@ -31,7 +31,7 @@ public class APIConnectorTestApp implements IApplication {
 	private static final Logger	log	= LoggerFactory.getLogger(APIConnectorTestApp.class);
 
 	@DependingOn
-	IRootResourceManagement		rootResourceManagement;
+	IRootResourceProvider		rootResourceManagement;
 
 	@DependingOn
 	IExecutionService			executionService;

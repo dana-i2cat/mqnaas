@@ -13,10 +13,10 @@ import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
-import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.BindingManagement;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilter;
@@ -45,14 +45,7 @@ public class MyTestApplication implements IApplication {
 	@Override
 	public void activate() {
 
-		IRootResource mqNaaS;
-		try {
-			mqNaaS = resourceProvider.getRootResource(new Specification(Specification.Type.CORE));
-		} catch (ResourceNotFoundException e) {
-			// this should not happen
-			log.error("No CORE resource found!", e);
-			return;
-		}
+		IRootResource mqNaaS = resourceProvider.getCore();
 
 		IService observedService = null;
 		IService notifiedService = null;
@@ -69,18 +62,26 @@ public class MyTestApplication implements IApplication {
 
 			observationService.registerObservation(new ServiceFilter(observedService), notifiedService);
 
-			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos"),
+					Arrays.asList(new Endpoint())));
 
-			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Opener"),
+					Arrays.asList(new Endpoint())));
 
-			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos"),
+					Arrays.asList(new Endpoint())));
 
-			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Opener"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Opener"),
+					Arrays.asList(new Endpoint())));
 
-			resourceAdministration.createRootResource(new Specification(Type.ROUTER, "Junos"), Arrays.asList(new Endpoint()));
+			resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.ROUTER, "Junos"),
+					Arrays.asList(new Endpoint())));
 
 		} catch (InvocationTargetException e) {
 			log.error("Could not activate MyTestApplication:", e.getCause());
+		} catch (Exception e) {
+			log.error("Could not activate MyTestApplication:", e);
+
 		}
 
 	}

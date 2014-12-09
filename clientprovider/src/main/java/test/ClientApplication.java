@@ -16,7 +16,7 @@ import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
@@ -33,13 +33,13 @@ public class ClientApplication implements IApplication {
 	private static final Logger	log	= LoggerFactory.getLogger(ClientApplication.class);
 
 	@DependingOn
-	IRootResourceManagement		rootResourceManagement;
+	IRootResourceAdministration	rootResourceManagement;
 
 	@DependingOn
 	IClientProviderFactory		clientProviderFactory;
 
 	@DependingOn
-	IAPIClientProviderFactory			apiProviderFactory;
+	IAPIClientProviderFactory	apiProviderFactory;
 
 	@Override
 	public void activate() {

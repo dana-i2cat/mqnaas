@@ -14,7 +14,8 @@
 		init-method="init">
 		<property name="executionService" ref="executionService" />
 		<property name="observationService" ref="executionService" />
-		<property name="resourceManagement" ref="rootResourceManagement" />
+		<property name="resourceAdministration" ref="rootResourceManagement" />
+		<property name="resourceProvider" ref="rootResourceManagement" />
 		<property name="bindingDecider" ref="binderDecider" />
 		<property name="bundleGuard" ref="bundleGuard" />
 	</bean>

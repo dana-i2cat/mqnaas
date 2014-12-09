@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceManagement;
+import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
-public class RootResourceManagement implements IRootResourceManagement {
+public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
 
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
@@ -43,6 +44,7 @@ public class RootResourceManagement implements IRootResourceManagement {
 
 			if (matches)
 				filteredResources.add(resource);
+
 		}
 
 		return filteredResources;
@@ -104,4 +106,5 @@ public class RootResourceManagement implements IRootResourceManagement {
 		// TODO Auto-generated method stub
 
 	}
+
 }

@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Service implements IInternalService {
-	
-	private static final Logger					log	= LoggerFactory.getLogger(Service.class);
+
+	private static final Logger	log	= LoggerFactory.getLogger(Service.class);
 
 	// The resource
 	private IResource			resource;
@@ -54,12 +54,7 @@ public class Service implements IInternalService {
 			log.error("Failed to execute service " + metaData.getMethod().getName() + " of " + metaData.getApplication().getClass().getName()
 					+ " with parameters " + parameters, e);
 			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			log.error("Failed to execute service " + metaData.getMethod().getName() + " of " + metaData.getApplication().getClass().getName()
-					+ " with parameters " + parameters, e);
-			e.printStackTrace();
 		}
-
 		return result;
 	}
 

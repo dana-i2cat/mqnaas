@@ -126,4 +126,47 @@ public class RootResourceDescriptor {
 		return new RootResourceDescriptor(specification, endpoints);
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((endpoints == null) ? 0 : endpoints.hashCode());
+		result = prime * result + ((lockingBehaviourClass == null) ? 0 : lockingBehaviourClass.getName().hashCode());
+		result = prime * result + ((specification == null) ? 0 : specification.hashCode());
+		result = prime * result + ((transactionBehaviourClass == null) ? 0 : transactionBehaviourClass.getName().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RootResourceDescriptor other = (RootResourceDescriptor) obj;
+		if (endpoints == null) {
+			if (other.endpoints != null)
+				return false;
+		} else if (!endpoints.equals(other.endpoints))
+			return false;
+		if (lockingBehaviourClass == null) {
+			if (other.lockingBehaviourClass != null)
+				return false;
+		} else if (!lockingBehaviourClass.equals(other.lockingBehaviourClass))
+			return false;
+		if (specification == null) {
+			if (other.specification != null)
+				return false;
+		} else if (!specification.equals(other.specification))
+			return false;
+		if (transactionBehaviourClass == null) {
+			if (other.transactionBehaviourClass != null)
+				return false;
+		} else if (!transactionBehaviourClass
+				.equals(other.transactionBehaviourClass))
+			return false;
+		return true;
+	}
 }

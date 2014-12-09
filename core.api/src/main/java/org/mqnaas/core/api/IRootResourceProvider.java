@@ -43,8 +43,6 @@ public interface IRootResourceProvider extends ICapability {
 	@ListsResources
 	List<IRootResource> getRootResources(Specification.Type type, String model, String version) throws ResourceNotFoundException;
 
-	IRootResource getCore();
-
 	/**
 	 * Returns a specific {@link IRootResource} identified by the given id.
 	 * 

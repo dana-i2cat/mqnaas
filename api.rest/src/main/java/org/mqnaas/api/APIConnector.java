@@ -2,6 +2,7 @@ package org.mqnaas.api;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
@@ -46,7 +47,7 @@ public class APIConnector implements IAPIConnector {
 	IServiceProvider			serviceProvider;
 
 	@DependingOn
-	IRootResourceProvider		rootResourceProvider;
+	ICoreProvider				coreProvider;
 
 	@DependingOn
 	IRESTAPIProvider			restApiProvider;
@@ -63,7 +64,12 @@ public class APIConnector implements IAPIConnector {
 	IExecutionService executionService;
 
 	@DependingOn
+	IRootResourceProvider		rootResourceProvider;
+
+	@DependingOn
 	IRootResourceAdministration rootResourceAdmin;
+
+
 
 	@Override
 	public void activate() {
@@ -72,21 +78,21 @@ public class APIConnector implements IAPIConnector {
 			/**
 			 * {@link IBindingManagement#bind(CapabilityNode, ResourceNode) bind}
 			 */
-			IService bindService = serviceProvider.getService(rootResourceProvider.getCore(), "bind", CapabilityNode.class, ResourceNode.class);
+			IService bindService = serviceProvider.getService(coreProvider.getCore(), "bind", CapabilityNode.class, ResourceNode.class);
 			/**
 			 * {@link IBindingManagement#unbind(CapabilityNode, ResourceNode) unbind}
 			 */
-			IService unbindService = serviceProvider.getService(rootResourceProvider.getCore(), "unbind", CapabilityNode.class, ResourceNode.class);
+			IService unbindService = serviceProvider.getService(coreProvider.getCore(), "unbind", CapabilityNode.class, ResourceNode.class);
 
 			/**
 			 * {@link IBindingManagement#addApplicationInstance(ApplicationInstance) addApplicationInstance}
 			 */
-			IService addApplicationInstance = serviceProvider.getService(rootResourceProvider.getCore(), "addApplicationInstance",
+			IService addApplicationInstance = serviceProvider.getService(coreProvider.getCore(), "addApplicationInstance",
 					ApplicationInstance.class);
 			/**
 			 * {@link IBindingManagement#removeApplicationInstance(ApplicationInstance) removeApplicationInstance}
 			 */
-			IService removeApplicationInstance = serviceProvider.getService(rootResourceProvider.getCore(), "removeApplicationInstance",
+			IService removeApplicationInstance = serviceProvider.getService(coreProvider.getCore(), "removeApplicationInstance",
 					ApplicationInstance.class);
 
 			IService publishCapabilityService = serviceProvider.getApplicationService(this, "publishCapability", CapabilityNode.class,

@@ -16,6 +16,7 @@
 		<property name="observationService" ref="executionService" />
 		<property name="resourceAdministration" ref="rootResourceManagement" />
 		<property name="resourceProvider" ref="rootResourceManagement" />
+		<property name="coreProvider" ref="rootResourceManagement"/>
 		<property name="bindingDecider" ref="binderDecider" />
 		<property name="bundleGuard" ref="bundleGuard" />
 	</bean>

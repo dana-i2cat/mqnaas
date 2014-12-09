@@ -14,7 +14,6 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.ApplicationInstance;
-import org.mqnaas.core.impl.BindingManagement;
 import org.mqnaas.core.impl.IBindingManagement;
 import org.mqnaas.core.impl.notificationfilter.ServiceFilterWithParams;
 import org.mqnaas.core.impl.resourcetree.ApplicationNode;

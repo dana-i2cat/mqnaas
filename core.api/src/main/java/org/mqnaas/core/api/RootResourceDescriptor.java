@@ -4,22 +4,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.i2cat.utils.StringBuilderUtils;
 
 @XmlRootElement(namespace = "org.mqnaas")
-@XmlType(propOrder = { "specification", "lockingBehaviour", "transactionBehaviour", "endpoints" })
+@XmlType(propOrder = { "specification", "lockingBehaviourClass", "transactionBehaviourClass", "endpoints" })
+@XmlAccessorType(XmlAccessType.FIELD)
 public class RootResourceDescriptor {
 
+	
 	private Class<? extends ITransactionBehavior>	transactionBehaviourClass;
 
 	private Class<? extends ILockingBehaviour>		lockingBehaviourClass;
 
+	@XmlElement(required = true)
 	private Specification							specification;
 
+	@XmlElementWrapper(name = "endpoints")
+	@XmlElement(name = "endpoint")
 	private Collection<Endpoint>					endpoints	= new ArrayList<Endpoint>();
 
 	private RootResourceDescriptor() {
@@ -34,6 +42,7 @@ public class RootResourceDescriptor {
 		this.endpoints = endpoints;
 	}
 
+	
 	public Class<? extends ITransactionBehavior> getTransactionBehaviourClass() {
 		return transactionBehaviourClass;
 	}
@@ -50,7 +59,7 @@ public class RootResourceDescriptor {
 		this.lockingBehaviourClass = lockingBehaviourClass;
 	}
 
-	@XmlElement(required = true)
+	
 	public Specification getSpecification() {
 		return specification;
 	}
@@ -70,8 +79,6 @@ public class RootResourceDescriptor {
 		return endpoints.remove(endpoint);
 	}
 
-	// @XmlElementWrapper(name = "endpoints")
-	// @XmlElement(name = "endpoint")
 	public void setEndpoints(Collection<Endpoint> endpoints) {
 
 		this.endpoints.clear();
@@ -102,7 +109,7 @@ public class RootResourceDescriptor {
 			sb.append(", lockingBehavior=").append(lockingBehaviourClass.getName());
 		}
 
-		if (endpoints.isEmpty()) {
+		if (! endpoints.isEmpty()) {
 			sb.append(", endpoints=(");
 			StringBuilderUtils.append(sb, endpoints);
 			sb.append(")");
@@ -117,5 +124,49 @@ public class RootResourceDescriptor {
 
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
 		return new RootResourceDescriptor(specification, endpoints);
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((endpoints == null) ? 0 : endpoints.hashCode());
+		result = prime * result + ((lockingBehaviourClass == null) ? 0 : lockingBehaviourClass.getName().hashCode());
+		result = prime * result + ((specification == null) ? 0 : specification.hashCode());
+		result = prime * result + ((transactionBehaviourClass == null) ? 0 : transactionBehaviourClass.getName().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		RootResourceDescriptor other = (RootResourceDescriptor) obj;
+		if (endpoints == null) {
+			if (other.endpoints != null)
+				return false;
+		} else if (!endpoints.equals(other.endpoints))
+			return false;
+		if (lockingBehaviourClass == null) {
+			if (other.lockingBehaviourClass != null)
+				return false;
+		} else if (!lockingBehaviourClass.equals(other.lockingBehaviourClass))
+			return false;
+		if (specification == null) {
+			if (other.specification != null)
+				return false;
+		} else if (!specification.equals(other.specification))
+			return false;
+		if (transactionBehaviourClass == null) {
+			if (other.transactionBehaviourClass != null)
+				return false;
+		} else if (!transactionBehaviourClass
+				.equals(other.transactionBehaviourClass))
+			return false;
+		return true;
 	}
 }

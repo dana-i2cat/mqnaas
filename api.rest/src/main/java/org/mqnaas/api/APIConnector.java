@@ -2,6 +2,7 @@ package org.mqnaas.api;
 
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceManagement;
@@ -58,6 +59,9 @@ public class APIConnector implements IAPIConnector {
 	@SuppressWarnings("unused")
 	IBindingManagement bindingManagement;
 	
+	@DependingOn
+	IExecutionService executionService;
+	
 	@Override
 	public void activate() {
 		
@@ -94,15 +98,26 @@ public class APIConnector implements IAPIConnector {
 			observationService.registerObservation(new ServiceFilterWithParams(unbindService), unpublishCapabilityService);
 			observationService.registerObservation(new ServiceFilterWithParams(removeApplicationInstance), unpublishApplicationService);
 			
-			// TODO Get already registered capabilities and apps publish them. 
+			// TODO Get already registered capabilities and apps, and publish them. 
 			
-		
 		} catch (ServiceNotFoundException e) {
 			// TODO treat exception 
 			log.error("Failed to register APIConnector. REST API will NOT be published automatically.", e);
 		}
+		
+		// publishing the core manually
+		// FIXME to be removed
+		try {
+			restApiProvider.publish(rootResourceManagement, IRootResourceManagement.class, "/mqnaas/IRootResourceManagement/");
+			restApiProvider.publish(observationService, IObservationService.class, "/mqnaas/IObservationService/");
+			restApiProvider.publish(executionService, IExecutionService.class, "/mqnaas/IExecutionService/");
+			restApiProvider.publish(serviceProvider, IServiceProvider.class, "/mqnaas/IServiceProvider/");
+		} catch (Exception e){
+			// TODO treat exception 
+			log.error("Failed to register core services API.", e);
+		}
 	}
-	
+
 	@Override
 	public void deactivate() {
 		// TODO unpublish all 
@@ -113,7 +128,7 @@ public class APIConnector implements IAPIConnector {
 	// Services
 	// ////////
 	
-	public void publishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) throws Exception {
+	public void publishCapability(CapabilityNode capabilityNode, ResourceNode unused) throws Exception {
 		for (Class<? extends ICapability> capabClass : capabilityNode.getContent().getCapabilities()) {
 			String uri = getPathForApplication(capabilityNode, capabClass, new StringBuffer()).toString();
 			log.debug("Publishing API for interface {} of capability {} with path {}", capabClass.getName(), capabilityNode.getContent().getInstance(), uri);

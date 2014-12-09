@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -11,7 +12,7 @@ import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
-public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
+public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration, ICoreProvider {
 
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 

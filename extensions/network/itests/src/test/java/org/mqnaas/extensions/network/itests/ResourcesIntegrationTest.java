@@ -11,6 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
@@ -55,6 +56,9 @@ public class ResourcesIntegrationTest {
 	@Inject
 	IRootResourceProvider		rootResourceProv;
 
+	@Inject
+	ICoreProvider				coreProvider;
+
 	IRootResource				coreResource;
 	IRootResource				tsonResource;
 	IRootResource				networkResource;
@@ -90,7 +94,7 @@ public class ResourcesIntegrationTest {
 
 	@Before
 	public void createResources() throws InstantiationException, IllegalAccessException, InterruptedException {
-		coreResource = rootResourceProv.getCore();
+		coreResource = coreProvider.getCore();
 		networkResource = createRootResource(Type.NETWORK);
 
 		tsonResource = createRootResource(Type.TSON);

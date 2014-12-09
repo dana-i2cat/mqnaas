@@ -10,8 +10,8 @@ package org.mqnaas.examples.api.testapp;
 import org.mqnaas.api.IAPIConnector;
 import org.mqnaas.api.IRESTAPIProvider;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
-import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.examples.sampleresource.ISampleCapability;
@@ -31,7 +31,7 @@ public class APIConnectorTestApp implements IApplication {
 	private static final Logger	log	= LoggerFactory.getLogger(APIConnectorTestApp.class);
 
 	@DependingOn
-	IRootResourceProvider		rootResourceProvider;
+	ICoreProvider				coreProvider;
 
 	@DependingOn
 	IExecutionService			executionService;
@@ -58,8 +58,7 @@ public class APIConnectorTestApp implements IApplication {
 			// restApiProvider.publish(serviceProvider, IServiceProvider.class, "/mqnaas/services");
 			// restApiProvider.publish(executionService, IExecutionService.class, "/mqnaas/");
 
-			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(rootResourceProvider.getCore(),
-					ISampleMgmtCapability.class);
+			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(coreProvider.getCore(), ISampleMgmtCapability.class);
 
 			SampleResource sampleResource = new SampleResource("s0");
 			coreSampleMgmtCapability.addSampleResource(sampleResource);
@@ -88,7 +87,7 @@ public class APIConnectorTestApp implements IApplication {
 	public void deactivate() {
 		try {
 
-			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(rootResourceProvider.getCore(),
+			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(coreProvider.getCore(),
 					ISampleMgmtCapability.class);
 			SampleResource s0 = coreSampleMgmtCapability.getSampleResources().get(0);
 

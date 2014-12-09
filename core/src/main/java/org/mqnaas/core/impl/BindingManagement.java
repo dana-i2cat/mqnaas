@@ -17,6 +17,7 @@ import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.ICoreModelCapability;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
@@ -101,6 +102,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	private IRootResourceProvider				resourceProvider;
 	private IBindingDecider						bindingDecider;
 	private IBundleGuard						bundleGuard;
+	private ICoreProvider						coreProvider;
 
 	// internal {@link IClassListener} instance
 	private InternalClassListener				internalClassListener;
@@ -182,7 +184,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		String[] bindingManagementIfaces = { IServiceProvider.class.getName(), ICoreModelCapability.class.getName() };
 		context.registerService(bindingManagementIfaces, bindingManagementCI.getProxy(), null);
 
-		String[] rootResourceManagementIfaces = { IRootResourceAdministration.class.getName(), IRootResourceProvider.class.getName() };
+		String[] rootResourceManagementIfaces = { IRootResourceAdministration.class.getName(), IRootResourceProvider.class.getName(), ICoreProvider.class
+				.getName() };
 		context.registerService(rootResourceManagementIfaces, resouceAdministrationCI.getProxy(), null);
 
 		context.registerService((Class<IExecutionService>) IExecutionService.class, (IExecutionService) executionServiceCI.getProxy(), null);
@@ -223,6 +226,11 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void setResourceProvider(IRootResourceProvider resourceProvider) {
 		log.info("Setting IRootResourceProvider");
 		this.resourceProvider = resourceProvider;
+	}
+
+	public void setCoreProvider(ICoreProvider coreProvider) {
+		log.info("Setting ICoreProvider");
+		this.coreProvider = coreProvider;
 	}
 
 	ResourceCapabilityTree getResourceCapabilityTree() {

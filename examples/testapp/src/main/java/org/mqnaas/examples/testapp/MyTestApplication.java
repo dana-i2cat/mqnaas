@@ -5,12 +5,12 @@ import java.util.Arrays;
 
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
-import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
@@ -31,7 +31,7 @@ public class MyTestApplication implements IApplication {
 	private IRootResourceAdministration	resourceAdministration;
 
 	@DependingOn
-	IRootResourceProvider				resourceProvider;
+	ICoreProvider						coreProvider;
 
 	@DependingOn
 	private IServiceProvider			serviceProvider;
@@ -45,7 +45,7 @@ public class MyTestApplication implements IApplication {
 	@Override
 	public void activate() {
 
-		IRootResource mqNaaS = resourceProvider.getCore();
+		IRootResource mqNaaS = coreProvider.getCore();
 
 		IService observedService = null;
 		IService notifiedService = null;
@@ -81,7 +81,6 @@ public class MyTestApplication implements IApplication {
 			log.error("Could not activate MyTestApplication:", e.getCause());
 		} catch (Exception e) {
 			log.error("Could not activate MyTestApplication:", e);
-
 		}
 
 	}

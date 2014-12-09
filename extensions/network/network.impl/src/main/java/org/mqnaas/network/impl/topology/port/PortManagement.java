@@ -20,8 +20,6 @@ public class PortManagement implements IPortManagement {
 	public static boolean isSupporting(IRootResource resource) {
 		return (!resource.getDescriptor().getSpecification().getType().equals(Type.CORE) && !resource.getDescriptor().getSpecification().getType()
 				.equals(Type.NETWORK));
-
-
 	}
 
 	private List<PortResource>	ports;

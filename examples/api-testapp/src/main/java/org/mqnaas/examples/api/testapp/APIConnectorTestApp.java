@@ -102,38 +102,38 @@ public class APIConnectorTestApp implements IApplication {
 			e.printStackTrace();
 		}
 	}
-
-	// private void checkEndpointWADLIsAccessible(String urlStr) {
-	// DataInputStream inStream = null;
-	// try {
-	// // Create connection
-	// URL url = new URL(urlStr + "?" + "_wadl");
-	// URLConnection connection = url.openConnection();
-	//
-	// connection.setReadTimeout(READ_TIMEOUT);
-	// inStream = new DataInputStream(connection.getInputStream());
-	//
-	// HttpURLConnection httpConnection = (HttpURLConnection) connection;
-	// int status = httpConnection.getResponseCode();
-	//
-	// if (status == -1) {
-	// Assert.fail("Invalid HTTP response");
-	// }
-	// if (status >= 400 && status < 600) {
-	// InputStream error = httpConnection.getErrorStream();
-	// Assert.fail("Error respnse: HTTP code " + status + " error: " + error.toString());
-	// }
-	// } catch(IOException ioe) {
-	// Assert.fail(ioe.getMessage());
-	// } finally {
-	// if (inStream != null) {
-	// try {
-	// inStream.close();
-	// } catch (IOException e) {
-	// // ignored
-	// }
-	// }
-	// }
-	// }
+	
+//	private void checkEndpointWADLIsAccessible(String urlStr) {
+//    	DataInputStream inStream = null;
+//    	try {
+//            // Create connection
+//            URL url = new URL(urlStr + "?" + "_wadl");
+//            URLConnection connection = url.openConnection();
+//           
+//            connection.setReadTimeout(READ_TIMEOUT);
+//             inStream = new DataInputStream(connection.getInputStream());
+//            
+//            HttpURLConnection httpConnection = (HttpURLConnection) connection;
+//            int status = httpConnection.getResponseCode();
+//            
+//            if (status == -1) {
+//            	Assert.fail("Invalid HTTP response");
+//            }
+//            if (status >= 400 && status < 600) {
+//            	InputStream error = httpConnection.getErrorStream();
+//            	Assert.fail("Error respnse: HTTP code " + status + " error: " + error.toString());
+//            }   
+//    	} catch(IOException ioe) {
+//    		Assert.fail(ioe.getMessage());
+//    	} finally {
+//    		if (inStream != null) {
+//    			try {
+//					inStream.close();
+//				} catch (IOException e) {
+//					// ignored
+//				}
+//    		}
+//    	}
+//    }
 
 }

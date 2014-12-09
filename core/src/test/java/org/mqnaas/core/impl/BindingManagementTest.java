@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IApplication;
@@ -185,6 +186,7 @@ public class BindingManagementTest {
 		removeSampleCapability();
 	}
 
+	@Ignore
 	@Test
 	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException {
 

@@ -147,6 +147,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				throws CapabilityNotFoundException {
 			getResourceManagementListener().resourceAdded(resource,
 					getRootResourceAdministration(), IRootResourceAdministration.class);
+
 		}
 
 		private IResourceManagementListener getResourceManagementListener()

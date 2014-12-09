@@ -180,9 +180,7 @@ public class ResourcesIntegrationTest {
 		Specification spec = new Specification(resourceType);
 		Endpoint endpoint = null;
 
-		RootResourceDescriptor descriptor = RootResourceDescriptor.create(spec, Arrays.asList(endpoint));
-
-		return rootResourceMgmt.createRootResource(descriptor);
+		return rootResourceMgmt.createRootResource(RootResourceDescriptor.create(spec, Arrays.asList(endpoint)));
 
 	}
 }

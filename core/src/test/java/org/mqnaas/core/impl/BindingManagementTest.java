@@ -11,8 +11,7 @@ import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.Specification;
-import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -47,7 +46,14 @@ public class BindingManagementTest {
 		IBindingDecider bindingDecider = new IBindingDecider() {
 			@Override
 			public boolean shouldBeBound(IResource resource, Class<? extends ICapability> capabilityClass) {
-				return true;
+
+				boolean shouldBeBound = resource instanceof IRootResource;
+
+				if (!shouldBeBound) {
+					shouldBeBound = ISampleCapability.class.isAssignableFrom(capabilityClass);
+				}
+
+				return shouldBeBound;
 			}
 
 			@Override
@@ -95,51 +101,43 @@ public class BindingManagementTest {
 	}
 
 	@Test
-	public void bindCapabilityInstanceToResource() throws ResourceNotFoundException {
+	public void bindAndUnbindCapabilityInstanceToResource() throws ResourceNotFoundException {
 
-		IResource resource = resourceManagement.getCore();
+		IResource core = resourceManagement.getCore();
 
 		CapabilityInstance ci = new CapabilityInstance(SampleCapability.class);
-		bindingManagement.bind(new CapabilityNode(ci), bindingManagement.getResourceCapabilityTree().getRootResourceNode());
+		CapabilityNode cn = new CapabilityNode(ci);
+		bindingManagement.bind(cn, bindingManagement.getResourceCapabilityTree().getRootResourceNode());
 
 		Assert.assertTrue("CI should be bound to the resource",
-				bindingManagement.getCapabilityInstancesBoundToResource(resource).contains(ci));
+				bindingManagement.getCapabilityInstancesBoundToResource(core).contains(ci));
 
 		Assert.assertNotNull("Services in ISampleCapability should be available for resource",
-				bindingManagement.getServices(resource).get(ISampleCapability.class));
+				bindingManagement.getServices(core).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for resource",
-				bindingManagement.getServices(resource).get(ISampleCapability.class).isEmpty());
+				bindingManagement.getServices(core).get(ISampleCapability.class).isEmpty());
 
 		Object resourceValue = ((SampleCapability) ci.getInstance()).getResource();
-		Assert.assertEquals("Resource must be injected in capability.", resource, resourceValue);
-	}
+		Assert.assertEquals("Resource must be injected in capability.", core, resourceValue);
 
-	@Test
-	public void unbindCapabilityInstanceToResource() throws ResourceNotFoundException {
+		ResourceNode coreNode = bindingManagement.getResourceCapabilityTree().getRootResourceNode();
 
-		IResource res = resourceManagement.getCore();
-		ResourceNode resource = bindingManagement.getResourceCapabilityTree().getRootResourceNode();
+		ci = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+		cn = ResourceCapabilityTreeController.getChidrenWithContent(coreNode, ci);
 
-		CapabilityInstance ci = getCapabilityInstanceBoundToResource(res, SampleCapability.class);
-		CapabilityNode capability = ResourceCapabilityTreeController.getChidrenWithContent(resource, ci);
-
-		bindingManagement.unbind(capability, resource);
+		bindingManagement.unbind(cn, coreNode);
 
 		Assert.assertFalse("CI should NOT be bound to the resource",
-				bindingManagement.getCapabilityInstancesBoundToResource(res).contains(ci));
+				bindingManagement.getCapabilityInstancesBoundToResource(core).contains(ci));
 
 		Assert.assertTrue("Services in ISampleCapability should NOT be available for resource",
-				bindingManagement.getServices(res).get(ISampleCapability.class).isEmpty());
+				bindingManagement.getServices(core).get(ISampleCapability.class).isEmpty());
 	}
 
 	@Test
-	public void addResourceInCapabilityInstance() throws ResourceNotFoundException {
+	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException {
 
-		if (!bindingManagement.knownCapabilities.contains(SampleCapability.class)) {
-			List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
-			capabilitiyClasses.add(SampleCapability.class);
-			bindingManagement.capabilitiesAdded(capabilitiyClasses);
-		}
+		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
 
@@ -152,41 +150,25 @@ public class BindingManagementTest {
 
 		Assert.assertTrue("SampleResource should be provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
-	}
-
-	@Test
-	public void removeResourceInCapabilityInstance() throws ResourceNotFoundException {
-
-		if (!bindingManagement.knownCapabilities.contains(SampleCapability.class)) {
-			List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
-			capabilitiyClasses.add(SampleCapability.class);
-			bindingManagement.capabilitiesAdded(capabilitiyClasses);
-		}
-
-		IResource core = resourceManagement.getCore();
-
-		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
-		Assert.assertNotNull(sampleCI);
 
 		ResourceNode root = bindingManagement.getResourceCapabilityTree().getRootResourceNode();
 		CapabilityNode capability = ResourceCapabilityTreeController.getCapabilityNodeWithContent(root, sampleCI);
 
 		ResourceNode sampleResourceNode = capability.getChildren().get(0);
-		IResource sampleResource = sampleResourceNode.getContent();
+		sampleResource = sampleResourceNode.getContent();
 
 		bindingManagement.resourceRemoved(sampleResource, sampleCI.getInstance(), ISampleCapability.class);
 
 		Assert.assertFalse("SampleResource should NOT provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
+
+		removeSampleCapability();
 	}
 
 	@Test
 	public void newCapabilitiesAreAutomaticallyBoundToResources() throws ResourceNotFoundException {
 
-		// adding SampleCapability used in this test
-		List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
-		capabilitiyClasses.add(SampleCapability.class);
-		bindingManagement.capabilitiesAdded(capabilitiyClasses);
+		addSampleCapability();
 
 		IResource core = resourceManagement.getCore();
 
@@ -199,15 +181,14 @@ public class BindingManagementTest {
 				bindingManagement.getServices(core).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for the resource",
 				bindingManagement.getServices(core).get(ISampleCapability.class).isEmpty());
+
+		removeSampleCapability();
 	}
 
 	@Test
 	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException {
 
-		// adding SampleCapability used in this test
-		List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
-		capabilitiyClasses.add(SampleCapability.class);
-		bindingManagement.capabilitiesAdded(capabilitiyClasses);
+		addSampleCapability();
 
 		// add new resource to bindingManagement
 		IResource core = resourceManagement.getCore();
@@ -225,15 +206,15 @@ public class BindingManagementTest {
 				bindingManagement.getServices(sampleResource).get(ISampleCapability.class));
 		Assert.assertFalse("Services in ISampleCapability should be available for the resource",
 				bindingManagement.getServices(sampleResource).get(ISampleCapability.class).isEmpty());
+
+		removeSampleCapability();
 	}
 
 	@Test
 	public void capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved() throws ResourceNotFoundException {
 
 		// adding SampleCapability used in this test
-		List<Class<? extends ICapability>> capabilitiyClasses = new ArrayList<Class<? extends ICapability>>(1);
-		capabilitiyClasses.add(SampleCapability.class);
-		bindingManagement.capabilitiesAdded(capabilitiyClasses);
+		addSampleCapability();
 
 		// add new resource to bindingManagement
 		IResource core = resourceManagement.getCore();
@@ -273,9 +254,26 @@ public class BindingManagementTest {
 			Assert.assertTrue("Resource should NOT be provided by capability",
 					bindingManagement.getResourcesProvidedByCapabilityInstance(chainCapabilityInstances.get(i)).isEmpty());
 		}
+
+		removeSampleCapability();
 	}
 
-	private CapabilityInstance getCapabilityInstanceBoundToResource(IResource resource, Class<? extends ICapability> clazz) {
+	private static List<Class<? extends ICapability>>	sampleCapability;
+
+	static {
+		sampleCapability = new ArrayList<Class<? extends ICapability>>(1);
+		sampleCapability.add(SampleCapability.class);
+	}
+
+	private static void addSampleCapability() {
+		bindingManagement.capabilitiesAdded(sampleCapability);
+	}
+
+	private static void removeSampleCapability() {
+		bindingManagement.capabilitiesRemoved(sampleCapability);
+	}
+
+	private static CapabilityInstance getCapabilityInstanceBoundToResource(IResource resource, Class<? extends ICapability> clazz) {
 		CapabilityInstance found = null;
 		for (CapabilityInstance capabilityInstance : bindingManagement.getCapabilityInstancesBoundToResource(resource)) {
 			if (clazz.equals(capabilityInstance.getClazz())) {

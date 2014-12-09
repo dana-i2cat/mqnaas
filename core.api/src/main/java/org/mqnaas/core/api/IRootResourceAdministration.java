@@ -1,8 +1,5 @@
 package org.mqnaas.core.api;
 
-import java.util.Collection;
-
-import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;

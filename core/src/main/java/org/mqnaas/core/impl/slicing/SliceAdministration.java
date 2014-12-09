@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.commons.lang.SerializationUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
@@ -33,7 +33,7 @@ public class SliceAdministration implements ISliceAdministration {
 	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministration.class);
 
 	private List<Unit>			units;
-	private Map<Unit, Range>		ranges;
+	private Map<Unit, Range>	ranges;
 	Object						originalData;
 	Object						currentData;
 
@@ -58,7 +58,7 @@ public class SliceAdministration implements ISliceAdministration {
 	public void addUnit(Unit unit) {
 		units.add(unit);
 	}
-	
+
 	@Override
 	public Unit[] getUnits() {
 		return units.toArray(new Unit[units.size()]);
@@ -77,8 +77,8 @@ public class SliceAdministration implements ISliceAdministration {
 	/**
 	 * Initializes the given {@link Cube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
 	 *
-	 * IMPORTANT: The original slice information will contain the values of the set of {@link Cube} passed as arguments the first time this
-	 * method is called!
+	 * IMPORTANT: The original slice information will contain the values of the set of {@link Cube} passed as arguments the first time this method is
+	 * called!
 	 */
 	@Override
 	public void setCubes(Collection<Cube> cubes) {
@@ -617,8 +617,8 @@ public class SliceAdministration implements ISliceAdministration {
 
 	/**
 	 * Executes a specific operation involving the {@link Slice} managed by this capability instance and the slice managed by the <code>other</code>
-	 * {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays
-	 * <code>lbs</code> and <code>ubs</code>
+	 * {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays <code>lbs</code>
+	 * and <code>ubs</code>
 	 * 
 	 * @param other
 	 *            Capability managing the other slice involves in the operation.

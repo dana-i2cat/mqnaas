@@ -5,13 +5,16 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
@@ -29,6 +32,8 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -39,11 +44,20 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 @ExamReactorStrategy(PerClass.class)
 public class ResourcesIntegrationTest {
 
+	private static final Logger	log	= LoggerFactory.getLogger(ResourcesIntegrationTest.class);
+
 	@Inject
 	IRootResourceAdministration	rootResourceMgmt;
 
 	@Inject
 	IServiceProvider			serviceProvider;
+
+	@Inject
+	IRootResourceProvider		rootResourceProv;
+
+	IRootResource				coreResource;
+	IRootResource				tsonResource;
+	IRootResource				networkResource;
 
 	@Configuration
 	public Option[] config() {
@@ -69,96 +83,81 @@ public class ResourcesIntegrationTest {
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
-				// debug option
-				KarafDistributionOption.debugConfiguration()
+		// debug option
+		// KarafDistributionOption.debugConfiguration()
 		};
+	}
+
+	@Before
+	public void createResources() throws InstantiationException, IllegalAccessException, InterruptedException {
+		coreResource = rootResourceProv.getCore();
+		networkResource = createRootResource(Type.NETWORK);
+
+		tsonResource = createRootResource(Type.TSON);
+
+	}
+
+	@After
+	public void removeResources() throws ResourceNotFoundException {
+		rootResourceMgmt.removeRootResource(networkResource);
+		rootResourceMgmt.removeRootResource(tsonResource);
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
 	public void portManagementCoreBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
-			ResourceNotFoundException {
-		IRootResource rootResource = null;
+			ResourceNotFoundException, InterruptedException {
 
-		try {
-			rootResource = createRootResource(Type.CORE);
+		serviceProvider.getCapability(coreResource, IPortManagement.class);
 
-			serviceProvider.getCapability(rootResource, IPortManagement.class);
-		} finally {
-			rootResourceMgmt.removeRootResource(rootResource);
-		}
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
 	public void portManagementNetworkBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
 			ResourceNotFoundException {
 
-		IRootResource rootResource = null;
+		serviceProvider.getCapability(networkResource, IPortManagement.class);
 
-		try {
-			rootResource = createRootResource(Type.NETWORK);
-			serviceProvider.getCapability(rootResource, IPortManagement.class);
-		} finally {
-			rootResourceMgmt.removeRootResource(rootResource);
-		}
 	}
 
 	@Test
 	public void portManagementRestOfResourcesBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
-			IllegalAccessException {
+			IllegalAccessException, InterruptedException {
 
-		// network resource
-		IRootResource rootResource = createRootResource(Type.TSON);
-		IPortManagement portManagementCapab = serviceProvider.getCapability(rootResource, IPortManagement.class);
+		IPortManagement portManagementCapab = serviceProvider.getCapability(tsonResource, IPortManagement.class);
 
 		Assert.assertNotNull("All RootResources, except network and core, should contain a bound IPortManagement capability.",
 				portManagementCapab);
 
-		// remove created resources
-		rootResourceMgmt.removeRootResource(rootResource);
 	}
 
 	@Test(expected = CapabilityNotFoundException.class)
 	public void linkManagementCoreBindingTest() throws CapabilityNotFoundException, InstantiationException, IllegalAccessException,
-			ResourceNotFoundException {
-		IRootResource rootResource = null;
-		try {
-			rootResource = createRootResource(Type.CORE);
+			ResourceNotFoundException, InterruptedException {
 
-			serviceProvider.getCapability(rootResource, ILinkManagement.class);
-		} finally {
+		serviceProvider.getCapability(coreResource, ILinkManagement.class);
 
-			rootResourceMgmt.removeRootResource(rootResource);
-		}
 	}
 
 	@Test
 	public void linkManagementNetworkBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
-			IllegalAccessException {
+			IllegalAccessException, InterruptedException {
 
 		// network resource
-		IRootResource rootResource = createRootResource(Type.NETWORK);
-		ILinkManagement linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		ILinkManagement linkManagementCapab = serviceProvider.getCapability(networkResource, ILinkManagement.class);
 		Assert.assertNotNull("Network resource should contain a bound ILinkManagement capability.", linkManagementCapab);
-		rootResourceMgmt.removeRootResource(rootResource);
 
-		// other resource (for example, tson)
-		rootResource = createRootResource(Type.TSON);
-		linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		// other resource, for example, tson
+		linkManagementCapab = serviceProvider.getCapability(tsonResource, ILinkManagement.class);
 		Assert.assertNotNull("All RootResources should contain a bound ILinkManagement capability.",
 				linkManagementCapab);
-
-		// remove created resources
-		rootResourceMgmt.removeRootResource(rootResource);
 
 	}
 
 	@Test
 	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
-			IllegalAccessException {
+			IllegalAccessException, InterruptedException {
 
-		IRootResource rootResource = createRootResource(Type.TSON);
-
-		ILinkManagement linkManagementCapab = serviceProvider.getCapability(rootResource, ILinkManagement.class);
+		ILinkManagement linkManagementCapab = serviceProvider.getCapability(tsonResource, ILinkManagement.class);
 		Assert.assertNotNull("TSON resource should contain a bound ILinkManagement capability.", linkManagementCapab);
 
 		// link resource capabilities
@@ -171,7 +170,6 @@ public class ResourcesIntegrationTest {
 
 		// remove created resources
 		linkManagementCapab.removeLink(link);
-		rootResourceMgmt.removeRootResource(rootResource);
 
 	}
 

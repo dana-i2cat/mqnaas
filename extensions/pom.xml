@@ -40,6 +40,10 @@
 		<!-- SLF4J version -->
 		<slf4j-version>1.7.7</slf4j-version>
 
+		<!-- Apache Commons IO version -->
+		<commons-io.version>2.4</commons-io.version>
+		
+
 		<!-- Javax Inject version -->
 		<javax.inject.version>1_2</javax.inject.version>
 		
@@ -51,7 +55,9 @@
 		
 		<!-- JUnit version -->
 		<junit.version>4.11</junit.version>
-
+		
+		<!-- XMLUnit version -->
+		<xmlunit.version>1.5</xmlunit.version>
 	</properties>
 
 	<dependencyManagement>
@@ -61,6 +67,12 @@
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core.api</artifactId>
 				<version>${mqnaas-version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${mqnaas-version}</version>
+				<scope>test</scope>		
 			</dependency>
 			<!-- Testing libraries -->
 			<dependency>
@@ -96,6 +108,19 @@
 				<groupId>org.apache.servicemix.bundles</groupId>
 				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
 				<version>${javax.inject.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>xmlunit</groupId>
+				<artifactId>xmlunit</artifactId>
+				<version>${xmlunit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- IO Utils -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<scope>test</scope>
+				<version>${commons-io.version}</version>
 			</dependency>
 			<!-- Apache karaf -->
 			<dependency>

@@ -20,30 +20,6 @@ public class RequestResource implements IResource {
 		id = "req-" + ID_COUNTER.incrementAndGet();
 	}
 
-//	private Topology topology;
-//
-//	private Infrastructure infrastructure;
-//	
-//	private Map<IResource, Slice> slices = new HashMap<IResource, Slice>();
-//
-//	private Period period;
-//
-//	public Topology getTopology() {
-//		return topology;
-//	}
-//
-//	public Infrastructure getInfrastructure() {
-//		return infrastructure;
-//	}
-//
-//	public Period getPeriod() {
-//		return period;
-//	}
-//	
-//	public Slice getSlice(IResource resource) {
-//		return slices.get(resource);
-//	}
-
 	@Override
 	public String getId() {
 		return id;

@@ -8,20 +8,24 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.port.IPortManagement;
+import org.mqnaas.network.impl.RequestRootResource;
 
 /**
- * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation should be bound to all
- * IRootResources except core and network ones.
+ * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to all
+ * {@link IRootResource}s except core and network ones and, in addition, to all {@link RequestRootResource}s.
  * 
  * @author Georg Mansky-Kummert
  */
 public class PortManagement implements IPortManagement {
 
 	public static boolean isSupporting(IRootResource resource) {
-		return (!resource.getDescriptor().getSpecification().getType().equals(Type.CORE) && !resource.getDescriptor().getSpecification().getType()
-				.equals(Type.NETWORK));
+		Type type = resource.getDescriptor().getSpecification().getType();
 
+		return (!type.equals(Type.CORE) && !type.equals(Type.NETWORK));
+	}
 
+	public static boolean isSupporting(IResource resource) {
+		return resource instanceof RequestRootResource;
 	}
 
 	private List<PortResource>	ports;

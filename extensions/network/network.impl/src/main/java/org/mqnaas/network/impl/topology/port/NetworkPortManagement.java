@@ -8,7 +8,6 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
-import org.mqnaas.network.impl.RequestRootResource;
 
 /**
  * Implementation of the {@link INetworkPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to networks.

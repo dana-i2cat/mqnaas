@@ -125,6 +125,10 @@ public class RootResourceDescriptor {
 		return sb.toString();
 	}
 
+	public static RootResourceDescriptor create(Specification specification) {
+		return create(specification, null);
+	}
+	
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
 		return new RootResourceDescriptor(specification, endpoints);
 	}

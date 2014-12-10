@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration, ICoreProvider {
@@ -17,7 +18,8 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
 	public static boolean isSupporting(IRootResource resource) {
-		return resource.getDescriptor().getSpecification().getType() == Specification.Type.CORE;
+		Type type = resource.getDescriptor().getSpecification().getType();
+		return type == Type.CORE || type == Type.NETWORK;
 	}
 
 	@Override

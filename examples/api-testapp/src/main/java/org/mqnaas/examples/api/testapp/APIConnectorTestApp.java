@@ -58,8 +58,7 @@ public class APIConnectorTestApp implements IApplication {
 			// restApiProvider.publish(serviceProvider, IServiceProvider.class, "/mqnaas/services");
 			// restApiProvider.publish(executionService, IExecutionService.class, "/mqnaas/");
 
-			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(coreProvider.getCore(),
-					ISampleMgmtCapability.class);
+			ISampleMgmtCapability coreSampleMgmtCapability = serviceProvider.getCapability(coreProvider.getCore(), ISampleMgmtCapability.class);
 
 			SampleResource sampleResource = new SampleResource("s0");
 			coreSampleMgmtCapability.addSampleResource(sampleResource);

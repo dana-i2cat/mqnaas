@@ -19,6 +19,9 @@ import org.mqnaas.core.impl.notificationfilter.ServiceFilterWithParams;
 import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +71,8 @@ public class APIConnector implements IAPIConnector {
 
 	@DependingOn
 	IRootResourceAdministration rootResourceAdmin;
-
+	
+	private ServiceRegistration<IAPIConnector> osgiRegistration;
 
 
 	@Override
@@ -129,10 +133,15 @@ public class APIConnector implements IAPIConnector {
 			// TODO treat exception 
 			log.error("Failed to register core services API.", e);
 		}
+		
+		registerAsOSGiService();
 	}
 
 	@Override
 	public void deactivate() {
+		
+		unregisterAsOSGiService();
+		
 		// TODO unpublish all
 
 	}
@@ -199,6 +208,22 @@ public class APIConnector implements IAPIConnector {
 
 			alreadyComputedPath.insert(0, "/app/" + applicationName + "/");
 			return alreadyComputedPath;
+		}
+	}
+	
+	private void registerAsOSGiService() {
+		if (FrameworkUtil.getBundle(APIConnector.class) != null) {
+			BundleContext context = FrameworkUtil.getBundle(APIConnector.class).getBundleContext();
+			if (context != null) {
+				 osgiRegistration = context.registerService(IAPIConnector.class, this, null);
+			}
+		}
+	}
+	
+	private void unregisterAsOSGiService() {
+		if (osgiRegistration != null) {
+			osgiRegistration.unregister();
+			osgiRegistration = null;
 		}
 	}
 }

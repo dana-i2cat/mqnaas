@@ -62,6 +62,11 @@
 				<artifactId>core.api</artifactId>
 				<version>${mqnaas-version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core</artifactId>
+				<version>${mqnaas-version}</version>
+			</dependency>
 			<!-- Testing libraries -->
 			<dependency>
 				<groupId>junit</groupId>

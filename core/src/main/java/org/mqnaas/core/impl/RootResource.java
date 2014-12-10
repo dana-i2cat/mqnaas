@@ -83,11 +83,11 @@ public class RootResource implements IRootResource {
 		StringBuilder sb = new StringBuilder(specification.getType().toString());
 
 		if (!StringUtils.isEmpty(specification.getModel())) {
-			sb.append(":").append(specification.getModel());
+			sb.append("-").append(specification.getModel());
 		}
 
 		if (!StringUtils.isEmpty(specification.getVersion())) {
-			sb.append(":").append(specification.getVersion());
+			sb.append("-").append(specification.getVersion());
 		}
 
 		return sb.toString();

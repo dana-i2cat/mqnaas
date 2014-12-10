@@ -10,9 +10,13 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.RootResourceDescriptor;
+import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
@@ -44,67 +48,78 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	private List<IRootResource>			networks;
 
 	@Override
-	public IRootResource createNetwork(IResource requestResource) {
+	public IRootResource createNetwork(IResource requestResource) throws NetworkCreationException {
+		
+		IRootResource networkResource = null;
+		
+		try {
+			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
 
-		IRootResource networkResource = null; // TODO No way to create a root
-												// resource;
-		networks.add(networkResource);
+			// Warp the new resource to simplify access
+			NetworkWrapper network = new NetworkWrapper(networkResource);
+			
+			// Manual bind, so that capabilities exist
+			resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
 
-		NetworkWrapper network = new NetworkWrapper(networkResource);
+			// try {
+			//
+			// TopologyWrapper topology = network.getTopology();
+			//
+			// InfrastructureWrapper infrastructure = network.getInfrastructure();
+			//
+			// // Now, add all resources to the network, to the topology and to the
+			// // infrastructure
+			//
+			// RequestWrapper request = new RequestWrapper(requestResource);
+			// for (DeviceWrapper requestedDevice : request.getTopology()
+			// .getDevices()) {
+			//
+			// // Create the device in the network's topology
+			// DeviceWrapper device = topology.createDevice();
+			//
+			// // Obtain the mapping from the request...
+			// IResource requestedResource = request.getInfrastructure()
+			// .getDeviceMapping(requestedDevice);
+			//
+			// // Get the slice, if available...
+			// IResource slice = null;
+			//
+			// IResource resource;
+			//
+			// if (slice != null) {
+			// // Slice definition available. Create a slice of the
+			// // corresponding resource
+			// ISlicingCapability slicingCapability = serviceProvider
+			// .getCapability(requestedResource,
+			// ISlicingCapability.class);
+			//
+			// resource = slicingCapability.createSlice(slice);
+			// } else {
+			// // use the complete resource
+			// // TODO Manage already assigned resources...
+			// resource = requestedResource;
+			// }
+			//
+			// network.addResource(resource);
+			//
+			// infrastructure.defineDeviceMapping(device, resource);
+			// }
 
-		// Manual bind, so that capabilities exist
-		resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
-
-		// TODO adapt this code to new model, there's no longer topology and infrastructure resources.
-
-		// try {
-		//
-		// TopologyWrapper topology = network.getTopology();
-		//
-		// InfrastructureWrapper infrastructure = network.getInfrastructure();
-		//
-		// // Now, add all resources to the network, to the topology and to the
-		// // infrastructure
-		//
-		// RequestWrapper request = new RequestWrapper(requestResource);
-		// for (DeviceWrapper requestedDevice : request.getTopology()
-		// .getDevices()) {
-		//
-		// // Create the device in the network's topology
-		// DeviceWrapper device = topology.createDevice();
-		//
-		// // Obtain the mapping from the request...
-		// IResource requestedResource = request.getInfrastructure()
-		// .getDeviceMapping(requestedDevice);
-		//
-		// // Get the slice, if available...
-		// IResource slice = null;
-		//
-		// IResource resource;
-		//
-		// if (slice != null) {
-		// // Slice definition available. Create a slice of the
-		// // corresponding resource
-		// ISlicingCapability slicingCapability = serviceProvider
-		// .getCapability(requestedResource,
-		// ISlicingCapability.class);
-		//
-		// resource = slicingCapability.createSlice(slice);
-		// } else {
-		// // use the complete resource
-		// // TODO Manage already assigned resources...
-		// resource = requestedResource;
-		// }
-		//
-		// network.addResource(resource);
-		//
-		// infrastructure.defineDeviceMapping(device, resource);
-		// }
-
-		// } catch (CapabilityNotFoundException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
+			// } catch (CapabilityNotFoundException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			
+			
+			
+			// Add the network to the internal list
+			networks.add(networkResource);
+			
+		} catch (InstantiationException e) {
+			throw new NetworkCreationException("Network creation failed.", e);
+		} catch (IllegalAccessException e) {
+			throw new NetworkCreationException("Network creation failed.", e);
+		}
 
 		return networkResource;
 	}

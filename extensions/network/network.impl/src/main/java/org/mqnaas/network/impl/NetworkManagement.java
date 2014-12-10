@@ -26,7 +26,7 @@ import org.mqnaas.network.api.topology.port.IPortAdministration;
 public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	public static boolean isSupporting(IRootResource rootResource) {
-		return rootResource.getDescriptor().getSpecification().getType() == Type.CORE;
+		return rootResource.getDescriptor().getSpecification().getType() == Type.NETWORK;
 	}
 
 	@DependingOn

@@ -22,7 +22,7 @@ public class RootResource implements IRootResource {
 	// This field is not used in equals and hashcode methods.
 	private RootResourceDescriptor	descriptor;
 
-	protected RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+	public RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
 
 		this.descriptor = descriptor;
 		this.id = generateIdFromDescriptor(descriptor);

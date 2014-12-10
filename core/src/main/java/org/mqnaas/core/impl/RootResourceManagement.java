@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration, ICoreProvider {
@@ -72,10 +73,13 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+		
 		if (descriptor.getEndpoints() == null || descriptor.getEndpoints().isEmpty()) {
-			throw new IllegalArgumentException(
-					"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + descriptor.getEndpoints());
+			if (! descriptor.getSpecification().getType().equals(Type.NETWORK))
+				throw new IllegalArgumentException(
+						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + descriptor.getEndpoints());
 		}
+		
 
 		RootResource resource = new RootResource(descriptor);
 		resources.add(resource);

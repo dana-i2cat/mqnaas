@@ -12,7 +12,7 @@ import org.mqnaas.core.api.IRootResource;
  * 
  * @author Georg Mansky-Kummert
  */
-public interface IResourceMapping extends ICapability {
+public interface IRequestResourceMapping extends ICapability {
 
 	void defineMapping(IResource requestResource, IRootResource rootResource);
 	

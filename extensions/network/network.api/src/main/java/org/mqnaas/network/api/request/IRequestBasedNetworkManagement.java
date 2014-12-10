@@ -5,6 +5,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.network.api.IBaseNetworkManagement;
+import org.mqnaas.network.api.exceptions.NetworkCreationException;
 
 /**
  * A network management capability that uses network requests to create new
@@ -19,7 +20,7 @@ public interface IRequestBasedNetworkManagement extends IBaseNetworkManagement, 
 	 * in the given request.
 	 */
 	@AddsResource
-	IRootResource createNetwork(IResource request);
+	IRootResource createNetwork(IResource request) throws NetworkCreationException;
 
 
 }

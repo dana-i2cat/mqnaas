@@ -12,6 +12,7 @@ import org.junit.runner.RunWith;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IResource;
@@ -36,6 +37,7 @@ public class BindingManagementReactsToResourcesTest {
 	static IObservationService		observationService;
 	static ISampleMgmtCapability	sampleMgmtCapability;
 	static IExecutionService		executionService;
+	static ICoreProvider			coreProvider;
 
 	volatile boolean				addExecuted		= false;
 	volatile boolean				removeExecuted	= false;
@@ -44,6 +46,7 @@ public class BindingManagementReactsToResourcesTest {
 	public static void init() throws Exception {
 
 		resourceManagement = new RootResourceManagement();
+		coreProvider = new CoreProvider();
 
 		IBindingDecider bindingDecider = new IBindingDecider() {
 			@Override
@@ -78,6 +81,7 @@ public class BindingManagementReactsToResourcesTest {
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);
 		bindingManagement.setBundleGuard(new DummyBundleGuard());
+		bindingManagement.setCoreProvider(coreProvider);
 
 		bindingManagement.init();
 
@@ -103,7 +107,7 @@ public class BindingManagementReactsToResourcesTest {
 		serviceParameters[0] = IResource.class;
 		serviceParameters[1] = IApplication.class;
 		serviceParameters[2] = Class.class;
-		
+
 		IService observedAdd = bindingManagement.getService(
 				bindingManagement.getResourceCapabilityTree().getRootResourceNode().getContent(),
 				"resourceAdded", serviceParameters);

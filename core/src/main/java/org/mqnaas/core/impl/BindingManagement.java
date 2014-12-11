@@ -131,7 +131,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	public void init() throws Exception {
 
-		if (executionService == null || observationService == null || resourceProvider == null || resourceAdministration == null || bindingDecider == null || bundleGuard == null) {
+		if (executionService == null || observationService == null || coreProvider == null || resourceProvider == null || resourceAdministration == null || bindingDecider == null || bundleGuard == null) {
 			throw new Exception("Failed to initialize. Required services not set.");
 		}
 
@@ -153,12 +153,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		CapabilityInstance executionServiceCI = new CapabilityInstance(ExecutionService.class, executionService);
 		CapabilityInstance binderDeciderCI = new CapabilityInstance(BinderDecider.class, bindingDecider);
 		CapabilityInstance bindingManagementCI = new CapabilityInstance(BindingManagement.class, this);
+		CapabilityInstance coreProviderCI = new CapabilityInstance(CoreProvider.class, coreProvider);
 
 		// Do the first binds manually
 		bind(new CapabilityNode(resouceAdministrationCI), mqNaaSNode);
 		bind(new CapabilityNode(executionServiceCI), mqNaaSNode);
 		bind(new CapabilityNode(binderDeciderCI), mqNaaSNode);
 		bind(new CapabilityNode(bindingManagementCI), mqNaaSNode);
+		bind(new CapabilityNode(coreProviderCI), mqNaaSNode);
 
 		// init proxies
 		bindingManagement = (IBindingManagement) bindingManagementCI.getProxy();
@@ -184,12 +186,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		String[] bindingManagementIfaces = { IServiceProvider.class.getName(), ICoreModelCapability.class.getName() };
 		context.registerService(bindingManagementIfaces, bindingManagementCI.getProxy(), null);
 
-		String[] rootResourceManagementIfaces = { IRootResourceAdministration.class.getName(), IRootResourceProvider.class.getName(), ICoreProvider.class
-				.getName() };
+		String[] rootResourceManagementIfaces = { IRootResourceAdministration.class.getName(), IRootResourceProvider.class.getName() };
 		context.registerService(rootResourceManagementIfaces, resouceAdministrationCI.getProxy(), null);
 
 		context.registerService((Class<IExecutionService>) IExecutionService.class, (IExecutionService) executionServiceCI.getProxy(), null);
 		context.registerService((Class<IBindingDecider>) IBindingDecider.class, (IBindingDecider) binderDeciderCI.getProxy(), null);
+		context.registerService((Class<ICoreProvider>) ICoreProvider.class, (ICoreProvider) coreProviderCI.getProxy(), null);
 
 		// register class listeners
 		log.info("Registering as ClassListener with IApplicationClassFilter ICapabilityClassFilter");

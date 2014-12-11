@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
 import org.i2cat.utils.StringBuilderUtils;
+import org.mqnaas.core.api.Specification.Type;
 
 @XmlRootElement(namespace = "org.mqnaas")
 @XmlType(propOrder = { "specification", "lockingBehaviourClass", "transactionBehaviourClass", "endpoints" })
@@ -35,7 +36,9 @@ public class RootResourceDescriptor {
 
 	private RootResourceDescriptor(Specification specification, Collection<Endpoint> endpoints) {
 		if (endpoints == null || endpoints.size() < 1) {
-			throw new IllegalArgumentException("Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
+			if (!specification.getType().equals(Type.NETWORK))
+				throw new IllegalArgumentException(
+						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
 		}
 
 		this.specification = specification;
@@ -122,6 +125,10 @@ public class RootResourceDescriptor {
 		return sb.toString();
 	}
 
+	public static RootResourceDescriptor create(Specification specification) {
+		return create(specification, null);
+	}
+	
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
 		return new RootResourceDescriptor(specification, endpoints);
 	}

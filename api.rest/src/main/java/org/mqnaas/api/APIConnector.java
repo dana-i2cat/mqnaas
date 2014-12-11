@@ -155,7 +155,7 @@ public class APIConnector implements IAPIConnector {
 			String uri = getPathForApplication(capabilityNode, capabClass, new StringBuffer()).toString();
 			log.debug("Publishing API for interface {} of capability {} with path {}", capabClass.getName(), capabilityNode.getContent()
 					.getInstance(), uri);
-			restApiProvider.publish((ICapability) capabilityNode.getContent().getInstance(), capabClass, uri);
+			restApiProvider.publish((ICapability) capabilityNode.getContent().getProxy(), capabClass, uri);
 		}
 	}
 

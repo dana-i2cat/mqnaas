@@ -30,6 +30,12 @@
 			<artifactId>network.api</artifactId>
 		</dependency>
 
+		<!-- Reservation Capability -->
+		<dependency>
+			<groupId>net.i2cat.dana.mqnaas</groupId>
+			<artifactId>reservation-capability</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

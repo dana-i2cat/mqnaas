@@ -42,11 +42,13 @@ public class ServiceProviderImplTest {
 
 	static RootResourceManagement	resourceManagement;
 	static BindingManagement		bindingManagement;
+	static CoreProvider				coreProvider;
 
 	@BeforeClass
 	public static void init() throws Exception {
 
 		resourceManagement = new RootResourceManagement();
+		coreProvider = new CoreProvider();
 
 		IBindingDecider bindingDecider = new IBindingDecider() {
 			@Override
@@ -79,6 +81,7 @@ public class ServiceProviderImplTest {
 		bindingManagement.setBindingDecider(bindingDecider);
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);
+		bindingManagement.setCoreProvider(coreProvider);
 		// use dummy BundleGuard
 		bindingManagement.setBundleGuard(new DummyBundleGuard());
 
@@ -102,7 +105,7 @@ public class ServiceProviderImplTest {
 	@Test
 	public void getServicesTest() throws ResourceNotFoundException, ServiceNotFoundException {
 
-		IResource resource = resourceManagement.getCore();
+		IResource resource = coreProvider.getCore();
 
 		CapabilityInstance ci = getCapabilityInstanceBoundToResource(resource, Sample2Capability.class);
 		Assert.assertNotNull("Sample2Capability should be bound to the resource", ci);

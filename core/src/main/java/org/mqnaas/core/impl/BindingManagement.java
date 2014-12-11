@@ -131,7 +131,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	public void init() throws Exception {
 
-		if (executionService == null || observationService == null || resourceProvider == null || resourceAdministration == null || bindingDecider == null || bundleGuard == null) {
+		if (executionService == null || observationService == null || coreProvider == null || resourceProvider == null || resourceAdministration == null || bindingDecider == null || bundleGuard == null) {
 			throw new Exception("Failed to initialize. Required services not set.");
 		}
 

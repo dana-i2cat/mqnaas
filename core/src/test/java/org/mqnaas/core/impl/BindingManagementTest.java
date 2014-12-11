@@ -37,12 +37,14 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class BindingManagementTest {
 
 	static RootResourceManagement	resourceManagement;
+	static CoreProvider				coreProvider;
 	static BindingManagement		bindingManagement;
 
 	@BeforeClass
 	public static void init() throws Exception {
 
 		resourceManagement = new RootResourceManagement();
+		coreProvider = new CoreProvider();
 
 		IBindingDecider bindingDecider = new IBindingDecider() {
 			@Override
@@ -80,6 +82,7 @@ public class BindingManagementTest {
 		bindingManagement = new BindingManagement();
 		bindingManagement.setResourceAdministration(resourceManagement);
 		bindingManagement.setResourceProvider(resourceManagement);
+		bindingManagement.setCoreProvider(coreProvider);
 		bindingManagement.setBindingDecider(bindingDecider);
 		bindingManagement.setExecutionService(executionServiceInstance);
 		bindingManagement.setObservationService(executionServiceInstance);
@@ -104,7 +107,7 @@ public class BindingManagementTest {
 	@Test
 	public void bindAndUnbindCapabilityInstanceToResource() throws ResourceNotFoundException {
 
-		IResource core = resourceManagement.getCore();
+		IResource core = coreProvider.getCore();
 
 		CapabilityInstance ci = new CapabilityInstance(SampleCapability.class);
 		CapabilityNode cn = new CapabilityNode(ci);
@@ -140,7 +143,7 @@ public class BindingManagementTest {
 
 		addSampleCapability();
 
-		IResource core = resourceManagement.getCore();
+		IResource core = coreProvider.getCore();
 
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
@@ -171,7 +174,7 @@ public class BindingManagementTest {
 
 		addSampleCapability();
 
-		IResource core = resourceManagement.getCore();
+		IResource core = coreProvider.getCore();
 
 		// following check relies on bindingDecider.shouldBeBound(core, SampleCapability.class) returning true
 		// which is the trigger for a CapabilityInstance with SampleCapability being bound to sampleResource
@@ -193,7 +196,7 @@ public class BindingManagementTest {
 		addSampleCapability();
 
 		// add new resource to bindingManagement
-		IResource core = resourceManagement.getCore();
+		IResource core = coreProvider.getCore();
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(sampleCI);
 		IResource sampleResource = generateSampleResource();
@@ -219,7 +222,7 @@ public class BindingManagementTest {
 		addSampleCapability();
 
 		// add new resource to bindingManagement
-		IResource core = resourceManagement.getCore();
+		IResource core = coreProvider.getCore();
 		CapabilityInstance coreSampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
 		Assert.assertNotNull(coreSampleCI);
 

@@ -4,8 +4,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.GET;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.endpoint.Server;
@@ -36,7 +34,6 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 	private Map<Pair<ICapability, Class<? extends ICapability>>, Server> servers = new HashMap<Pair<ICapability,Class<? extends ICapability>>, Server>();
 
-	@GET
 	public void publish(ICapability capability, Class<? extends ICapability> interfaceToBePublished, String uri)
 			throws InvalidCapabilityDefinionException {
 

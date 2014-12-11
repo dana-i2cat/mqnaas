@@ -159,8 +159,11 @@ public class APIConnector implements IAPIConnector {
 		}
 	}
 
-	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) {
-		// TODO Auto-generated method stub
+	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode unused) throws Exception {
+		for (Class<? extends ICapability> capabClass : capabilityNode.getContent().getCapabilities()) {
+			log.debug("Unpublishing API for interface {} of capability {}", capabClass.getName(), capabilityNode.getContent().getInstance());
+			restApiProvider.unpublish((ICapability) capabilityNode.getContent().getProxy(), capabClass);
+		}
 	}
 
 	public void publishApplication(ApplicationInstance applicationInstance) {

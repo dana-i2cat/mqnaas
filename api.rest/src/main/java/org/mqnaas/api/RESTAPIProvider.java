@@ -1,11 +1,13 @@
 package org.mqnaas.api;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.GET;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
@@ -32,7 +34,7 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 	private RESTAPIGenerator	apiGenerator	= new RESTAPIGenerator();
 
-	private List<Server>		servers			= new ArrayList<Server>();
+	private Map<Pair<ICapability, Class<? extends ICapability>>, Server> servers = new HashMap<Pair<ICapability,Class<? extends ICapability>>, Server>();
 
 	@GET
 	public void publish(ICapability capability, Class<? extends ICapability> interfaceToBePublished, String uri)
@@ -58,12 +60,25 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 		Server server = factoryBean.create();
 
-		servers.add(server);
+		servers.put(new ImmutablePair<ICapability, Class<? extends ICapability>>(capability, interfaceToBePublished), server);
 
 		System.out.println("Published to " + uri);
 		System.out.println(interfaceWriter);
 
 		log.debug("Published {} at {}", interfaceToBePublished, factoryBean.getAddress() + uri);
+	}
+	
+	@Override
+	public void unpublish(ICapability capability, Class<? extends ICapability> interfaceToUnPublish) throws Exception {
+		Pair<ICapability, Class<? extends ICapability>> key = new ImmutablePair<ICapability, Class<? extends ICapability>>(capability, interfaceToUnPublish);
+		Server server = servers.get(key);
+		if (server != null) {
+			String addr = server.getEndpoint().getEndpointInfo().getAddress();
+			server.destroy();
+			servers.remove(key);
+			System.out.println("Unpublished from " + addr);
+			log.debug("Unpublished {} at {}", interfaceToUnPublish, addr);
+		}
 	}
 
 	public static boolean isSupporting(IRootResource resource) {

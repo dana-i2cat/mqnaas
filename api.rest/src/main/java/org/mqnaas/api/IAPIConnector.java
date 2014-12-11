@@ -14,7 +14,7 @@ public interface IAPIConnector extends IApplication {
 	
 	public void publishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) throws Exception;
 	
-	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode boundTo);
+	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) throws Exception;
 	
 	public void publishApplication(ApplicationInstance applicationInstance);
 	

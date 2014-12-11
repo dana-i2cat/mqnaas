@@ -2,6 +2,12 @@ package org.mqnaas.network.api.request;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 /**
  * <p>
  * Class representing a period of time, established by a start and an end date.
@@ -9,11 +15,21 @@ import java.util.Date;
  * 
  * @author Adrián Roselló Rey (i2CAT)
  *
+ *
  */
+@XmlRootElement(namespace = "org.mqnaas")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(propOrder = { "startDate", "endDate" })
 public class Period implements Comparable<Period> {
 
+	@XmlJavaTypeAdapter(DateAdapter.class)
 	private Date	startDate;
+	@XmlJavaTypeAdapter(DateAdapter.class)
 	private Date	endDate;
+
+	// used by serialization framework
+	Period() {
+	}
 
 	public Period(Date startDate, Date endDate) {
 

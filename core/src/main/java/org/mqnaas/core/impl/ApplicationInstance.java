@@ -244,7 +244,7 @@ public class ApplicationInstance {
 		instance = null;
 	}
 
-	IApplication getProxy() {
+	public IApplication getProxy() {
 		return proxyHolder.getProxy();
 	}
 

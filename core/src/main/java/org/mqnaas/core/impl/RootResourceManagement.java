@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -13,7 +12,7 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
-public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration, ICoreProvider {
+public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
 
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
@@ -74,13 +73,12 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
-		
+
 		if (descriptor.getEndpoints() == null || descriptor.getEndpoints().isEmpty()) {
-			if (! descriptor.getSpecification().getType().equals(Type.NETWORK))
+			if (!descriptor.getSpecification().getType().equals(Type.NETWORK))
 				throw new IllegalArgumentException(
 						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + descriptor.getEndpoints());
 		}
-		
 
 		RootResource resource = new RootResource(descriptor);
 		resources.add(resource);
@@ -95,11 +93,6 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 		}
 
 		throw new ResourceNotFoundException("No resource found with this id: " + id);
-	}
-
-	@Override
-	public IRootResource getCore() {
-		return getRootResources(Specification.Type.CORE, null, null).get(0);
 	}
 
 	@Override

@@ -51,6 +51,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.network.api,
+							org.mqnaas.network.api.exceptions,
 							org.mqnaas.network.api.infrastructure,
 							org.mqnaas.network.api.request,
 							org.mqnaas.network.api.topology,

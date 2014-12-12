@@ -19,7 +19,6 @@ import org.mqnaas.core.api.Specification.Type;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RootResourceDescriptor {
 
-	
 	private Class<? extends ITransactionBehavior>	transactionBehaviourClass;
 
 	private Class<? extends ILockingBehaviour>		lockingBehaviourClass;
@@ -45,7 +44,6 @@ public class RootResourceDescriptor {
 		this.endpoints = endpoints;
 	}
 
-	
 	public Class<? extends ITransactionBehavior> getTransactionBehaviourClass() {
 		return transactionBehaviourClass;
 	}
@@ -62,7 +60,6 @@ public class RootResourceDescriptor {
 		this.lockingBehaviourClass = lockingBehaviourClass;
 	}
 
-	
 	public Specification getSpecification() {
 		return specification;
 	}
@@ -94,7 +91,7 @@ public class RootResourceDescriptor {
 	}
 
 	public Collection<Endpoint> getEndpoints() {
-		return endpoints.isEmpty() ? Collections.<Endpoint> emptyList() : new ArrayList<Endpoint>(endpoints);
+		return (endpoints == null || endpoints.isEmpty()) ? Collections.<Endpoint> emptyList() : new ArrayList<Endpoint>(endpoints);
 	}
 
 	@Override
@@ -112,7 +109,7 @@ public class RootResourceDescriptor {
 			sb.append(", lockingBehavior=").append(lockingBehaviourClass.getName());
 		}
 
-		if (! endpoints.isEmpty()) {
+		if (!endpoints.isEmpty()) {
 			sb.append(", endpoints=(");
 			StringBuilderUtils.append(sb, endpoints);
 			sb.append(")");
@@ -128,7 +125,7 @@ public class RootResourceDescriptor {
 	public static RootResourceDescriptor create(Specification specification) {
 		return create(specification, null);
 	}
-	
+
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
 		return new RootResourceDescriptor(specification, endpoints);
 	}

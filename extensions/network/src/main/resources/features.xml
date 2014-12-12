@@ -6,7 +6,7 @@
 
 	<feature name="network" version="${project.version}">
 
-	    <feature version="${mqnaas-version}">mqnaas-core-impl</feature>
+	    <feature version="${mqnaas-version}">mqnaas</feature>
 	    
 	    <bundle dependency="true">mvn:org.apache.commons/commons-lang3/${commons-lang3}</bundle>
 	    

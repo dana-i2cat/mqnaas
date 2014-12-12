@@ -1,5 +1,6 @@
 package org.mqnaas.api;
 
+import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.ICoreProvider;
@@ -99,12 +100,10 @@ public class APIConnector implements IAPIConnector {
 			IService removeApplicationInstance = serviceProvider.getService(coreProvider.getCore(), "removeApplicationInstance",
 					ApplicationInstance.class);
 
-			IService publishCapabilityService = serviceProvider.getApplicationService(this, "publishCapability", CapabilityNode.class,
-					ResourceNode.class);
-			IService unpublishCapabilityService = serviceProvider.getApplicationService(this, "unpublishCapability", CapabilityNode.class,
-					ResourceNode.class);
-			IService publishApplicationService = serviceProvider.getApplicationService(this, "publishApplication", ApplicationInstance.class);
-			IService unpublishApplicationService = serviceProvider.getApplicationService(this, "unpublishApplication", ApplicationInstance.class);
+			IService publishCapabilityService = serviceProvider.getApplicationService(this, "publish", CapabilityNode.class);
+			IService unpublishCapabilityService = serviceProvider.getApplicationService(this, "unpublish", CapabilityNode.class);
+			IService publishApplicationService = serviceProvider.getApplicationService(this, "publish", ApplicationInstance.class);
+			IService unpublishApplicationService = serviceProvider.getApplicationService(this, "unpublish", ApplicationInstance.class);
 
 			// register publishServices for them being executed after each bind
 			observationService.registerObservation(new ServiceFilterWithParams(bindService), publishCapabilityService);
@@ -150,7 +149,8 @@ public class APIConnector implements IAPIConnector {
 	// Services
 	// ////////
 
-	public void publishCapability(CapabilityNode capabilityNode, ResourceNode unused) throws Exception {
+	@Override
+	public void publish(CapabilityNode capabilityNode) throws InvalidCapabilityDefinionException {
 		for (Class<? extends ICapability> capabClass : capabilityNode.getContent().getCapabilities()) {
 			String uri = getPathForApplication(capabilityNode, capabClass, new StringBuffer()).toString();
 			log.debug("Publishing API for interface {} of capability {} with path {}", capabClass.getName(), capabilityNode.getContent()
@@ -159,18 +159,21 @@ public class APIConnector implements IAPIConnector {
 		}
 	}
 
-	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode unused) throws Exception {
+	@Override
+	public void unpublish(CapabilityNode capabilityNode) {
 		for (Class<? extends ICapability> capabClass : capabilityNode.getContent().getCapabilities()) {
 			log.debug("Unpublishing API for interface {} of capability {}", capabClass.getName(), capabilityNode.getContent().getInstance());
 			restApiProvider.unpublish((ICapability) capabilityNode.getContent().getProxy(), capabClass);
 		}
 	}
 
-	public void publishApplication(ApplicationInstance applicationInstance) {
+	@Override
+	public void publish(ApplicationInstance applicationInstance) {
 		// TODO Auto-generated method stub
 	}
 
-	public void unpublishApplication(ApplicationInstance applicationInstance) {
+	@Override
+	public void unpublish(ApplicationInstance applicationInstance) {
 		// TODO Auto-generated method stub
 	}
 

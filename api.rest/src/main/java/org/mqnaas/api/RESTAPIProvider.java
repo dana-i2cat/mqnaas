@@ -11,7 +11,6 @@ import org.apache.cxf.jaxrs.lifecycle.SingletonResourceProvider;
 import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
 import org.mqnaas.api.mapping.APIMapper;
 import org.mqnaas.api.writers.InterfaceWriter;
-import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
@@ -21,18 +20,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Core implementation of the REST API provision.
  * 
- * Publishes one endpoint for each {@link IApplication} published
+ * Supports the publication of specific capability interfaces implemented by a capability implementation at a given URI.
  * 
  * @author Georg Mansky-Kummert (i2CAT)
  * 
  */
 public class RESTAPIProvider implements IRESTAPIProvider {
 
-	private static final Logger	log				= LoggerFactory.getLogger(RESTAPIProvider.class);
+	private static final Logger												log				= LoggerFactory.getLogger(RESTAPIProvider.class);
 
-	private RESTAPIGenerator	apiGenerator	= new RESTAPIGenerator();
+	private RESTAPIGenerator												apiGenerator	= new RESTAPIGenerator();
 
-	private Map<Pair<ICapability, Class<? extends ICapability>>, Server> servers = new HashMap<Pair<ICapability,Class<? extends ICapability>>, Server>();
+	private Map<Pair<ICapability, Class<? extends ICapability>>, Server>	servers			= new HashMap<Pair<ICapability, Class<? extends ICapability>>, Server>();
 
 	public void publish(ICapability capability, Class<? extends ICapability> interfaceToBePublished, String uri)
 			throws InvalidCapabilityDefinionException {
@@ -64,18 +63,27 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 		log.debug("Published {} at {}", interfaceToBePublished, factoryBean.getAddress() + uri);
 	}
-	
+
 	@Override
-	public void unpublish(ICapability capability, Class<? extends ICapability> interfaceToUnPublish) throws Exception {
-		Pair<ICapability, Class<? extends ICapability>> key = new ImmutablePair<ICapability, Class<? extends ICapability>>(capability, interfaceToUnPublish);
+	public boolean unpublish(ICapability capability, Class<? extends ICapability> interfaceToUnPublish) {
+		Pair<ICapability, Class<? extends ICapability>> key = new ImmutablePair<ICapability, Class<? extends ICapability>>(capability,
+				interfaceToUnPublish);
 		Server server = servers.get(key);
+
+		boolean unpublished = false;
+
 		if (server != null) {
 			String addr = server.getEndpoint().getEndpointInfo().getAddress();
 			server.destroy();
 			servers.remove(key);
+
+			unpublished = true;
+
 			System.out.println("Unpublished from " + addr);
 			log.debug("Unpublished {} at {}", interfaceToUnPublish, addr);
 		}
+
+		return unpublished;
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
@@ -89,7 +97,5 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 	@Override
 	public void deactivate() {
 	}
-
-	// System.out.println(org.i2cat.utils.JAXBSerializer.toXml(d));
 
 }

@@ -1,8 +1,11 @@
 package org.mqnaas.network.impl;
 
+import java.util.List;
+
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IResourceManagementListener;
-import org.mqnaas.core.api.IRootResourceAdministration;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 
@@ -16,17 +19,12 @@ class Network {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public void addResource(IResource resource) throws CapabilityNotFoundException {
-		getResourceManagementListener().resourceAdded(resource, getRootResourceAdministration(), IRootResourceAdministration.class);
-
+	public List<IRootResource> getResources() throws CapabilityNotFoundException {
+		return getCapability(IRootResourceProvider.class).getRootResources();
 	}
 
-	private IResourceManagementListener getResourceManagementListener() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(network, IResourceManagementListener.class);
-	}
-
-	private IRootResourceAdministration getRootResourceAdministration() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(network, IRootResourceAdministration.class);
+	private <C extends ICapability> C getCapability(Class<C> capabilityClass) throws CapabilityNotFoundException {
+		return serviceProvider.getCapability(network, capabilityClass);
 	}
 
 }

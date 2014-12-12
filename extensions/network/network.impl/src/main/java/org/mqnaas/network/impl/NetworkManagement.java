@@ -1,5 +1,6 @@
 package org.mqnaas.network.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,12 +56,10 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	public IRootResource createNetwork(IResource requestResource) throws NetworkCreationException {
 
 		IRootResource networkResource = null;
+		List<IRootResource> resourcesToReserve = new ArrayList<IRootResource>();
 
 		try {
 			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
-
-			// Warp the new resource to simplify access
-			Network network = new Network(networkResource, serviceProvider);
 
 			// Manual bind, so that capabilities exist
 			resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
@@ -81,19 +80,25 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				if (slicingCapability != null) {
 
 					Collection<IResource> slices = slicingCapability.getSlices();
-					ISlicingCapability mappedResourceSliceCapab = serviceProvider.getCapability(phyRootResource, ISlicingCapability.class);
+					ISlicingCapability phyResourceSliceCapab = serviceProvider.getCapability(phyRootResource, ISlicingCapability.class);
 
 					// for each slice, create slice and add new sliced resource to network
 					for (IResource slice : slices) {
-						IResource newResource = mappedResourceSliceCapab.createSlice(slice);
-						network.addResource(newResource);
+						IResource newResource = phyResourceSliceCapab.createSlice(slice);
+						resourcesToReserve.add((IRootResource) newResource);
 					}
 
 				}
 
 				// If the resource is a subnetwork, create request and delegate to it
-				IRequestBasedNetworkManagement netManagementCapability = resource.getRequestBasedNetworkManagementCapability();
-				if (netManagementCapability != null) {
+				IRequestBasedNetworkManagement subnetManagementCapability = resource.getRequestBasedNetworkManagementCapability();
+				if (subnetManagementCapability != null) {
+					IResource subnetRequest = new RequestResource();
+					// TODO what to fill?
+					IRootResource subnetPhyResource = subnetManagementCapability.createNetwork(subnetRequest);
+					Network subnetwork = new Network(subnetPhyResource, serviceProvider);
+					List<IRootResource> subnetResources = subnetwork.getResources();
+					resourcesToReserve.addAll(subnetResources);
 
 				}
 

@@ -1,9 +1,9 @@
 package org.mqnaas.api;
 
+import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
-import org.mqnaas.core.impl.resourcetree.ResourceNode;
 
 /**
  * 
@@ -11,13 +11,13 @@ import org.mqnaas.core.impl.resourcetree.ResourceNode;
  *
  */
 public interface IAPIConnector extends IApplication {
-	
-	public void publishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) throws Exception;
-	
-	public void unpublishCapability(CapabilityNode capabilityNode, ResourceNode boundTo) throws Exception;
-	
-	public void publishApplication(ApplicationInstance applicationInstance);
-	
-	public void unpublishApplication(ApplicationInstance applicationInstance);
+
+	void publish(CapabilityNode capabilityNode) throws InvalidCapabilityDefinionException;
+
+	void unpublish(CapabilityNode capabilityNode);
+
+	void publish(ApplicationInstance applicationInstance);
+
+	void unpublish(ApplicationInstance applicationInstance);
 
 }

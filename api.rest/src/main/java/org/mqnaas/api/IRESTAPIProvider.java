@@ -12,4 +12,5 @@ public interface IRESTAPIProvider extends ICapability {
 
 	void publish(ICapability capability, Class<? extends ICapability> interfaceToPublish, String uri) throws Exception;
 
+	void unpublish(ICapability capability, Class<? extends ICapability> interfaceToUnPublish) throws Exception;
 }

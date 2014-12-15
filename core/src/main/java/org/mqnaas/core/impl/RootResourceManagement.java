@@ -18,7 +18,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	public static boolean isSupporting(IRootResource resource) {
 		Type type = resource.getDescriptor().getSpecification().getType();
-		return type == Type.CORE || type == Type.NETWORK;
+		return type == Type.CORE || (type == Type.NETWORK && !StringUtils.equals(resource.getDescriptor().getSpecification().getModel(), "nitos"));
 	}
 
 	@Override

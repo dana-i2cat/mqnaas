@@ -44,7 +44,7 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	public static boolean isSupporting(IResource resource) {
-		return (resource instanceof Slice);
+		return (resource instanceof SliceResource);
 	}
 
 	@Override

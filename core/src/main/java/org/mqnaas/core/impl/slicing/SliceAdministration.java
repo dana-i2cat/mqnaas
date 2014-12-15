@@ -43,6 +43,10 @@ public class SliceAdministration implements ISliceAdministration {
 	public SliceAdministration() {
 	}
 
+	public static boolean isSupporting(IResource resource) {
+		return (resource instanceof Slice);
+	}
+
 	@Override
 	public void activate() {
 		units = new CopyOnWriteArrayList<Unit>();

@@ -1,5 +1,7 @@
 package org.mqnaas.core.impl;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +23,8 @@ public class RootResource implements IRootResource {
 	// FIXME descriptor duplicates info in specification and endpoints.
 	// This field is not used in equals and hashcode methods.
 	private RootResourceDescriptor	descriptor;
+
+	private static AtomicInteger	ID_COUNTER				= new AtomicInteger();
 
 	public RootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
 
@@ -89,6 +93,8 @@ public class RootResource implements IRootResource {
 		if (!StringUtils.isEmpty(specification.getVersion())) {
 			sb.append("-").append(specification.getVersion());
 		}
+
+		sb.append("-").append(ID_COUNTER.incrementAndGet());
 
 		return sb.toString();
 	}

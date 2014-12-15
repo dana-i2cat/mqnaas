@@ -203,7 +203,7 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	/**
-	 * A {@link Slice} is in operational state if it's current space and the original one does not match. That means, if the slice has been divided in
+	 * A {@link SliceResource} is in operational state if it's current space and the original one does not match. That means, if the slice has been divided in
 	 * sub-slices.
 	 * 
 	 * @return <code>true</code> If any of the initial cube of the slice space has been assigned to another sub-slice. <code>false</code> otherwise.
@@ -616,7 +616,7 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	/**
-	 * Executes a specific operation involving the {@link Slice} managed by this capability instance and the slice managed by the <code>other</code>
+	 * Executes a specific operation involving the {@link SliceResource} managed by this capability instance and the slice managed by the <code>other</code>
 	 * {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays <code>lbs</code>
 	 * and <code>ubs</code>
 	 * 

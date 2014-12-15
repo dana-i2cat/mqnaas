@@ -61,8 +61,8 @@ public class SliceAdministrationTest {
 	@Before
 	public void prepareTest() throws Exception {
 
-		slice = new Slice();
-		otherSlice = new Slice();
+		slice = new SliceResource();
+		otherSlice = new SliceResource();
 
 		IServiceProvider serviceProvider = Mockito.mock(IServiceProvider.class);
 		

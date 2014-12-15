@@ -14,7 +14,6 @@ import org.mqnaas.client.netconf.NetconfConfiguration;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.core.api.Endpoint;
-import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.RootResourceDescriptor;
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * FIXME This test application should be moved to a unit test.
  * 
  */
-public class ClientApplication implements IApplication {
+public class ClientApplication /*implements IApplication*/ {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ClientApplication.class);
 
@@ -41,7 +40,7 @@ public class ClientApplication implements IApplication {
 	@DependingOn
 	IAPIClientProviderFactory	apiProviderFactory;
 
-	@Override
+//	@Override
 	public void activate() {
 
 		log.info("Running the Client test application...");
@@ -104,7 +103,7 @@ public class ClientApplication implements IApplication {
 		}
 	}
 
-	@Override
+//	@Override
 	public void deactivate() {
 		// nothing to do
 	}

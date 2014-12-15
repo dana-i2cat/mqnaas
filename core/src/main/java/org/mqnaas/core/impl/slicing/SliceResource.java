@@ -10,13 +10,13 @@ import org.mqnaas.core.api.IResource;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public class Slice implements IResource {
+public class SliceResource implements IResource {
 
 	private static AtomicInteger	ID_COUNTER	= new AtomicInteger();
 
 	private String					id;
 
-	public Slice() {
+	public SliceResource() {
 		id = "slice-" + ID_COUNTER.incrementAndGet();
 	}
 

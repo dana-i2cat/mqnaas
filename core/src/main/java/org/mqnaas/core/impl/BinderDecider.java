@@ -36,26 +36,52 @@ public class BinderDecider implements IBindingDecider {
 
 		// Now for the process of binding, which for the moment is a very simple implementation: look for a static isSupporting method in the
 		// capability and use it to determine the binding
+		
+		Method isSupportingForResourceMethod = getIsSupporting(capabilityClass, IResource.class);
+		Method isSupportingForRootResourceMethod = getIsSupporting(capabilityClass, IRootResource.class);
+		
 		try {
+			shouldBeBound = (Boolean) isSupportingForResourceMethod.invoke(null, resource);
 
-			Method isSupportingMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IResource.class);
-			shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
-
-			if (!shouldBeBound) {
-				Method isSupportingRootResourceMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IRootResource.class);
-				shouldBeBound = (Boolean) isSupportingRootResourceMethod.invoke(null, resource);
+			if (!shouldBeBound && (resource instanceof IRootResource)) {
+				shouldBeBound = (Boolean) isSupportingForRootResourceMethod.invoke(null, resource);
 			}
 
 		} catch (Exception e1) {
 			if (resource instanceof IRootResource) {
 				try {
-					Method isSupportingMethod = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, IRootResource.class);
-					shouldBeBound = (Boolean) isSupportingMethod.invoke(null, resource);
+					shouldBeBound = (Boolean) isSupportingForRootResourceMethod.invoke(null, resource);
 				} catch (Exception e2) {
 					// no way to establish bind
-					log.error(
-							"No way of establishing bind with Capability " + capabilityClass.getName() + ". No isSupporting(...) implementation found.",
-							e2);
+					StringBuilder sb = new StringBuilder();
+					sb.append("No way of establishing bind between ");
+					sb.append(capabilityClass.getName()).append(" and resource ").append(resource.getClass().getSimpleName());
+					
+					if ( resource instanceof IRootResource ) {
+						IRootResource rr = (IRootResource) resource;
+						Specification specification = rr.getDescriptor().getSpecification();
+						
+						sb.append("[type=").append(specification.getType());
+						if ( specification.getModel() != null ) {
+							sb.append(", model=").append(specification.getModel());	
+						}
+						if (specification.getVersion() != null ) {
+							sb.append(", version=").append(specification.getVersion());
+						}
+						sb.append("]");
+					}
+					
+					sb.append(".");
+					
+					if ( isSupportingForResourceMethod != null ) {
+						sb.append(" Tried ").append(IS_SUPPORTING_METHOD_NAME).append("(").append(IResource.class.getSimpleName()).append(").");
+					} else if ( isSupportingForRootResourceMethod != null ) {
+						sb.append(" Tried ").append(IS_SUPPORTING_METHOD_NAME).append("(").append(IRootResource.class.getSimpleName()).append(").");
+					} else {
+						sb.append(" No ").append(IS_SUPPORTING_METHOD_NAME).append("(...) implementation found.");
+					}
+					
+					log.info(sb.toString());
 				}
 			}
 		}
@@ -63,6 +89,21 @@ public class BinderDecider implements IBindingDecider {
 		log.debug(getClass().getSimpleName() + ".shouldBeBound(" + resource + ", " + capabilityClass + "): " + shouldBeBound);
 
 		return shouldBeBound;
+	}
+	
+	private Method getIsSupporting(Class<? extends ICapability> capabilityClass, Class<?> parameter) {
+		
+		Method m = null;
+		
+		try {
+			m = capabilityClass.getMethod(IS_SUPPORTING_METHOD_NAME, parameter);
+		} catch (NoSuchMethodException e) {
+			// Ignore silently. Method does not exist
+		} catch (SecurityException e) {
+			log.error("Can not access capability " + capabilityClass.getName(), e);
+		}
+		
+		return m;
 	}
 
 	@Override

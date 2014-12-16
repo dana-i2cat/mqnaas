@@ -111,21 +111,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 			}
 
-			// links
-			ILinkManagement networkLinkManagement = serviceProvider.getCapability(networkResource, ILinkManagement.class);
-
-			List<IResource> requestLinks = request.getLinks();
-			for (IResource link : requestLinks) {
-
-				LinkWrapper netLink = new LinkWrapper(networkLinkManagement.createLink(), serviceProvider);
-				LinkWrapper reqLink = new LinkWrapper(link, serviceProvider);
-
-				IResource srcPort = request.getMappedDevice(reqLink.getSrcPort());
-				IResource dstPort = request.getMappedDevice(reqLink.getDstPort());
-
-				netLink.setSrcPort(srcPort);
-				netLink.setDstPort(dstPort);
-			}
+			createNetworkLinks(networkResource, request);
 
 			// reserve!!
 			Period period = request.getPeriod();
@@ -158,6 +144,24 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		}
 
 		return networkResource;
+	}
+
+	private void createNetworkLinks(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
+		// links
+		ILinkManagement networkLinkManagement = serviceProvider.getCapability(networkResource, ILinkManagement.class);
+
+		List<IResource> requestLinks = request.getLinks();
+		for (IResource link : requestLinks) {
+
+			LinkWrapper netLink = new LinkWrapper(networkLinkManagement.createLink(), serviceProvider);
+			LinkWrapper reqLink = new LinkWrapper(link, serviceProvider);
+
+			IResource srcPort = request.getMappedDevice(reqLink.getSrcPort());
+			IResource dstPort = request.getMappedDevice(reqLink.getDstPort());
+
+			netLink.setSrcPort(srcPort);
+			netLink.setDstPort(dstPort);
+		}
 	}
 
 	private IResource createSlice(NetworkSubResource phyResource, NetworkSubResource virtualResource) throws SlicingException,

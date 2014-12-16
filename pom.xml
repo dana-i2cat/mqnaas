@@ -60,7 +60,7 @@
 		<commons-io.version>2.4</commons-io.version>
 
 		<!-- javax.ws.rs API (REST) version -->
-		<javax.ws.rs-api-version>2.0</javax.ws.rs-api-version>
+		<javax.ws.rs-api-version>2.0-m10</javax.ws.rs-api-version>
 
 		<!-- Apache CXF bundle version -->
 		<cxf-version>2.7.10</cxf-version>

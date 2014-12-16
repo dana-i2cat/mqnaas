@@ -29,8 +29,12 @@ import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InterfaceWriter extends AbstractWriter implements Opcodes {
+
+	private static final Logger			log					= LoggerFactory.getLogger(InterfaceWriter.class);
 
 	private RESTAPIGenerator			restAPIGenerator	= new RESTAPIGenerator();
 
@@ -44,6 +48,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 	private Map<Method, MethodWriter>	method2writer;
 
 	public InterfaceWriter(Class<? extends ICapability> capabilityClass, String endpoint) throws InvalidCapabilityDefinionException {
+
+		log.debug("Writing REST API interface for class " + capabilityClass + " in endpoint " + endpoint + " .");
 
 		// (1) Collect the metadata necessary to write the REST API interface. This process also checks the validity of the given capability.
 		metaDataContainer = new CapabilityMetaDataContainer(capabilityClass);
@@ -59,6 +65,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
+			log.trace("Found AddsResource annotated method.");
+
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
 			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
@@ -69,6 +77,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 		}
 
 		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
+
+			log.trace("Found RemovesResource annotated method.");
 
 			Class<?> parameterClass = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[0]);
 
@@ -81,6 +91,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 		}
 
 		for (Method m : metaDataContainer.getServiceMethods(ListsResources.class)) {
+
+			log.trace("Found ListsResources annotated method.");
 
 			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(),
 					m.getParameterTypes(),
@@ -115,15 +127,19 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			String serviceName = method.getName();
 			if (serviceName.startsWith("get") && serviceName.length() > 3) {
+				log.trace("Found \"get\" method.");
+
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 			}
 
 			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
+				log.trace("Found \"set\" method.");
+
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
 
 				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
-					System.out.println("Found Root element...");
+					log.trace("Found XMLRootElement.");
 				}
 			}
 

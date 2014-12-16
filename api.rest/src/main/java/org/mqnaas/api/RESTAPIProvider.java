@@ -58,8 +58,8 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 		servers.put(new ImmutablePair<ICapability, Class<? extends ICapability>>(capability, interfaceToBePublished), server);
 
-//		System.out.println("Published to " + uri);
-//		System.out.println(interfaceWriter);
+		// System.out.println("Published to " + uri);
+		// System.out.println(interfaceWriter);
 
 		log.debug("Published {} at {}", interfaceToBePublished, factoryBean.getAddress() + uri);
 	}
@@ -79,7 +79,7 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 			unpublished = true;
 
-			System.out.println("Unpublished from " + addr);
+			// System.out.println("Unpublished from " + addr);
 			log.debug("Unpublished {} at {}", interfaceToUnPublish, addr);
 		}
 

@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import org.i2cat.utils.StringBuilderUtils;
 import org.mqnaas.api.ContentType;
@@ -114,6 +115,15 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			String serviceName = method.getName();
 			if (serviceName.startsWith("get") && serviceName.length() > 3) {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+			}
+			
+			if (serviceName.startsWith("set") && serviceName.length() > 3) {
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+				httpMethod = PUT.class;
+				
+				if ( method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null ) {
+					System.out.println("Found Root element...");
+				}
 			}
 
 			// Translate the result

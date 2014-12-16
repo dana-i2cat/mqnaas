@@ -30,31 +30,36 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 	/**
 	 * Retrieves affected IResource among service parameters and result. Retrieves IApplication managing affected IResource from the service itself.
 	 * 
-	 * The resource is retrieved following this algorithm: - Look at observed services parameters, fist one implementing IResource is taken as the
-	 * affected resource (if any) - If not yet found, if result implements IResource it is taken as affected resource. - Null otherwise
+	 * The resource is retrieved following this algorithm: - If result implements IResource, it is taken as affected resource. If not found yet, look at observed services parameters, fist one implementing IResource is taken as the
+	 * affected resource (if any) - Null otherwise
 	 * 
 	 * @return an array with affected resource and the IApplication managing it.
+	 * 
+	 *
 	 */
 	@Override
 	public Object[] getParameters(IService service, Object[] args, Object result) {
 
 		// retrieve resource
 		IResource affectedResource = null;
-		if (args != null) {
-			for (Object arg : args) {
-				if (arg instanceof IResource) {
-					affectedResource = (IResource) arg;
-					break;
-				}
-			}
-		}
-		if (affectedResource == null)
+
+		if (result != null)
 			if (result instanceof IResource)
 				affectedResource = (IResource) result;
 
+		if (affectedResource == null)
+			if (args != null) {
+				for (Object arg : args) {
+					if (arg instanceof IResource) {
+						affectedResource = (IResource) arg;
+						break;
+					}
+				}
+			}
+
 		// retrieve application holding the resource
 		IApplication resourceHolder = service.getMetadata().getApplication();
-		
+
 		Class<? extends IApplication> resourceHolderInterface = service.getMetadata().getApplicationInterface();
 
 		List<Object> parameters = new ArrayList<Object>(3);

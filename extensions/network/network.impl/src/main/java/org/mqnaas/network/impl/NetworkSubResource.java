@@ -1,15 +1,16 @@
 package org.mqnaas.network.impl;
 
 import org.mqnaas.core.api.ICapability;
-import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 
 /**
  * <p>
- * Wrapper class that provides an easier access the {@link ICapability ICapabilities} of a {@link IRootResource}
+ * Wrapper class that provides an easier access the {@link ICapability ICapabilities} of a {@link IResource}
  * </p>
  * 
  * @author Adrián Roselló Rey (i2CAT)
@@ -17,10 +18,10 @@ import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
  */
 public class NetworkSubResource {
 
-	private IRootResource		resource;
+	private IResource			resource;
 	private IServiceProvider	serviceProvider;
 
-	public NetworkSubResource(IRootResource netRootResource, IServiceProvider serviceProvider) {
+	public NetworkSubResource(IResource netRootResource, IServiceProvider serviceProvider) {
 		this.resource = netRootResource;
 		this.serviceProvider = serviceProvider;
 	}
@@ -32,6 +33,10 @@ public class NetworkSubResource {
 
 	public IRequestBasedNetworkManagement getRequestBasedNetworkManagementCapability() {
 		return getCapability(IRequestBasedNetworkManagement.class);
+	}
+
+	public ISliceProvider getSliceProviderCapability() {
+		return getCapability(ISliceProvider.class);
 	}
 
 	private <C extends ICapability> C getCapability(Class<C> capabilityClass) {

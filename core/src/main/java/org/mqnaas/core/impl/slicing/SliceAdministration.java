@@ -111,10 +111,10 @@ public class SliceAdministration implements ISliceAdministration {
 	@Override
 	public boolean contains(IResource slice) throws SlicingException {
 		initData();
-		
+
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice,  ISliceAdministration.class);
-			
+			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
+
 			compareSliceDefinition(otherAdministration);
 
 			int[] lbs = new int[units.size()], ubs = new int[units.size()];
@@ -136,25 +136,25 @@ public class SliceAdministration implements ISliceAdministration {
 		log.info("Cutting slice");
 
 		initData();
-		
+
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice,  ISliceAdministration.class);
+			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
 
 			compareSliceDefinition(otherAdministration);
-	
+
 			int[] lbs = new int[units.size()], ubs = new int[units.size()];
-	
+
 			initUpperBounds(ubs);
-	
+
 			ContainsOperation contains = new ContainsOperation();
 			executeOperation(otherAdministration.getData(), lbs, ubs, contains);
-	
+
 			if (!contains.getResult())
 				throw new SlicingException("Given slice contains values that are not in the original slice.");
-	
+
 			CutOperation cut = new CutOperation();
 			executeOperation(otherAdministration.getData(), lbs, ubs, cut);
-	
+
 			log.info("Slice cut");
 		} catch (CapabilityNotFoundException e) {
 			throw new SlicingException("Given slice does not support " + ISliceAdministration.class.getName());
@@ -167,30 +167,30 @@ public class SliceAdministration implements ISliceAdministration {
 		log.info("Adding slice.");
 
 		initData();
-		
+
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice,  ISliceAdministration.class);
+			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
 
 			compareSliceDefinition(otherAdministration);
-	
+
 			if (otherAdministration.isInOperationalState())
 				throw new SlicingException("Can not add slice to current one since given slice is in operational state.");
-	
+
 			int[] lbs = new int[units.size()], ubs = new int[units.size()];
-	
+
 			initUpperBounds(ubs);
-	
+
 			NotContainsOperation preAdd = new NotContainsOperation();
 			executeOperation(otherAdministration.getData(), lbs, ubs, preAdd);
-	
+
 			if (!preAdd.getResult())
 				throw new SlicingException("Given slice contains values that are already in the original slice.");
-	
+
 			AddOperation add = new AddOperation();
 			executeOperation(otherAdministration.getData(), lbs, ubs, add);
-	
+
 			log.info("Slice added");
-		
+
 		} catch (CapabilityNotFoundException e) {
 			throw new SlicingException("Given slice does not support " + ISliceAdministration.class.getName());
 		}
@@ -217,13 +217,13 @@ public class SliceAdministration implements ISliceAdministration {
 	 *         otherwise.
 	 * 
 	 */
-//	boolean get(Object data, int[] coords) {
-//		return get(data, coords);
-//	}
+	// boolean get(Object data, int[] coords) {
+	// return get(data, coords);
+	// }
 
 	/**
-	 * A {@link SliceResource} is in operational state if it's current space and the original one does not match. That means, if the slice has been divided in
-	 * sub-slices.
+	 * A {@link SliceResource} is in operational state if it's current space and the original one does not match. That means, if the slice has been
+	 * divided in sub-slices.
 	 * 
 	 * @return <code>true</code> If any of the initial cube of the slice space has been assigned to another sub-slice. <code>false</code> otherwise.
 	 */
@@ -236,10 +236,10 @@ public class SliceAdministration implements ISliceAdministration {
 		for (int i = 0; i < ubs.length; i++)
 			sizes[i] = ubs[i] + 1;
 
-//		SliceAdministration other = new SliceAdministration();
-//		other.currentData = this.originalData;
-//		other.ranges = this.ranges;
-//		other.units = this.units;
+		// SliceAdministration other = new SliceAdministration();
+		// other.currentData = this.originalData;
+		// other.ranges = this.ranges;
+		// other.units = this.units;
 
 		ContainsOperation contains = new ContainsOperation();
 		executeOperation(originalData, lbs, ubs, contains);
@@ -305,29 +305,44 @@ public class SliceAdministration implements ISliceAdministration {
 	 * Sets the <code>value</code> boolean value into the <code>currentData</code> array position defined by the <code>coords</code> array. Up to
 	 * three dimensions implemented.
 	 * 
+	 * @param data
+	 * 
 	 * @param coords
 	 *            Position of the <code>data</code> array defined by an array of indexes.
 	 * @param value
 	 *            boolean value to be set in this position.
 	 */
-	private void set(int[] coords, boolean value) {
+	private void set(Object data, int[] coords, boolean value) {
 		switch (units.size()) {
 			case 1:
-				boolean d1[] = (boolean[]) currentData;
+				boolean d1[] = (boolean[]) data;
 				d1[coords[0]] = value;
 				break;
 			case 2:
-				boolean d2[][] = (boolean[][]) currentData;
+				boolean d2[][] = (boolean[][]) data;
 				d2[coords[0]][coords[1]] = value;
 				break;
 			case 3:
-				boolean d3[][][] = (boolean[][][]) currentData;
+				boolean d3[][][] = (boolean[][][]) data;
 				d3[coords[0]][coords[1]][coords[2]] = value;
 				break;
 			default:
 				throw new RuntimeException(
 						"Only up to three dimensions implemented");
 		}
+	}
+
+	/**
+	 * Sets the <code>value</code> boolean value into the <code>currentData</code> array position defined by the <code>coords</code> array. Up to
+	 * three dimensions implemented.
+	 * 
+	 * @param coords
+	 *            Position of the <code>data</code> array defined by an array of indexes.
+	 * @param value
+	 *            boolean value to be set in this position.
+	 */
+	private void set(int[] coords, boolean value) {
+		set(currentData, coords, value);
 	}
 
 	/**
@@ -356,7 +371,7 @@ public class SliceAdministration implements ISliceAdministration {
 						"Only up to three dimensions implemented");
 		}
 	}
-	
+
 	boolean get(int[] coords) {
 		return get(currentData, coords);
 	}
@@ -385,26 +400,26 @@ public class SliceAdministration implements ISliceAdministration {
 	 * @param original
 	 *            SliceAdministrationCapability to be cloned.
 	 */
-//	private SliceAdministration(List<Unit> units, Map<Unit, Range> ranges, Object sliceData) {
-//		this.units = new CopyOnWriteArrayList<Unit>(units);
-//		this.ranges = new ConcurrentHashMap<Unit, Range>(ranges);
-//		currentData = cloneSliceData(sliceData, units.size());
-//		originalData = cloneSliceData(sliceData, units.size());
-//
-//	}
+	// private SliceAdministration(List<Unit> units, Map<Unit, Range> ranges, Object sliceData) {
+	// this.units = new CopyOnWriteArrayList<Unit>(units);
+	// this.ranges = new ConcurrentHashMap<Unit, Range>(ranges);
+	// currentData = cloneSliceData(sliceData, units.size());
+	// originalData = cloneSliceData(sliceData, units.size());
+	//
+	// }
 
 	private List<Cube> compactize(Object data) {
 
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
 
 		initUpperBounds(ubs);
-
+		Object dataCopy = cloneSliceData(data, units.size());
 		CompatizeOperation operation = new CompatizeOperation();
-		executeOperation(data, lbs, ubs, operation);
+		executeOperation(dataCopy, lbs, ubs, operation);
 
 		return operation.getCubes();
 	}
-	
+
 	private interface Operation {
 
 		boolean execute(Object dataOfOtherSlice, int[] coords);
@@ -606,7 +621,7 @@ public class SliceAdministration implements ISliceAdministration {
 
 		@Override
 		public boolean execute(Object dataOfOtherSlice, int[] coords) {
-			set(coords, false);
+			set(dataOfOtherSlice, coords, false);
 			return true;
 		}
 
@@ -638,9 +653,9 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	/**
-	 * Executes a specific operation involving the {@link SliceResource} managed by this capability instance and the slice managed by the <code>other</code>
-	 * {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays <code>lbs</code>
-	 * and <code>ubs</code>
+	 * Executes a specific operation involving the {@link SliceResource} managed by this capability instance and the slice managed by the
+	 * <code>other</code> {@link SliceAdministration} capability. This method is generic for n-dimensions slices, defined by the lenght of the arrays
+	 * <code>lbs</code> and <code>ubs</code>
 	 * 
 	 * @param other
 	 *            Capability managing the other slice involves in the operation.
@@ -724,13 +739,13 @@ public class SliceAdministration implements ISliceAdministration {
 
 	}
 
-//	private SliceAdministration getSliceAdministration(IResource slice) throws SlicingException {
-//		try {
-//			return (SliceAdministration) serviceProvider.getCapability(slice, ISliceAdministration.class);
-//		} catch (CapabilityNotFoundException c) {
-//			throw new SlicingException("Error getting sliceAdministration capability from given resource:" + c.getMessage(), c);
-//		}
-//	}
+	// private SliceAdministration getSliceAdministration(IResource slice) throws SlicingException {
+	// try {
+	// return (SliceAdministration) serviceProvider.getCapability(slice, ISliceAdministration.class);
+	// } catch (CapabilityNotFoundException c) {
+	// throw new SlicingException("Error getting sliceAdministration capability from given resource:" + c.getMessage(), c);
+	// }
+	// }
 
 	@Override
 	public String toString() {

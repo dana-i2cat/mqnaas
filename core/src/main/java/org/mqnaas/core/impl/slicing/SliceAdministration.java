@@ -552,7 +552,7 @@ public class SliceAdministration implements ISliceAdministration {
 
 		@Override
 		public boolean execute(Object dataOfOtherSlice, int[] coords) {
-			if (get(currentData, coords)) {
+			if (get(dataOfOtherSlice, coords)) {
 
 				// Start the fill along all axis from that point
 				int n = coords.length;

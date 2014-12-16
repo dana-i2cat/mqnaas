@@ -3,12 +3,14 @@ package org.mqnaas.network.impl.request;
 import java.util.Collection;
 import java.util.List;
 
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IRootResource;
-import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.network.api.request.IRequestAdministration;
+import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
+import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.impl.RequestResource;
 
 /**
@@ -27,7 +29,7 @@ public class Request {
 	}
 
 	private IRequestResourceMapping getMapping() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(request, IRequestResourceMapping.class);
+		return getCapability(IRequestResourceMapping.class);
 	}
 
 	private IResource getMapping(IResource resource) throws CapabilityNotFoundException {
@@ -38,12 +40,20 @@ public class Request {
 		return getMapping().getMappedDevices();
 	}
 
-	public List<IRootResource> getRootResources() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(request, IRootResourceProvider.class).getRootResources();
+	public List<IResource> getRootResources() throws CapabilityNotFoundException {
+		return getCapability(IRequestResourceManagement.class).getResources();
 	}
 
 	public IResource getMappedDevice(IResource resource) throws CapabilityNotFoundException {
 		return getMapping(resource);
+	}
+
+	public Period getPeriod() throws CapabilityNotFoundException {
+		return getCapability(IRequestAdministration.class).getPeriod();
+	}
+
+	private <C extends ICapability> C getCapability(Class<C> capabilityClass) throws CapabilityNotFoundException {
+		return serviceProvider.getCapability(request, capabilityClass);
 	}
 
 }

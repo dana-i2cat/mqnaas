@@ -2,6 +2,7 @@ package org.mqnaas.api.writers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Multimap;
 
 public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
@@ -161,6 +164,15 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			for (int i = 0; i < method.getParameterTypes().length; i++) {
 				String name = names != null ? names[i] : "arg" + i;
 				writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+			}
+
+			// add Produces if there is a serializable object as the return type
+			// FIXME check XMLRootElement is an annotation present in the generic type of Multimap or Collection
+			if (resultClass.isAnnotationPresent(XmlRootElement.class)
+					|| Multimap.class.isAssignableFrom(resultClass) || Collection.class.isAssignableFrom(resultClass)) {
+				log.trace("Found XMLRootElement in the return type class " + resultClass);
+				writer.addAnnotationWriter(new AnnotationWriter(Produces.class, new AnnotationParamWriter("value",
+						new String[] { MediaType.APPLICATION_XML })));
 			}
 
 			method2writer.put(method, writer);

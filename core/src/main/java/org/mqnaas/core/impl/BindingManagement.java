@@ -324,10 +324,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) {
 
 		try {
-			ApplicationNode parent = findApplicationNode(managedBy);
 
-			bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
+			ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
 
+			if (resourceNode == null) {
+				ApplicationNode parent = findApplicationNode(managedBy);
+
+				bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
+			}
+			else
+				log.warn("Resource " + resource.getId() + " already bound. Skipping it.");
 		} catch (ApplicationNotFoundException e) {
 			log.error("No parent found!", e);
 		} catch (CapabilityNotFoundException e) {
@@ -908,7 +914,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				return (C) capabilityInstance.getProxy();
 
 		throw new CapabilityNotFoundException(
-				"Resource + " + resource.getId() + " does not contain any resolved capability of type " + capabilityClass.getName());
+				"Resource " + resource.getId() + " does not contain any resolved capability of type " + capabilityClass.getName());
 	}
 
 }

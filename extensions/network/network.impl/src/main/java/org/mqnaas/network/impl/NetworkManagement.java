@@ -31,6 +31,7 @@ import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.Period;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.impl.request.Request;
 
 /**
@@ -71,7 +72,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
 
 			// Manual bind, so that capabilities exist
-			// resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
+			resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
 
 			Request request = new Request(requestResource, serviceProvider);
 
@@ -108,20 +109,37 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 				}
 
-				// reserve!!
-				Period period = request.getPeriod();
-				Set<Device> devices = new HashSet<Device>();
-
-				for (IRootResource iRootResource : resourcesToReserve) {
-					Device device = new Device();
-					device.setId(iRootResource.getId());
-					device.setType(iRootResource.getDescriptor().getSpecification().getType());
-					devices.add(device);
-				}
-
-				reservationCapability.createReservation(devices, period);
-
 			}
+
+			// links
+			ILinkManagement networkLinkManagement = serviceProvider.getCapability(networkResource, ILinkManagement.class);
+
+			List<IResource> requestLinks = request.getLinks();
+			for (IResource link : requestLinks) {
+
+				LinkWrapper netLink = new LinkWrapper(networkLinkManagement.createLink(), serviceProvider);
+				LinkWrapper reqLink = new LinkWrapper(link, serviceProvider);
+
+				IResource srcPort = request.getMappedDevice(reqLink.getSrcPort());
+				IResource dstPort = request.getMappedDevice(reqLink.getDstPort());
+
+				netLink.setSrcPort(srcPort);
+				netLink.setDstPort(dstPort);
+			}
+
+			// reserve!!
+			Period period = request.getPeriod();
+			Set<Device> devices = new HashSet<Device>();
+
+			for (IRootResource iRootResource : resourcesToReserve) {
+				Device device = new Device();
+				device.setId(iRootResource.getId());
+				device.setType(iRootResource.getDescriptor().getSpecification().getType());
+				devices.add(device);
+			}
+
+			reservationCapability.createReservation(devices, period);
+
 			// TODO include links in logic
 
 			networks.add(networkResource);

@@ -11,6 +11,7 @@ import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.api.request.Period;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.impl.RequestResource;
 
 /**
@@ -50,6 +51,10 @@ public class Request {
 
 	public Period getPeriod() throws CapabilityNotFoundException {
 		return getCapability(IRequestAdministration.class).getPeriod();
+	}
+
+	public List<IResource> getLinks() throws CapabilityNotFoundException {
+		return getCapability(ILinkManagement.class).getLinks();
 	}
 
 	private <C extends ICapability> C getCapability(Class<C> capabilityClass) throws CapabilityNotFoundException {

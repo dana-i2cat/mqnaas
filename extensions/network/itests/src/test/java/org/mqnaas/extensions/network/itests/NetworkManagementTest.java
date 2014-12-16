@@ -38,6 +38,7 @@ import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
+import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -210,12 +211,29 @@ public class NetworkManagementTest {
 		IRequestBasedNetworkManagement requestNetworkManagementCapab = serviceProvider.getCapability(networkResource,
 				IRequestBasedNetworkManagement.class);
 
-		requestNetworkManagementCapab.createNetwork(request);
+		IRootResource network = requestNetworkManagementCapab.createNetwork(request);
 
 		// Asserts!!
-		List<IRootResource> tsonResources = rootResourceProvider.getRootResources(Type.TSON, null, null);
-		Assert.assertEquals("Platform should contain 2 tson Resources", 2, tsonResources.size());
 
+		// assert network resource and bound capabilities
+		Assert.assertNotNull("A network instance should have been created from the request.", network);
+		Assert.assertNotNull("Created network resource should contain a bound INetworkPortManagement Capability",
+				serviceProvider.getCapability(network, INetworkPortManagement.class));
+		Assert.assertNotNull("Created network resource should contain a bound ILinkManagement Capability",
+				serviceProvider.getCapability(network, ILinkManagement.class));
+		Assert.assertNotNull("Created network resource should contain a bound IRootResourceProvider Capability",
+				serviceProvider.getCapability(network, IRootResourceProvider.class));
+		Assert.assertNotNull("Created network resource should contain a bound IRootResourceAdministration Capability",
+				serviceProvider.getCapability(network, IRootResourceAdministration.class));
+		Assert.assertNotNull("Created network resource should contain a bound IRequestBasedNetworkManagement Capability",
+				serviceProvider.getCapability(network, IRequestBasedNetworkManagement.class));
+		Assert.assertNotNull("Created network resource should contain a bound IRequestManagement Capability",
+				serviceProvider.getCapability(network, IRequestManagement.class));
+
+		List<IRootResource> tsonResources = rootResourceProvider.getRootResources(Type.TSON, null, null);
+		Assert.assertEquals("Platform should contain 2 tson Resources: the original one and the slice.", 2, tsonResources.size());
+
+		// get the virtual TSON
 		IResource virtualTson = (tsonResource == tsonResources.get(0)) ? tsonResources.get(1) : tsonResources.get(0);
 
 		// slice asserts
@@ -230,6 +248,18 @@ public class NetworkManagementTest {
 		IResource phySlice = phySliceProvider.getSlice();
 		ISliceAdministration phySliceAdmin = serviceProvider.getCapability(phySlice, ISliceAdministration.class);
 		Assert.assertEquals("Virtual Tson should contain no ports.", "OO", phySliceAdmin.toString());
+
+		// links asserts
+		ILinkManagement netLinkManagement = serviceProvider.getCapability(network, ILinkManagement.class);
+		List<IResource> netLinks = netLinkManagement.getLinks();
+		Assert.assertNotNull("Network should contain one link.", netLinks);
+		Assert.assertNotNull("Network should contain one link.", netLinks.size());
+
+		ILinkAdministration linkAdministration = serviceProvider.getCapability(netLinks.get(0), ILinkAdministration.class);
+		Assert.assertNotNull("Link should contain a source port.", linkAdministration.getSrcPort());
+		Assert.assertNotNull("Link should contain a destination port", linkAdministration.getDestPort());
+		Assert.assertEquals(tsonPort1, linkAdministration.getSrcPort());
+		Assert.assertEquals(tsonPort2, linkAdministration.getDestPort());
 
 	}
 }

@@ -16,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.i2cat.utils.StringBuilderUtils;
@@ -62,7 +63,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
 					new AnnotationWriter(PUT.class),
-					new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value", new String[] { "application/xml" })));
+					new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })));
 
 			method2writer.put(m, writer);
 		}
@@ -85,7 +86,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 					m.getParameterTypes(),
 					new AnnotationWriter(GET.class),
 					new AnnotationWriter(ContentType.class, new AnnotationParamWriter("value", metaDataContainer.getEntityClass())),
-					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })));
+					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })));
 
 			// Map all parameters as QueryParams
 
@@ -116,12 +117,12 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			if (serviceName.startsWith("get") && serviceName.length() > 3) {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 			}
-			
+
 			if (serviceName.startsWith("set") && serviceName.length() > 3) {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
-				
-				if ( method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null ) {
+
+				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
 					System.out.println("Found Root element...");
 				}
 			}
@@ -155,7 +156,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			MethodWriter methodWriter = new MethodWriter("get" + entityClass.getSimpleName(), entityClass, new Class<?>[] { String.class },
 					new AnnotationWriter(GET.class),
 					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", "{id}")),
-					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })),
+					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })),
 					new AnnotationWriter(0, PathParam.class, new AnnotationParamWriter("value", "id")));
 
 			method2writer.put(null, methodWriter);

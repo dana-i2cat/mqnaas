@@ -101,8 +101,8 @@ public class NetworkManagementTest {
 				// add tson features
 				KarafDistributionOption.features(CoreOptions.maven().groupId("net.i2cat.dana.tson").artifactId("tson").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "tson"),
-				// debug option
-				KarafDistributionOption.debugConfiguration()
+		// debug option
+		// KarafDistributionOption.debugConfiguration()
 		};
 
 	}

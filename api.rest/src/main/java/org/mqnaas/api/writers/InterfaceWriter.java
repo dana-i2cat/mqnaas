@@ -118,7 +118,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 			}
 
-			if (serviceName.startsWith("set") && serviceName.length() > 3) {
+			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
 

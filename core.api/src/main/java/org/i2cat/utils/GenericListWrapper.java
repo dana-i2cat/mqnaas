@@ -35,7 +35,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Adrian Rosello Rey (i2CAT)
  * 
  */
-@XmlRootElement
+@XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class GenericListWrapper<T> {
 

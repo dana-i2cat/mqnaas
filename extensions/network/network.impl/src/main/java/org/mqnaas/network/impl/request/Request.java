@@ -6,6 +6,7 @@ import java.util.List;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
@@ -28,6 +29,10 @@ public class Request {
 	public Request(IResource request, IServiceProvider serviceProvider) {
 		this.request = request;
 		this.serviceProvider = serviceProvider;
+	}
+
+	public IResource getRequestResource() {
+		return request;
 	}
 
 	private IRequestResourceMapping getMapping() throws CapabilityNotFoundException {
@@ -58,12 +63,39 @@ public class Request {
 		return getCapability(ILinkManagement.class).getLinks();
 	}
 
-	private <C extends ICapability> C getCapability(Class<C> capabilityClass) throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(request, capabilityClass);
+	private <C extends ICapability> C getCapability(Class<C> capabilityClass) {
+		try {
+			return serviceProvider.getCapability(request, capabilityClass);
+		} catch (CapabilityNotFoundException e) {
+			throw new RuntimeException("Necessary capability not bound to resource " + request, e);
+		}
 	}
 
 	public List<IResource> getNetworkPorts() throws CapabilityNotFoundException {
 		return getCapability(INetworkPortManagement.class).getPorts();
+
+	}
+
+	public IResource createResource(Type type) {
+		return getCapability(IRequestResourceManagement.class).createResource(type);
+	}
+
+	public void defineMapping(IResource virtResource, IResource phyResource) {
+		getCapability(IRequestResourceMapping.class).defineMapping(virtResource, phyResource);
+
+	}
+
+	public void addNetworkPort(IResource netPort) {
+		getCapability(INetworkPortManagement.class).addPort(netPort);
+
+	}
+
+	public IResource createLink() {
+		return getCapability(ILinkManagement.class).createLink();
+	}
+
+	public void setPeriod(Period period) {
+		getCapability(IRequestAdministration.class).setPeriod(period);
 
 	}
 

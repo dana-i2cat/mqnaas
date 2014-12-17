@@ -1,5 +1,7 @@
 package org.mqnaas.network.impl;
 
+import java.util.List;
+
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
@@ -7,6 +9,7 @@ import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 
 /**
  * <p>
@@ -44,6 +47,10 @@ public class NetworkSubResource {
 		}
 	}
 
+	public IResource getResource() {
+		return resource;
+	}
+
 	public ISliceProvider getSliceProviderCapability() {
 		return getCapability(ISliceProvider.class);
 	}
@@ -55,6 +62,18 @@ public class NetworkSubResource {
 			throw new RuntimeException("Necessary capability not bound to resource " + resource, c);
 
 		}
+	}
+
+	public IResource getSlice() {
+		return getSliceProviderCapability().getSlice();
+	}
+
+	public IResource createPort() {
+		return getCapability(IPortManagement.class).createPort();
+	}
+
+	public List<IResource> getPorts() {
+		return getCapability(IPortManagement.class).getPorts();
 	}
 
 }

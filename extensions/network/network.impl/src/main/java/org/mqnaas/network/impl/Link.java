@@ -14,7 +14,7 @@ import org.mqnaas.network.impl.topology.link.LinkResource;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-class Link {
+public class Link {
 
 	private IResource			link;
 	private IServiceProvider	serviceProvider;

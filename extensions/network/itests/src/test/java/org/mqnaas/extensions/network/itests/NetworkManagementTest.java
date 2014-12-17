@@ -30,16 +30,17 @@ import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
-import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
-import org.mqnaas.network.api.request.IRequestResourceManagement;
-import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.api.request.Period;
-import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
+import org.mqnaas.network.impl.Link;
+import org.mqnaas.network.impl.Network;
+import org.mqnaas.network.impl.NetworkSubResource;
+import org.mqnaas.network.impl.Slice;
+import org.mqnaas.network.impl.request.Request;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -61,8 +62,8 @@ public class NetworkManagementTest {
 
 	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagementTest.class);
 
-	private IRootResource		networkResource;
-	private IRootResource		tsonResource;
+	private Network				networkResource;
+	private NetworkSubResource	tsonResource;
 	private IRootResource		nitosResource;
 
 	@Inject
@@ -126,12 +127,13 @@ public class NetworkManagementTest {
 		Endpoint tsonEndpoint = new Endpoint(new URI("http://www.myfaketson.com/tson"));
 
 		// create resources
-		tsonResource = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.TSON), Arrays.asList(tsonEndpoint)));
-		networkResource = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
+		IRootResource tson = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.TSON),
+				Arrays.asList(tsonEndpoint)));
+		IRootResource network = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
 		nitosResource = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "nitos")));
 
 		// define tson slice
-		ISliceProvider sliceProvider = serviceProvider.getCapability(tsonResource, ISliceProvider.class);
+		ISliceProvider sliceProvider = serviceProvider.getCapability(tson, ISliceProvider.class);
 		IResource slice = sliceProvider.getSlice();
 		ISliceAdministration sliceAdmin = serviceProvider.getCapability(slice, ISliceAdministration.class);
 
@@ -144,10 +146,13 @@ public class NetworkManagementTest {
 		sliceAdmin.setCubes(Arrays.asList(cube));
 
 		// define tson ports
-		IPortManagement tsonPortManagement = serviceProvider.getCapability(tsonResource, IPortManagement.class);
+		IPortManagement tsonPortManagement = serviceProvider.getCapability(tson, IPortManagement.class);
 		tsonPortManagement.createPort();
 		tsonPortManagement.createPort();
 		tsonPortManagement.createPort();
+
+		tsonResource = new NetworkSubResource(tson, serviceProvider);
+		networkResource = new Network(network, serviceProvider);
 
 	}
 
@@ -156,129 +161,125 @@ public class NetworkManagementTest {
 			NetworkCreationException, ResourceNotFoundException {
 
 		// 1. create request
-		IRequestManagement requestMgmCapab = serviceProvider.getCapability(networkResource, IRequestManagement.class);
-		IResource request = requestMgmCapab.createRequest();
+		IResource requestResource = networkResource.createRequest();
 
-		// 2. get request capabilities
-		IRequestResourceMapping mappingCapab = serviceProvider.getCapability(request, IRequestResourceMapping.class);
-		ILinkManagement linkMgmCapab = serviceProvider.getCapability(request, ILinkManagement.class);
-		IRequestAdministration requestAdminCapab = serviceProvider.getCapability(request, IRequestAdministration.class);
-		IRequestResourceManagement reqResourceMgm = serviceProvider.getCapability(request, IRequestResourceManagement.class);
-		INetworkPortManagement reqNetPortMgm = serviceProvider.getCapability(request, INetworkPortManagement.class);
-		// 3. fill request
+		Request request = new Request(requestResource, serviceProvider);
 
-		// // 3.1 add request resources and mapping
+		// 2. fill request
 
-		IResource reqTsonResource = reqResourceMgm.createResource(Type.TSON);
-		mappingCapab.defineMapping(reqTsonResource, tsonResource);
+		// // 2.1 add request resources and mapping
 
-		// // 3.2 specify internal ports
-		IPortManagement portMgmCapab = serviceProvider.getCapability(reqTsonResource, IPortManagement.class);
+		IResource reqTsonResource = request.createResource(Type.TSON);
+		NetworkSubResource reqTson = new NetworkSubResource(reqTsonResource, serviceProvider);
+		request.defineMapping(reqTsonResource, tsonResource.getResource());
 
-		IResource reqPort1 = portMgmCapab.createPort();
-		IResource tsonPort1 = serviceProvider.getCapability(tsonResource, IPortManagement.class).getPorts().get(0);
-		mappingCapab.defineMapping(reqPort1, tsonPort1);
+		// // 2.2 specify internal ports
 
-		IResource reqPort2 = portMgmCapab.createPort();
-		IResource tsonPort2 = serviceProvider.getCapability(tsonResource, IPortManagement.class).getPorts().get(1);
-		mappingCapab.defineMapping(reqPort2, tsonPort2);
+		IResource reqPort1 = reqTson.createPort();
+		IResource tsonPort1 = tsonResource.getPorts().get(0);
+		request.defineMapping(reqPort1, tsonPort1);
 
-		// // 3.3 specify network external ports.
+		IResource reqPort2 = reqTson.createPort();
+		IResource tsonPort2 = tsonResource.getPorts().get(1);
+		request.defineMapping(reqPort2, tsonPort2);
 
-		IResource reqPort3 = portMgmCapab.createPort();
-		IResource tsonPort3 = serviceProvider.getCapability(tsonResource, IPortManagement.class).getPorts().get(2);
-		mappingCapab.defineMapping(reqPort3, tsonPort3);
-		reqNetPortMgm.addPort(reqPort3);
+		// // 2.3 specify network external ports.
 
-		// // 3.4 specify links
-		IResource reqLink = linkMgmCapab.createLink();
-		ILinkAdministration linkAdminCapab = serviceProvider.getCapability(reqLink, ILinkAdministration.class);
-		linkAdminCapab.setSrcPort(reqPort1);
-		linkAdminCapab.setDestPort(reqPort2);
+		IResource reqPort3 = reqTson.createPort();
+		IResource tsonPort3 = tsonResource.getPorts().get(2);
+		request.defineMapping(reqPort3, tsonPort3);
+		request.addNetworkPort(reqPort3);
 
-		// // 3.5 create Slice - first version contains whole slice
-		ISliceProvider reqTsonSliceCapab = serviceProvider.getCapability(reqTsonResource, ISliceProvider.class);
-		IResource reqTsonSlice = reqTsonSliceCapab.getSlice();
-		ISliceAdministration reqtTsonSliceAdmin = serviceProvider.getCapability(reqTsonSlice, ISliceAdministration.class);
+		// // 2.4 specify links
+		IResource reqLinkResource = request.createLink();
+		Link reqLink = new Link(reqLinkResource, serviceProvider);
+		reqLink.setSrcPort(reqPort1);
+		reqLink.setDstPort(reqPort2);
+
+		// // 2.5 create Slice - first version contains whole slice
+		IResource reqTsonSliceResource = reqTson.getSlice();
+		Slice reqTsonSlice = new Slice(reqTsonSliceResource, serviceProvider);
 
 		Unit portUnit = new Unit("port");
-		reqtTsonSliceAdmin.addUnit(portUnit);
-		reqtTsonSliceAdmin.setRange(portUnit, new Range(0, 1));
+		reqTsonSlice.addUnit(portUnit);
+		reqTsonSlice.setRange(portUnit, new Range(0, 1));
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
-		reqtTsonSliceAdmin.setCubes(Arrays.asList(cube));
+		reqTsonSlice.setCubes(Arrays.asList(cube));
 
-		// // 3.6 add request period
+		// // 2.6 add request period
 		long currentTime = System.currentTimeMillis();
 		Period period = new Period(new Date(currentTime), new Date(currentTime + 2000000L));
-		requestAdminCapab.setPeriod(period);
+		request.setPeriod(period);
 
-		// 4. send request to create network
+		// 3. send request to create network
 
-		IRequestBasedNetworkManagement requestNetworkManagementCapab = serviceProvider.getCapability(networkResource,
+		IRequestBasedNetworkManagement requestNetworkManagementCapab = serviceProvider.getCapability(networkResource.getNetworkResource(),
 				IRequestBasedNetworkManagement.class);
 
-		IRootResource network = requestNetworkManagementCapab.createNetwork(request);
+		IRootResource networkResource = requestNetworkManagementCapab.createNetwork(request.getRequestResource());
+
+		Network network = new Network(networkResource, serviceProvider);
 
 		// Asserts!!
 
 		// assert network resource and bound capabilities
 		Assert.assertNotNull("A network instance should have been created from the request.", network);
 		Assert.assertNotNull("Created network resource should contain a bound INetworkPortManagement Capability",
-				serviceProvider.getCapability(network, INetworkPortManagement.class));
+				network.getCapability(INetworkPortManagement.class));
 		Assert.assertNotNull("Created network resource should contain a bound ILinkManagement Capability",
-				serviceProvider.getCapability(network, ILinkManagement.class));
+				network.getCapability(ILinkManagement.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRootResourceProvider Capability",
-				serviceProvider.getCapability(network, IRootResourceProvider.class));
+				network.getCapability(IRootResourceProvider.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRootResourceAdministration Capability",
-				serviceProvider.getCapability(network, IRootResourceAdministration.class));
+				network.getCapability(IRootResourceAdministration.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRequestBasedNetworkManagement Capability",
-				serviceProvider.getCapability(network, IRequestBasedNetworkManagement.class));
+				network.getCapability(IRequestBasedNetworkManagement.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRequestManagement Capability",
-				serviceProvider.getCapability(network, IRequestManagement.class));
+				network.getCapability(IRequestManagement.class));
 
 		List<IRootResource> tsonResources = rootResourceProvider.getRootResources(Type.TSON, null, null);
 		Assert.assertEquals("Platform should contain 2 tson Resources: the original one and the slice.", 2, tsonResources.size());
 
 		// get the virtual TSON
-		IResource virtualTson = (tsonResource == tsonResources.get(0)) ? tsonResources.get(1) : tsonResources.get(0);
+		IResource virtualTsonResource = (tsonResource.getResource() == tsonResources.get(0)) ? tsonResources.get(1) : tsonResources.get(0);
 
-		IRootResourceProvider netResourceprovider = serviceProvider.getCapability(network, IRootResourceProvider.class);
-		List<IRootResource> netResources = netResourceprovider.getRootResources();
+		NetworkSubResource virtualTson = new NetworkSubResource(virtualTsonResource, serviceProvider);
+
+		List<IRootResource> netResources = network.getResources();
 		Assert.assertNotNull("Network should contain a Tson resource.", netResources);
 		Assert.assertEquals("Network should contain a Tson resource.", 1, netResources.size());
-		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson, netResources.get(0));
+		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson.getResource(), netResources.get(0));
 
 		// slice asserts
-		ISliceProvider virtualTsonSliceProvider = serviceProvider.getCapability(virtualTson, ISliceProvider.class);
-		IResource virtualTsonSlice = virtualTsonSliceProvider.getSlice();
+		IResource virtualTsonSliceResource = virtualTson.getSlice();
+		Slice virtualTsonSlice = new Slice(virtualTsonSliceResource, serviceProvider);
 
-		ISliceAdministration virtualTsonSliceAdmin = serviceProvider.getCapability(virtualTsonSlice, ISliceAdministration.class);
+		ISliceAdministration virtualTsonSliceAdmin = virtualTsonSlice.getSliceAdministration();
 		Assert.assertEquals("Virtual Tson should contain created slice cube.", Arrays.asList(cube), virtualTsonSliceAdmin.getCubes());
 		Assert.assertEquals("Virtual Tson should contain two ports.", "XX", virtualTsonSliceAdmin.toString());
 
-		ISliceProvider phySliceProvider = serviceProvider.getCapability(tsonResource, ISliceProvider.class);
-		IResource phySlice = phySliceProvider.getSlice();
+		IResource phySlice = tsonResource.getSlice();
 		ISliceAdministration phySliceAdmin = serviceProvider.getCapability(phySlice, ISliceAdministration.class);
 		Assert.assertEquals("Virtual Tson should contain no ports.", "OO", phySliceAdmin.toString());
 
 		// links asserts
-		ILinkManagement netLinkManagement = serviceProvider.getCapability(network, ILinkManagement.class);
-		List<IResource> netLinks = netLinkManagement.getLinks();
+
+		List<IResource> netLinks = network.getLinks();
 		Assert.assertNotNull("Network should contain one link.", netLinks);
 		Assert.assertNotNull("Network should contain one link.", netLinks.size());
 
-		ILinkAdministration linkAdministration = serviceProvider.getCapability(netLinks.get(0), ILinkAdministration.class);
-		Assert.assertNotNull("Link should contain a source port.", linkAdministration.getSrcPort());
-		Assert.assertNotNull("Link should contain a destination port", linkAdministration.getDestPort());
-		Assert.assertEquals(tsonPort1, linkAdministration.getSrcPort());
-		Assert.assertEquals(tsonPort2, linkAdministration.getDestPort());
+		Link netlink = new Link(netLinks.get(0), serviceProvider);
+
+		Assert.assertNotNull("Link should contain a source port.", netlink.getSrcPort());
+		Assert.assertNotNull("Link should contain a destination port", netlink.getDstPort());
+		Assert.assertEquals(tsonPort1, netlink.getSrcPort());
+		Assert.assertEquals(tsonPort2, netlink.getDstPort());
 
 		// networkports asserts
 
-		INetworkPortManagement netPortMgm = serviceProvider.getCapability(network, INetworkPortManagement.class);
-		List<IResource> netPorts = netPortMgm.getPorts();
+		List<IResource> netPorts = network.getPorts();
 		Assert.assertNotNull("Network should contain an external port.", netPorts);
 		Assert.assertEquals("Network should contain an external port.", 1, netPorts.size());
 		Assert.assertEquals("Network should contain tsonPort3 as external port.", tsonPort3, netPorts.get(0));

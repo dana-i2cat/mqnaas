@@ -160,8 +160,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		List<IResource> requestLinks = request.getLinks();
 		for (IResource link : requestLinks) {
 
-			LinkWrapper netLink = new LinkWrapper(networkLinkManagement.createLink(), serviceProvider);
-			LinkWrapper reqLink = new LinkWrapper(link, serviceProvider);
+			Link netLink = new Link(networkLinkManagement.createLink(), serviceProvider);
+			Link reqLink = new Link(link, serviceProvider);
 
 			IResource srcPort = request.getMappedDevice(reqLink.getSrcPort());
 			IResource dstPort = request.getMappedDevice(reqLink.getDstPort());
@@ -199,8 +199,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		ISliceProvider phySliceProviderCapab = phyResource.getSliceProviderCapability();
 		ISliceProvider virtSliceProviderCapab = virtualResource.getSliceProviderCapability();
 
-		SliceWrapper phySlice = new SliceWrapper(phySliceProviderCapab.getSlice(), serviceProvider);
-		SliceWrapper virtSlice = new SliceWrapper(virtSliceProviderCapab.getSlice(), serviceProvider);
+		Slice phySlice = new Slice(phySliceProviderCapab.getSlice(), serviceProvider);
+		Slice virtSlice = new Slice(virtSliceProviderCapab.getSlice(), serviceProvider);
 
 		ISliceAdministration phySliceAdminCapab = phySlice.getSliceAdministration();
 		ISliceAdministration virtSliceAdminCapab = virtSlice.getSliceAdministration();
@@ -215,7 +215,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		NetworkSubResource newSubnetResource = new NetworkSubResource(newResource, serviceProvider);
 		ISliceProvider sliceProvider = newSubnetResource.getSliceProviderCapability();
-		SliceWrapper newResourceSlice = new SliceWrapper(sliceProvider.getSlice(), serviceProvider);
+		Slice newResourceSlice = new Slice(sliceProvider.getSlice(), serviceProvider);
 		ISliceAdministration newResourceSliceAdminCapab = newResourceSlice.getSliceAdministration();
 		for (Unit unit : virtSliceAdminCapab.getUnits()) {
 			Unit unit2 = new Unit(unit.getName());

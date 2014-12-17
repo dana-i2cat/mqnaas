@@ -4,13 +4,22 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.impl.topology.link.LinkResource;
 
-class LinkWrapper {
+/**
+ * 
+ * <p>
+ * Wrapper class of {@link LinkResource}s in order to provide easier access to its capabilities and capabilities methods.
+ * 
+ * @author Adrián Roselló Rey (i2CAT)
+ *
+ */
+class Link {
 
 	private IResource			link;
 	private IServiceProvider	serviceProvider;
 
-	public LinkWrapper(IResource link, IServiceProvider serviceProvider) {
+	public Link(IResource link, IServiceProvider serviceProvider) {
 		super();
 		this.link = link;
 		this.serviceProvider = serviceProvider;

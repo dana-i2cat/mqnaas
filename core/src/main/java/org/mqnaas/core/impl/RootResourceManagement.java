@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,14 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	public static boolean isSupporting(IRootResource resource) {
 		Type type = resource.getDescriptor().getSpecification().getType();
 		return type == Type.CORE || (type == Type.NETWORK && !StringUtils.equals(resource.getDescriptor().getSpecification().getModel(), "nitos"));
+	}
+
+	@Override
+	public void setRootResources(Collection<IRootResource> rootResources) {
+		if (resources.isEmpty())
+			resources.addAll(rootResources);
+		else
+			throw new IllegalStateException("Capability resources are already initialized.");
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
 import java.util.List;
 
 import javax.ws.rs.GET;
@@ -53,5 +54,13 @@ public interface IRootResourceProvider extends ICapability {
 	 *             If there's no RootResource managed by this capability instance which such id.
 	 */
 	IRootResource getRootResource(String id) throws ResourceNotFoundException;
+
+	/**
+	 * Initialize the set of resources managed by this capability.
+	 * 
+	 * @param rootResources
+	 *            {@link Collection} of resources managed by this capability.
+	 */
+	void setRootResources(Collection<IRootResource> rootResources);
 
 }

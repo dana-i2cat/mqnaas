@@ -25,25 +25,30 @@ class Link {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public void setSrcPort(IResource port) throws CapabilityNotFoundException {
+	public void setSrcPort(IResource port) {
 		getLinkAdministration().setSrcPort(port);
 	}
 
-	public void setDstPort(IResource port) throws CapabilityNotFoundException {
+	public void setDstPort(IResource port) {
 		getLinkAdministration().setDestPort(port);
 
 	}
 
-	public IResource getSrcPort() throws CapabilityNotFoundException {
+	public IResource getSrcPort() {
 		return getLinkAdministration().getSrcPort();
 	}
 
-	public IResource getDstPort() throws CapabilityNotFoundException {
+	public IResource getDstPort() {
 		return getLinkAdministration().getDestPort();
 
 	}
 
-	private ILinkAdministration getLinkAdministration() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(link, ILinkAdministration.class);
+	private ILinkAdministration getLinkAdministration() {
+		try {
+			return serviceProvider.getCapability(link, ILinkAdministration.class);
+		} catch (CapabilityNotFoundException e) {
+			throw new RuntimeException("Necessary capability not bound to resource " + link, e);
+
+		}
 	}
 }

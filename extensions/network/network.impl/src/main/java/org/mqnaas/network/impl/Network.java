@@ -19,12 +19,17 @@ class Network {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public List<IRootResource> getResources() throws CapabilityNotFoundException {
+	public List<IRootResource> getResources() {
 		return getCapability(IRootResourceProvider.class).getRootResources();
 	}
 
-	private <C extends ICapability> C getCapability(Class<C> capabilityClass) throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(network, capabilityClass);
+	private <C extends ICapability> C getCapability(Class<C> capabilityClass) {
+		try {
+			return serviceProvider.getCapability(network, capabilityClass);
+		} catch (CapabilityNotFoundException e) {
+			throw new RuntimeException("Necessary capability not bound to resource " + network, e);
+
+		}
 	}
 
 }

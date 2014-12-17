@@ -27,12 +27,21 @@ public class NetworkSubResource {
 	}
 
 	public ISlicingCapability getSlicingCapability() {
-		return getCapability(ISlicingCapability.class);
-
+		try {
+			return getCapability(ISlicingCapability.class);
+		} catch (RuntimeException r) {
+			// i don't want to launch an exception here, since it's allowed that resources does not contain ISlicingCapability
+			return null;
+		}
 	}
 
 	public IRequestBasedNetworkManagement getRequestBasedNetworkManagementCapability() {
-		return getCapability(IRequestBasedNetworkManagement.class);
+		try {
+			return getCapability(IRequestBasedNetworkManagement.class);
+		} catch (RuntimeException r) {
+			// i don't want to launch an exception here, since it's allowed that resources does not contain IRequestBasedNetworkManagement capabiltiy
+			return null;
+		}
 	}
 
 	public ISliceProvider getSliceProviderCapability() {
@@ -43,7 +52,8 @@ public class NetworkSubResource {
 		try {
 			return serviceProvider.getCapability(resource, capabilityClass);
 		} catch (CapabilityNotFoundException c) {
-			return null;
+			throw new RuntimeException("Necessary capability not bound to resource " + resource, c);
+
 		}
 	}
 

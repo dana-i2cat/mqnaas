@@ -22,8 +22,13 @@ class Slice {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public ISliceAdministration getSliceAdministration() throws CapabilityNotFoundException {
-		return serviceProvider.getCapability(slice, ISliceAdministration.class);
+	public ISliceAdministration getSliceAdministration() {
+		try {
+			return serviceProvider.getCapability(slice, ISliceAdministration.class);
+		} catch (CapabilityNotFoundException e) {
+			throw new RuntimeException("Necessary capability not bound to resource " + slice, e);
+
+		}
 	}
 
 	public IResource getSlice() {

@@ -244,6 +244,12 @@ public class NetworkManagementTest {
 		// get the virtual TSON
 		IResource virtualTson = (tsonResource == tsonResources.get(0)) ? tsonResources.get(1) : tsonResources.get(0);
 
+		IRootResourceProvider netResourceprovider = serviceProvider.getCapability(network, IRootResourceProvider.class);
+		List<IRootResource> netResources = netResourceprovider.getRootResources();
+		Assert.assertNotNull("Network should contain a Tson resource.", netResources);
+		Assert.assertEquals("Network should contain a Tson resource.", 1, netResources.size());
+		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson, netResources.get(0));
+
 		// slice asserts
 		ISliceProvider virtualTsonSliceProvider = serviceProvider.getCapability(virtualTson, ISliceProvider.class);
 		IResource virtualTsonSlice = virtualTsonSliceProvider.getSlice();

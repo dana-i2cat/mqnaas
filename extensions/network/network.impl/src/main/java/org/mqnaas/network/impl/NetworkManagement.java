@@ -131,7 +131,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 			reservationCapability.createReservation(devices, period);
 
-			// TODO include links in logic
+			// add resources to network
+			// TODO be aware of nitos resources
+			serviceProvider.getCapability(networkResource, IRootResourceProvider.class).setRootResources(resourcesToReserve);
 
 			networks.add(networkResource);
 

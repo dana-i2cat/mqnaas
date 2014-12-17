@@ -129,9 +129,10 @@ public class NetworkManagementTest {
 		Endpoint tsonEndpoint = new Endpoint(new URI("http://www.myfaketson.com/tson"));
 
 		// create resources
-		IRootResource tson = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.TSON),
-				Arrays.asList(tsonEndpoint)));
 		IRootResource network = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
+		networkResource = new Network(network, serviceProvider);
+		IRootResource tson = networkResource.createResource(new Specification(Type.TSON), Arrays.asList(tsonEndpoint));
+
 		nitosResource = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "nitos")));
 
 		// define tson slice
@@ -157,7 +158,6 @@ public class NetworkManagementTest {
 		tsonPortManagement.createPort();
 
 		tsonResource = new NetworkSubResource(tson, serviceProvider);
-		networkResource = new Network(network, serviceProvider);
 
 	}
 
@@ -244,11 +244,11 @@ public class NetworkManagementTest {
 		Assert.assertNotNull("Created network resource should contain a bound IRequestManagement Capability",
 				network.getCapability(IRequestManagement.class));
 
-		List<IRootResource> tsonResources = rootResourceProvider.getRootResources(Type.TSON, null, null);
-		Assert.assertEquals("Platform should contain 2 tson Resources: the original one and the slice.", 2, tsonResources.size());
+		List<IRootResource> tsonResources = network.getRootResources(Type.TSON, null, null);
+		Assert.assertEquals("Network should contain 1 tson Resources.", 1, tsonResources.size());
 
 		// get the virtual TSON
-		IResource virtualTsonResource = (tsonResource.getResource() == tsonResources.get(0)) ? tsonResources.get(1) : tsonResources.get(0);
+		IResource virtualTsonResource = network.getRootResources(Type.TSON, null, null).get(0);
 
 		NetworkSubResource virtualTson = new NetworkSubResource(virtualTsonResource, serviceProvider);
 

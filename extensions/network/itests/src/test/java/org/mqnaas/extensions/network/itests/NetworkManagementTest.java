@@ -27,8 +27,9 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.ISliceProvider;
+import org.mqnaas.core.api.slicing.IUnitAdministration;
+import org.mqnaas.core.api.slicing.IUnitManagement;
 import org.mqnaas.core.api.slicing.Range;
-import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
@@ -40,6 +41,7 @@ import org.mqnaas.network.impl.Link;
 import org.mqnaas.network.impl.Network;
 import org.mqnaas.network.impl.NetworkSubResource;
 import org.mqnaas.network.impl.Slice;
+import org.mqnaas.network.impl.Unit;
 import org.mqnaas.network.impl.request.Request;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -137,9 +139,12 @@ public class NetworkManagementTest {
 		IResource slice = sliceProvider.getSlice();
 		ISliceAdministration sliceAdmin = serviceProvider.getCapability(slice, ISliceAdministration.class);
 
-		Unit portUnit = new Unit("port");
-		sliceAdmin.addUnit(portUnit);
-		sliceAdmin.setRange(portUnit, new Range(0, 1));
+		IUnitManagement unitManagement = serviceProvider.getCapability(slice, IUnitManagement.class);
+
+		IResource portUnit = unitManagement.createUnit("port");
+		IUnitAdministration unitAdmin = serviceProvider.getCapability(portUnit, IUnitAdministration.class);
+
+		unitAdmin.setRange(new Range(0, 1));
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
@@ -200,9 +205,9 @@ public class NetworkManagementTest {
 		IResource reqTsonSliceResource = reqTson.getSlice();
 		Slice reqTsonSlice = new Slice(reqTsonSliceResource, serviceProvider);
 
-		Unit portUnit = new Unit("port");
-		reqTsonSlice.addUnit(portUnit);
-		reqTsonSlice.setRange(portUnit, new Range(0, 1));
+		IResource portUnitResource = reqTsonSlice.addUnit("port");
+		Unit unit = new Unit(portUnitResource, serviceProvider);
+		unit.setRange(new Range(0, 1));
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
@@ -258,11 +263,11 @@ public class NetworkManagementTest {
 
 		ISliceAdministration virtualTsonSliceAdmin = virtualTsonSlice.getSliceAdministration();
 		Assert.assertEquals("Virtual Tson should contain created slice cube.", Arrays.asList(cube), virtualTsonSliceAdmin.getCubes());
-		Assert.assertEquals("Virtual Tson should contain two ports.", "XX", virtualTsonSliceAdmin.toString());
+		Assert.assertEquals("Virtual Tson should contain two ports.", "XX", virtualTsonSlice.toMatrix());
 
-		IResource phySlice = tsonResource.getSlice();
-		ISliceAdministration phySliceAdmin = serviceProvider.getCapability(phySlice, ISliceAdministration.class);
-		Assert.assertEquals("Virtual Tson should contain no ports.", "OO", phySliceAdmin.toString());
+		IResource phySliceResource = tsonResource.getSlice();
+		Slice phySlice = new Slice(phySliceResource, serviceProvider);
+		Assert.assertEquals("Virtual Tson should contain no ports.", "OO", phySlice.toMatrix());
 
 		// links asserts
 

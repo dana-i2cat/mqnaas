@@ -26,8 +26,8 @@ import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.core.api.slicing.SlicingException;
-import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.core.impl.slicing.UnitResource;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.Period;
@@ -208,8 +208,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		// create slice
 		IResource newResource = phySlicingCapab.createSlice(virtSlice.getSlice());
 
-		ISliceAdministration virtSliceAdminCapab2 = virtSlice.getSliceAdministration();
-
 		// remove slice information from physical
 		phySliceAdminCapab.cut(virtSlice.getSlice());
 
@@ -217,10 +215,15 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		ISliceProvider sliceProvider = newSubnetResource.getSliceProviderCapability();
 		Slice newResourceSlice = new Slice(sliceProvider.getSlice(), serviceProvider);
 		ISliceAdministration newResourceSliceAdminCapab = newResourceSlice.getSliceAdministration();
-		for (Unit unit : virtSliceAdminCapab.getUnits()) {
-			Unit unit2 = new Unit(unit.getName());
-			newResourceSliceAdminCapab.addUnit(unit2);
-			newResourceSliceAdminCapab.setRange(unit2, virtSliceAdminCapab.getRange(unit));
+		for (IResource unit : virtSlice.getUnits()) {
+
+			Unit virtUnitResource = new Unit(unit, serviceProvider);
+
+			IResource unit2 = newResourceSlice.addUnit(((UnitResource) virtUnitResource.getUnit()).getName());
+
+			Unit unitResource = new Unit(unit2, serviceProvider);
+			unitResource.setRange(virtUnitResource.getRange());
+
 		}
 		newResourceSliceAdminCapab.setCubes(virtSliceAdminCapab.getCubes());
 

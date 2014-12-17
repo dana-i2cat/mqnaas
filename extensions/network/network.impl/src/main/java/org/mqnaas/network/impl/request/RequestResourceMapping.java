@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.impl.RequestResource;
 
@@ -20,19 +19,19 @@ import org.mqnaas.network.impl.RequestResource;
  */
 public class RequestResourceMapping implements IRequestResourceMapping {
 
-	private Map<IResource, IRootResource>	mapping;
+	private Map<IResource, IResource>	mapping;
 
 	public static boolean isSupporting(IResource resource) {
 		return resource instanceof RequestResource;
 	}
 
 	@Override
-	public void defineMapping(IResource requestResource, IRootResource rootResource) {
+	public void defineMapping(IResource requestResource, IResource rootResource) {
 		mapping.put(requestResource, rootResource);
 	}
 
 	@Override
-	public IRootResource getMapping(IResource requestResource) {
+	public IResource getMapping(IResource requestResource) {
 		return mapping.get(requestResource);
 	}
 
@@ -48,7 +47,7 @@ public class RequestResourceMapping implements IRequestResourceMapping {
 
 	@Override
 	public void activate() {
-		mapping = new ConcurrentHashMap<IResource, IRootResource>();
+		mapping = new ConcurrentHashMap<IResource, IResource>();
 	}
 
 	@Override

@@ -30,6 +30,12 @@
 			<artifactId>network.api</artifactId>
 		</dependency>
 
+		<!-- Reservation Capability -->
+		<dependency>
+			<groupId>net.i2cat.dana.mqnaas</groupId>
+			<artifactId>reservation-capability</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -43,6 +49,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.network.impl,
+							org.mqnaas.network.impl.request,
 							org.mqnaas.network.impl.topology.port,
 							org.mqnaas.network.impl.topology.link
 						</Export-Package>

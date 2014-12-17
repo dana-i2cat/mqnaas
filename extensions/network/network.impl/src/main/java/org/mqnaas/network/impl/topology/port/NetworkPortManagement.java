@@ -8,6 +8,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
+import org.mqnaas.network.impl.RequestResource;
 
 /**
  * Implementation of the {@link INetworkPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to networks.
@@ -17,9 +18,11 @@ import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 public class NetworkPortManagement implements INetworkPortManagement {
 
 	public static boolean isSupporting(IRootResource resource) {
-		Type type = resource.getDescriptor().getSpecification().getType();
+		return resource.getDescriptor().getSpecification().getType().equals(Type.NETWORK);
+	}
 
-		return type.equals(Type.NETWORK);
+	public static boolean isSupporting(IResource resource) {
+		return resource instanceof RequestResource;
 	}
 
 	private List<PortResource>	ports;

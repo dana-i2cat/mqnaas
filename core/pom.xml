@@ -96,6 +96,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.impl,
+							org.mqnaas.core.impl.slicing,
 							org.mqnaas.core.impl.notificationfilter,
 							org.mqnaas.core.impl.resourcetree,
 							org.mqnaas.core.impl.scheduling

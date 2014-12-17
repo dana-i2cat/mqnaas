@@ -21,7 +21,7 @@
 		<!-- UTF-8 encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<!-- MQNaaS version -->
-		<mqnaas-version>0.0.1-SNAPSHOT</mqnaas-version>
+		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
 
 		<build-helper-maven-plugin.version>1.8</build-helper-maven-plugin.version>
 
@@ -66,17 +66,17 @@
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core.api</artifactId>
-				<version>${mqnaas-version}</version>
+				<version>${mqnaas.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>core</artifactId>
-				<version>${mqnaas-version}</version>
+				<version>${mqnaas.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mqnaas</groupId>
 				<artifactId>test-helpers</artifactId>
-				<version>${mqnaas-version}</version>
+				<version>${mqnaas.version}</version>
 				<scope>test</scope>		
 			</dependency>
 			<!-- Testing libraries -->

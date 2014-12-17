@@ -124,7 +124,7 @@ class Slice {
 	public String toString() {
 		return "Slice [id=" + slice.getId() + ", units=" + getUnits() + "]\nCubes defined: " + getCubes() + "\nCubes available: " + getAvailableCubes();
 	}
-	
+
 	public String toMatrix() {
 
 		StringBuilder sb = new StringBuilder();

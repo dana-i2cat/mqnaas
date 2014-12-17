@@ -5,20 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.SerializationUtils;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SlicingException;
-import org.mqnaas.core.api.slicing.Unit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,15 +27,21 @@ import org.slf4j.LoggerFactory;
  */
 public class SliceAdministration implements ISliceAdministration {
 
+	@DependingOn
+	private IServiceProvider	serviceProvider;
+
+	@Resource
+	private IResource			resource;
+
+	private Slice				slice;
+
 	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministration.class);
 
-	private List<Unit>			units;
-	private Map<Unit, Range>	ranges;
 	Object						originalData;
 	Object						currentData;
 
-	@DependingOn
-	IServiceProvider			serviceProvider;
+	// Once the currentData is initialized, this variable contains the number of dimensions
+	private int					nDimensions;
 
 	public SliceAdministration() {
 	}
@@ -49,33 +52,12 @@ public class SliceAdministration implements ISliceAdministration {
 
 	@Override
 	public void activate() {
-		units = new CopyOnWriteArrayList<Unit>();
-		ranges = new ConcurrentHashMap<Unit, Range>();
+		slice = new Slice(resource, serviceProvider);
 	}
 
 	@Override
 	public void deactivate() {
 		// TODO should the original and current data be set to "null"
-	}
-
-	@Override
-	public void addUnit(Unit unit) {
-		units.add(unit);
-	}
-
-	@Override
-	public Unit[] getUnits() {
-		return units.toArray(new Unit[units.size()]);
-	}
-
-	@Override
-	public void setRange(Unit unit, Range range) {
-		ranges.put(unit, range);
-	}
-
-	@Override
-	public Range getRange(Unit unit) {
-		return ranges.get(unit);
 	}
 
 	/**
@@ -86,125 +68,138 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	@Override
 	public void setCubes(Collection<Cube> cubes) {
-		initData();
+		try {
+			initData();
 
-		int[] lowerBounds = new int[units.size()];
-		int[] upperBounds = new int[units.size()];
+			List<Unit> units = slice.getUnits();
 
-		for (Cube cube : cubes) {
+			int[] lowerBounds = new int[units.size()];
+			int[] upperBounds = new int[units.size()];
 
-			Range[] ranges = cube.getRanges();
-			for (int i = 0; i < units.size(); i++) {
-				lowerBounds[i] = ranges[i].getLowerBound() - this.ranges.get(units.get(i)).getLowerBound();
-				upperBounds[i] = ranges[i].getUpperBound() - this.ranges.get(units.get(i)).getLowerBound();
+			for (Cube cube : cubes) {
+
+				Range[] ranges = cube.getRanges();
+				int i = 0;
+
+				for (Unit unit : units) {
+					int lowerBound = unit.getRange().getLowerBound();
+
+					lowerBounds[i] = ranges[i].getLowerBound() - lowerBound;
+					upperBounds[i] = ranges[i].getUpperBound() - lowerBound;
+					i++;
+				}
+
+				SetOperation set = new SetOperation();
+				executeOperation(null, lowerBounds, upperBounds, set);
 			}
 
-			SetOperation set = new SetOperation();
-			executeOperation(null, lowerBounds, upperBounds, set);
-		}
+			// if is the first time this method is call, we must initialize the originalData values as a copy of the currentData one.
+			if (originalData == null)
+				originalData = cloneSliceData(currentData, units.size());
 
-		// if is the first time this method is call, we must initialize the originalData values as a copy of the currentData one.
-		if (originalData == null)
-			originalData = cloneSliceData(currentData, units.size());
+		} catch (CapabilityNotFoundException e) {
+			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
+		}
 	}
 
 	@Override
-	public boolean contains(IResource slice) throws SlicingException {
-		initData();
-
+	public boolean contains(IResource otherResource) throws SlicingException {
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
+			initData();
 
-			compareSliceDefinition(otherAdministration);
+			Slice other = new Slice(otherResource, serviceProvider);
+
+			compareSliceDefinition(other);
+
+			List<Unit> units = slice.getUnits();
 
 			int[] lbs = new int[units.size()], ubs = new int[units.size()];
-
 			initUpperBounds(ubs);
 
 			ContainsOperation contains = new ContainsOperation();
-			executeOperation(otherAdministration.getData(), lbs, ubs, contains);
+			executeOperation(other.getData(), lbs, ubs, contains);
 			return contains.getResult();
 		} catch (CapabilityNotFoundException e) {
-			throw new SlicingException("Given slice does not support " + ISliceAdministration.class.getName());
+			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
 		}
 
 	}
 
 	@Override
-	public void cut(IResource slice) throws SlicingException {
-
-		log.info("Cutting slice");
-
-		initData();
+	public void cut(IResource otherResource) throws SlicingException {
 
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
+			log.info("Cutting slice");
+			initData();
 
-			compareSliceDefinition(otherAdministration);
+			Slice other = new Slice(otherResource, serviceProvider);
+
+			compareSliceDefinition(other);
+
+			List<Unit> units = slice.getUnits();
 
 			int[] lbs = new int[units.size()], ubs = new int[units.size()];
-
 			initUpperBounds(ubs);
 
 			ContainsOperation contains = new ContainsOperation();
-			executeOperation(otherAdministration.getData(), lbs, ubs, contains);
+			executeOperation(other.getData(), lbs, ubs, contains);
 
 			if (!contains.getResult())
 				throw new SlicingException("Given slice contains values that are not in the original slice.");
 
 			CutOperation cut = new CutOperation();
-			executeOperation(otherAdministration.getData(), lbs, ubs, cut);
+			executeOperation(other.getData(), lbs, ubs, cut);
 
 			log.info("Slice cut");
 		} catch (CapabilityNotFoundException e) {
-			throw new SlicingException("Given slice does not support " + ISliceAdministration.class.getName());
+			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
 		}
 	}
 
 	@Override
-	public void add(IResource slice) throws SlicingException {
-
-		log.info("Adding slice.");
-
-		initData();
+	public void add(IResource otherResource) throws SlicingException {
 
 		try {
-			ISliceAdministration otherAdministration = serviceProvider.getCapability(slice, ISliceAdministration.class);
+			log.info("Adding slice.");
+			initData();
 
-			compareSliceDefinition(otherAdministration);
+			Slice other = new Slice(otherResource, serviceProvider);
 
-			if (otherAdministration.isInOperationalState())
+			compareSliceDefinition(other);
+
+			if (other.isInOperationalState())
 				throw new SlicingException("Can not add slice to current one since given slice is in operational state.");
 
-			int[] lbs = new int[units.size()], ubs = new int[units.size()];
+			List<Unit> units = slice.getUnits();
 
+			int[] lbs = new int[units.size()], ubs = new int[units.size()];
 			initUpperBounds(ubs);
 
 			NotContainsOperation preAdd = new NotContainsOperation();
-			executeOperation(otherAdministration.getData(), lbs, ubs, preAdd);
+			executeOperation(other.getData(), lbs, ubs, preAdd);
 
 			if (!preAdd.getResult())
 				throw new SlicingException("Given slice contains values that are already in the original slice.");
 
 			AddOperation add = new AddOperation();
-			executeOperation(otherAdministration.getData(), lbs, ubs, add);
+			executeOperation(other.getData(), lbs, ubs, add);
 
 			log.info("Slice added");
 
 		} catch (CapabilityNotFoundException e) {
-			throw new SlicingException("Given slice does not support " + ISliceAdministration.class.getName());
+			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
 		}
 
 	}
 
 	@Override
 	public Collection<Cube> getCubes() {
-		return compactize(originalData);
+		return originalData != null ? compactize(originalData) : null;
 	}
 
 	@Override
 	public Collection<Cube> getAvailableCubes() {
-		return compactize(currentData);
+		return currentData != null ? compactize(currentData) : null;
 
 	}
 
@@ -229,17 +224,14 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	public boolean isInOperationalState() {
 
+		List<Unit> units = slice.getUnits();
+
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
 		initUpperBounds(ubs);
 
 		int sizes[] = new int[ubs.length];
 		for (int i = 0; i < ubs.length; i++)
 			sizes[i] = ubs[i] + 1;
-
-		// SliceAdministration other = new SliceAdministration();
-		// other.currentData = this.originalData;
-		// other.ranges = this.ranges;
-		// other.units = this.units;
 
 		ContainsOperation contains = new ContainsOperation();
 		executeOperation(originalData, lbs, ubs, contains);
@@ -253,15 +245,20 @@ public class SliceAdministration implements ISliceAdministration {
 	 * @param cubes
 	 *            Cubes that will be markes as unavaiable in the current live space.
 	 */
-	void unset(Cube... cubes) {
+	public void unsetCubes(Collection<Cube> cubes) {
+
+		List<Unit> units = slice.getUnits();
+
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
 		for (Cube cube : cubes) {
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
-				lowerBounds[i] = ranges[i].getLowerBound() - this.ranges.get(units.get(i)).getLowerBound();
-				upperBounds[i] = ranges[i].getUpperBound() - this.ranges.get(units.get(i)).getLowerBound();
+				int lowerBound = units.get(i).getRange().getLowerBound();
+
+				lowerBounds[i] = ranges[i].getLowerBound() - lowerBound;
+				upperBounds[i] = ranges[i].getUpperBound() - lowerBound;
 			}
 
 			UnsetOperation set = new UnsetOperation();
@@ -272,12 +269,16 @@ public class SliceAdministration implements ISliceAdministration {
 	/**
 	 * Initialize the internal structures of the this capability, i.e., the information of the current slice information.
 	 */
-	private void initData() {
+	private void initData() throws CapabilityNotFoundException {
 		if (currentData == null) {
-			int[] dimensions = new int[ranges.size()];
+			List<Unit> units = slice.getUnits();
+
+			nDimensions = units.size();
+
+			int[] dimensions = new int[units.size()];
 			int i = 0;
 			for (Unit unit : units)
-				dimensions[i++] = ranges.get(unit).size();
+				dimensions[i++] = unit.getRange().size();
 
 			currentData = Array.newInstance(boolean.class, dimensions);
 
@@ -313,7 +314,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 *            boolean value to be set in this position.
 	 */
 	private void set(Object data, int[] coords, boolean value) {
-		switch (units.size()) {
+		switch (nDimensions) {
 			case 1:
 				boolean d1[] = (boolean[]) data;
 				d1[coords[0]] = value;
@@ -356,7 +357,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 * 
 	 */
 	private boolean get(Object data, int[] coords) {
-		switch (units.size()) {
+		switch (nDimensions) {
 			case 1:
 				boolean d1[] = (boolean[]) data;
 				return d1[coords[0]];
@@ -385,34 +386,19 @@ public class SliceAdministration implements ISliceAdministration {
 	private void initUpperBounds(int[] ubs) {
 		Object it = currentData;
 
-		for (int i = 0; i < units.size(); i++) {
+		for (int i = 0; i < ubs.length; i++) {
 			ubs[i] = Array.getLength(it) - 1;
 			it = Array.get(it, 0);
 		}
 	}
 
-	/**
-	 * Creates a copy of the <code>original</code> {@link SliceAdministration}
-	 * 
-	 * @param data
-	 * @param sizes
-	 * 
-	 * @param original
-	 *            SliceAdministrationCapability to be cloned.
-	 */
-	// private SliceAdministration(List<Unit> units, Map<Unit, Range> ranges, Object sliceData) {
-	// this.units = new CopyOnWriteArrayList<Unit>(units);
-	// this.ranges = new ConcurrentHashMap<Unit, Range>(ranges);
-	// currentData = cloneSliceData(sliceData, units.size());
-	// originalData = cloneSliceData(sliceData, units.size());
-	//
-	// }
-
 	private List<Cube> compactize(Object data) {
 
-		int[] lbs = new int[units.size()], ubs = new int[units.size()];
+		List<Unit> units = slice.getUnits();
 
+		int[] lbs = new int[units.size()], ubs = new int[units.size()];
 		initUpperBounds(ubs);
+
 		Object dataCopy = cloneSliceData(data, units.size());
 		CompatizeOperation operation = new CompatizeOperation();
 		executeOperation(dataCopy, lbs, ubs, operation);
@@ -687,15 +673,18 @@ public class SliceAdministration implements ISliceAdministration {
 		} while (c[l - 1] <= ubs[l - 1]);
 	}
 
-	private void compareSliceDefinition(ISliceAdministration other) {
+	private void compareSliceDefinition(Slice other) throws CapabilityNotFoundException {
 
 		log.debug("Comparing if both slices have same dimensions and same length for each slice units.");
 
-		if (other.getUnits().length != this.units.size())
+		List<Unit> units = slice.getUnits();
+		List<Unit> otherUnits = other.getUnits();
+
+		if (otherUnits.size() != units.size())
 			throw new IllegalArgumentException("Only slices with same dimensions can be compared.");
 
-		for (int i = 0; i < this.units.size(); i++)
-			if (!this.units.get(i).equals(other.getUnits()[i]))
+		for (int i = 0; i < units.size(); i++)
+			if (!units.get(i).equals(otherUnits.get(i)))
 				throw new IllegalArgumentException("Slices units must be defined in same order.");
 
 		switch (units.size()) {
@@ -704,7 +693,7 @@ public class SliceAdministration implements ISliceAdministration {
 				boolean otherD1[] = (boolean[]) other.getData();
 
 				if (d1.length != otherD1.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(0));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(0));
 
 				break;
 			case 2:
@@ -713,9 +702,9 @@ public class SliceAdministration implements ISliceAdministration {
 				boolean otherD2[][] = (boolean[][]) other.getData();
 
 				if (d2.length != otherD2.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(0));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(0));
 				if (d2[0].length != otherD2[0].length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(1));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(1));
 
 				break;
 			case 3:
@@ -723,11 +712,11 @@ public class SliceAdministration implements ISliceAdministration {
 				boolean otherD3[][][] = (boolean[][][]) other.getData();
 
 				if (d3.length != otherD3.length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(0));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(0));
 				if (d3[0].length != otherD3[0].length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(1));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(1));
 				if (d3[0][0].length != otherD3[0][0].length)
-					throw new IllegalArgumentException("Slices have different size for slice unit " + this.units.get(2));
+					throw new IllegalArgumentException("Slices have different size for slice unit " + units.get(2));
 
 				break;
 			default:
@@ -748,64 +737,11 @@ public class SliceAdministration implements ISliceAdministration {
 	// }
 
 	@Override
-	public String toString() {
-
-		StringBuilder sb = new StringBuilder();
-
-		switch (units.size()) {
-			case 1:
-				boolean d1[] = (boolean[]) currentData;
-
-				for (int x = 0; x < d1.length; x++) {
-					if (d1[x])
-						sb.append("X");
-					else
-						sb.append("O");
-				}
-				break;
-			case 2:
-				boolean d2[][] = (boolean[][]) currentData;
-
-				for (int x = 0; x < d2.length; x++) {
-					for (int y = 0; y < d2[0].length; y++) {
-						if (d2[x][y])
-							sb.append("X");
-						else
-							sb.append("O");
-					}
-					sb.append("\n");
-				}
-				break;
-			case 3:
-				boolean d3[][][] = (boolean[][][]) currentData;
-
-				for (int x = 0; x < d3.length; x++) {
-					for (int y = 0; y < d3[0].length; y++) {
-						for (int z = 0; z < d3[0][0].length; z++) {
-							if (d3[x][y][z])
-								sb.append("X");
-							else
-								sb.append("O");
-						}
-						sb.append("\n");
-					}
-					sb.append("\n");
-				}
-				break;
-
-		}
-
-		return sb.toString();
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((currentData == null) ? 0 : currentData.hashCode());
 		result = prime * result + ((originalData == null) ? 0 : originalData.hashCode());
-		result = prime * result + ((ranges == null) ? 0 : ranges.hashCode());
-		result = prime * result + ((units == null) ? 0 : units.hashCode());
 		return result;
 	}
 
@@ -827,16 +763,6 @@ public class SliceAdministration implements ISliceAdministration {
 			if (other.originalData != null)
 				return false;
 		} else if (!originalData.equals(other.originalData))
-			return false;
-		if (ranges == null) {
-			if (other.ranges != null)
-				return false;
-		} else if (!ranges.equals(other.ranges))
-			return false;
-		if (units == null) {
-			if (other.units != null)
-				return false;
-		} else if (!units.equals(other.units))
 			return false;
 		return true;
 	}

@@ -13,7 +13,6 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.Specification.Type;
-import org.mqnaas.core.api.slicing.Unit;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;
 
@@ -22,7 +21,6 @@ public class RootResourceDescriptorSerializationTest {
 	private final static String	RESULT_FILE		= "/serialization/descriptor/descriptor.xml";
 	private final static String	VERSION			= "1.0";
 	private static final String	MODEL			= "Juniper";
-	private final static String	SLICE_UNIT_NAME	= "vlan";
 	
 	@Test
 	public void descriptorSerializationTest() throws JAXBException, SAXException, IOException, URISyntaxException {
@@ -45,7 +43,6 @@ public class RootResourceDescriptorSerializationTest {
 		Assert.assertEquals("Deserialized descriptor should be equals to the sample one.", expectedDesc, deserializedDesc);
 	}
 	
-	
 	private RootResourceDescriptor generateSampleDesc() throws URISyntaxException {
 		
 		List<Endpoint> endpoints = new ArrayList<Endpoint>(2);
@@ -57,17 +54,7 @@ public class RootResourceDescriptorSerializationTest {
 	}
 	
 	private Specification generateSampleSpec() {
-
-		Unit su = new Unit(SLICE_UNIT_NAME);
-
-		List<Unit> sliceUnits = new ArrayList<Unit>();
-		sliceUnits.add(su);
-
-		Specification spec = new Specification(Type.SWITCH, MODEL, VERSION);
-		spec.setSliceUnits(sliceUnits);
-
-		return spec;
-
+		return new Specification(Type.SWITCH, MODEL, VERSION);
 	}
 
 }

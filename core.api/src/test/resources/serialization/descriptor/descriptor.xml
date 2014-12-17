@@ -4,10 +4,6 @@
         <type>SWITCH</type>
         <model>Juniper</model>
         <version>1.0</version>
-        <sliceUnits>
-            <name>vlan</name>
-            <type>DISCRETE</type>
-        </sliceUnits>
     </specification>
     <endpoints>
         <endpoint>

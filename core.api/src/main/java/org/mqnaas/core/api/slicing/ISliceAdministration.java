@@ -17,30 +17,16 @@ import org.mqnaas.core.api.IResource;
 public interface ISliceAdministration extends ICapability {
 
 	/**
-	 * Adds a slice unit, e.g. a new axis the slice space.
+	 * Initializes the given {@link Cube}s in the space of this slice, e.g. defines the elements within the <code>cube</code>s as slicing units.
 	 */
-	void addUnit(Unit unit);
+	void setCubes(Collection<Cube> cubes);
+	
 
 	/**
-	 * Returns all units defined in this slice space in the order the were defined.
+	 * Initializes the given {@link Cube}s in the space of this slice, e.g. clears the elements within the <code>cube</code>s from being slicing units.
+	 * @param cubes
 	 */
-	Unit[] getUnits();
-
-	/**
-	 * Initializes the {@link Range} for the given {@link Unit}, e.g. the width of the available slicing elements along that axis.
-	 */
-	void setRange(Unit unit, Range range);
-
-	/**
-	 * Returns the {@link Range} defined for the given slice {@link Unit}. If the give <code>unit</code> is not defined in this slice,
-	 * <code>null</code> is returned.
-	 */
-	Range getRange(Unit unit);
-
-	/**
-	 * Initializes the given {@link Cube} in the space of this slice, e.g. defines the elements within the <code>cube</code> as slicing units.
-	 */
-	void setCubes(Collection<Cube> cube);
+	void unsetCubes(Collection<Cube> cubes);
 
 	/**
 	 * <p>
@@ -107,5 +93,6 @@ public interface ISliceAdministration extends ICapability {
 	 * @return the boolean array
 	 */
 	Object getData();
+
 
 }

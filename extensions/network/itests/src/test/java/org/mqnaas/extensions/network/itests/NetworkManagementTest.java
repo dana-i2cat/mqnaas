@@ -147,6 +147,7 @@ public class NetworkManagementTest {
 		IPortManagement tsonPortManagement = serviceProvider.getCapability(tsonResource, IPortManagement.class);
 		tsonPortManagement.createPort();
 		tsonPortManagement.createPort();
+		tsonPortManagement.createPort();
 
 	}
 
@@ -163,7 +164,7 @@ public class NetworkManagementTest {
 		ILinkManagement linkMgmCapab = serviceProvider.getCapability(request, ILinkManagement.class);
 		IRequestAdministration requestAdminCapab = serviceProvider.getCapability(request, IRequestAdministration.class);
 		IRequestResourceManagement reqResourceMgm = serviceProvider.getCapability(request, IRequestResourceManagement.class);
-
+		INetworkPortManagement reqNetPortMgm = serviceProvider.getCapability(request, INetworkPortManagement.class);
 		// 3. fill request
 
 		// // 3.1 add request resources and mapping
@@ -171,7 +172,7 @@ public class NetworkManagementTest {
 		IResource reqTsonResource = reqResourceMgm.createResource(Type.TSON);
 		mappingCapab.defineMapping(reqTsonResource, tsonResource);
 
-		// // 3.2 specify request ports
+		// // 3.2 specify internal ports
 		IPortManagement portMgmCapab = serviceProvider.getCapability(reqTsonResource, IPortManagement.class);
 
 		IResource reqPort1 = portMgmCapab.createPort();
@@ -182,13 +183,20 @@ public class NetworkManagementTest {
 		IResource tsonPort2 = serviceProvider.getCapability(tsonResource, IPortManagement.class).getPorts().get(1);
 		mappingCapab.defineMapping(reqPort2, tsonPort2);
 
-		// // 3.3 specify links
+		// // 3.3 specify network external ports.
+
+		IResource reqPort3 = portMgmCapab.createPort();
+		IResource tsonPort3 = serviceProvider.getCapability(tsonResource, IPortManagement.class).getPorts().get(2);
+		mappingCapab.defineMapping(reqPort3, tsonPort3);
+		reqNetPortMgm.addPort(reqPort3);
+
+		// // 3.4 specify links
 		IResource reqLink = linkMgmCapab.createLink();
 		ILinkAdministration linkAdminCapab = serviceProvider.getCapability(reqLink, ILinkAdministration.class);
 		linkAdminCapab.setSrcPort(reqPort1);
 		linkAdminCapab.setDestPort(reqPort2);
 
-		// // 3.4 create Slice - first version contains whole slice
+		// // 3.5 create Slice - first version contains whole slice
 		ISliceProvider reqTsonSliceCapab = serviceProvider.getCapability(reqTsonResource, ISliceProvider.class);
 		IResource reqTsonSlice = reqTsonSliceCapab.getSlice();
 		ISliceAdministration reqtTsonSliceAdmin = serviceProvider.getCapability(reqTsonSlice, ISliceAdministration.class);
@@ -201,7 +209,7 @@ public class NetworkManagementTest {
 		cube.setRanges(new Range[] { new Range(0, 1) });
 		reqtTsonSliceAdmin.setCubes(Arrays.asList(cube));
 
-		// // 3.5 add request period
+		// // 3.6 add request period
 		long currentTime = System.currentTimeMillis();
 		Period period = new Period(new Date(currentTime), new Date(currentTime + 2000000L));
 		requestAdminCapab.setPeriod(period);
@@ -260,6 +268,14 @@ public class NetworkManagementTest {
 		Assert.assertNotNull("Link should contain a destination port", linkAdministration.getDestPort());
 		Assert.assertEquals(tsonPort1, linkAdministration.getSrcPort());
 		Assert.assertEquals(tsonPort2, linkAdministration.getDestPort());
+
+		// networkports asserts
+
+		INetworkPortManagement netPortMgm = serviceProvider.getCapability(network, INetworkPortManagement.class);
+		List<IResource> netPorts = netPortMgm.getPorts();
+		Assert.assertNotNull("Network should contain an external port.", netPorts);
+		Assert.assertEquals("Network should contain an external port.", 1, netPorts.size());
+		Assert.assertEquals("Network should contain tsonPort3 as external port.", tsonPort3, netPorts.get(0));
 
 	}
 }

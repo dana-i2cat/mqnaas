@@ -32,7 +32,10 @@ import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
+import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.impl.request.Request;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manages network resources and provides services to create and release new networks based on network request.
@@ -40,6 +43,8 @@ import org.mqnaas.network.impl.request.Request;
  * @author Georg Mansky-Kummert
  */
 public class NetworkManagement implements IRequestBasedNetworkManagement {
+
+	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagement.class);
 
 	public static boolean isSupporting(IRootResource rootResource) {
 		return rootResource.getDescriptor().getSpecification().getType() == Type.NETWORK;
@@ -112,7 +117,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			}
 
 			createNetworkLinks(networkResource, request);
-
+			defineNetworkPorts(networkResource, request);
 			// reserve!!
 			Period period = request.getPeriod();
 			Set<Device> devices = new HashSet<Device>();
@@ -162,6 +167,26 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			netLink.setSrcPort(srcPort);
 			netLink.setDstPort(dstPort);
 		}
+	}
+
+	private void defineNetworkPorts(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
+
+		log.info("Defining network external ports for network " + networkResource.getId());
+
+		List<IResource> reqPorts = request.getNetworkPorts();
+		for (IResource reqPort : reqPorts) {
+
+			IResource phyPort = request.getMappedDevice(reqPort);
+			if (phyPort == null) {
+				log.warn("Request port " + reqPort.getId() + " does not have any physical port. Skipping it...");
+			}
+			else {
+				INetworkPortManagement netPortMgm = serviceProvider.getCapability(networkResource, INetworkPortManagement.class);
+				netPortMgm.addPort(phyPort);
+				log.debug("Added port " + phyPort.getId() + " to network " + networkResource.getId());
+			}
+		}
+
 	}
 
 	private IResource createSlice(NetworkSubResource phyResource, NetworkSubResource virtualResource) throws SlicingException,

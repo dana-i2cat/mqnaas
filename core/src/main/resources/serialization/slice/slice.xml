@@ -1,4 +1,5 @@
 <ns2:unit xmlns:ns2="org.mqnaas">
+    <id>unit-0</id>
     <name>vlan</name>
     <type>DISCRETE</type>
 </ns2:unit>

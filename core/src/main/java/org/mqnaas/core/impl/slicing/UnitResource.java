@@ -1,51 +1,65 @@
-package org.mqnaas.core.api.slicing;
+package org.mqnaas.core.impl.slicing;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.mqnaas.core.api.IResource;
+
 /**
  * 
  * <p>
- * A SliceUnit represents one dimension of the multi-dimensional space offered by the slice.Each of these units has a name and a type.
+ * A SliceUnit represents one dimension of the multi-dimensional space offered by the slice. Each of these units has a name and a type.
  * </p>
  * 
  * @author Georg Mansky-Kummert (i2CAT)
  * @author Adrián Roselló Rey (i2CAT)
  * 
  */
-@XmlRootElement(namespace = "org.mqnaas")
+@XmlRootElement(namespace = "org.mqnaas", name = "unit")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Unit implements Serializable {
+public class UnitResource implements IResource, Serializable {
 
-	private static final long	serialVersionUID	= -731594872847650988L;
+	private static final long		serialVersionUID	= -731594872847650988L;
+
+	private static AtomicInteger	ID_COUNTER			= new AtomicInteger();
+
+	private String					id;
 
 	@XmlEnum
-	public enum SliceType {
+	public enum Type {
 		DISCRETE;
 	}
 
-	private String		name;
-	private SliceType	type;
+	private String	name;
+	private Type	type;
 
 	// no-arg constructor for JAXB
-	public Unit() {
+	UnitResource() {
 	}
 
-	public Unit(String name) {
+	public UnitResource(String name) {
 		this.name = name;
-		this.type = SliceType.DISCRETE;
+		this.type = Type.DISCRETE;
+
+		id = "unit-" + ID_COUNTER.incrementAndGet();
 	}
 
 	public String getName() {
 		return name;
 	}
 
-	public SliceType getType() {
+	public Type getType() {
 		return type;
+	}
+
+	@Override
+	public String getId() {
+		return id;
 	}
 
 	@Override
@@ -65,7 +79,7 @@ public class Unit implements Serializable {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Unit other = (Unit) obj;
+		UnitResource other = (UnitResource) obj;
 		if (name == null) {
 			if (other.name != null)
 				return false;

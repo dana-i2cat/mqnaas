@@ -31,7 +31,7 @@ public class Network {
 	}
 
 	public List<IRootResource> getResources() {
-		return getCapability(IRootResourceProvider.class).getRootResources();
+		return getRootResourceProvider().getRootResources();
 	}
 
 	public <C extends ICapability> C getCapability(Class<C> capabilityClass) {
@@ -73,11 +73,16 @@ public class Network {
 		return getCapability(IRootResourceAdministration.class);
 	}
 
-	private IRootResourceProvider getRootResourceProvider() {
+	public IRootResourceProvider getRootResourceProvider() {
 		return getCapability(IRootResourceProvider.class);
 	}
 
 	public List<IRootResource> getRootResources(Type type, String model, String version) throws ResourceNotFoundException {
 		return getRootResourceProvider().getRootResources(type, model, version);
+	}
+
+	public void setRootResources(List<IRootResource> virtualNetworkResources) {
+		getRootResourceProvider().setRootResources(virtualNetworkResources);
+
 	}
 }

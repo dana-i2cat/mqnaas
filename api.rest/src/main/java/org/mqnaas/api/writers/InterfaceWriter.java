@@ -68,7 +68,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
-			log.trace("Found AddsResource annotated method.");
+			log.trace("Found AddsResource annotated method: " + m);
 
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
@@ -81,7 +81,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
 
-			log.trace("Found RemovesResource annotated method.");
+			log.trace("Found RemovesResource annotated method: " + m);
 
 			Class<?> parameterClass = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[0]);
 
@@ -95,7 +95,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(ListsResources.class)) {
 
-			log.trace("Found ListsResources annotated method.");
+			log.trace("Found ListsResources annotated method: " + m);
 
 			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(),
 					m.getParameterTypes(),
@@ -130,19 +130,21 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			String serviceName = method.getName();
 			if (serviceName.startsWith("get") && serviceName.length() > 3) {
-				log.trace("Found \"get\" method.");
+				log.trace("Found \"get\" method: " + method);
 
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 			}
 
 			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
-				log.trace("Found \"set\" method.");
+				log.trace("Found \"set\" method: " + method);
 
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
 
 				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
-					log.trace("Found XMLRootElement.");
+					log.trace("Found XMLRootElement of type " + method.getParameterTypes()[0]);
+				} else if (method.getParameterTypes().length < 1) {
+					// TODO treat multiple parameter setters
 				}
 			}
 

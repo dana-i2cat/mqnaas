@@ -34,23 +34,23 @@ public class Request {
 		return request;
 	}
 
-	private IRequestResourceMapping getMapping() throws CapabilityNotFoundException {
+	private IRequestResourceMapping getMapping() {
 		return getCapability(IRequestResourceMapping.class);
 	}
 
-	private IResource getMapping(IResource resource) throws CapabilityNotFoundException {
+	private IResource getMapping(IResource resource) {
 		return getMapping().getMapping(resource);
 	}
 
-	public Collection<IResource> getMappedDevices() throws CapabilityNotFoundException {
+	public Collection<IResource> getMappedDevices() {
 		return getMapping().getMappedDevices();
 	}
 
-	public List<IResource> getRootResources() throws CapabilityNotFoundException {
+	public List<IResource> getRootResources() {
 		return getCapability(IRequestResourceManagement.class).getResources();
 	}
 
-	public IResource getMappedDevice(IResource resource) throws CapabilityNotFoundException {
+	public IResource getMappedDevice(IResource resource) {
 		return getMapping(resource);
 	}
 

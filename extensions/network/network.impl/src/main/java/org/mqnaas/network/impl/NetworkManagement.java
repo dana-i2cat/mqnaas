@@ -54,8 +54,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	// stores relationship between network IRootResource <-> RequestResource
 	private Map<IRootResource, IResource>	networks;
 
-	// private Multimap<IRootResource, IResource> netSubnetworks;
-
 	// stores relationship between RequestRootResources <-> virtual IResource (resources created in this capability for this RequestRootResource)
 	private Map<IResource, IResource>		resourceMapping;
 
@@ -109,6 +107,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 					Network virtualSubNetwork = delegateToSubnetwork(request, subNetwork);
 					virtualNetworkResources.addAll(virtualSubNetwork.getResources());
 					virtualSubnetworks.add(virtualNetwork.getNetworkResource());
+
+					resourceMapping.put(virtualSubNetwork.getNetworkResource(), virtualResource.getResource());
 				}
 
 			}
@@ -251,7 +251,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		if (network == null || !networks.keySet().contains(network))
 			throw new IllegalArgumentException("Can only release networks managed by this capability instance.");
 
-		Network virtualNetwork = new Network(network, serviceProvider);
 		Request originalRequest = new Request(networks.get(network), serviceProvider);
 		try {
 			for (IResource requestResource : originalRequest.getRootResources()) {
@@ -281,6 +280,15 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 				}
 
+				// II) subnetworks
+				if (reqResource.getRequestBasedNetworkManagementCapability() != null) {
+
+					IResource virtNetworkResource = resourceMapping.get(reqResource.getResource());
+					IResource phyNetworkResource = originalRequest.getMappedDevice(reqResource.getResource());
+					Network phyNetwork = new Network(phyNetworkResource, serviceProvider);
+					phyNetwork.releaseVirtualNetwork((IRootResource) virtNetworkResource);
+				}
+
 				resourceMapping.remove(requestResource);
 
 			}
@@ -303,7 +311,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	public void activate() {
 		networks = new ConcurrentHashMap<IRootResource, IResource>();
 		resourceMapping = new ConcurrentHashMap<IResource, IResource>();
-		// netSubnetworks = ArrayListMultimap.create();
 	}
 
 	@Override

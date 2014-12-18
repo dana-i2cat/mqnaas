@@ -15,6 +15,7 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
@@ -65,6 +66,11 @@ public class Network {
 		return getCapability(IRequestBasedNetworkManagement.class).createNetwork(request);
 	}
 
+	public void releaseVirtualNetwork(IRootResource virtualNetwork) throws NetworkReleaseException {
+		getCapability(IRequestBasedNetworkManagement.class).releaseNetwork(virtualNetwork);
+
+	}
+
 	public IRootResource createResource(Specification spec, List<Endpoint> endpoints) throws InstantiationException, IllegalAccessException {
 		return getRootResourceAdministration().createRootResource(RootResourceDescriptor.create(spec, endpoints));
 
@@ -99,4 +105,5 @@ public class Network {
 		getRootResourceAdministration().removeRootResource(resource);
 
 	}
+
 }

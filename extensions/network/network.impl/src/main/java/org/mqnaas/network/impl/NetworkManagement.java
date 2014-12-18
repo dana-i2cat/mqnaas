@@ -2,14 +2,10 @@ package org.mqnaas.network.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.i2cat.dana.mqnaas.capability.reservation.IReservationCapability;
-import net.i2cat.dana.mqnaas.capability.reservation.exception.ResourceReservationException;
-import net.i2cat.dana.mqnaas.capability.reservation.model.Device;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
@@ -30,7 +26,6 @@ import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.core.impl.slicing.UnitResource;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
-import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.impl.request.Request;
@@ -71,13 +66,14 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	public IRootResource createNetwork(IResource requestResource) throws NetworkCreationException {
 
 		IRootResource networkResource = null;
-		List<IRootResource> resourcesToReserve = new ArrayList<IRootResource>();
+		List<IRootResource> virtualNetworkResources = new ArrayList<IRootResource>();
 
 		try {
-			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
+			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "virtual")));
+			Network virtualNetwork = new Network(networkResource, serviceProvider);
 
 			// Manual bind, so that capabilities exist
-			resourceManagementListener.resourceAdded(networkResource, this, IRequestBasedNetworkManagement.class);
+			resourceManagementListener.resourceAdded(virtualNetwork.getNetworkResource(), this, IRequestBasedNetworkManagement.class);
 
 			Request request = new Request(requestResource, serviceProvider);
 
@@ -95,45 +91,31 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				ISlicingCapability phySlicingCapab = phyResource.getSlicingCapability();
 				if (phySlicingCapab != null) {
 
-					IResource newResource = createSlice(phyResource, virtualResource);
+					IResource newResource = createSlice(virtualNetwork, phyResource, virtualResource);
 
 					// add created resource to list of resources to be reserved
-					resourcesToReserve.add((IRootResource) newResource);
+					virtualNetworkResources.add((IRootResource) newResource);
 
 				}
 
 				// If the resource is a subnetwork, create request and delegate to it
 				IRequestBasedNetworkManagement subnetManagementCapability = virtualResource.getRequestBasedNetworkManagementCapability();
 				if (subnetManagementCapability != null) {
-					IResource subnetRequest = new RequestResource();
-					// TODO what to fill?
-					IRootResource subnetPhyResource = subnetManagementCapability.createNetwork(subnetRequest);
-					Network subnetwork = new Network(subnetPhyResource, serviceProvider);
-					List<IRootResource> subnetResources = subnetwork.getResources();
-					resourcesToReserve.addAll(subnetResources);
+					Network subNetwork = new Network(virtualResource.getResource(), serviceProvider);
+					// List<IRootResource> resources = delegateToSubnetwork(request, subNetwork);
 
+					// resourcesToReserve.addAll(resources);
 				}
 
 			}
 
 			createNetworkLinks(networkResource, request);
 			defineNetworkPorts(networkResource, request);
-			// reserve!!
-			Period period = request.getPeriod();
-			Set<Device> devices = new HashSet<Device>();
 
-			for (IRootResource iRootResource : resourcesToReserve) {
-				Device device = new Device();
-				device.setId(iRootResource.getId());
-				device.setType(iRootResource.getDescriptor().getSpecification().getType());
-				devices.add(device);
-			}
+			// TODO in the future, reserve
 
-			reservationCapability.createReservation(devices, period);
-
-			// add resources to network
-			// TODO be aware of nitos resources
-			serviceProvider.getCapability(networkResource, IRootResourceProvider.class).setRootResources(resourcesToReserve);
+			// add resources to virtual network
+			virtualNetwork.setRootResources(virtualNetworkResources);
 
 			networks.add(networkResource);
 
@@ -143,8 +125,6 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			throw new NetworkCreationException("Network creation failed.", e);
 		} catch (CapabilityNotFoundException c) {
 			throw new NetworkCreationException("Network creation failed.", c);
-		} catch (ResourceReservationException r) {
-			throw new NetworkCreationException("Network creation failed.", r);
 		} catch (SlicingException e) {
 			throw new NetworkCreationException("Network creation failed.", e);
 
@@ -152,6 +132,47 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		return networkResource;
 	}
+
+	// private List<IRootResource> delegateToSubnetwork(Request request, Network subnetwork) throws CapabilityNotFoundException,
+	// NetworkCreationException {
+	//
+	// // generate request
+	// IResource subNetRequestresource = subnetwork.createRequest();
+	// Request subnetRequest = new Request(subNetRequestresource, serviceProvider);
+	//
+	// // get subnetwork resources and fill the request with the resources
+	// for (IRootResource subnetResource : subnetwork.getResources()) {
+	// IResource virtResource = request.createResource(subnetResource.getDescriptor().getSpecification().getType());
+	// request.defineMapping(virtResource, subnetResource);
+	// }
+	//
+	// // get links and fill the request with the links
+	// for (IResource linkResource : subnetwork.getLinks()) {
+	//
+	// Link phyLink = new Link(linkResource, serviceProvider);
+	// Link virtLink = new Link(request.createLink(), serviceProvider);
+	//
+	// IResource srcPort = request.getMappedDevice(phyLink.getSrcPort());
+	// IResource dstPort = request.getMappedDevice(phyLink.getDstPort());
+	//
+	// virtLink.setSrcPort(srcPort);
+	// virtLink.setDstPort(dstPort);
+	// }
+	//
+	// // external links ?!
+	//
+	// // set period
+	// subnetRequest.setPeriod(request.getPeriod());
+	//
+	// IRootResource virtualNetResource = subnetwork.createVirtualNetwork(subnetRequest.getRequestResource());
+	//
+	// Network virtualNetwork = new Network(virtualNetResource, serviceProvider);
+	// List<IRootResource> subnetResources = virtualNetwork.getResources();
+	//
+	// // TODO what to do with the network?!?!
+	// return subnetResources;
+	//
+	// }
 
 	private void createNetworkLinks(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
 		// links
@@ -191,7 +212,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	}
 
-	private IResource createSlice(NetworkSubResource phyResource, NetworkSubResource virtualResource) throws SlicingException,
+	private IResource createSlice(Network virtualNetwork, NetworkSubResource phyResource, NetworkSubResource virtualResource)
+			throws SlicingException,
 			CapabilityNotFoundException {
 
 		ISlicingCapability phySlicingCapab = phyResource.getSlicingCapability();
@@ -207,6 +229,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		// create slice
 		IResource newResource = phySlicingCapab.createSlice(virtSlice.getSlice());
+
+		// manual bind of the created slice to virtualnetwork
+		resourceManagementListener.resourceAdded(newResource, virtualNetwork.getRootResourceProvider(), IRootResourceProvider.class);
 
 		// remove slice information from physical
 		phySliceAdminCapab.cut(virtSlice.getSlice());

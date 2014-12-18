@@ -7,7 +7,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
-import org.mqnaas.network.impl.RequestRootResource;
 
 /**
  * Implementation of the {@link IRequestResourceManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to the

@@ -49,6 +49,18 @@ public class Specification implements Cloneable {
 		 */
 		TSON("Tson"),
 		/**
+		 * A LTE antenna
+		 */
+		LTE("LTE"),
+		/**
+		 * Client premises equiment
+		 */
+		CPE("CPE"),
+		/**
+		 * 
+		 */
+		ARN("ARN"),
+		/**
 		 * Other devices
 		 */
 		OTHER("Other");

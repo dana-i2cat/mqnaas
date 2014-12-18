@@ -18,8 +18,12 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
 
 	public static boolean isSupporting(IRootResource resource) {
-		Type type = resource.getDescriptor().getSpecification().getType();
-		return type == Type.CORE || (type == Type.NETWORK && !StringUtils.equals(resource.getDescriptor().getSpecification().getModel(), "nitos"));
+		Specification specification = resource.getDescriptor().getSpecification();
+
+		return specification.getType() == Type.CORE ||
+				(specification.getType() == Type.NETWORK && (
+				!StringUtils.equals(specification.getModel(), "nitos") &&
+				!StringUtils.equals(specification.getModel(), "virtual")));
 	}
 
 	@Override

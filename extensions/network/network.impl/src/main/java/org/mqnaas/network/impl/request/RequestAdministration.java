@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl;
+package org.mqnaas.network.impl.request;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.network.api.request.IRequestAdministration;

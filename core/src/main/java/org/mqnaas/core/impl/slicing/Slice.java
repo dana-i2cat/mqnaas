@@ -18,7 +18,7 @@ import org.mqnaas.core.api.slicing.SlicingException;
  * 
  * @author Georg Mansky-Kummert
  */
-class Slice {
+public class Slice {
 
 	private SliceResource		slice;
 	private IServiceProvider	serviceProvider;
@@ -77,7 +77,7 @@ class Slice {
 		return new Unit(getUnitManagement().createUnit(name), serviceProvider);
 	}
 
-	public void setCubes(List<Cube> cubes) {
+	public void setCubes(Collection<Cube> cubes) {
 		getAdministration().setCubes(cubes);
 	}
 

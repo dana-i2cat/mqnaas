@@ -17,6 +17,7 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
+import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 
@@ -84,5 +85,13 @@ public class Network {
 	public void setRootResources(List<IRootResource> virtualNetworkResources) {
 		getRootResourceProvider().setRootResources(virtualNetworkResources);
 
+	}
+
+	public List<IResource> getNetworkSubResources() {
+		return getRequestResourceManagement().getResources();
+	}
+
+	private IRequestResourceManagement getRequestResourceManagement() {
+		return getCapability(IRequestResourceManagement.class);
 	}
 }

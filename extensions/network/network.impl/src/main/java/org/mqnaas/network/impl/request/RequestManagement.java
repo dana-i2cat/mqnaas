@@ -8,7 +8,6 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.request.IRequestManagement;
-import org.mqnaas.network.impl.RequestResource;
 
 /**
  * Implementation of the {@link IRequestManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to {@link Type#NETWORK}s.

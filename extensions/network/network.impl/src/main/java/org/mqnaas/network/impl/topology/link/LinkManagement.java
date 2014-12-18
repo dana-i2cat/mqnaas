@@ -8,7 +8,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
-import org.mqnaas.network.impl.RequestResource;
+import org.mqnaas.network.impl.request.RequestResource;
 
 /**
  * Implementation of the {@link ILinkManagement} capability backed by a {@link CopyOnWriteArrayList}, which is bound to all {@link IRootResource}s as

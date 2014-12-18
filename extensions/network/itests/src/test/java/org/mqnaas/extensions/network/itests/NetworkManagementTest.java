@@ -237,8 +237,6 @@ public class NetworkManagementTest {
 				network.getCapability(ILinkManagement.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRootResourceProvider Capability",
 				network.getCapability(IRootResourceProvider.class));
-		Assert.assertNotNull("Created network resource should contain a bound IRootResourceAdministration Capability",
-				network.getCapability(IRootResourceAdministration.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRequestBasedNetworkManagement Capability",
 				network.getCapability(IRequestBasedNetworkManagement.class));
 		Assert.assertNotNull("Created network resource should contain a bound IRequestManagement Capability",

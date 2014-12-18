@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
-import org.mqnaas.network.impl.RequestResource;
 
 /**
  * Implementation of the {@link IRequestResourceMapping} capability using a {@link ConcurrentHashMap}. This implementation is bound to the

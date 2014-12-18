@@ -3,6 +3,7 @@ package org.mqnaas.network.impl;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.Period;
+import org.mqnaas.network.impl.request.RequestResource;
 
 /**
  * Implementation of the {@link IRequestAdministration} capability, which is

@@ -36,7 +36,7 @@ public class SliceProvider implements ISliceProvider {
 		boolean isSupporting = false;
 
 		// FIXME Needs to be refactoring once the binding mechanism was reworked
-		if (resource.getClass().getName().equals("org.mqnaas.network.impl.RequestRootResource")) {
+		if (resource.getClass().getName().equals("org.mqnaas.network.impl.request.RequestRootResource")) {
 
 			try {
 				Method m = resource.getClass().getMethod("getType");

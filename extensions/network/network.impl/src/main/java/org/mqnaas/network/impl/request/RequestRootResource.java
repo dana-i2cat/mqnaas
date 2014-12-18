@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl;
+package org.mqnaas.network.impl.request;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

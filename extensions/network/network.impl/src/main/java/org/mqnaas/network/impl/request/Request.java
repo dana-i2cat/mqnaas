@@ -14,7 +14,6 @@ import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
-import org.mqnaas.network.impl.RequestResource;
 
 /**
  * Wraps access to the capabilities of the {@link RequestResource} to simplify access.
@@ -97,6 +96,10 @@ public class Request {
 	public void setPeriod(Period period) {
 		getCapability(IRequestAdministration.class).setPeriod(period);
 
+	}
+
+	public IResource getResource() {
+		return request;
 	}
 
 }

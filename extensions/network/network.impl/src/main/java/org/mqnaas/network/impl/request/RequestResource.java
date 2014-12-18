@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl;
+package org.mqnaas.network.impl.request;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -11,11 +11,11 @@ import org.mqnaas.core.api.IResource;
  */
 
 public class RequestResource implements IResource {
-	
-	private static AtomicInteger ID_COUNTER = new AtomicInteger();
-	
-	private String id;
-	
+
+	private static AtomicInteger	ID_COUNTER	= new AtomicInteger();
+
+	private String					id;
+
 	public RequestResource() {
 		id = "req-" + ID_COUNTER.incrementAndGet();
 	}
@@ -24,4 +24,10 @@ public class RequestResource implements IResource {
 	public String getId() {
 		return id;
 	}
+
+	@Override
+	public String toString() {
+		return "Request Resource [id=" + id + "]";
+	}
+
 }

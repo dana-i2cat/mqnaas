@@ -8,7 +8,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.network.api.topology.port.IPortManagement;
-import org.mqnaas.network.impl.RequestRootResource;
+import org.mqnaas.network.impl.request.RequestRootResource;
 
 /**
  * Implementation of the {@link IPortManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to all

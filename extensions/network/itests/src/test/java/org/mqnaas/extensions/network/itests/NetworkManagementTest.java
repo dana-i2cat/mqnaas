@@ -29,6 +29,7 @@ import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.impl.slicing.Slice;
 import org.mqnaas.core.impl.slicing.Unit;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
 import org.mqnaas.network.api.request.Period;
@@ -158,7 +159,7 @@ public class NetworkManagementTest {
 
 	@Test
 	public void basicNetworkCreationTest() throws InstantiationException, IllegalAccessException, CapabilityNotFoundException,
-			NetworkCreationException, ResourceNotFoundException {
+			NetworkCreationException, ResourceNotFoundException, NetworkReleaseException {
 
 		// 1. create request
 		IResource requestResource = networkResource.createRequest();
@@ -280,5 +281,18 @@ public class NetworkManagementTest {
 		Assert.assertEquals("Network should contain an external port.", 1, netPorts.size());
 		Assert.assertEquals("Network should contain tsonPort3 as external port.", tsonPort3, netPorts.get(0));
 
+		// 4. remove network
+		requestNetworkManagementCapab.releaseNetwork(networkResource);
+
+		// Asserts
+
+		// // assert network no longer exists
+		Assert.assertFalse("Network should no longer exists after its release.", requestNetworkManagementCapab.getNetworks()
+				.contains(networkResource));
+
+		// // slice asserts
+
+		Slice tsonSlice = new Slice(tsonResource.getSlice(), serviceProvider);
+		Assert.assertEquals("Physical TSON should contain original slice information again.", "XX", tsonSlice.toMatrix());
 	}
 }

@@ -3,7 +3,8 @@ package org.mqnaas.network.impl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
@@ -22,6 +23,7 @@ import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.core.impl.slicing.Slice;
 import org.mqnaas.core.impl.slicing.Unit;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
@@ -44,18 +46,29 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	@DependingOn
-	private IResourceManagementListener	resourceManagementListener;
+	private IResourceManagementListener		resourceManagementListener;
 
 	@DependingOn
-	IServiceProvider					serviceProvider;
+	IServiceProvider						serviceProvider;
 
-	private List<IRootResource>			networks;
+	// stores relationship between network IRootResource <-> RequestResource
+	private Map<IRootResource, IResource>	networks;
+
+	// private Multimap<IRootResource, IResource> netSubnetworks;
+
+	// stores relationship between RequestRootResources <-> virtual IResource (resources created in this capability for this RequestRootResource)
+	private Map<IResource, IResource>		resourceMapping;
 
 	@Override
 	public IRootResource createNetwork(IResource requestResource) throws NetworkCreationException {
 
 		IRootResource networkResource = null;
+
+		// this structure saves all the resources of the new virtual network
 		List<IRootResource> virtualNetworkResources = new ArrayList<IRootResource>();
+
+		// this structure saves all virtual subnetworks created by the underlaying networks, so we can remove them on the release method.
+		List<IResource> virtualSubnetworks = new ArrayList<IResource>();
 
 		try {
 			networkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "virtual")));
@@ -81,6 +94,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				if (phySlicingCapab != null) {
 
 					IResource newResource = createSlice(virtualNetwork, phyResource, virtualResource);
+					// store mapping to request resource
+					resourceMapping.put(virtualResource.getResource(), newResource);
 
 					// add created resource to list of resources to be reserved
 					virtualNetworkResources.add((IRootResource) newResource);
@@ -91,9 +106,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				IRequestBasedNetworkManagement subnetManagementCapability = virtualResource.getRequestBasedNetworkManagementCapability();
 				if (subnetManagementCapability != null) {
 					Network subNetwork = new Network(virtualResource.getResource(), serviceProvider);
-					List<IRootResource> resources = delegateToSubnetwork(request, subNetwork);
-
-					virtualNetworkResources.addAll(resources);
+					Network virtualSubNetwork = delegateToSubnetwork(request, subNetwork);
+					virtualNetworkResources.addAll(virtualSubNetwork.getResources());
+					virtualSubnetworks.add(virtualNetwork.getNetworkResource());
 				}
 
 			}
@@ -106,7 +121,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			// add resources to virtual network
 			virtualNetwork.setRootResources(virtualNetworkResources);
 
-			networks.add(networkResource);
+			networks.put(networkResource, requestResource);
+			// netSubnetworks.putAll(networkResource, virtualSubnetworks);
 
 		} catch (InstantiationException e) {
 			throw new NetworkCreationException("Network creation failed.", e);
@@ -122,7 +138,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		return networkResource;
 	}
 
-	private List<IRootResource> delegateToSubnetwork(Request request, Network subnetwork) throws CapabilityNotFoundException,
+	private Network delegateToSubnetwork(Request request, Network subnetwork) throws CapabilityNotFoundException,
 			NetworkCreationException {
 
 		// generate request
@@ -153,12 +169,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		IRootResource virtualNetResource = subnetwork.createVirtualNetwork(subnetRequest.getRequestResource());
 
-		Network virtualNetwork = new Network(virtualNetResource, serviceProvider);
-		List<IRootResource> subnetResources = virtualNetwork.getResources();
-
 		// TODO what to do with the network?!?!
-		return subnetResources;
-
+		return new Network(virtualNetResource, serviceProvider);
 	}
 
 	private void createNetworkLinks(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
@@ -200,8 +212,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	private IResource createSlice(Network virtualNetwork, NetworkSubResource phyResource, NetworkSubResource virtualResource)
-			throws SlicingException,
-			CapabilityNotFoundException {
+			throws SlicingException, CapabilityNotFoundException {
 
 		ISlicingCapability phySlicingCapab = phyResource.getSlicingCapability();
 
@@ -235,21 +246,64 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	@Override
-	public void releaseNetwork(IRootResource network) {
-		// I) Release all resource of the network
-		resourceManagementListener.resourceRemoved(network, this, IRequestBasedNetworkManagement.class);
+	public void releaseNetwork(IRootResource network) throws NetworkReleaseException {
 
-		// II) Delete the network
+		if (network == null || !networks.keySet().contains(network))
+			throw new IllegalArgumentException("Can only release networks managed by this capability instance.");
+
+		Network virtualNetwork = new Network(network, serviceProvider);
+		Request originalRequest = new Request(networks.get(network), serviceProvider);
+		try {
+			for (IResource requestResource : originalRequest.getRootResources()) {
+				// get mapped resources (phy + virtual)
+				IResource virtualResource = resourceMapping.get(requestResource);
+				IResource physicalResource = originalRequest.getMappedDevice(requestResource);
+
+				// create wrappers for all resources
+				NetworkSubResource reqResource = new NetworkSubResource(requestResource, serviceProvider);
+				NetworkSubResource virtResource = new NetworkSubResource(virtualResource, serviceProvider);
+				NetworkSubResource phyResource = new NetworkSubResource(physicalResource, serviceProvider);
+
+				// I) slices
+				if (phyResource.getSlicingCapability() != null) {
+
+					// create slice wrappers
+					Slice virtSlice = new Slice(virtResource.getSlice(), serviceProvider);
+					Slice phySlice = new Slice(phyResource.getSlice(), serviceProvider);
+
+					// return cube to original slice
+					phySlice.add(virtSlice);
+
+					// remove slice and sliced resource
+					phyResource.getSlicingCapability().removeSlice(virtResource.getResource());
+					resourceManagementListener.resourceRemoved(virtResource.getResource(), phyResource.getSlicingCapability(),
+							ISlicingCapability.class);
+
+				}
+
+				resourceMapping.remove(requestResource);
+
+			}
+		} catch (SlicingException s) {
+			throw new NetworkReleaseException("Network creation failed.", s);
+		}
+
+		// remove network
+		resourceManagementListener.resourceRemoved(network, this, IRequestBasedNetworkManagement.class);
+		networks.remove(network);
+
 	}
 
 	@Override
 	public Collection<IRootResource> getNetworks() {
-		return networks;
+		return networks.keySet();
 	}
 
 	@Override
 	public void activate() {
-		networks = new CopyOnWriteArrayList<IRootResource>();
+		networks = new ConcurrentHashMap<IRootResource, IResource>();
+		resourceMapping = new ConcurrentHashMap<IResource, IResource>();
+		// netSubnetworks = ArrayListMultimap.create();
 	}
 
 	@Override

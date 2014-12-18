@@ -94,4 +94,9 @@ public class Network {
 	private IRequestResourceManagement getRequestResourceManagement() {
 		return getCapability(IRequestResourceManagement.class);
 	}
+
+	public void removeResource(IRootResource resource) throws ResourceNotFoundException {
+		getRootResourceAdministration().removeRootResource(resource);
+
+	}
 }

@@ -11,7 +11,7 @@ import org.mqnaas.core.api.ITransactionBehavior;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 
-@XmlRootElement
+@XmlRootElement(namespace = "org.mqnaas")
 public class RootResource implements IRootResource {
 
 	private ITransactionBehavior	transactionBehaviour	= new UnawareTransactionBehaviour();

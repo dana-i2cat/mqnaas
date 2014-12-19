@@ -2,6 +2,11 @@ package org.mqnaas.network.impl.topology.port;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.mqnaas.core.api.IResource;
 
 /**
@@ -9,11 +14,14 @@ import org.mqnaas.core.api.IResource;
  * 
  * @author Georg Mansky-Kummert
  */
+@XmlRootElement(namespace = "org.mqnaas")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PortResource implements IResource {
 
-	private static AtomicInteger ID_COUNTER = new AtomicInteger();
+	@XmlTransient
+	private static AtomicInteger	ID_COUNTER	= new AtomicInteger();
 
-	private String id;
+	private String					id;
 
 	public PortResource() {
 		id = "port-" + ID_COUNTER.incrementAndGet();

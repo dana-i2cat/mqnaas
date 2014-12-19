@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.i2cat.dana.mqnaas.capability.reservation.IReservationCapability;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
@@ -42,7 +43,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagement.class);
 
 	public static boolean isSupporting(IRootResource rootResource) {
-		return rootResource.getDescriptor().getSpecification().getType() == Type.NETWORK;
+		Type type = rootResource.getDescriptor().getSpecification().getType();
+
+		return type == Type.NETWORK && !StringUtils.equals(rootResource.getDescriptor().getSpecification().getModel(), "nitos");
 	}
 
 	@DependingOn
@@ -231,7 +234,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		IResource newResource = phySlicingCapab.createSlice(virtSlice.getSlice());
 
 		// manual bind of the created slice to virtualnetwork
-		resourceManagementListener.resourceAdded(newResource, virtualNetwork.getRootResourceProvider(), IRootResourceProvider.class);
+		resourceManagementListener.resourceAdded(newResource, serviceProvider.getCapability(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
 
 		// remove slice information from physical
 		phySliceAdminCapab.cut(virtSlice.getSlice());

@@ -34,5 +34,17 @@ public class RequestRootResource implements IResource {
 	public String getId() {
 		return id;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+		sb.append("[");
+
+		sb.append("id=").append(id);
+		sb.append(", type=").append(type);
+		
+		sb.append("]");
+		return sb.toString();
+	}
 
 }

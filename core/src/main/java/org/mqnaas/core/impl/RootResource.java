@@ -70,8 +70,10 @@ public class RootResource implements IRootResource {
 		Specification specification = descriptor.getSpecification();
 
 		StringBuilder sb = new StringBuilder("Resource [");
+		
+		sb.append("id=").append(getId());
 
-		sb.append("type=").append(specification.getType());
+		sb.append(", type=").append(specification.getType());
 		sb.append(", model=").append(specification.getModel());
 		sb.append(", endpoints=").append(descriptor.getEndpoints());
 

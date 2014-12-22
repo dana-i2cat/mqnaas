@@ -65,7 +65,7 @@ public class Request implements IRequestResourceMapping {
 		return getMapping(resource);
 	}
 
-	public Period getPeriod() throws CapabilityNotFoundException {
+	public Period getPeriod() {
 		return getCapability(IRequestAdministration.class).getPeriod();
 	}
 

@@ -157,9 +157,25 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			String[] names = null; // TODO read names using asm
 
-			if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
-				log.trace("Found method parameter annotated with XMLRootElement of type " + method.getParameterTypes()[0]);
-				// just do nothing, it will generate a request with a body element
+			// treat one XMLRootElement annotated method parameter (or data structures)
+			// FIXME check XMLRootElement is an annotation present in the generic type of Multimap or Collection
+			if (method.getParameterTypes().length == 1 && (method.getParameterTypes()[0].isAnnotationPresent(XmlRootElement.class) || Multimap.class
+					.isAssignableFrom(method.getParameterTypes()[0]) || Collection.class.isAssignableFrom(method.getParameterTypes()[0]))) {
+				if (Multimap.class.isAssignableFrom(method.getParameterTypes()[0])) {
+					log.trace("Found Multimap method parameter of type " + method.getParameterTypes()[0]);
+					// FIXME, add wrapper instead of Multimap
+
+				} else if (Collection.class.isAssignableFrom(method.getParameterTypes()[0])) {
+					log.trace("Found Collection method parameter of type " + method.getParameterTypes()[0]);
+					// FIXME, add wrapper instead of Collection
+
+				} else {
+					log.trace("Found method parameter annotated with XMLRootElement of type " + method.getParameterTypes()[0]);
+					// just do nothing, it will generate a request with a body element
+				}
+				// add Consumes annotation
+				writer.addAnnotationWriter(new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value",
+						new String[] { MediaType.APPLICATION_XML })));
 			} else if (method.getParameterTypes().length > 1) {
 				// TODO treat multiple parameter setters annotated with XMLRootElement
 				for (int i = 0; i < method.getParameterTypes().length; i++) {

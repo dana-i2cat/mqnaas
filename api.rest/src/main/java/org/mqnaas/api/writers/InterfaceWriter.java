@@ -2,6 +2,7 @@ package org.mqnaas.api.writers;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.i2cat.utils.StringBuilderUtils;
@@ -28,8 +30,14 @@ import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Multimap;
 
 public class InterfaceWriter extends AbstractWriter implements Opcodes {
+
+	private static final Logger			log					= LoggerFactory.getLogger(InterfaceWriter.class);
 
 	private RESTAPIGenerator			restAPIGenerator	= new RESTAPIGenerator();
 
@@ -43,6 +51,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 	private Map<Method, MethodWriter>	method2writer;
 
 	public InterfaceWriter(Class<? extends ICapability> capabilityClass, String endpoint) throws InvalidCapabilityDefinionException {
+
+		log.debug("Writing REST API interface for class " + capabilityClass + " in endpoint " + endpoint + " .");
 
 		// (1) Collect the metadata necessary to write the REST API interface. This process also checks the validity of the given capability.
 		metaDataContainer = new CapabilityMetaDataContainer(capabilityClass);
@@ -58,16 +68,20 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
+			log.trace("Found AddsResource annotated method.");
+
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
 			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
 					new AnnotationWriter(PUT.class),
-					new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value", new String[] { "application/xml" })));
+					new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })));
 
 			method2writer.put(m, writer);
 		}
 
 		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
+
+			log.trace("Found RemovesResource annotated method.");
 
 			Class<?> parameterClass = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[0]);
 
@@ -81,11 +95,13 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(ListsResources.class)) {
 
+			log.trace("Found ListsResources annotated method.");
+
 			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(),
 					m.getParameterTypes(),
 					new AnnotationWriter(GET.class),
 					new AnnotationWriter(ContentType.class, new AnnotationParamWriter("value", metaDataContainer.getEntityClass())),
-					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })));
+					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })));
 
 			// Map all parameters as QueryParams
 
@@ -114,15 +130,19 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			String serviceName = method.getName();
 			if (serviceName.startsWith("get") && serviceName.length() > 3) {
+				log.trace("Found \"get\" method.");
+
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 			}
-			
-			if (serviceName.startsWith("set") && serviceName.length() > 3) {
+
+			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
+				log.trace("Found \"set\" method.");
+
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
-				
-				if ( method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null ) {
-					System.out.println("Found Root element...");
+
+				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
+					log.trace("Found XMLRootElement.");
 				}
 			}
 
@@ -146,6 +166,15 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
 			}
 
+			// add Produces if there is a serializable object as the return type
+			// FIXME check XMLRootElement is an annotation present in the generic type of Multimap or Collection
+			if (resultClass.isAnnotationPresent(XmlRootElement.class)
+					|| Multimap.class.isAssignableFrom(resultClass) || Collection.class.isAssignableFrom(resultClass)) {
+				log.trace("Found XMLRootElement in the return type class " + resultClass);
+				writer.addAnnotationWriter(new AnnotationWriter(Produces.class, new AnnotationParamWriter("value",
+						new String[] { MediaType.APPLICATION_XML })));
+			}
+
 			method2writer.put(method, writer);
 		}
 
@@ -155,7 +184,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			MethodWriter methodWriter = new MethodWriter("get" + entityClass.getSimpleName(), entityClass, new Class<?>[] { String.class },
 					new AnnotationWriter(GET.class),
 					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", "{id}")),
-					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { "application/xml" })),
+					new AnnotationWriter(Produces.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })),
 					new AnnotationWriter(0, PathParam.class, new AnnotationParamWriter("value", "id")));
 
 			method2writer.put(null, methodWriter);

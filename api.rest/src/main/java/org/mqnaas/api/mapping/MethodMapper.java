@@ -41,7 +41,7 @@ public class MethodMapper {
 
 		Object result = method.invoke(capabilityInstance, params);
 
-		return resultTranslator != null ? resultTranslator.translate(result) : result;
+		return resultTranslator != null && result != null ? resultTranslator.translate(result) : result;
 	}
 
 	@Override

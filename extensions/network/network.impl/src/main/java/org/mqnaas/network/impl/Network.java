@@ -1,5 +1,6 @@
 package org.mqnaas.network.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.mqnaas.core.api.Endpoint;
@@ -21,7 +22,7 @@ import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 
-public class Network {
+public class Network implements IRootResourceProvider {
 
 	private IResource			network;
 	private IServiceProvider	serviceProvider;
@@ -31,16 +32,11 @@ public class Network {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public List<IRootResource> getResources() {
-		return getRootResourceProvider().getRootResources();
-	}
-
 	public <C extends ICapability> C getCapability(Class<C> capabilityClass) {
 		try {
 			return serviceProvider.getCapability(network, capabilityClass);
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Necessary capability not bound to resource " + network, e);
-
 		}
 	}
 
@@ -74,17 +70,28 @@ public class Network {
 		return getCapability(IRootResourceAdministration.class);
 	}
 
-	public IRootResourceProvider getRootResourceProvider() {
-		return getCapability(IRootResourceProvider.class);
-	}
-
+	@Override
 	public List<IRootResource> getRootResources(Type type, String model, String version) throws ResourceNotFoundException {
-		return getRootResourceProvider().getRootResources(type, model, version);
+		return getCapability(IRootResourceProvider.class).getRootResources(type, model, version);
 	}
 
-	public void setRootResources(List<IRootResource> virtualNetworkResources) {
-		getRootResourceProvider().setRootResources(virtualNetworkResources);
+	@Override
+	public List<IRootResource> getRootResources() {
+		return getCapability(IRootResourceProvider.class).getRootResources();
+	}
 
+	@Override
+	public IRootResource getRootResource(String id) throws ResourceNotFoundException {
+		return getCapability(IRootResourceProvider.class).getRootResource(id);
+	}
+
+	@Override
+	public void setRootResources(Collection<IRootResource> rootResources) {
+		getCapability(IRootResourceProvider.class).setRootResources(rootResources);
+	}
+
+	@Override
+	public void activate() {
 	}
 
 	public List<IResource> getNetworkSubResources() {
@@ -94,4 +101,9 @@ public class Network {
 	private IRequestResourceManagement getRequestResourceManagement() {
 		return getCapability(IRequestResourceManagement.class);
 	}
+
+	@Override
+	public void deactivate() {
+	}
+
 }

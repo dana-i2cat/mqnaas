@@ -244,7 +244,7 @@ public class NetworkManagementTest {
 
 		NetworkSubResource virtualTson = new NetworkSubResource(virtualTsonResource, serviceProvider);
 
-		List<IRootResource> netResources = network.getResources();
+		List<IRootResource> netResources = network.getRootResources();
 		Assert.assertNotNull("Network should contain a Tson resource.", netResources);
 		Assert.assertEquals("Network should contain a Tson resource.", 1, netResources.size());
 		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson.getResource(), netResources.get(0));

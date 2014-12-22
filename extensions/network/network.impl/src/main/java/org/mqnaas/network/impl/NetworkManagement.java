@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
@@ -40,7 +41,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagement.class);
 
 	public static boolean isSupporting(IRootResource rootResource) {
-		return rootResource.getDescriptor().getSpecification().getType() == Type.NETWORK;
+		Type type = rootResource.getDescriptor().getSpecification().getType();
+
+		return type == Type.NETWORK && !StringUtils.equals(rootResource.getDescriptor().getSpecification().getModel(), "nitos");
 	}
 
 	@DependingOn
@@ -154,7 +157,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		IRootResource virtualNetResource = subnetwork.createVirtualNetwork(subnetRequest.getRequestResource());
 
 		Network virtualNetwork = new Network(virtualNetResource, serviceProvider);
-		List<IRootResource> subnetResources = virtualNetwork.getResources();
+		List<IRootResource> subnetResources = virtualNetwork.getRootResources();
 
 		// TODO what to do with the network?!?!
 		return subnetResources;
@@ -215,7 +218,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		IResource newResource = phySlicingCapab.createSlice(virtSlice.getResource());
 
 		// manual bind of the created slice to virtualnetwork
-		resourceManagementListener.resourceAdded(newResource, virtualNetwork.getRootResourceProvider(), IRootResourceProvider.class);
+		resourceManagementListener.resourceAdded(newResource,
+				serviceProvider.getCapability(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
 
 		// remove slice information from physical
 		phySlice.cut(virtSlice);

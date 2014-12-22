@@ -13,6 +13,7 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
+import org.mqnaas.core.api.slicing.CubesList;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SlicingException;
@@ -67,7 +68,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 * called!
 	 */
 	@Override
-	public void setCubes(Collection<Cube> cubes) {
+	public void setCubes(CubesList cubes) {
 		try {
 			initData();
 
@@ -76,7 +77,7 @@ public class SliceAdministration implements ISliceAdministration {
 			int[] lowerBounds = new int[units.size()];
 			int[] upperBounds = new int[units.size()];
 
-			for (Cube cube : cubes) {
+			for (Cube cube : cubes.getCubes()) {
 
 				Range[] ranges = cube.getRanges();
 				int i = 0;
@@ -245,14 +246,15 @@ public class SliceAdministration implements ISliceAdministration {
 	 * @param cubes
 	 *            Cubes that will be markes as unavaiable in the current live space.
 	 */
-	public void unsetCubes(Collection<Cube> cubes) {
+	@Override
+	public void unsetCubes(CubesList cubes) {
 
 		List<Unit> units = slice.getUnits();
 
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
-		for (Cube cube : cubes) {
+		for (Cube cube : cubes.getCubes()) {
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
 				int lowerBound = units.get(i).getRange().getLowerBound();

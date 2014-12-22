@@ -19,14 +19,15 @@ public interface ISliceAdministration extends ICapability {
 	/**
 	 * Initializes the given {@link Cube}s in the space of this slice, e.g. defines the elements within the <code>cube</code>s as slicing units.
 	 */
-	void setCubes(Collection<Cube> cubes);
-	
+	void setCubes(CubesList cubes);
 
 	/**
-	 * Initializes the given {@link Cube}s in the space of this slice, e.g. clears the elements within the <code>cube</code>s from being slicing units.
+	 * Initializes the given {@link Cube}s in the space of this slice, e.g. clears the elements within the <code>cube</code>s from being slicing
+	 * units.
+	 * 
 	 * @param cubes
 	 */
-	void unsetCubes(Collection<Cube> cubes);
+	void unsetCubes(CubesList cubes);
 
 	/**
 	 * <p>
@@ -84,7 +85,7 @@ public interface ISliceAdministration extends ICapability {
 	 * @return
 	 */
 	boolean isInOperationalState();
-	
+
 	/**
 	 * Service that returns the internal data representation of this slice.
 	 * 
@@ -93,6 +94,5 @@ public interface ISliceAdministration extends ICapability {
 	 * @return the boolean array
 	 */
 	Object getData();
-
 
 }

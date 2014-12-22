@@ -25,6 +25,7 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
+import org.mqnaas.core.api.slicing.CubesList;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.IUnitAdministration;
@@ -149,7 +150,7 @@ public class NetworkManagementTest {
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
-		sliceAdmin.setCubes(Arrays.asList(cube));
+		sliceAdmin.setCubes(new CubesList(Arrays.asList(cube)));
 
 		// define tson ports
 		IPortManagement tsonPortManagement = serviceProvider.getCapability(tson, IPortManagement.class);

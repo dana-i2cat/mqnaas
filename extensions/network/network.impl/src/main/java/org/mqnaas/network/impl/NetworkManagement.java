@@ -19,6 +19,7 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.slicing.CubesList;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
@@ -234,7 +235,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		IResource newResource = phySlicingCapab.createSlice(virtSlice.getSlice());
 
 		// manual bind of the created slice to virtualnetwork
-		resourceManagementListener.resourceAdded(newResource, serviceProvider.getCapability(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
+		resourceManagementListener.resourceAdded(newResource,
+				serviceProvider.getCapability(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
 
 		// remove slice information from physical
 		phySliceAdminCapab.cut(virtSlice.getSlice());
@@ -253,7 +255,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			unitResource.setRange(virtUnitResource.getRange());
 
 		}
-		newResourceSliceAdminCapab.setCubes(virtSliceAdminCapab.getCubes());
+		newResourceSliceAdminCapab.setCubes(new CubesList(virtSliceAdminCapab.getCubes()));
 
 		return newResource;
 	}

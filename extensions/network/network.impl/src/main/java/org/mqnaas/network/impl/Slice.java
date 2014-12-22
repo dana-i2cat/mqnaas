@@ -6,6 +6,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
+import org.mqnaas.core.api.slicing.CubesList;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.IUnitManagement;
 import org.mqnaas.core.impl.slicing.SliceResource;
@@ -54,7 +55,7 @@ public class Slice {
 	}
 
 	public void setCubes(List<Cube> cubes) {
-		getSliceAdministration().setCubes(cubes);
+		getSliceAdministration().setCubes(new CubesList(cubes));
 
 	}
 

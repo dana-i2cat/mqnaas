@@ -36,7 +36,6 @@ public class Network implements IRootResourceProvider {
 			return serviceProvider.getCapability(network, capabilityClass);
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Necessary capability not bound to resource " + network, e);
-
 		}
 	}
 

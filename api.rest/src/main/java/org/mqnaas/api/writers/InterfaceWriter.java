@@ -140,12 +140,6 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
-
-				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
-					log.trace("Found XMLRootElement of type " + method.getParameterTypes()[0]);
-				} else if (method.getParameterTypes().length < 1) {
-					// TODO treat multiple parameter setters
-				}
 			}
 
 			// Translate the result
@@ -163,9 +157,15 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			String[] names = null; // TODO read names using asm
 
-			for (int i = 0; i < method.getParameterTypes().length; i++) {
-				String name = names != null ? names[i] : "arg" + i;
-				writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+			if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
+				log.trace("Found method parameter annotated with XMLRootElement of type " + method.getParameterTypes()[0]);
+				// just do nothing, it will generate a request with a body element
+			} else if (method.getParameterTypes().length > 1) {
+				// TODO treat multiple parameter setters annotated with XMLRootElement
+				for (int i = 0; i < method.getParameterTypes().length; i++) {
+					String name = names != null ? names[i] : "arg" + i;
+					writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+				}
 			}
 
 			// add Produces if there is a serializable object as the return type

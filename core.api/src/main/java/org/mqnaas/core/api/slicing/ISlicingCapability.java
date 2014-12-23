@@ -5,6 +5,7 @@ import java.util.Collection;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.annotations.AddsResource;
+import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
 
 /**
@@ -24,6 +25,7 @@ public interface ISlicingCapability extends ICapability {
 	@RemovesResource
 	void removeSlice(IResource rootResource) throws SlicingException;
 
+	@ListsResources
 	public Collection<IResource> getSlices();
 
 }

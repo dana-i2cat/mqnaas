@@ -1,7 +1,5 @@
 package org.mqnaas.core.api.slicing;
 
-import java.util.Collection;
-
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 
@@ -19,14 +17,15 @@ public interface ISliceAdministration extends ICapability {
 	/**
 	 * Initializes the given {@link Cube}s in the space of this slice, e.g. defines the elements within the <code>cube</code>s as slicing units.
 	 */
-	void setCubes(Collection<Cube> cubes);
-	
+	void setCubes(CubesList cubes);
 
 	/**
-	 * Initializes the given {@link Cube}s in the space of this slice, e.g. clears the elements within the <code>cube</code>s from being slicing units.
+	 * Initializes the given {@link Cube}s in the space of this slice, e.g. clears the elements within the <code>cube</code>s from being slicing
+	 * units.
+	 * 
 	 * @param cubes
 	 */
-	void unsetCubes(Collection<Cube> cubes);
+	void unsetCubes(CubesList cubes);
 
 	/**
 	 * <p>
@@ -35,13 +34,13 @@ public interface ISliceAdministration extends ICapability {
 	 * This representation may not coincide with the list of cubes used to initialize the space using {@link #set(Cube)}, although the contained slice
 	 * elements will be the same.
 	 */
-	Collection<Cube> getCubes();
+	CubesList getCubes();
 
 	/**
 	 * Returns the smallest collection of {@link Cube} representing the available slicing units of this slice. This corresponds to the current state
 	 * of the slice.
 	 */
-	Collection<Cube> getAvailableCubes();
+	CubesList getAvailableCubes();
 
 	/**
 	 * Checks either the space of the given <code>slice</code> resource is available in the slice managed by this capability.
@@ -84,7 +83,7 @@ public interface ISliceAdministration extends ICapability {
 	 * @return
 	 */
 	boolean isInOperationalState();
-	
+
 	/**
 	 * Service that returns the internal data representation of this slice.
 	 * 
@@ -93,6 +92,5 @@ public interface ISliceAdministration extends ICapability {
 	 * @return the boolean array
 	 */
 	Object getData();
-
 
 }

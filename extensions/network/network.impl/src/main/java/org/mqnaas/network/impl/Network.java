@@ -72,6 +72,10 @@ public class Network implements IRootResourceProvider {
 
 	}
 
+	public IResource createRequestResource(Type type) {
+		return getCapability(IRequestResourceManagement.class).createResource(type);
+	}
+
 	private IRootResourceAdministration getRootResourceAdministration() {
 		return getCapability(IRootResourceAdministration.class);
 	}

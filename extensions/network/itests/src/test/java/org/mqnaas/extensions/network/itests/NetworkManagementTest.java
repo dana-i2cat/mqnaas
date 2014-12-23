@@ -122,8 +122,8 @@ public class NetworkManagementTest {
 						.type("xml").version("0.0.1-SNAPSHOT"), "tson"),
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-wiremock"),
-		// debug option
-		// KarafDistributionOption.debugConfiguration()
+				// debug option
+				KarafDistributionOption.debugConfiguration()
 		};
 
 	}
@@ -199,9 +199,20 @@ public class NetworkManagementTest {
 
 		// // 2.1 add request resources and mapping
 
+		// // // 2.1.1 tson
 		IResource reqTsonResource = request.createResource(Type.TSON);
 		NetworkSubResource reqTson = new NetworkSubResource(reqTsonResource, serviceProvider);
 		request.defineMapping(reqTsonResource, tsonResource.getResource());
+
+		// // // 2.2.2 nitos
+		IResource reqNitosResource = request.createResource(Type.NETWORK);
+		Network reqNitos = new Network(reqNitosResource, serviceProvider);
+		request.defineMapping(reqNitosResource, nitosResource.getNetworkResource());
+
+		// // // 2.2.3 ofswitch in nitos
+		IRootResource phyOfSwitch = nitosResource.getRootResources().get(0);
+		IResource ofswitch = reqNitos.createRequestResource(Type.OF_SWITCH);
+		request.defineMapping(ofswitch, phyOfSwitch);
 
 		// // 2.2 specify internal ports
 

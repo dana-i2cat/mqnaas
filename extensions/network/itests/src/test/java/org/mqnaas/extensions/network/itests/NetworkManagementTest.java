@@ -1,16 +1,27 @@
 package org.mqnaas.extensions.network.itests;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
+import net.i2cat.dana.nitos.client.model.LeaseResourcesResponse;
+import net.i2cat.dana.nitos.client.model.Resource;
+import net.i2cat.dana.nitos.client.model.ResourceResponse;
+
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
@@ -49,6 +60,9 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
+
 /**
  * 
  * @author Adrián Roselló Rey (i2CAT)
@@ -58,12 +72,17 @@ import org.slf4j.LoggerFactory;
 @ExamReactorStrategy(PerClass.class)
 public class NetworkManagementTest {
 
-	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagementTest.class);
+	private static final Logger	log				= LoggerFactory.getLogger(NetworkManagementTest.class);
 
 	private Network				networkResource;
 	private NetworkSubResource	tsonResource;
+	private Network				nitosResource;
+
 	private NetworkSubResource	ofSwitchResource1;
 	private NetworkSubResource	ofSwitchResource2;
+
+	@Rule
+	public WireMockRule			wireMockRule	= new WireMockRule(8080);
 
 	@Inject
 	IServiceProvider			serviceProvider;
@@ -101,6 +120,8 @@ public class NetworkManagementTest {
 				// add tson features
 				KarafDistributionOption.features(CoreOptions.maven().groupId("net.i2cat.dana.tson").artifactId("tson").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "tson"),
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
+						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-wiremock"),
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
 		};
@@ -120,13 +141,16 @@ public class NetworkManagementTest {
 	 * @throws URISyntaxException
 	 * @throws CapabilityNotFoundException
 	 * @throws ResourceNotFoundException
+	 * @throws IOException
 	 */
 	@Before
 	public void prepareTest() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException,
-			ResourceNotFoundException {
+			ResourceNotFoundException, IOException {
+
+		mockServer();
 
 		Endpoint tsonEndpoint = new Endpoint(new URI("http://www.myfaketson.com/tson"));
-		Endpoint nitosendpoint = new Endpoint(new URI("http://www.myfakenitos.com/nitos"));
+		Endpoint nitosendpoint = new Endpoint(new URI("http://localhost:8080"));
 
 		// 1. create resources
 
@@ -137,6 +161,11 @@ public class NetworkManagementTest {
 		// // 1.b create physical tson (in physical network)
 		IRootResource tson = networkResource.createResource(new Specification(Type.TSON), Arrays.asList(tsonEndpoint));
 		tsonResource = new NetworkSubResource(tson, serviceProvider);
+
+		// // 1.c create nitos network
+		IRootResource nitos = networkResource.createResource(new Specification(Type.NETWORK, "nitos"), Arrays.asList(nitosendpoint));
+		nitosResource = new Network(nitos, serviceProvider);
+
 		// 2. create resources ports
 		// // 2.1. create tson ports
 		tsonResource.createPort();
@@ -294,5 +323,54 @@ public class NetworkManagementTest {
 
 		Slice tsonSlice = new Slice(tsonResource.getSlice(), serviceProvider);
 		Assert.assertEquals("Physical TSON should contain original slice information again.", "XX", tsonSlice.toMatrix());
+	}
+
+	private LeaseResourcesResponse generateLeaseResourcesResponse() {
+
+		LeaseResourcesResponse response = new LeaseResourcesResponse();
+		ResourceResponse resourceResponse = new ResourceResponse();
+
+		List<Resource> resources = new ArrayList<Resource>();
+
+		Resource resource = new Resource();
+
+		resource.setName("ofswitch");
+		resource.setType(net.i2cat.dana.nitos.client.model.Type.OF_SWITCH);
+		resource.setHref("http://www.myfakenitos.com/ofswitch");
+
+		resource.setUuid(Type.OF_SWITCH + "-1");
+
+		resources.add(resource);
+
+		resourceResponse.setResources(resources);
+		response.setResourceResponse(resourceResponse);
+
+		return response;
+	}
+
+	private void mockServer() throws IOException {
+		String getResourcesresponse = textFileToString("/mock/getResourcesNitosResponse.json");
+
+		WireMock.stubFor(
+				WireMock.get(
+						WireMock.urlEqualTo("/resources/nodes"))
+						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_JSON))
+						.willReturn(WireMock.aResponse()
+								.withStatus(HttpStatus.OK_200)
+								.withHeader("Content-Type", MediaType.APPLICATION_JSON)
+								.withBody(getResourcesresponse)
+						));
+	}
+
+	private String textFileToString(String fileLocation) throws IOException {
+		String fileString = "";
+		BufferedReader br = new BufferedReader(
+				new InputStreamReader(getClass().getResourceAsStream(fileLocation)));
+		String line;
+		while ((line = br.readLine()) != null) {
+			fileString += line += "\n";
+		}
+		br.close();
+		return fileString;
 	}
 }

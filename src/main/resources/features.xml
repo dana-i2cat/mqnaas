@@ -79,4 +79,56 @@
 		<bundle dependency="true">mvn:com.opensymphony.quartz/com.springsource.org.quartz/${quartz.version}</bundle>
 		<bundle>mvn:${project.groupId}/core/${project.version}</bundle>		
 	</feature>
+	
+		<feature name="mqnaas-powermock" version="${project.version}">
+		<!-- +- org.powermock:powermock-module-junit4:jar:1.5.1:test | \- org.powermock:powermock-module-junit4-common:jar:1.5.1:test 
+			| +- org.powermock:powermock-core:jar:1.5.1:test | | \- org.javassist:javassist:jar:3.18.1-GA:test 
+			| \- org.powermock:powermock-reflect:jar:1.5.1:test | \- org.objenesis:objenesis:jar:1.2:test 
+			+- org.powermock:powermock-api-mockito:jar:1.5.1:test | +- org.mockito:mockito-all:jar:1.9.5:test 
+			| \- org.powermock:powermock-api-support:jar:1.5.1:test -->
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-module-junit4/${powermock.version}
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-module-junit4-common/${powermock.version}
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-core/${powermock.version}
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.javassist/javassist/3.18.1-GA
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-reflect/${powermock.version}
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.objenesis/objenesis/2.1
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-api-mockito/${powermock.version}
+		</bundle>
+		<!-- Rebundle mvn:org.mockito/mockito-all/1.9.5 exporting also org.mockito.internal.** 
+			and org.mockito.cglib.proxy packages -->
+		<bundle dependency="true">wrap:mvn:org.mockito/mockito-all/1.9.5$overwrite=merge&amp;Bundle-SymbolicName=wrap_mvn_org.mockito_mockito-all_1.9.5&amp;Export-Package=org.mockito.exceptions;uses:=&quot;org.mockito.invocation,org.mockito.exceptions.base,org.mockito.mock,org.mockito.listeners,org.mockito.exceptions.misusing,org.mockito.exceptions.verification&quot;;version=&quot;1.9.5&quot;,org.mockito.exceptions.stacktrace;uses:=org.mockito;version=&quot;1.9.5&quot;,org.mockito.stubbing.answers;version=&quot;1.9.5&quot;,org.mockito.listeners;uses:=org.mockito.invocation;version=&quot;1.9.5&quot;,org.mockito.runners;uses:=&quot;org.junit.runner,org.junit.runner.notification,org.junit.runner.manipulation&quot;;version=&quot;1.9.5&quot;,org.mockito.exceptions.base;version=&quot;1.9.5&quot;,org.mockito.plugins;uses:=&quot;org.mockito.mock,org.mockito,org.mockito.invocation,org.mockito.exceptions.stacktrace&quot;;version=&quot;1.9.5&quot;,org.mockito.mock;uses:=&quot;org.mockito,org.mockito.stubbing&quot;;version=&quot;1.9.5&quot;,org.mockito.exceptions.verification;uses:=org.mockito.exceptions.base;version=&quot;1.9.5&quot;,org.mockito.configuration;uses:=&quot;org.mockito,org.mockito.stubbing&quot;;version=&quot;1.9.5&quot;,org.mockito.invocation;uses:=&quot;org.mockito,org.mockito.exceptions&quot;;version=&quot;1.9.5&quot;,org.mockito.exceptions.verification.junit;uses:=junit.framework;version=&quot;1.9.5&quot;,org.mockito;uses:=&quot;org.mockito.stubbing,org.hamcrest,org.mockito.verification,org.mockito.listeners,org.mockito.exceptions.base,org.mockito.exceptions,org.mockito.configuration,org.mockito.invocation&quot;;version=&quot;1.9.5&quot;,org.mockito.exceptions.misusing;uses:=org.mockito.exceptions.base;version=&quot;1.9.5&quot;,org.mockito.verification;uses:=org.mockito.exceptions;version=&quot;1.9.5&quot;,org.mockito.stubbing;uses:=org.mockito.invocation;version=&quot;1.9.5&quot;,org.objenesis;version=&quot;1.0&quot;,org.mockito.internal;version=&quot;1.9.5&quot;,org.mockito.internal.configuration;version=&quot;1.9.5&quot;,org.mockito.internal.creation;version=&quot;1.9.5&quot;,org.mockito.internal.creation.jmock;version=&quot;1.9.5&quot;,org.mockito.internal.creation.settings;version=&quot;1.9.5&quot;,org.mockito.internal.debugging;version=&quot;1.9.5&quot;,org.mockito.internal.exceptions.stacktrace;version=&quot;1.9.5&quot;,org.mockito.internal.handler;version=&quot;1.9.5&quot;,org.mockito.internal.invocation;version=&quot;1.9.5&quot;,org.mockito.internal.invocation.realmethod;version=&quot;1.9.5&quot;,org.mockito.internal.matchers;version=&quot;1.9.5&quot;,org.mockito.internal.progress;version=&quot;1.9.5&quot;,org.mockito.internal.reporting;version=&quot;1.9.5&quot;,org.mockito.internal.stubbing;version=&quot;1.9.5&quot;,org.mockito.internal.stubbing.answers;version=&quot;1.9.5&quot;,org.mockito.internal.util;version=&quot;1.9.5&quot;,org.mockito.internal.util.reflection;version=&quot;1.9.5&quot;,org.mockito.internal.verification;version=&quot;1.9.5&quot;,org.mockito.internal.verification.api;version=&quot;1.9.5&quot;,org.mockito.cglib.proxy;version=&quot;1.9.5&quot;
+		</bundle>
+		<bundle dependency="true">wrap:mvn:org.powermock/powermock-api-support/${powermock.version}
+		</bundle>
+	</feature>
+	
+	<feature name="mqnaas-wiremock" version="${project.version}">
+	
+		<feature version="${project.version}">mqnaas-powermock</feature>
+	
+		<bundle dependency="true">wrap:mvn:org.skyscreamer/jsonassert/1.2.3</bundle>
+		
+		<bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.4</bundle>
+		<bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/2.4.4</bundle>
+		<bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/2.4.4</bundle>
+		
+		<bundle dependency="true">wrap:mvn:org.json/json/20131018</bundle>
+		
+		<bundle dependency="true">wrap:mvn:xmlunit/xmlunit/1.4</bundle>
+		
+		<bundle dependency="true">mvn:org.mortbay.jetty/jetty-util/6.1.26</bundle>
+		<bundle dependency="true">mvn:org.mortbay.jetty/jetty/6.1.26</bundle>
+		
+		<bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpcore/4.3.2</bundle>
+		<bundle dependency="true">wrap:mvn:org.apache.httpcomponents/httpclient/4.3.5</bundle>
+		
+		<bundle dependency="true">wrap:mvn:com.github.tomakehurst/wiremock/${wiremock.version}</bundle>
+	
+	</feature>
 </features>

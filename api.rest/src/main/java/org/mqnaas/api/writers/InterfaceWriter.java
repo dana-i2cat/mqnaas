@@ -128,20 +128,6 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			// Define the HTTP method type
 			Class<? extends Annotation> httpMethod = GET.class;
 
-			String serviceName = method.getName();
-			if (serviceName.startsWith("get") && serviceName.length() > 3) {
-				log.trace("Found \"get\" method: " + method);
-
-				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
-			}
-
-			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
-				log.trace("Found \"set\" method: " + method);
-
-				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
-				httpMethod = PUT.class;
-			}
-
 			// Translate the result
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(method.getReturnType());
 
@@ -151,9 +137,29 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				parameterClasses[i] = restAPIGenerator.getParameterTranslation(method.getParameterTypes()[i]);
 			}
 
-			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses,
-					new AnnotationWriter(httpMethod),
-					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));
+			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses);
+
+			String serviceName = method.getName();
+			if (serviceName.startsWith("get") && serviceName.length() > 3) {
+				log.trace("Found \"get\" method: " + method);
+
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+
+				if (Collection.class.isAssignableFrom(method.getReturnType())) {
+					// FIXME, add wrapper instead of Collection
+
+				}
+			}
+
+			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
+				log.trace("Found \"set\" method: " + method);
+
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+				httpMethod = PUT.class;
+			}
+
+			writer.addAnnotationWriter(new AnnotationWriter(httpMethod));
+			writer.addAnnotationWriter(new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));
 
 			String[] names = null; // TODO read names using asm
 

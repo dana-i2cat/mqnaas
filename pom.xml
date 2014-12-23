@@ -80,6 +80,9 @@
 		<!-- PowerMock version -->
 		<powermock.version>1.5.5</powermock.version>
 
+		<!-- Wiremock version -->
+		<wiremock.version>1.51</wiremock.version>
+
 		<!-- Quartz Scheduler version -->
 		<quartz.version>1.6.2</quartz.version>
 

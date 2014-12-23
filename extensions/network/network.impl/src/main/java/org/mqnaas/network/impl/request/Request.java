@@ -20,12 +20,15 @@ import org.mqnaas.network.api.topology.port.INetworkPortManagement;
  * 
  * @author Georg Mansky-Kummert
  */
-public class Request {
+public class Request implements IRequestResourceMapping {
 
 	private IServiceProvider	serviceProvider;
 	private IResource			request;
 
 	public Request(IResource request, IServiceProvider serviceProvider) {
+		if (serviceProvider == null)
+			throw new IllegalArgumentException("ServiceProvider must be given.");
+
 		this.request = request;
 		this.serviceProvider = serviceProvider;
 	}
@@ -34,16 +37,24 @@ public class Request {
 		return request;
 	}
 
-	private IRequestResourceMapping getMapping() {
-		return getCapability(IRequestResourceMapping.class);
+	@Override
+	public IResource getMapping(IResource resource) {
+		return getCapability(IRequestResourceMapping.class).getMapping(resource);
 	}
 
-	private IResource getMapping(IResource resource) {
-		return getMapping().getMapping(resource);
-	}
-
+	@Override
 	public Collection<IResource> getMappedDevices() {
-		return getMapping().getMappedDevices();
+		return getCapability(IRequestResourceMapping.class).getMappedDevices();
+	}
+
+	@Override
+	public void defineMapping(IResource requestResource, IResource rootResource) {
+		getCapability(IRequestResourceMapping.class).defineMapping(requestResource, rootResource);
+	}
+
+	@Override
+	public void removeMapping(IResource resource) {
+		getCapability(IRequestResourceMapping.class).removeMapping(resource);
 	}
 
 	public List<IResource> getRootResources() {
@@ -54,7 +65,7 @@ public class Request {
 		return getMapping(resource);
 	}
 
-	public Period getPeriod() throws CapabilityNotFoundException {
+	public Period getPeriod() {
 		return getCapability(IRequestAdministration.class).getPeriod();
 	}
 
@@ -79,11 +90,6 @@ public class Request {
 		return getCapability(IRequestResourceManagement.class).createResource(type);
 	}
 
-	public void defineMapping(IResource virtResource, IResource phyResource) {
-		getCapability(IRequestResourceMapping.class).defineMapping(virtResource, phyResource);
-
-	}
-
 	public void addNetworkPort(IResource netPort) {
 		getCapability(INetworkPortManagement.class).addPort(netPort);
 
@@ -100,6 +106,14 @@ public class Request {
 
 	public IResource getResource() {
 		return request;
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
 	}
 
 }

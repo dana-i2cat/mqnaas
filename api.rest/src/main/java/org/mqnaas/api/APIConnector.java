@@ -3,6 +3,7 @@ package org.mqnaas.api;
 import org.mqnaas.api.exceptions.InvalidCapabilityDefinionException;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IObservationService;
@@ -43,6 +44,9 @@ import org.slf4j.LoggerFactory;
 public class APIConnector implements IAPIConnector {
 
 	private static final Logger	log	= LoggerFactory.getLogger(APIConnector.class);
+	
+	@DependingOn
+	ICoreModelCapability		coreModelCapability;
 
 	@DependingOn
 	IObservationService			observationService;
@@ -128,6 +132,7 @@ public class APIConnector implements IAPIConnector {
 			restApiProvider.publish(observationService, IObservationService.class, "/mqnaas/IObservationService/");
 			restApiProvider.publish(executionService, IExecutionService.class, "/mqnaas/IExecutionService/");
 			restApiProvider.publish(serviceProvider, IServiceProvider.class, "/mqnaas/IServiceProvider/");
+			restApiProvider.publish(coreModelCapability, ICoreModelCapability.class, "/mqnaas/ICoreModelCapability");
 		} catch (Exception e){
 			// TODO treat exception 
 			log.error("Failed to register core services API.", e);

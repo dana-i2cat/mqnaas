@@ -107,11 +107,11 @@ class Slice {
 	}
 
 	public Collection<Cube> getCubes() {
-		return getAdministration().getCubes();
+		return getAdministration().getCubes().getCubes();
 	}
 
 	public Collection<Cube> getAvailableCubes() {
-		return getAdministration().getAvailableCubes();
+		return getAdministration().getAvailableCubes().getCubes();
 	}
 
 	public void initData() {

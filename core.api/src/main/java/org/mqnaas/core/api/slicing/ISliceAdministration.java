@@ -1,7 +1,5 @@
 package org.mqnaas.core.api.slicing;
 
-import java.util.Collection;
-
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 
@@ -36,13 +34,13 @@ public interface ISliceAdministration extends ICapability {
 	 * This representation may not coincide with the list of cubes used to initialize the space using {@link #set(Cube)}, although the contained slice
 	 * elements will be the same.
 	 */
-	Collection<Cube> getCubes();
+	CubesList getCubes();
 
 	/**
 	 * Returns the smallest collection of {@link Cube} representing the available slicing units of this slice. This corresponds to the current state
 	 * of the slice.
 	 */
-	Collection<Cube> getAvailableCubes();
+	CubesList getAvailableCubes();
 
 	/**
 	 * Checks either the space of the given <code>slice</code> resource is available in the slice managed by this capability.

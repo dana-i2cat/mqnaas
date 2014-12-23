@@ -25,10 +25,15 @@ public class MethodWriter extends AbstractWriter {
 																		}
 																	};
 
-	MethodWriter(String name, Class<?> returnType, Class<?>[] paramTypes, AnnotationWriter... annotationWriters) {
+	MethodWriter(String name, Class<?> returnType, Class<?>[] paramTypes) {
 		this.name = name;
 		this.returnType = returnType;
 		this.paramTypes = paramTypes;
+		this.annotationWriters = new ArrayList<AnnotationWriter>(0);
+	}
+
+	MethodWriter(String name, Class<?> returnType, Class<?>[] paramTypes, AnnotationWriter... annotationWriters) {
+		this(name, returnType, paramTypes);
 		this.annotationWriters = new ArrayList<AnnotationWriter>(Arrays.asList(annotationWriters));
 	}
 

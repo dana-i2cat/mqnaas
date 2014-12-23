@@ -3,7 +3,6 @@ package org.mqnaas.core.impl.slicing;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -194,13 +193,13 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	@Override
-	public Collection<Cube> getCubes() {
-		return originalData != null ? compactize(originalData) : null;
+	public CubesList getCubes() {
+		return originalData != null ? new CubesList(compactize(originalData)) : null;
 	}
 
 	@Override
-	public Collection<Cube> getAvailableCubes() {
-		return currentData != null ? compactize(currentData) : null;
+	public CubesList getAvailableCubes() {
+		return currentData != null ? new CubesList(compactize(currentData)) : null;
 
 	}
 

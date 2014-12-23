@@ -404,7 +404,24 @@ public class SliceAdministration implements ISliceAdministration {
 		CompatizeOperation operation = new CompatizeOperation();
 		executeOperation(dataCopy, lbs, ubs, operation);
 
-		return operation.getCubes();
+		List<Cube> cubes = operation.getCubes();
+
+		// Now adapt the lower bounds...
+		for ( Cube cube : cubes ) {
+			int i = 0;
+			Range[] ranges = cube.getRanges();
+			
+			for ( Unit unit : units ) {
+				int unitLowerBound = unit.getRange().getLowerBound();
+				ranges[i].setLowerBound(ranges[i].getLowerBound() + unitLowerBound);
+				ranges[i].setUpperBound(ranges[i].getUpperBound() + unitLowerBound);
+				i++;
+			}
+			
+			cube.setRanges(ranges);
+		}
+		
+		return cubes;
 	}
 
 	private interface Operation {
@@ -729,14 +746,6 @@ public class SliceAdministration implements ISliceAdministration {
 
 	}
 
-	// private SliceAdministration getSliceAdministration(IResource slice) throws SlicingException {
-	// try {
-	// return (SliceAdministration) serviceProvider.getCapability(slice, ISliceAdministration.class);
-	// } catch (CapabilityNotFoundException c) {
-	// throw new SlicingException("Error getting sliceAdministration capability from given resource:" + c.getMessage(), c);
-	// }
-	// }
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -772,5 +781,5 @@ public class SliceAdministration implements ISliceAdministration {
 	public Object getData() {
 		return currentData;
 	}
-
+	
 }

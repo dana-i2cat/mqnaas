@@ -19,7 +19,7 @@ import org.mqnaas.core.api.slicing.SlicingException;
  * 
  * @author Georg Mansky-Kummert
  */
-class Slice {
+public class Slice {
 
 	private SliceResource		slice;
 	private IServiceProvider	serviceProvider;

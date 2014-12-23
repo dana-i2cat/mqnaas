@@ -25,24 +25,19 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
-import org.mqnaas.core.api.slicing.CubesList;
-import org.mqnaas.core.api.slicing.ISliceAdministration;
-import org.mqnaas.core.api.slicing.ISliceProvider;
-import org.mqnaas.core.api.slicing.IUnitAdministration;
-import org.mqnaas.core.api.slicing.IUnitManagement;
 import org.mqnaas.core.api.slicing.Range;
+import org.mqnaas.core.impl.slicing.Slice;
+import org.mqnaas.core.impl.slicing.Unit;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
-import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.Link;
 import org.mqnaas.network.impl.Network;
 import org.mqnaas.network.impl.NetworkSubResource;
-import org.mqnaas.network.impl.Slice;
-import org.mqnaas.network.impl.Unit;
 import org.mqnaas.network.impl.request.Request;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -67,7 +62,8 @@ public class NetworkManagementTest {
 
 	private Network				networkResource;
 	private NetworkSubResource	tsonResource;
-	private IRootResource		nitosResource;
+	private NetworkSubResource	ofSwitchResource1;
+	private NetworkSubResource	ofSwitchResource2;
 
 	@Inject
 	IServiceProvider			serviceProvider;
@@ -123,48 +119,47 @@ public class NetworkManagementTest {
 	 * @throws IllegalAccessException
 	 * @throws URISyntaxException
 	 * @throws CapabilityNotFoundException
+	 * @throws ResourceNotFoundException
 	 */
 	@Before
-	public void prepareTest() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException {
+	public void prepareTest() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException,
+			ResourceNotFoundException {
 
 		Endpoint tsonEndpoint = new Endpoint(new URI("http://www.myfaketson.com/tson"));
+		Endpoint nitosendpoint = new Endpoint(new URI("http://www.myfakenitos.com/nitos"));
 
-		// create resources
+		// 1. create resources
+
+		// // 1.a create physical network
 		IRootResource network = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
 		networkResource = new Network(network, serviceProvider);
+
+		// // 1.b create physical tson (in physical network)
 		IRootResource tson = networkResource.createResource(new Specification(Type.TSON), Arrays.asList(tsonEndpoint));
+		tsonResource = new NetworkSubResource(tson, serviceProvider);
+		// 2. create resources ports
+		// // 2.1. create tson ports
+		tsonResource.createPort();
+		tsonResource.createPort();
+		tsonResource.createPort();
 
-		nitosResource = rootResourceAdmin.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "nitos")));
+		// 3 define tson slice
+		IResource tsonSliceResource = tsonResource.getSlice();
+		Slice tsonSlice = new Slice(tsonSliceResource, serviceProvider);
 
-		// define tson slice
-		ISliceProvider sliceProvider = serviceProvider.getCapability(tson, ISliceProvider.class);
-		IResource slice = sliceProvider.getSlice();
-		ISliceAdministration sliceAdmin = serviceProvider.getCapability(slice, ISliceAdministration.class);
+		Unit portUnit = tsonSlice.addUnit("port");
 
-		IUnitManagement unitManagement = serviceProvider.getCapability(slice, IUnitManagement.class);
-
-		IResource portUnit = unitManagement.createUnit("port");
-		IUnitAdministration unitAdmin = serviceProvider.getCapability(portUnit, IUnitAdministration.class);
-
-		unitAdmin.setRange(new Range(0, 1));
+		portUnit.setRange(new Range(0, 1));
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
-		sliceAdmin.setCubes(new CubesList(Arrays.asList(cube)));
-
-		// define tson ports
-		IPortManagement tsonPortManagement = serviceProvider.getCapability(tson, IPortManagement.class);
-		tsonPortManagement.createPort();
-		tsonPortManagement.createPort();
-		tsonPortManagement.createPort();
-
-		tsonResource = new NetworkSubResource(tson, serviceProvider);
+		tsonSlice.setCubes(Arrays.asList(cube));
 
 	}
 
 	@Test
 	public void basicNetworkCreationTest() throws InstantiationException, IllegalAccessException, CapabilityNotFoundException,
-			NetworkCreationException, ResourceNotFoundException {
+			NetworkCreationException, ResourceNotFoundException, NetworkReleaseException {
 
 		// 1. create request
 		IResource requestResource = networkResource.createRequest();
@@ -206,9 +201,8 @@ public class NetworkManagementTest {
 		IResource reqTsonSliceResource = reqTson.getSlice();
 		Slice reqTsonSlice = new Slice(reqTsonSliceResource, serviceProvider);
 
-		IResource portUnitResource = reqTsonSlice.addUnit("port");
-		Unit unit = new Unit(portUnitResource, serviceProvider);
-		unit.setRange(new Range(0, 1));
+		Unit portUnit = reqTsonSlice.addUnit("port");
+		portUnit.setRange(new Range(0, 1));
 
 		Cube cube = new Cube();
 		cube.setRanges(new Range[] { new Range(0, 1) });
@@ -260,8 +254,7 @@ public class NetworkManagementTest {
 		IResource virtualTsonSliceResource = virtualTson.getSlice();
 		Slice virtualTsonSlice = new Slice(virtualTsonSliceResource, serviceProvider);
 
-		ISliceAdministration virtualTsonSliceAdmin = virtualTsonSlice.getSliceAdministration();
-		Assert.assertEquals("Virtual Tson should contain created slice cube.", Arrays.asList(cube), virtualTsonSliceAdmin.getCubes());
+		Assert.assertEquals("Virtual Tson should contain created slice cube.", Arrays.asList(cube), virtualTsonSlice.getCubes());
 		Assert.assertEquals("Virtual Tson should contain two ports.", "XX", virtualTsonSlice.toMatrix());
 
 		IResource phySliceResource = tsonResource.getSlice();
@@ -288,5 +281,18 @@ public class NetworkManagementTest {
 		Assert.assertEquals("Network should contain an external port.", 1, netPorts.size());
 		Assert.assertEquals("Network should contain tsonPort3 as external port.", tsonPort3, netPorts.get(0));
 
+		// 4. remove network
+		requestNetworkManagementCapab.releaseNetwork(networkResource);
+
+		// Asserts
+
+		// // assert network no longer exists
+		Assert.assertFalse("Network should no longer exists after its release.", requestNetworkManagementCapab.getNetworks()
+				.contains(networkResource));
+
+		// // slice asserts
+
+		Slice tsonSlice = new Slice(tsonResource.getSlice(), serviceProvider);
+		Assert.assertEquals("Physical TSON should contain original slice information again.", "XX", tsonSlice.toMatrix());
 	}
 }

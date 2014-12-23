@@ -16,8 +16,10 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.request.IRequestManagement;
+import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 
@@ -36,7 +38,6 @@ public class Network implements IRootResourceProvider {
 			return serviceProvider.getCapability(network, capabilityClass);
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Necessary capability not bound to resource " + network, e);
-
 		}
 	}
 
@@ -59,6 +60,11 @@ public class Network implements IRootResourceProvider {
 
 	public IRootResource createVirtualNetwork(IResource request) throws NetworkCreationException {
 		return getCapability(IRequestBasedNetworkManagement.class).createNetwork(request);
+	}
+
+	public void releaseVirtualNetwork(IRootResource virtualNetwork) throws NetworkReleaseException {
+		getCapability(IRequestBasedNetworkManagement.class).releaseNetwork(virtualNetwork);
+
 	}
 
 	public IRootResource createResource(Specification spec, List<Endpoint> endpoints) throws InstantiationException, IllegalAccessException {
@@ -89,9 +95,21 @@ public class Network implements IRootResourceProvider {
 	public void setRootResources(Collection<IRootResource> rootResources) {
 		getCapability(IRootResourceProvider.class).setRootResources(rootResources);
 	}
-	
+
 	@Override
 	public void activate() {
+	}
+
+	public List<IResource> getNetworkSubResources() {
+		return getRequestResourceManagement().getResources();
+	}
+
+	private IRequestResourceManagement getRequestResourceManagement() {
+		return getCapability(IRequestResourceManagement.class);
+	}
+
+	public void removeResource(IRootResource resource) throws ResourceNotFoundException {
+		getRootResourceAdministration().removeRootResource(resource);
 	}
 
 	@Override

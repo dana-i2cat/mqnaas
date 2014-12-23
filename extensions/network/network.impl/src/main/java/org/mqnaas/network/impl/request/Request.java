@@ -46,12 +46,12 @@ public class Request implements IRequestResourceMapping {
 	public Collection<IResource> getMappedDevices() {
 		return getCapability(IRequestResourceMapping.class).getMappedDevices();
 	}
-	
+
 	@Override
 	public void defineMapping(IResource requestResource, IResource rootResource) {
 		getCapability(IRequestResourceMapping.class).defineMapping(requestResource, rootResource);
 	}
-	
+
 	@Override
 	public void removeMapping(IResource resource) {
 		getCapability(IRequestResourceMapping.class).removeMapping(resource);

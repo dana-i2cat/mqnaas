@@ -58,7 +58,7 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 
 		servers.put(new ImmutablePair<ICapability, Class<? extends ICapability>>(capability, interfaceToBePublished), server);
 
-		log.debug("Published {} at {}", interfaceToBePublished, factoryBean.getAddress() + uri);
+		log.debug("Published {} at {}", interfaceToBePublished, factoryBean.getAddress());
 		log.trace(interfaceWriter.toString());
 	}
 

@@ -56,9 +56,9 @@ public class NetworkRootResourceProvider implements IRootResourceProvider {
 			Specification specification = resource.getDescriptor().getSpecification();
 
 			boolean matches = true;
-			matches &= type != null ? specification.getType().equals(type) : true;
-			matches &= model != null ? specification.getModel().equals(model) : true;
-			matches &= version != null ? specification.getVersion().equals(version) : true;
+			matches &= (type != null && specification.getType() != null) ? specification.getType().equals(type) : true;
+			matches &= (model != null && specification.getModel() != null) ? specification.getModel().equals(model) : true;
+			matches &= (version != null && specification.getVersion() != null) ? specification.getVersion().equals(version) : true;
 
 			if (matches)
 				filteredResources.add(resource);

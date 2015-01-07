@@ -1,0 +1,30 @@
+{
+   "resource_response":{
+      "resource":{
+         "uuid":"fg6523ft-cv4v-12ds-89eq-1990ghdcv7u0",
+         "href":"/resources/leases//fg6523ft-cv4v-12ds-89eq-1990ghdcv7u0",
+         "name":"testlease",
+         "account":{
+            "uuid":"962f4b0e-115f-4ad8-ae34-be5d8111d487",
+            "href":"/resources/leases//962f4b0e-115f-4ad8-ae34-be5d8111d487",
+            "name":"i2cat",
+            "type":"account"
+         },
+         "type":"Lease",
+         "components":[
+            {
+               "component":{
+                  "uuid":"f8020202-7c11-459c-89ee-4997bf9ad7e9",
+                  "href":"/resources/leases//f8020202-7c11-459c-89ee-4997bf9ad7e9",
+                  "name":"ofswitch",
+                  "type":"openflow"
+               }
+            }
+         ],
+         "valid_from":"2014-05-26 17:00:00 +0200",
+         "valid_until":"2014-05-26 19:00:00 +0200",
+         "status":"accepted"
+      },
+      "about":"/resources/leases/ "
+   }
+}	

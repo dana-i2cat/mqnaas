@@ -123,7 +123,7 @@ public class NetworkManagementTest {
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-wiremock"),
 				// debug option
-				KarafDistributionOption.debugConfiguration()
+				KarafDistributionOption.debugConfiguration(),
 		};
 
 	}
@@ -277,17 +277,21 @@ public class NetworkManagementTest {
 		Assert.assertNotNull("Created network resource should contain a bound IRequestManagement Capability",
 				network.getCapability(IRequestManagement.class));
 
+		List<IRootResource> netResources = network.getRootResources();
+		Assert.assertNotNull("Network should contain two resources.", netResources);
+		Assert.assertEquals("Network should contain two resources.", 2, netResources.size());
+
 		List<IRootResource> tsonResources = network.getRootResources(Type.TSON, null, null);
-		Assert.assertEquals("Network should contain 1 tson Resources.", 1, tsonResources.size());
+		Assert.assertEquals("Network should contain 1 tson Resource.", 1, tsonResources.size());
+
+		List<IRootResource> virtNetworksResources = network.getRootResources(Type.NETWORK, "virtual", null);
+		Assert.assertEquals("Network should contain 1 virtual network resource.", 1, virtNetworksResources.size());
 
 		// get the virtual TSON
 		IResource virtualTsonResource = network.getRootResources(Type.TSON, null, null).get(0);
 
 		NetworkSubResource virtualTson = new NetworkSubResource(virtualTsonResource, serviceProvider);
 
-		List<IRootResource> netResources = network.getRootResources();
-		Assert.assertNotNull("Network should contain a Tson resource.", netResources);
-		Assert.assertEquals("Network should contain a Tson resource.", 1, netResources.size());
 		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson.getResource(), netResources.get(0));
 
 		// slice asserts
@@ -320,6 +324,22 @@ public class NetworkManagementTest {
 		Assert.assertNotNull("Network should contain an external port.", netPorts);
 		Assert.assertEquals("Network should contain an external port.", 1, netPorts.size());
 		Assert.assertEquals("Network should contain tsonPort3 as external port.", tsonPort3, netPorts.get(0));
+
+		// subnetwork asserts
+		// get the virtual network
+		IResource virtualNetworkResource = network.getRootResources(Type.NETWORK, "virtual", null).get(0);
+		Network virtualNetwork = new Network(virtualNetworkResource, serviceProvider);
+
+		// get openflow switch from virtual network
+		List<IRootResource> subnetResources = virtualNetwork.getRootResources();
+		Assert.assertNotNull("Virtual subNetwork should contain 1 resource.", subnetResources);
+		Assert.assertEquals("Virtual subNetwork should contain 1 resource.", 1, subnetResources.size());
+
+		List<IRootResource> virtualSwitches = virtualNetwork.getRootResources(Type.OF_SWITCH, null, null);
+		Assert.assertNotNull("Virtual subNetwork should contain 1 openflow switch.", virtualSwitches);
+		Assert.assertEquals("Virtual subNetwork should contain 1 openflow switch.", 1, virtualSwitches.size());
+
+		NetworkSubResource ofSwitch = new NetworkSubResource(virtualSwitches.get(0), serviceProvider);
 
 		// 4. remove network
 		requestNetworkManagementCapab.releaseNetwork(networkResource);
@@ -360,7 +380,9 @@ public class NetworkManagementTest {
 	}
 
 	private void mockServer() throws IOException {
+
 		String getResourcesresponse = textFileToString("/mock/getResourcesNitosResponse.json");
+		String leaseResourcesResponse = textFileToString("/mock/leaseResourceNitosResponse.json");
 
 		WireMock.stubFor(
 				WireMock.get(
@@ -371,6 +393,18 @@ public class NetworkManagementTest {
 								.withHeader("Content-Type", MediaType.APPLICATION_JSON)
 								.withBody(getResourcesresponse)
 						));
+
+		WireMock.stubFor(
+				WireMock.post(
+						WireMock.urlEqualTo("/resources/leases"))
+						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_JSON))
+						.willReturn(WireMock.aResponse()
+								.withStatus(HttpStatus.OK_200)
+								.withHeader("Content-Type", MediaType.APPLICATION_JSON)
+								.withBody(leaseResourcesResponse)
+						)
+
+				);
 	}
 
 	private String textFileToString(String fileLocation) throws IOException {

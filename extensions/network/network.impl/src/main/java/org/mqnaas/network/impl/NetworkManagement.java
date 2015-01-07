@@ -153,9 +153,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		// get subnetwork resources and fill the request with the resources
 		for (IResource subnetResource : subnetwork.getNetworkSubResources()) {
-			IResource virtResource = request.createResource(((RequestRootResource) subnetResource).getType());
+			IResource virtResource = subnetRequest.createResource(((RequestRootResource) subnetResource).getType());
 			IResource phySubResource = request.getMappedDevice(subnetResource);
-			request.defineMapping(virtResource, phySubResource);
+			subnetRequest.defineMapping(virtResource, phySubResource);
 		}
 
 		// // get links and fill the request with the links

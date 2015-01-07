@@ -122,8 +122,8 @@ public class NetworkManagementTest {
 						.type("xml").version("0.0.1-SNAPSHOT"), "tson"),
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-wiremock"),
-				// debug option
-				KarafDistributionOption.debugConfiguration(),
+		// debug option
+		// KarafDistributionOption.debugConfiguration(),
 		};
 
 	}

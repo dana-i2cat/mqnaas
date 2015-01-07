@@ -70,11 +70,31 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			log.trace("Found AddsResource annotated method: " + m);
 
+			// Translate the result
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
-			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes(),
-					new AnnotationWriter(PUT.class),
-					new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value", new String[] { MediaType.APPLICATION_XML })));
+			// Translate the parameters
+			Class<?>[] parameterClasses = new Class<?>[m.getParameterTypes().length];
+			for (int i = 0; i < m.getParameterTypes().length; i++) {
+				parameterClasses[i] = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[i]);
+			}
+
+			MethodWriter writer = new MethodWriter(m.getName(), resultClass, parameterClasses);
+
+			String[] names = null; // TODO read names using asm
+			if (m.getParameterTypes().length > 0) {
+				// TODO treat multiple parameters annotated with XMLRootElement
+				for (int i = 0; i < m.getParameterTypes().length; i++) {
+					if (!m.getParameterTypes()[i].isAnnotationPresent(XmlRootElement.class)) {
+						String name = names != null ? names[i] : "arg" + i;
+						writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+					}
+				}
+			}
+
+			writer.addAnnotationWriter(new AnnotationWriter(PUT.class));
+			writer.addAnnotationWriter(new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value",
+					new String[] { MediaType.APPLICATION_XML })));
 
 			method2writer.put(m, writer);
 		}
@@ -182,8 +202,8 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				// add Consumes annotation
 				writer.addAnnotationWriter(new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value",
 						new String[] { MediaType.APPLICATION_XML })));
-			} else if (method.getParameterTypes().length > 1) {
-				// TODO treat multiple parameter setters annotated with XMLRootElement
+			} else {
+				// TODO treat parameters annotated with XMLRootElement
 				for (int i = 0; i < method.getParameterTypes().length; i++) {
 					String name = names != null ? names[i] : "arg" + i;
 					writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));

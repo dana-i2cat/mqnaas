@@ -22,7 +22,7 @@ public class RequestRootResource implements IResource {
 	private Type					type;
 
 	public RequestRootResource(Type type) {
-		id = "req-" + ID_COUNTER.incrementAndGet();
+		id = "req_root-" + ID_COUNTER.incrementAndGet();
 		this.type = type;
 	}
 
@@ -34,7 +34,7 @@ public class RequestRootResource implements IResource {
 	public String getId() {
 		return id;
 	}
-	
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(getClass().getSimpleName());
@@ -42,7 +42,7 @@ public class RequestRootResource implements IResource {
 
 		sb.append("id=").append(id);
 		sb.append(", type=").append(type);
-		
+
 		sb.append("]");
 		return sb.toString();
 	}

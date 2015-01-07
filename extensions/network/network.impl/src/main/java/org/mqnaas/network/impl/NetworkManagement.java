@@ -17,6 +17,7 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.core.api.slicing.SlicingException;
@@ -247,7 +248,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			unit2.setRange(unit.getRange());
 
 		}
-		newResourceSlice.setCubes(virtSlice.getCubes());
+		newResourceSlice.setCubes(new ArrayList<Cube>(virtSlice.getCubes()));
 
 		return newResource;
 	}

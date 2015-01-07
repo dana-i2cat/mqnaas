@@ -68,7 +68,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(AddsResource.class)) {
 
-			log.trace("Found AddsResource annotated method.");
+			log.trace("Found AddsResource annotated method: " + m);
 
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
@@ -81,7 +81,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(RemovesResource.class)) {
 
-			log.trace("Found RemovesResource annotated method.");
+			log.trace("Found RemovesResource annotated method: " + m);
 
 			Class<?> parameterClass = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[0]);
 
@@ -95,7 +95,7 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 		for (Method m : metaDataContainer.getServiceMethods(ListsResources.class)) {
 
-			log.trace("Found ListsResources annotated method.");
+			log.trace("Found ListsResources annotated method: " + m);
 
 			MethodWriter writer = new MethodWriter(m.getName(), m.getReturnType(),
 					m.getParameterTypes(),
@@ -128,24 +128,6 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 			// Define the HTTP method type
 			Class<? extends Annotation> httpMethod = GET.class;
 
-			String serviceName = method.getName();
-			if (serviceName.startsWith("get") && serviceName.length() > 3) {
-				log.trace("Found \"get\" method.");
-
-				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
-			}
-
-			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
-				log.trace("Found \"set\" method.");
-
-				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
-				httpMethod = PUT.class;
-
-				if (method.getParameterTypes().length == 1 && method.getParameterTypes()[0].getAnnotation(XmlRootElement.class) != null) {
-					log.trace("Found XMLRootElement.");
-				}
-			}
-
 			// Translate the result
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(method.getReturnType());
 
@@ -155,15 +137,57 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				parameterClasses[i] = restAPIGenerator.getParameterTranslation(method.getParameterTypes()[i]);
 			}
 
-			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses,
-					new AnnotationWriter(httpMethod),
-					new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));
+			MethodWriter writer = new MethodWriter(method.getName(), resultClass, parameterClasses);
+
+			String serviceName = method.getName();
+			if (serviceName.startsWith("get") && serviceName.length() > 3) {
+				log.trace("Found \"get\" method: " + method);
+
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+
+				if (Collection.class.isAssignableFrom(method.getReturnType())) {
+					// FIXME, add wrapper instead of Collection
+
+				}
+			}
+
+			else if (serviceName.startsWith("set") && serviceName.length() > 3) {
+				log.trace("Found \"set\" method: " + method);
+
+				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
+				httpMethod = PUT.class;
+			}
+
+			writer.addAnnotationWriter(new AnnotationWriter(httpMethod));
+			writer.addAnnotationWriter(new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));
 
 			String[] names = null; // TODO read names using asm
 
-			for (int i = 0; i < method.getParameterTypes().length; i++) {
-				String name = names != null ? names[i] : "arg" + i;
-				writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+			// treat one XMLRootElement annotated method parameter (or data structures)
+			// FIXME check XMLRootElement is an annotation present in the generic type of Multimap or Collection
+			if (method.getParameterTypes().length == 1 && (method.getParameterTypes()[0].isAnnotationPresent(XmlRootElement.class) || Multimap.class
+					.isAssignableFrom(method.getParameterTypes()[0]) || Collection.class.isAssignableFrom(method.getParameterTypes()[0]))) {
+				if (Multimap.class.isAssignableFrom(method.getParameterTypes()[0])) {
+					log.trace("Found Multimap method parameter of type " + method.getParameterTypes()[0]);
+					// FIXME, add wrapper instead of Multimap
+
+				} else if (Collection.class.isAssignableFrom(method.getParameterTypes()[0])) {
+					log.trace("Found Collection method parameter of type " + method.getParameterTypes()[0]);
+					// FIXME, add wrapper instead of Collection
+
+				} else {
+					log.trace("Found method parameter annotated with XMLRootElement of type " + method.getParameterTypes()[0]);
+					// just do nothing, it will generate a request with a body element
+				}
+				// add Consumes annotation
+				writer.addAnnotationWriter(new AnnotationWriter(Consumes.class, new AnnotationParamWriter("value",
+						new String[] { MediaType.APPLICATION_XML })));
+			} else if (method.getParameterTypes().length > 1) {
+				// TODO treat multiple parameter setters annotated with XMLRootElement
+				for (int i = 0; i < method.getParameterTypes().length; i++) {
+					String name = names != null ? names[i] : "arg" + i;
+					writer.addAnnotationWriter(new AnnotationWriter(i, QueryParam.class, new AnnotationParamWriter("value", name)));
+				}
 			}
 
 			// add Produces if there is a serializable object as the return type

@@ -3,7 +3,6 @@ package org.mqnaas.core.impl.slicing;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -13,6 +12,7 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
+import org.mqnaas.core.api.slicing.CubesList;
 import org.mqnaas.core.api.slicing.ISliceAdministration;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SlicingException;
@@ -67,7 +67,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 * called!
 	 */
 	@Override
-	public void setCubes(Collection<Cube> cubes) {
+	public void setCubes(CubesList cubes) {
 		try {
 			initData();
 
@@ -76,7 +76,7 @@ public class SliceAdministration implements ISliceAdministration {
 			int[] lowerBounds = new int[units.size()];
 			int[] upperBounds = new int[units.size()];
 
-			for (Cube cube : cubes) {
+			for (Cube cube : cubes.getCubes()) {
 
 				Range[] ranges = cube.getRanges();
 				int i = 0;
@@ -193,13 +193,13 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	@Override
-	public Collection<Cube> getCubes() {
-		return originalData != null ? compactize(originalData) : null;
+	public CubesList getCubes() {
+		return originalData != null ? new CubesList(compactize(originalData)) : null;
 	}
 
 	@Override
-	public Collection<Cube> getAvailableCubes() {
-		return currentData != null ? compactize(currentData) : null;
+	public CubesList getAvailableCubes() {
+		return currentData != null ? new CubesList(compactize(currentData)) : null;
 
 	}
 
@@ -245,14 +245,15 @@ public class SliceAdministration implements ISliceAdministration {
 	 * @param cubes
 	 *            Cubes that will be markes as unavaiable in the current live space.
 	 */
-	public void unsetCubes(Collection<Cube> cubes) {
+	@Override
+	public void unsetCubes(CubesList cubes) {
 
 		List<Unit> units = slice.getUnits();
 
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
-		for (Cube cube : cubes) {
+		for (Cube cube : cubes.getCubes()) {
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
 				int lowerBound = units.get(i).getRange().getLowerBound();
@@ -403,7 +404,24 @@ public class SliceAdministration implements ISliceAdministration {
 		CompatizeOperation operation = new CompatizeOperation();
 		executeOperation(dataCopy, lbs, ubs, operation);
 
-		return operation.getCubes();
+		List<Cube> cubes = operation.getCubes();
+
+		// Now adapt the lower bounds...
+		for ( Cube cube : cubes ) {
+			int i = 0;
+			Range[] ranges = cube.getRanges();
+			
+			for ( Unit unit : units ) {
+				int unitLowerBound = unit.getRange().getLowerBound();
+				ranges[i].setLowerBound(ranges[i].getLowerBound() + unitLowerBound);
+				ranges[i].setUpperBound(ranges[i].getUpperBound() + unitLowerBound);
+				i++;
+			}
+			
+			cube.setRanges(ranges);
+		}
+		
+		return cubes;
 	}
 
 	private interface Operation {
@@ -728,14 +746,6 @@ public class SliceAdministration implements ISliceAdministration {
 
 	}
 
-	// private SliceAdministration getSliceAdministration(IResource slice) throws SlicingException {
-	// try {
-	// return (SliceAdministration) serviceProvider.getCapability(slice, ISliceAdministration.class);
-	// } catch (CapabilityNotFoundException c) {
-	// throw new SlicingException("Error getting sliceAdministration capability from given resource:" + c.getMessage(), c);
-	// }
-	// }
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -771,5 +781,5 @@ public class SliceAdministration implements ISliceAdministration {
 	public Object getData() {
 		return currentData;
 	}
-
+	
 }

@@ -70,9 +70,16 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 
 			log.trace("Found AddsResource annotated method: " + m);
 
+			// Translate the result
 			Class<?> resultClass = restAPIGenerator.getResultTranslation(m.getReturnType());
 
-			MethodWriter writer = new MethodWriter(m.getName(), resultClass, m.getParameterTypes());
+			// Translate the parameters
+			Class<?>[] parameterClasses = new Class<?>[m.getParameterTypes().length];
+			for (int i = 0; i < m.getParameterTypes().length; i++) {
+				parameterClasses[i] = restAPIGenerator.getParameterTranslation(m.getParameterTypes()[i]);
+			}
+
+			MethodWriter writer = new MethodWriter(m.getName(), resultClass, parameterClasses);
 
 			String[] names = null; // TODO read names using asm
 			if (m.getParameterTypes().length > 0) {

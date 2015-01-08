@@ -294,6 +294,10 @@ public class NetworkManagementTest {
 
 		Assert.assertEquals("Network should contain the virtual TSON.", virtualTson.getResource(), netResources.get(0));
 
+		// ports asserts
+		List<IResource> virtualTsonPorts = virtualTson.getPorts();
+		Assert.assertEquals("Virtual Tson should contain two ports.", 2, virtualTsonPorts.size());
+
 		// slice asserts
 		IResource virtualTsonSliceResource = virtualTson.getSlice();
 		Slice virtualTsonSlice = new Slice(virtualTsonSliceResource, serviceProvider);

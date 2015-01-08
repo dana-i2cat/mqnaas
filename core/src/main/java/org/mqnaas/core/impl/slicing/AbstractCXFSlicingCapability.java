@@ -51,7 +51,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 		log.info("Removing SlicingCapability for resource " + resource);
 
 		for (IRootResource iRootResource : proxiesEndpoints.keySet()) {
-			log.debug("Unpublishing all virtual TSON endpoints.");
+			log.debug("Unpublishing all virtual resources endpoints.");
 			proxiesEndpoints.get(iRootResource).stop();
 		}
 
@@ -84,7 +84,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 	public IResource createSlice(IResource slice) throws SlicingException {
 		log.info("Virtual resource creation request received.");
 
-		IRootResource createdTson = null;
+		IRootResource createdResource = null;
 
 		Endpoint endpoint = getEndpoint(slice);
 
@@ -95,20 +95,19 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 			List<Endpoint> endpoints = new ArrayList<Endpoint>();
 			endpoints.add(endpoint);
 
-			createdTson = new RootResource(RootResourceDescriptor.create(resource.getDescriptor().getSpecification().clone(), endpoints));
-
+			createdResource = new RootResource(RootResourceDescriptor.create(resource.getDescriptor().getSpecification().clone(), endpoints));
 		} catch (Exception e) {
-			log.error("Error creating virtual tson resource.", e);
+			log.error("Error creating virtual resource.", e);
 			proxy.stop();
 			throw new SlicingException(e);
 		}
 
-		virtualResources.add(createdTson);
-		proxiesEndpoints.put(createdTson, proxy);
+		virtualResources.add(createdResource);
+		proxiesEndpoints.put(createdResource, proxy);
 
-		log.info("Virtual resource created with id " + createdTson.getId());
+		log.info("Virtual resource created with id " + createdResource.getId());
 
-		return createdTson;
+		return createdResource;
 	}
 
 	@Override

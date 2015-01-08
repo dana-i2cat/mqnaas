@@ -96,6 +96,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 			endpoints.add(endpoint);
 
 			createdResource = new RootResource(RootResourceDescriptor.create(resource.getDescriptor().getSpecification().clone(), endpoints));
+			createdResource.getDescriptor().getSpecification().setModel("virtual");
 		} catch (Exception e) {
 			log.error("Error creating virtual resource.", e);
 			proxy.stop();

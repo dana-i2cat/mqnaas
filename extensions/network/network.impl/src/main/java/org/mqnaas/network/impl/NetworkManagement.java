@@ -41,7 +41,9 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkManagement implements IRequestBasedNetworkManagement {
 
-	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagement.class);
+	private static final Logger	log							= LoggerFactory.getLogger(NetworkManagement.class);
+
+	public static String		PORT_INTERNAL_ID_ATTRIBUTE	= "portInternalId";
 
 	public static boolean isSupporting(IRootResource rootResource) {
 		Type type = rootResource.getDescriptor().getSpecification().getType();
@@ -95,12 +97,16 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				ISlicingCapability phySlicingCapab = phyResource.getSlicingCapability();
 				if (phySlicingCapab != null) {
 
-					IResource newResource = createSlice(virtualNetwork, phyResource, virtualResource);
+					IResource createdResource = createSlice(virtualNetwork, phyResource, virtualResource);
+
 					// store mapping to request resource
-					resourceMapping.put(virtualResource.getResource(), newResource);
+					resourceMapping.put(virtualResource.getResource(), createdResource);
+
+					// create ports in this resource
+					createResourcePorts(virtualResource.getPorts(), createdResource);
 
 					// add created resource to list of resources to be reserved
-					virtualNetworkResources.add((IRootResource) newResource);
+					virtualNetworkResources.add((IRootResource) createdResource);
 
 				}
 
@@ -140,6 +146,19 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		}
 
 		return networkResource;
+	}
+
+	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource) {
+
+		NetworkSubResource resourceWrapper = new NetworkSubResource(resource, serviceProvider);
+
+		for (IResource port : virtualResourcePorts) {
+
+			PortResourceWrapper physicalPort = new PortResourceWrapper(resourceMapping.get(port), serviceProvider);
+			PortResourceWrapper newPort = new PortResourceWrapper(resourceWrapper.createPort(), serviceProvider);
+
+			newPort.setAttribute(PORT_INTERNAL_ID_ATTRIBUTE, physicalPort.getAttribute(PORT_INTERNAL_ID_ATTRIBUTE));
+		}
 	}
 
 	private Network delegateToSubnetwork(Request request, Network subnetwork) throws CapabilityNotFoundException,

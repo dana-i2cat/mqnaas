@@ -13,6 +13,9 @@ import org.mqnaas.core.api.IService;
  * Matches services annotated with annotation given in the constructor.
  * 
  * This filters prepares parameters for methods in {@link org.mqnaas.core.api.IResourceManagementListener}
+ * 
+ * By now, applications willing to react to resource creation or removal should observe services in IResourceManagementListener. They should not use
+ * ResourceMonitoringFilter, as the resource may not be ready to be used.
  */
 public class ResourceMonitoringFilter implements IObservationFilter {
 
@@ -30,8 +33,8 @@ public class ResourceMonitoringFilter implements IObservationFilter {
 	/**
 	 * Retrieves affected IResource among service parameters and result. Retrieves IApplication managing affected IResource from the service itself.
 	 * 
-	 * The resource is retrieved following this algorithm: - If result implements IResource, it is taken as affected resource. If not found yet, look at observed services parameters, fist one implementing IResource is taken as the
-	 * affected resource (if any) - Null otherwise
+	 * The resource is retrieved following this algorithm: - If result implements IResource, it is taken as affected resource. If not found yet, look
+	 * at observed services parameters, fist one implementing IResource is taken as the affected resource (if any) - Null otherwise
 	 * 
 	 * @return an array with affected resource and the IApplication managing it.
 	 * 

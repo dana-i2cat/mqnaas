@@ -34,7 +34,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 
 	protected Map<IRootResource, Server>	proxiesEndpoints;
 
-	Collection<IResource>					virtualResources;
+	protected Collection<IResource>			virtualResources;
 
 	@Override
 	public void activate() {

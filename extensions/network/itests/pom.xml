@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>network.impl</artifactId>
-		</dependency>				
+		</dependency>
 		<!-- Tests libraries-->
 		<dependency>
 			<groupId>junit</groupId>
@@ -62,8 +62,11 @@
 			<artifactId>apache-karaf</artifactId>
 			<type>tar.gz</type>
 			<scope>test</scope>
-		</dependency> 
-
-
+		</dependency> 			
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>

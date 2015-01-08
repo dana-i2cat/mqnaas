@@ -43,7 +43,9 @@
 		<!-- Apache Commons IO version -->
 		<commons-io.version>2.4</commons-io.version>
 		
-
+		<!-- Wiremock version -->
+		<wiremock.version>1.51</wiremock.version>
+		
 		<!-- Javax Inject version -->
 		<javax.inject.version>1_2</javax.inject.version>
 		
@@ -118,6 +120,12 @@
 				<groupId>xmlunit</groupId>
 				<artifactId>xmlunit</artifactId>
 				<version>${xmlunit.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.github.tomakehurst</groupId>
+				<artifactId>wiremock</artifactId>
+				<version>${wiremock.version}</version>
 				<scope>test</scope>
 			</dependency>
 			<!-- IO Utils -->

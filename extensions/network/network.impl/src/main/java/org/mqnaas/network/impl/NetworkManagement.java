@@ -105,11 +105,11 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 				}
 
 				// If the resource is a subnetwork, create request and delegate to it
-				IRequestBasedNetworkManagement subnetManagementCapability = virtualResource.getRequestBasedNetworkManagementCapability();
+				IRequestBasedNetworkManagement subnetManagementCapability = phyResource.getRequestBasedNetworkManagementCapability();
 				if (subnetManagementCapability != null) {
 					Network subNetwork = new Network(virtualResource.getResource(), serviceProvider);
 					Network virtualSubNetwork = delegateToSubnetwork(request, subNetwork);
-					virtualNetworkResources.addAll(virtualSubNetwork.getRootResources());
+					virtualNetworkResources.add((IRootResource) virtualSubNetwork.getNetworkResource());
 					virtualSubnetworks.add(virtualNetwork.getNetworkResource());
 
 					resourceMapping.put(virtualSubNetwork.getNetworkResource(), virtualResource.getResource());
@@ -146,37 +146,37 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			NetworkCreationException {
 
 		// generate request
-		IResource subNetRequestresource = subnetwork.createRequest();
+		IResource phynetworkResource = request.getMappedDevice(subnetwork.getNetworkResource());
+		Network phyNetwork = new Network(phynetworkResource, serviceProvider);
+
+		IResource subNetRequestresource = phyNetwork.createRequest();
 		Request subnetRequest = new Request(subNetRequestresource, serviceProvider);
 
 		// get subnetwork resources and fill the request with the resources
 		for (IResource subnetResource : subnetwork.getNetworkSubResources()) {
-			IResource virtResource = request.createResource(((RequestRootResource) subnetResource).getType());
-			request.defineMapping(virtResource, subnetResource);
+			IResource virtResource = subnetRequest.createResource(((RequestRootResource) subnetResource).getType());
+			IResource phySubResource = request.getMappedDevice(subnetResource);
+			subnetRequest.defineMapping(virtResource, phySubResource);
 		}
 
-		// get links and fill the request with the links
-		for (IResource linkResource : subnetwork.getLinks()) {
-
-			Link phyLink = new Link(linkResource, serviceProvider);
-			Link virtLink = new Link(request.createLink(), serviceProvider);
-
-			IResource srcPort = request.getMappedDevice(phyLink.getSrcPort());
-			IResource dstPort = request.getMappedDevice(phyLink.getDstPort());
-
-			virtLink.setSrcPort(srcPort);
-			virtLink.setDstPort(dstPort);
-		}
+		// // get links and fill the request with the links
+		// for (IResource linkResource : subnetwork.getLinks()) {
+		//
+		// Link phyLink = new Link(linkResource, serviceProvider);
+		// Link virtLink = new Link(request.createLink(), serviceProvider);
+		//
+		// IResource srcPort = request.getMappedDevice(phyLink.getSrcPort());
+		// IResource dstPort = request.getMappedDevice(phyLink.getDstPort());
+		//
+		// virtLink.setSrcPort(srcPort);
+		// virtLink.setDstPort(dstPort);
+		// }
 
 		// set period
 		subnetRequest.setPeriod(request.getPeriod());
 
-		IRootResource virtualNetResource = subnetwork.createVirtualNetwork(subnetRequest.getRequestResource());
+		IRootResource virtualNetResource = phyNetwork.createVirtualNetwork(subnetRequest.getRequestResource());
 
-		Network virtualNetwork = new Network(virtualNetResource, serviceProvider);
-		List<IRootResource> subnetResources = virtualNetwork.getRootResources();
-
-		// TODO what to do with the network?!?!
 		return new Network(virtualNetResource, serviceProvider);
 	}
 

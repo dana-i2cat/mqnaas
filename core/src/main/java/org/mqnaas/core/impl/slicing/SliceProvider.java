@@ -31,7 +31,8 @@ public class SliceProvider implements ISliceProvider {
 	public static boolean isSupporting(IRootResource resource) {
 		Type resourceType = resource.getDescriptor().getSpecification().getType();
 
-		return resourceType.equals(Type.TSON) || resourceType.equals(Type.OF_SWITCH);
+		return resourceType.equals(Type.TSON) || resourceType.equals(Type.OF_SWITCH) || resourceType.equals(Type.CPE) || resourceType
+				.equals(Type.ARN);
 	}
 
 	public static boolean isSupporting(IResource resource) {

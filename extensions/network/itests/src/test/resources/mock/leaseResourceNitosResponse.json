@@ -17,7 +17,7 @@
                   "uuid":"f8020202-7c11-459c-89ee-4997bf9ad7e9",
                   "href":"/resources/leases//f8020202-7c11-459c-89ee-4997bf9ad7e9",
                   "name":"ofswitch",
-                  "type":"openflow"
+                  "type":"openflowswitch"
                }
             }
          ],

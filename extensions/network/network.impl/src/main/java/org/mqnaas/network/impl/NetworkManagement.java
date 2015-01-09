@@ -29,6 +29,7 @@ import org.mqnaas.network.api.exceptions.NetworkReleaseException;
 import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.request.Request;
 import org.mqnaas.network.impl.request.RequestRootResource;
 import org.slf4j.Logger;
@@ -103,7 +104,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 					resourceMapping.put(virtualResource.getResource(), createdResource);
 
 					// create ports in this resource
-					createResourcePorts(virtualResource.getPorts(), createdResource);
+					createResourcePorts(virtualResource.getPorts(), createdResource, request);
 
 					// add created resource to list of resources to be reserved
 					virtualNetworkResources.add((IRootResource) createdResource);
@@ -148,14 +149,17 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		return networkResource;
 	}
 
-	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource) {
+	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request) throws CapabilityNotFoundException {
 
 		NetworkSubResource resourceWrapper = new NetworkSubResource(resource, serviceProvider);
 
 		for (IResource port : virtualResourcePorts) {
 
-			PortResourceWrapper physicalPort = new PortResourceWrapper(resourceMapping.get(port), serviceProvider);
+			PortResourceWrapper physicalPort = new PortResourceWrapper(request.getMappedDevice(port), serviceProvider);
 			PortResourceWrapper newPort = new PortResourceWrapper(resourceWrapper.createPort(), serviceProvider);
+
+			resourceManagementListener.resourceAdded(newPort.getPortResource(),
+					serviceProvider.getCapability(resource, IPortManagement.class), IPortManagement.class);
 
 			newPort.setAttribute(PORT_INTERNAL_ID_ATTRIBUTE, physicalPort.getAttribute(PORT_INTERNAL_ID_ATTRIBUTE));
 		}

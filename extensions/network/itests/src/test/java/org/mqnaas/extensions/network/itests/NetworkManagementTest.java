@@ -48,7 +48,9 @@ import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.impl.Link;
 import org.mqnaas.network.impl.Network;
+import org.mqnaas.network.impl.NetworkManagement;
 import org.mqnaas.network.impl.NetworkSubResource;
+import org.mqnaas.network.impl.PortResourceWrapper;
 import org.mqnaas.network.impl.request.Request;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
@@ -73,6 +75,10 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
 public class NetworkManagementTest {
 
 	private static final Logger	log				= LoggerFactory.getLogger(NetworkManagementTest.class);
+
+	private static final String	TSON_PORT_1		= "tson-port-1";
+	private static final String	TSON_PORT_2		= "tson-port-2";
+	private static final String	TSON_PORT_3		= "tson-port-3";
 
 	private Network				networkResource;
 	private NetworkSubResource	tsonResource;
@@ -168,9 +174,12 @@ public class NetworkManagementTest {
 
 		// 2. create resources ports
 		// // 2.1. create tson ports
-		tsonResource.createPort();
-		tsonResource.createPort();
-		tsonResource.createPort();
+		PortResourceWrapper port1Wrapper = new PortResourceWrapper(tsonResource.createPort(), serviceProvider);
+		PortResourceWrapper port2Wrapper = new PortResourceWrapper(tsonResource.createPort(), serviceProvider);
+		PortResourceWrapper port3Wrapper = new PortResourceWrapper(tsonResource.createPort(), serviceProvider);
+		port1Wrapper.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, TSON_PORT_1);
+		port2Wrapper.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, TSON_PORT_2);
+		port3Wrapper.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, TSON_PORT_3);
 
 		// 3 define tson slice
 		IResource tsonSliceResource = tsonResource.getSlice();
@@ -178,10 +187,10 @@ public class NetworkManagementTest {
 
 		Unit portUnit = tsonSlice.addUnit("port");
 
-		portUnit.setRange(new Range(0, 1));
+		portUnit.setRange(new Range(0, 2));
 
 		Cube cube = new Cube();
-		cube.setRanges(new Range[] { new Range(0, 1) });
+		cube.setRanges(new Range[] { new Range(0, 2) });
 		tsonSlice.setCubes(Arrays.asList(cube));
 
 	}
@@ -242,10 +251,10 @@ public class NetworkManagementTest {
 		Slice reqTsonSlice = new Slice(reqTsonSliceResource, serviceProvider);
 
 		Unit portUnit = reqTsonSlice.addUnit("port");
-		portUnit.setRange(new Range(0, 1));
+		portUnit.setRange(new Range(0, 2));
 
 		Cube cube = new Cube();
-		cube.setRanges(new Range[] { new Range(0, 1) });
+		cube.setRanges(new Range[] { new Range(0, 2) });
 		reqTsonSlice.setCubes(Arrays.asList(cube));
 
 		// // 2.6 add request period
@@ -296,18 +305,29 @@ public class NetworkManagementTest {
 
 		// ports asserts
 		List<IResource> virtualTsonPorts = virtualTson.getPorts();
-		Assert.assertEquals("Virtual Tson should contain two ports.", 2, virtualTsonPorts.size());
+		Assert.assertEquals("Virtual Tson should contain three ports.", 3, virtualTsonPorts.size());
+
+		PortResourceWrapper virtTsonPort1 = new PortResourceWrapper(virtualTsonPorts.get(0), serviceProvider);
+		PortResourceWrapper virtTsonPort2 = new PortResourceWrapper(virtualTsonPorts.get(1), serviceProvider);
+		PortResourceWrapper virtTsonPort3 = new PortResourceWrapper(virtualTsonPorts.get(2), serviceProvider);
+
+		Assert.assertEquals("Virtual tson port should contain translation to device port.", TSON_PORT_1,
+				virtTsonPort1.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+		Assert.assertEquals("Virtual tson port should contain translation to device port.", TSON_PORT_2,
+				virtTsonPort2.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+		Assert.assertEquals("Virtual tson port should contain translation to device port.", TSON_PORT_3,
+				virtTsonPort3.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
 
 		// slice asserts
 		IResource virtualTsonSliceResource = virtualTson.getSlice();
 		Slice virtualTsonSlice = new Slice(virtualTsonSliceResource, serviceProvider);
 
 		Assert.assertEquals("Virtual Tson should contain created slice cube.", Arrays.asList(cube), virtualTsonSlice.getCubes());
-		Assert.assertEquals("Virtual Tson should contain two ports.", "XX", virtualTsonSlice.toMatrix());
+		Assert.assertEquals("Virtual Tson should contain three ports.", "XXX", virtualTsonSlice.toMatrix());
 
 		IResource phySliceResource = tsonResource.getSlice();
 		Slice phySlice = new Slice(phySliceResource, serviceProvider);
-		Assert.assertEquals("Virtual Tson should contain no ports.", "OO", phySlice.toMatrix());
+		Assert.assertEquals("Virtual Tson should contain no ports.", "OOO", phySlice.toMatrix());
 
 		// links asserts
 
@@ -357,7 +377,7 @@ public class NetworkManagementTest {
 		// // slice asserts
 
 		Slice tsonSlice = new Slice(tsonResource.getSlice(), serviceProvider);
-		Assert.assertEquals("Physical TSON should contain original slice information again.", "XX", tsonSlice.toMatrix());
+		Assert.assertEquals("Physical TSON should contain original slice information again.", "XXX", tsonSlice.toMatrix());
 	}
 
 	private LeaseResourcesResponse generateLeaseResourcesResponse() {

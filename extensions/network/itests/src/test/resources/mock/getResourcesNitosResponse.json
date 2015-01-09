@@ -10,7 +10,7 @@
                "href":"/resources/498c0b9c-df70-489f-913a-c5a35f9de06d",
                "type":"account"
             },
-            "type":"openflow",
+            "type":"openflowswitch",
             "interfaces":[
                {
                   "uuid":"a562dcfd-e092-48c1-badb-8d2361b03abd",

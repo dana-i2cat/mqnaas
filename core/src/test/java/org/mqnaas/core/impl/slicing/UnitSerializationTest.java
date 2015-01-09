@@ -33,9 +33,9 @@ public class UnitSerializationTest {
 		String expectedXml = IOUtils.toString(this.getClass().getResourceAsStream(SLICE_FILE_1));
 
 		DifferenceListener idComparingDifferenceListener = new IDComparingDifferenceListener();
-        Diff myDiff = new Diff(expectedXml, serializedXml);
-        myDiff.overrideDifferenceListener(idComparingDifferenceListener);
-        		
+		Diff myDiff = new Diff(expectedXml, serializedXml);
+		myDiff.overrideDifferenceListener(idComparingDifferenceListener);
+
 		Assert.assertTrue("Serialized xml should be equals to the expected one.", myDiff.similar());
 	}
 
@@ -46,11 +46,10 @@ public class UnitSerializationTest {
 		UnitResource deserializedSliceUnit = SerializationUtils.fromXml(xml, UnitResource.class);
 		UnitResource expectedSliceUnit = new UnitResource(SLICE_UNIT_NAME);
 
-		Assert.assertEquals("Deserialized Slice Unit should be equal to the sample one.", expectedSliceUnit, deserializedSliceUnit);
+		Assert.assertTrue("Deserialized Slice Unit should be equal to the sample one.", expectedSliceUnit.matches(deserializedSliceUnit));
 	}
 
 	private class IDComparingDifferenceListener implements DifferenceListener {
-
 
 		private String getPrefix(String s) {
 			int i = s.indexOf("-");

@@ -42,7 +42,7 @@ public class Unit {
 
 		Unit other = (Unit) o;
 
-		return unit.equals(other.unit);
+		return unit.matches(other.unit);
 	}
 
 	public void setRange(Range range) {

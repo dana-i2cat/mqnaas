@@ -120,4 +120,14 @@ public class Network implements IRootResourceProvider {
 	public void deactivate() {
 	}
 
+	public IResource createLink() {
+		return getCapability(ILinkManagement.class).createLink();
+
+	}
+
+	public void addPort(IResource port) {
+		getCapability(INetworkPortManagement.class).addPort(port);
+
+	}
+
 }

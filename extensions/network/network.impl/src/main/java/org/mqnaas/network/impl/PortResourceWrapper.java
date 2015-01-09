@@ -40,6 +40,10 @@ public class PortResourceWrapper {
 		}
 	}
 
+	public IResource getPortResource() {
+		return port;
+	}
+
 	private IAttributeStore getAttributeStore() throws CapabilityNotFoundException {
 		return serviceProvider.getCapability(port, IAttributeStore.class);
 	}

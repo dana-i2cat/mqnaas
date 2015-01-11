@@ -61,6 +61,10 @@ public class Specification implements Cloneable {
 		 */
 		ARN("ARN"),
 		/**
+		 * Wifi
+		 */
+		CHANNEL("CHANNEL"),
+		/**
 		 * Other devices
 		 */
 		OTHER("Other");
@@ -78,9 +82,9 @@ public class Specification implements Cloneable {
 	};
 
 	@XmlElement(required = true)
-	private Type			type;
+	private Type	type;
 
-	private String			model, version;
+	private String	model, version;
 
 	// This constructor is to be used only by serialization
 	private Specification() {

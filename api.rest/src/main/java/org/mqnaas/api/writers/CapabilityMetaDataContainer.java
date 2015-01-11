@@ -45,8 +45,8 @@ class CapabilityMetaDataContainer {
 	 */
 	public CapabilityMetaDataContainer(Class<? extends ICapability> capabilityClass) throws InvalidCapabilityDefinionException {
 
-		// All methods defined in the capability are services
-		services = new ArrayList<Method>(Arrays.asList(capabilityClass.getDeclaredMethods()));
+		// All methods defined in the capability interface are services (inherited ones, too)
+		services = new ArrayList<Method>(Arrays.asList(capabilityClass.getMethods()));
 
 		// All resource entities used in the services are collected to be able to check them
 		Set<Class<?>> entityClasses = new HashSet<Class<?>>();

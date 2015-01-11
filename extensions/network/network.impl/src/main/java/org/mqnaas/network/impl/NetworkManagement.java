@@ -335,7 +335,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	@Override
 	public Collection<IRootResource> getNetworks() {
-		return networks.keySet();
+		return new ArrayList<IRootResource>(networks.keySet());
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class SliceProvider implements ISliceProvider {
 
 				Type type = (Type) m.invoke(resource);
 
-				isSupporting = type.equals(Type.TSON) || type.equals(type.OF_SWITCH);
+				isSupporting = type.equals(Type.TSON) || type.equals(type.OF_SWITCH) || type.equals(type.ARN) || type.equals(type.CPE);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

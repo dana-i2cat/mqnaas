@@ -20,6 +20,9 @@ public class PortResourceWrapper {
 	private IServiceProvider	serviceProvider;
 
 	public PortResourceWrapper(IResource port, IServiceProvider serviceProvider) {
+		if (port == null || serviceProvider == null)
+			throw new NullPointerException("PortResourceWrapper doesn't accept null values");
+		
 		this.port = port;
 		this.serviceProvider = serviceProvider;
 	}

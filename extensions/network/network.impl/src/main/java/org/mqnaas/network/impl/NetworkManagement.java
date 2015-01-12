@@ -257,7 +257,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 		// manual bind of the created slice to virtualnetwork
 		resourceManagementListener.resourceAdded(newResource,
-				serviceProvider.getCapability(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
+				serviceProvider.getCapabilityInstance(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
 
 		// remove slice information from physical
 		phySlice.cut(virtSlice);

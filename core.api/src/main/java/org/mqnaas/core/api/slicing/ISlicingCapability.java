@@ -19,10 +19,10 @@ import org.mqnaas.core.api.annotations.RemovesResource;
  */
 public interface ISlicingCapability extends ICapability {
 
-	@AddsResource
+	// @AddsResource
 	IResource createSlice(IResource slice) throws SlicingException;
 
-	@RemovesResource
+	// @RemovesResource
 	void removeSlice(IResource rootResource) throws SlicingException;
 
 	@ListsResources

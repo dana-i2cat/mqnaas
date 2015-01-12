@@ -72,4 +72,6 @@ public interface IServiceProvider extends ICapability {
 	 * FIXME This is a service to play with during development and will not be part of the final API
 	 */
 	void printAvailableServices();
+
+	<C extends ICapability> C getCapabilityInstance(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException;
 }

@@ -170,6 +170,12 @@ public class SliceAdministrationTest {
 			throw new RuntimeException("Not implemented.");
 		}
 
+		@Override
+		public <C extends ICapability> C getCapabilityInstance(IResource resource, Class<C> capabilityClass)
+				throws CapabilityNotFoundException {
+			throw new RuntimeException("Not implemented.");
+		}
+
 	}
 
 	@Test

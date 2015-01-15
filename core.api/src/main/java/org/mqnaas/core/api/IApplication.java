@@ -1,6 +1,7 @@
 package org.mqnaas.core.api;
 
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * <p>
@@ -21,7 +22,7 @@ public interface IApplication {
 	 * The use of services provided by dependencies inside this method requires some care. In case of dependency cycles, it cannot be guaranteed that
 	 * dependencies would have been activated before this method is called.
 	 */
-	void activate();
+	void activate() throws ApplicationActivationException;
 
 	/**
 	 * Cleans initialization done in {@link IApplication#activate()}

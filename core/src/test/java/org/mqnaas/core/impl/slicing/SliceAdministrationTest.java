@@ -16,6 +16,7 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
@@ -39,10 +40,10 @@ public class SliceAdministrationTest {
 	private final static String	PORT_UNIT	= "port";
 	private final static String	TIME_UNIT	= "time";
 	private final static String	LAMBDA_UNIT	= "lambda";
-	
-	Slice slice, otherSlice;
 
-	private ServiceProvider				serviceProvider;
+	Slice						slice, otherSlice;
+
+	private ServiceProvider		serviceProvider;
 
 	private static void init1DSlice(Slice slice, String u, int n) {
 		Unit unit = slice.addUnit(u);
@@ -52,7 +53,7 @@ public class SliceAdministrationTest {
 	private static void init2DSlice(Slice slice, String u1, int n1, String u2, int n2) {
 		Unit unit1 = slice.addUnit(u1);
 		unit1.setRange(new Range(0, n1 - 1));
-		
+
 		Unit unit2 = slice.addUnit(u2);
 		unit2.setRange(new Range(0, n2 - 1));
 	}
@@ -63,7 +64,7 @@ public class SliceAdministrationTest {
 
 		Unit unit2 = slice.addUnit(u2);
 		unit2.setRange(new Range(0, n2 - 1));
-		
+
 		Unit unit3 = slice.addUnit(u3);
 		unit3.setRange(new Range(0, n3 - 1));
 	}
@@ -79,12 +80,12 @@ public class SliceAdministrationTest {
 
 	private class ServiceProvider implements IServiceProvider {
 
-		private Map<IResource, Map<Class<?>, ICapability>> resource2capabilities;
-		
+		private Map<IResource, Map<Class<?>, ICapability>>	resource2capabilities;
+
 		public ServiceProvider() {
 			resource2capabilities = new HashMap<IResource, Map<Class<?>, ICapability>>();
 		}
-		
+
 		@Override
 		public void activate() {
 		}
@@ -110,8 +111,7 @@ public class SliceAdministrationTest {
 
 		@Override
 		public <C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException {
-			
-			
+
 			Map<Class<?>, ICapability> capabilities;
 			if (!resource2capabilities.containsKey(resource)) {
 				capabilities = new HashMap<Class<?>, ICapability>();
@@ -119,50 +119,52 @@ public class SliceAdministrationTest {
 			} else {
 				capabilities = resource2capabilities.get(resource);
 			}
-			
-			if ( !capabilities.containsKey(capabilityClass) ) {
-				
+
+			if (!capabilities.containsKey(capabilityClass)) {
+
 				ICapability capability;
-				if ( capabilityClass.equals(ISliceAdministration.class) ) {
+				if (capabilityClass.equals(ISliceAdministration.class)) {
 					capability = new SliceAdministration();
-					
+
 					try {
 						ReflectionTestHelper.injectPrivateField(capability, serviceProvider, "serviceProvider");
 						ReflectionTestHelper.injectPrivateField(capability, resource, "resource");
 					} catch (Exception e) {
 						new RuntimeException("ServiceProvider injection failed", e);
 					}
-					
-				} else if ( capabilityClass.equals(IUnitManagement.class) ) {
-					capability = new UnitManagment(); 	
-				} else if ( capabilityClass.equals(IUnitAdministration.class) ) {
+
+				} else if (capabilityClass.equals(IUnitManagement.class)) {
+					capability = new UnitManagment();
+				} else if (capabilityClass.equals(IUnitAdministration.class)) {
 					capability = new UnitAdministration();
 				} else {
 					throw new RuntimeException("Unknown capability class:" + capabilityClass);
 				}
-				
-				capability.activate();
-				
+
+				try {
+					capability.activate();
+				} catch (ApplicationActivationException a) {
+					throw new RuntimeException("Could not activate capability " + capability.getClass().getName());
+
+				}
 				capabilities.put(capabilityClass, capability);
 			}
-			
+
 			return (C) capabilities.get(capabilityClass);
-			 
-			
-//			System.out.println("Asking for capability " + capabilityClass.getName() + " of resource " + resource);
-			
-//			sliceCapab = PowerMockito.spy(new SliceAdministration());
-//			otherSliceCapab = new SliceAdministration();
-//
-//			sliceCapab.activate();
-//			otherSliceCapab.activate();
 
-//			Mockito.when(serviceProvider.getCapability(Mockito.any(IResource.class), Mockito.any(Class.class))).thenReturn(otherSliceCapab);
-//
-//			ReflectionTestHelper.injectPrivateField(sliceCapab, serviceProvider, "serviceProvider");
+			// System.out.println("Asking for capability " + capabilityClass.getName() + " of resource " + resource);
 
-			
-//			throw new RuntimeException("Not implemented.");
+			// sliceCapab = PowerMockito.spy(new SliceAdministration());
+			// otherSliceCapab = new SliceAdministration();
+			//
+			// sliceCapab.activate();
+			// otherSliceCapab.activate();
+
+			// Mockito.when(serviceProvider.getCapability(Mockito.any(IResource.class), Mockito.any(Class.class))).thenReturn(otherSliceCapab);
+			//
+			// ReflectionTestHelper.injectPrivateField(sliceCapab, serviceProvider, "serviceProvider");
+
+			// throw new RuntimeException("Not implemented.");
 		}
 
 		@Override
@@ -268,22 +270,22 @@ public class SliceAdministrationTest {
 		// #########################
 
 		// initialize sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
-		Unit unitPort = slice.addUnit(PORT_UNIT); 
+		Unit unitPort = slice.addUnit(PORT_UNIT);
 		unitPort.setRange(new Range(0, 1));
-		
+
 		Unit unitTime = slice.addUnit(TIME_UNIT);
 		unitTime.setRange(new Range(0, 2));
-		
+
 		Unit unitLambda = slice.addUnit(LAMBDA_UNIT);
 		unitLambda.setRange(new Range(0, 3));
 
 		// initialize another sliceAdministrationCapability, define port-time-lambda 2x3x4 slice
 		unitPort = otherSlice.addUnit(PORT_UNIT);
 		unitPort.setRange(new Range(0, 1));
-		
+
 		unitTime = otherSlice.addUnit(TIME_UNIT);
 		unitTime.setRange(new Range(0, 2));
-		
+
 		unitLambda = otherSlice.addUnit(LAMBDA_UNIT);
 		unitLambda.setRange(new Range(0, 3));
 
@@ -329,7 +331,7 @@ public class SliceAdministrationTest {
 		// ###################################
 
 		otherSlice.initData();
-		
+
 		// initialize sub-cubes: port(0), time(0), slice(0) and port(1), time(1), slice(2-3). Should be contained in original one.
 		otherRanges = new Range[3];
 		otherRanges[0] = new Range(0, 0);
@@ -565,7 +567,7 @@ public class SliceAdministrationTest {
 		// initialize sliceAdministrationCapability, define port-time 3x4 slice
 		Unit unitPort = slice.addUnit(PORT_UNIT);
 		unitPort.setRange(new Range(0, 2));
-		
+
 		Unit unitTime = slice.addUnit(TIME_UNIT);
 		unitTime.setRange(new Range(0, 3));
 
@@ -1166,7 +1168,7 @@ public class SliceAdministrationTest {
 		slice.setCubes(Arrays.asList(new Cube(originalRanges)));
 		otherSlice.setCubes(Arrays.asList(new Cube(originalRanges)));
 
-		slice.unset(Arrays.asList(new Cube[] {new Cube(originalRanges)}));
+		slice.unset(Arrays.asList(new Cube[] { new Cube(originalRanges) }));
 
 		long startTime = System.currentTimeMillis();
 		slice.add(otherSlice);

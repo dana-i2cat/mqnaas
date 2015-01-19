@@ -75,6 +75,10 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	}
 
 	public List<IRootResource> getRootResources(Specification specification) throws ResourceNotFoundException {
+
+		if (specification == null)
+			throw new NullPointerException("Specification can't be null.");
+
 		List<IRootResource> filteredResources = new ArrayList<IRootResource>();
 		for (IRootResource resource : resources) {
 			if (specification.equals(resource.getDescriptor().getSpecification()))
@@ -86,6 +90,9 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public IRootResource createRootResource(RootResourceDescriptor descriptor) throws InstantiationException, IllegalAccessException {
+
+		if (descriptor == null)
+			throw new NullPointerException("Descriptor can't be null.");
 
 		if (descriptor.getEndpoints().isEmpty()) {
 			if (!descriptor.getSpecification().getType().equals(Type.NETWORK))
@@ -100,6 +107,10 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public IRootResource getRootResource(String id) throws ResourceNotFoundException {
+
+		if (id == null)
+			throw new NullPointerException("Id of the resource to be found can't be null.");
+
 		for (IRootResource resource : resources) {
 			if (StringUtils.equals(id, resource.getId()))
 				return resource;

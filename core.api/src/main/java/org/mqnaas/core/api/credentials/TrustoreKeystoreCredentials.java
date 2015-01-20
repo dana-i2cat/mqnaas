@@ -4,7 +4,6 @@ import java.net.URI;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * <p>
@@ -14,7 +13,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class TrustoreKeystoreCredentials extends Credentials {
 

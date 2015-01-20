@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlRootElement
+@XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class UsernamePasswordCredentials extends Credentials {
 

@@ -53,8 +53,7 @@ public class ClientProviderAdapter<T, CC> implements InvocationHandler {
 			throw new EndpointNotFoundException(message);
 		}
 
-		// TODO Get credentials...
-		Credentials c = null;
+		Credentials c = rootResource.getDescriptor().getCredentials();
 
 		switch (args == null ? 0 : args.length) {
 			case 1:

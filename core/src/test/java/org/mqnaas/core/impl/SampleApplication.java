@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,7 +15,7 @@ public class SampleApplication implements IApplication {
 	private static final Logger	log	= LoggerFactory.getLogger(BindingManagement.class);
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		log.info("SampleApplication activated!");
 	}
 

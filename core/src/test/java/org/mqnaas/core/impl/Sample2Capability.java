@@ -1,5 +1,7 @@
 package org.mqnaas.core.impl;
 
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+
 /**
  * 
  * @author Isart Canyameres Gimenez (i2cat)
@@ -32,7 +34,7 @@ public class Sample2Capability implements ISample2Capability {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 
 	}

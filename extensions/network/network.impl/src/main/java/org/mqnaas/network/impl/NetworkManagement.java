@@ -16,6 +16,7 @@ import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceProvider;
@@ -339,7 +340,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		networks = new ConcurrentHashMap<IRootResource, IResource>();
 		resourceMapping = new ConcurrentHashMap<IResource, IResource>();
 	}

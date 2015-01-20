@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IObservationService;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +95,7 @@ public class ExecutionService implements IExecutionService, IObservationService 
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 
 	}

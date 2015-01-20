@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * Implementation of {@link IAttributeStore} backed by a {@link ConcurrentHashMap} bound to all resources except the core.
@@ -30,7 +31,7 @@ public class AttributeStore implements IAttributeStore {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		attributes = new ConcurrentHashMap<String, String>();
 	}
 

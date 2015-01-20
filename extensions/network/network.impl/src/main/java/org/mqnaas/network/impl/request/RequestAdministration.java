@@ -1,13 +1,12 @@
 package org.mqnaas.network.impl.request;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.Period;
-import org.mqnaas.network.impl.request.RequestResource;
 
 /**
- * Implementation of the {@link IRequestAdministration} capability, which is
- * bound to a {@link RequestResource}.
+ * Implementation of the {@link IRequestAdministration} capability, which is bound to a {@link RequestResource}.
  * 
  * @author Georg Mansky-Kummert
  */
@@ -17,7 +16,7 @@ public class RequestAdministration implements IRequestAdministration {
 		return resource instanceof RequestResource;
 	}
 
-	private Period period;
+	private Period	period;
 
 	@Override
 	public void setPeriod(Period period) {
@@ -30,7 +29,7 @@ public class RequestAdministration implements IRequestAdministration {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 	}
 
 	@Override

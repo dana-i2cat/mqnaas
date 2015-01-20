@@ -32,6 +32,7 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
@@ -847,7 +848,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 
 	}
@@ -909,15 +910,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	public <C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException {
 		return (C) getCapabilityInternalInstance(resource, capabilityClass).getProxy();
 	}
-	
+
 	@Override
 	// safe-casting of classes, checked previously
 	@SuppressWarnings("unchecked")
 	public <C extends ICapability> C getCapabilityInstance(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException {
 		return (C) getCapabilityInternalInstance(resource, capabilityClass).getInstance();
 	}
-	
-	private CapabilityInstance getCapabilityInternalInstance(IResource resource, Class<? extends ICapability> capabilityClass) throws CapabilityNotFoundException {
+
+	private CapabilityInstance getCapabilityInternalInstance(IResource resource, Class<? extends ICapability> capabilityClass)
+			throws CapabilityNotFoundException {
 
 		Iterable<CapabilityInstance> resourceCapabilities = filterResolved(getCapabilityInstancesBoundToResource(resource));
 		for (CapabilityInstance capabilityInstance : resourceCapabilities)

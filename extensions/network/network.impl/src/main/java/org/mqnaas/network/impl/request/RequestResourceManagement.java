@@ -6,6 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
 
 /**
@@ -38,9 +39,9 @@ public class RequestResourceManagement implements IRequestResourceManagement {
 	public List<IResource> getResources() {
 		return new ArrayList<IResource>(resources);
 	}
-	
+
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		resources = new CopyOnWriteArrayList<RequestRootResource>();
 	}
 

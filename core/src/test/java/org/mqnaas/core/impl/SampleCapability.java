@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * 
@@ -45,7 +46,7 @@ public class SampleCapability implements ISampleCapability {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 
 	}

@@ -14,6 +14,7 @@ import org.mqnaas.api.writers.InterfaceWriter;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,7 @@ public class RESTAPIProvider implements IRESTAPIProvider {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 	}
 
 	@Override

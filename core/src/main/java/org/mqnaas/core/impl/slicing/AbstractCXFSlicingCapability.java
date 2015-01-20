@@ -12,6 +12,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.annotations.Resource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.slicing.ISlicingCapability;
 import org.mqnaas.core.api.slicing.SlicingException;
 import org.mqnaas.core.impl.RootResource;
@@ -37,7 +38,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 	protected Collection<IResource>			virtualResources;
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		log.info("Initializing SlicingCapability for resource " + resource);
 
 		proxiesEndpoints = new HashMap<IRootResource, Server>();

@@ -14,6 +14,7 @@ import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.IBindingManagement;
@@ -43,22 +44,22 @@ import org.slf4j.LoggerFactory;
  */
 public class APIConnector implements IAPIConnector {
 
-	private static final Logger	log	= LoggerFactory.getLogger(APIConnector.class);
-	
-	@DependingOn
-	ICoreModelCapability		coreModelCapability;
+	private static final Logger					log	= LoggerFactory.getLogger(APIConnector.class);
 
 	@DependingOn
-	IObservationService			observationService;
+	ICoreModelCapability						coreModelCapability;
 
 	@DependingOn
-	IServiceProvider			serviceProvider;
+	IObservationService							observationService;
 
 	@DependingOn
-	ICoreProvider				coreProvider;
+	IServiceProvider							serviceProvider;
 
 	@DependingOn
-	IRESTAPIProvider			restApiProvider;
+	ICoreProvider								coreProvider;
+
+	@DependingOn
+	IRESTAPIProvider							restApiProvider;
 
 	/**
 	 * Depending on IBindingManagement forces this application to be activated only once IBindingManagement is available, which is required to get
@@ -66,22 +67,21 @@ public class APIConnector implements IAPIConnector {
 	 */
 	@DependingOn
 	@SuppressWarnings("unused")
-	IBindingManagement			bindingManagement;
+	IBindingManagement							bindingManagement;
 
 	@DependingOn
-	IExecutionService executionService;
+	IExecutionService							executionService;
 
 	@DependingOn
-	IRootResourceProvider		rootResourceProvider;
+	IRootResourceProvider						rootResourceProvider;
 
 	@DependingOn
-	IRootResourceAdministration rootResourceAdmin;
-	
-	private ServiceRegistration<IAPIConnector> osgiRegistration;
+	IRootResourceAdministration					rootResourceAdmin;
 
+	private ServiceRegistration<IAPIConnector>	osgiRegistration;
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 
 		try {
 			/**
@@ -117,11 +117,11 @@ public class APIConnector implements IAPIConnector {
 			observationService.registerObservation(new ServiceFilterWithParams(unbindService), unpublishCapabilityService);
 			observationService.registerObservation(new ServiceFilterWithParams(removeApplicationInstance), unpublishApplicationService);
 
-			// TODO Get already registered capabilities and apps, and publish them. 
+			// TODO Get already registered capabilities and apps, and publish them.
 
 		} catch (ServiceNotFoundException e) {
-			// TODO treat exception
 			log.error("Failed to register APIConnector. REST API will NOT be published automatically.", e);
+			throw new ApplicationActivationException(e);
 		}
 
 		// publishing the core manually
@@ -133,19 +133,20 @@ public class APIConnector implements IAPIConnector {
 			restApiProvider.publish(executionService, IExecutionService.class, "/mqnaas/IExecutionService/");
 			restApiProvider.publish(serviceProvider, IServiceProvider.class, "/mqnaas/IServiceProvider/");
 			restApiProvider.publish(coreModelCapability, ICoreModelCapability.class, "/mqnaas/ICoreModelCapability");
-		} catch (Exception e){
-			// TODO treat exception 
+		} catch (Exception e) {
 			log.error("Failed to register core services API.", e);
+			throw new ApplicationActivationException(e);
+
 		}
-		
+
 		registerAsOSGiService();
 	}
 
 	@Override
 	public void deactivate() {
-		
+
 		unregisterAsOSGiService();
-		
+
 		// TODO unpublish all
 
 	}
@@ -221,16 +222,16 @@ public class APIConnector implements IAPIConnector {
 			return alreadyComputedPath;
 		}
 	}
-	
+
 	private void registerAsOSGiService() {
 		if (FrameworkUtil.getBundle(APIConnector.class) != null) {
 			BundleContext context = FrameworkUtil.getBundle(APIConnector.class).getBundleContext();
 			if (context != null) {
-				 osgiRegistration = context.registerService(IAPIConnector.class, this, null);
+				osgiRegistration = context.registerService(IAPIConnector.class, this, null);
 			}
 		}
 	}
-	
+
 	private void unregisterAsOSGiService() {
 		if (osgiRegistration != null) {
 			osgiRegistration.unregister();

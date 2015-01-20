@@ -1,6 +1,7 @@
 package org.mqnaas.core.impl.slicing;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.slicing.IUnitAdministration;
 import org.mqnaas.core.api.slicing.Range;
 
@@ -23,7 +24,7 @@ public class UnitAdministration implements IUnitAdministration {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO persistence
 	}
 

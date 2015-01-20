@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
@@ -33,7 +34,7 @@ public class ServiceExecutionSchedulerTest {
 	Object[]					parameters;
 
 	@Before
-	public void prepareTest() throws SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void prepareTest() throws SecurityException, IllegalArgumentException, IllegalAccessException, ApplicationActivationException {
 
 		scheduler = new ServiceExecutionScheduler();
 

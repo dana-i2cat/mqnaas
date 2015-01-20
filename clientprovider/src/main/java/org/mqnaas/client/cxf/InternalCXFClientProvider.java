@@ -21,6 +21,7 @@ import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.credentials.Credentials;
+import org.mqnaas.core.api.credentials.TrustoreKeystoreCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,36 +98,38 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 		}
 
 		// authentication system
-		if (configuration != null && configuration.getAuthentication() != null) {
+		if (c != null) {
 
-			FileInputStream keystoreFis = null;
-			FileInputStream truststoreFis = null;
+			if (c instanceof TrustoreKeystoreCredentials) {
 
-			try {
-				if (configuration.getAuthentication() instanceof CertificatesAuthentication) {
+				TrustoreKeystoreCredentials credentials = (TrustoreKeystoreCredentials) c;
 
-					CertificatesAuthentication auth = (CertificatesAuthentication) configuration.getAuthentication();
+				FileInputStream keystoreFis = null;
+				FileInputStream truststoreFis = null;
+
+				try {
 
 					// get TLSClientParameters from cxf bean. If not exists, create it
+
 					TLSClientParameters clientParams = WebClient.getConfig(api).getHttpConduit().getTlsClientParameters();
+
 					if (clientParams == null)
 						clientParams = new TLSClientParameters();
 
-					// TODO passwords and keystore should be set in credentials
 					// load keystore
 					KeyStore keyStore = KeyStore.getInstance("JKS");
-					File keyStoreFile = new File(auth.getKeyStoreUri().toString());
+					File keyStoreFile = new File(credentials.getKeystoreUri().toString());
 					keystoreFis = new FileInputStream(keyStoreFile);
-					keyStore.load(keystoreFis, auth.getKeyStorePassword());
+					keyStore.load(keystoreFis, credentials.getKeystorePassword().toCharArray());
 					KeyManagerFactory keyFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-					keyFactory.init(keyStore, auth.getKeyStorePassword());
+					keyFactory.init(keyStore, credentials.getKeystorePassword().toCharArray());
 					KeyManager[] km = keyFactory.getKeyManagers();
 					clientParams.setKeyManagers(km);
 
 					// load truststore
-					File truststore = new File(auth.getTrustStoreUri().toString());
+					File truststore = new File(credentials.getTrustoreUri().toString());
 					truststoreFis = new FileInputStream(truststore);
-					keyStore.load(truststoreFis, auth.getTrustStorePassword());
+					keyStore.load(truststoreFis, credentials.getTrustorePassword().toCharArray());
 					TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 					trustFactory.init(keyStore);
 					TrustManager[] tm = trustFactory.getTrustManagers();
@@ -134,19 +137,18 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 
 					// set tlsclientparameters with certificates information into cxf bean
 					WebClient.getConfig(api).getHttpConduit().setTlsClientParameters(clientParams);
-
-				}
-			} catch (Exception e) {
-				log.error("Error creating CXF client.", e);
-				throw new ClientConfigurationException(e);
-			} finally {
-				try {
-					if (keystoreFis != null)
-						keystoreFis.close();
-					if (truststoreFis != null)
-						truststoreFis.close();
-				} catch (IOException e) {
-					log.warn("Failed to close FileInputStream.", e);
+				} catch (Exception e) {
+					log.error("Error creating CXF client with Trustore/Keystore authentication.", e);
+					throw new ClientConfigurationException(e);
+				} finally {
+					try {
+						if (keystoreFis != null)
+							keystoreFis.close();
+						if (truststoreFis != null)
+							truststoreFis.close();
+					} catch (IOException e) {
+						log.warn("Failed to close FileInputStream.", e);
+					}
 				}
 
 			}

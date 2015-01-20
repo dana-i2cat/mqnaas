@@ -9,6 +9,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.IServiceExecutionScheduler;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
@@ -68,8 +69,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 	}
 
 	@Override
-	public void activate() {
-		// FIXME activate() method should launch an exception when there's an error activating the application
+	public void activate() throws ApplicationActivationException {
 
 		scheduledJobs = new HashMap<ServiceExecution, Key>();
 		serviceExecutionCallback = new ServiceExecutionCallback();
@@ -80,6 +80,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 
 		} catch (SchedulerException e) {
 			log.error("Could not initialize ServiceExecutionScheduler internal scheduler.", e);
+			throw new ApplicationActivationException(e);
 		}
 	}
 

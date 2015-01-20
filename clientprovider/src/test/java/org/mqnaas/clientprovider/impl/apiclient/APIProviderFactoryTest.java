@@ -12,6 +12,7 @@ import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.mqnaas.test.helpers.capability.ArtificialBundleGuard;
 import org.mqnaas.test.helpers.capability.TestCapabilitiesFactory;
@@ -33,7 +34,7 @@ public class APIProviderFactoryTest {
 
 	@Test
 	public void testAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-			EndpointNotFoundException, ProviderNotFoundException {
+			EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null);
@@ -58,7 +59,7 @@ public class APIProviderFactoryTest {
 
 	@Test(expected = EndpointNotFoundException.class)
 	public void testFailureAPIProviderFactory() throws SecurityException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException,
-			EndpointNotFoundException, ProviderNotFoundException {
+			EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null);

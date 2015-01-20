@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.impl.request.RequestResource;
 
@@ -47,7 +48,7 @@ public class LinkManagement implements ILinkManagement {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		links = new CopyOnWriteArrayList<LinkResource>();
 	}
 

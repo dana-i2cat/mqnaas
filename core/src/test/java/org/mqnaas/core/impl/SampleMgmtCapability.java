@@ -3,6 +3,8 @@ package org.mqnaas.core.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+
 public class SampleMgmtCapability implements ISampleMgmtCapability {
 
 	private List<SampleResource>	resources	= new ArrayList<SampleResource>();
@@ -24,7 +26,7 @@ public class SampleMgmtCapability implements ISampleMgmtCapability {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 
 	}

@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 /**
@@ -28,7 +29,7 @@ public class NetworkRootResourceProvider implements IRootResourceProvider {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		resources = new CopyOnWriteArrayList<IRootResource>();
 	}
 

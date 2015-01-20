@@ -7,10 +7,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestManagement;
 
 /**
- * Implementation of the {@link IRequestManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to {@link Type#NETWORK}s.
+ * Implementation of the {@link IRequestManagement} capability using a {@link CopyOnWriteArrayList}. This implementation is bound to
+ * {@link Type#NETWORK}s.
  * 
  * @author Georg Mansky-Kummert
  */
@@ -40,7 +42,7 @@ public class RequestManagement implements IRequestManagement {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		requests = new CopyOnWriteArrayList<RequestResource>();
 	}
 

@@ -3,11 +3,11 @@ package org.mqnaas.network.impl.topology.link;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 
 /**
- * Implementation of the {@link ILinkAdministration} capability which is bound
- * to a {@link LinkResource}.
+ * Implementation of the {@link ILinkAdministration} capability which is bound to a {@link LinkResource}.
  * 
  * @author Georg Mansky-Kummert
  */
@@ -17,13 +17,13 @@ public class LinkAdministration implements ILinkAdministration {
 		return resource instanceof LinkResource;
 	}
 
-	private IResource srcPort, destPort;
+	private IResource					srcPort, destPort;
 
 	@DependingOn
-	private IResourceManagementListener resourceManagementListener;
+	private IResourceManagementListener	resourceManagementListener;
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO: persistence
 	}
 

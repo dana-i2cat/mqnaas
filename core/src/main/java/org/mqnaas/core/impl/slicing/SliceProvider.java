@@ -7,6 +7,7 @@ import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 
 /**
@@ -57,7 +58,7 @@ public class SliceProvider implements ISliceProvider {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO: persistence
 		slice = new SliceResource();
 

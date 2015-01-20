@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.slicing.IUnitManagement;
 
 /**
@@ -17,7 +18,7 @@ public class UnitManagment implements IUnitManagement {
 	private List<UnitResource>	units;
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		units = new CopyOnWriteArrayList<UnitResource>();
 	}
 

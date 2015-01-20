@@ -4,6 +4,7 @@ import org.mqnaas.core.api.ICoreProvider;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.Resource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class CoreProvider implements ICoreProvider {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		log.info("CoreProvider activated.");
 	}
 

@@ -10,6 +10,7 @@ import org.mqnaas.bundletree.exceptions.BundleNotFoundException;
 import org.mqnaas.bundletree.utils.BundleUtils;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -167,7 +168,7 @@ public class BundleGuard implements IBundleGuard {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
@@ -109,7 +110,7 @@ public class Request implements IRequestResourceMapping {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.impl.ApplicationInstance;
 import org.mqnaas.core.impl.dependencies.samples.IApp;
 import org.mqnaas.core.impl.dummy.DummyExecutionService;
@@ -452,10 +453,10 @@ public class DependencyManagementTest {
 		// check apps that were depending on removed are still resolved (with other implementations)
 		for (ApplicationInstance app : usingDependencyWithMultipleImpl) {
 			Assert.assertTrue(app.getPendingClasses().isEmpty());
-				Assert.assertTrue(app.isResolved());
-				Assert.assertTrue("State of app " + app + " should be RESOLVED or more",
-						app.getState().equals(ApplicationInstanceLifeCycleState.RESOLVED)
-								|| app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE));
+			Assert.assertTrue(app.isResolved());
+			Assert.assertTrue("State of app " + app + " should be RESOLVED or more",
+					app.getState().equals(ApplicationInstanceLifeCycleState.RESOLVED)
+							|| app.getState().equals(ApplicationInstanceLifeCycleState.ACTIVE));
 		}
 
 	}
@@ -476,7 +477,7 @@ public class DependencyManagementTest {
 		private boolean	active			= false;
 
 		@Override
-		public void activate() {
+		public void activate() throws ApplicationActivationException {
 			activateCount++;
 			throw new UnsupportedOperationException();
 		}

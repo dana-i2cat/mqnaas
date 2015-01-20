@@ -11,6 +11,7 @@ import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
 public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
@@ -120,7 +121,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// TODO Auto-generated method stub
 	}
 

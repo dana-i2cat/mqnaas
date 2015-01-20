@@ -7,6 +7,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.request.RequestRootResource;
 
@@ -31,7 +32,7 @@ public class PortManagement implements IPortManagement {
 	private List<PortResource>	ports;
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		ports = new CopyOnWriteArrayList<PortResource>();
 	}
 

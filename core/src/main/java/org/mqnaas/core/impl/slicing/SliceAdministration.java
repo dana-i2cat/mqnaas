@@ -10,6 +10,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.CubesList;
@@ -51,7 +52,7 @@ public class SliceAdministration implements ISliceAdministration {
 	}
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		slice = new Slice(resource, serviceProvider);
 	}
 
@@ -407,20 +408,20 @@ public class SliceAdministration implements ISliceAdministration {
 		List<Cube> cubes = operation.getCubes();
 
 		// Now adapt the lower bounds...
-		for ( Cube cube : cubes ) {
+		for (Cube cube : cubes) {
 			int i = 0;
 			Range[] ranges = cube.getRanges();
-			
-			for ( Unit unit : units ) {
+
+			for (Unit unit : units) {
 				int unitLowerBound = unit.getRange().getLowerBound();
 				ranges[i].setLowerBound(ranges[i].getLowerBound() + unitLowerBound);
 				ranges[i].setUpperBound(ranges[i].getUpperBound() + unitLowerBound);
 				i++;
 			}
-			
+
 			cube.setRanges(ranges);
 		}
-		
+
 		return cubes;
 	}
 
@@ -781,5 +782,5 @@ public class SliceAdministration implements ISliceAdministration {
 	public Object getData() {
 		return currentData;
 	}
-	
+
 }

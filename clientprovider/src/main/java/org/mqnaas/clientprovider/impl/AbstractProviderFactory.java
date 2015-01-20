@@ -15,6 +15,7 @@ import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 	protected abstract Class<?> getInternalProviderClass();
 
 	@Override
-	public void activate() {
+	public void activate() throws ApplicationActivationException {
 		// register class listener
 		log.info("Registering as ClassListener.");
 		internalClassListener = new InternalClassListener(getInternalProviderClass());

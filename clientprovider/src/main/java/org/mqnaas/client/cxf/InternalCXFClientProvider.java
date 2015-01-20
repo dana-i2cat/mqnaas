@@ -73,8 +73,7 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 		// TODO use switch id to instantiate the client
 
 		// create CXF client
-		ProxyClassLoader classLoader = new ProxyClassLoader();
-		classLoader.addLoader(apiClass.getClassLoader());
+		ProxyClassLoader classLoader = new ProxyClassLoader(apiClass.getClassLoader());
 		classLoader.addLoader(JAXRSClientFactoryBean.class.getClassLoader());
 
 		JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
@@ -162,8 +161,7 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 
 	private <API> API createDummyClient(Class<API> apiClass) {
 
-		ProxyClassLoader classLoader = new ProxyClassLoader();
-		classLoader.addLoader(apiClass.getClassLoader());
+		ProxyClassLoader classLoader = new ProxyClassLoader(apiClass.getClassLoader());
 
 		// It is safe to cast returned proxy to one of the interfaces given to newProxyInstance method, according to its contract:
 		// Proxy.newProxyInstance javadoc:

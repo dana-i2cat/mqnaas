@@ -1,8 +1,8 @@
 package org.mqnaas.client.netconf;
 
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 
 /**
  * This is an example implementation of how to implement a specific client provider

@@ -19,8 +19,8 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

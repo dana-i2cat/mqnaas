@@ -66,6 +66,7 @@
 						<Export-Package>
 							org.mqnaas.core.api,
 							org.mqnaas.core.api.annotations,
+							org.mqnaas.core.api.credentials,
 							org.mqnaas.core.api.exceptions,
 							org.mqnaas.core.api.scheduling,
 							org.mqnaas.core.api.slicing,

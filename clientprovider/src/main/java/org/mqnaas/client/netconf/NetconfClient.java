@@ -1,7 +1,7 @@
 package org.mqnaas.client.netconf;
 
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

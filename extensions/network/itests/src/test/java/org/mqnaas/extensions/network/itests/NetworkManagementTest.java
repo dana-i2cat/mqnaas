@@ -410,8 +410,7 @@ public class NetworkManagementTest {
 
 		WireMock.stubFor(
 				WireMock.get(
-						WireMock.urlEqualTo("/resources/nodes"))
-						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_JSON))
+						WireMock.urlEqualTo("/resources"))
 						.willReturn(WireMock.aResponse()
 								.withStatus(HttpStatus.OK_200)
 								.withHeader("Content-Type", MediaType.APPLICATION_JSON)

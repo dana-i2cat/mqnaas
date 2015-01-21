@@ -1,4 +1,4 @@
-package org.mqnaas.core.api;
+package org.mqnaas.core.api.serialization;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +12,9 @@ import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.RootResourceDescriptor;
+import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
 import org.xml.sax.SAXException;

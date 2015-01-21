@@ -13,6 +13,7 @@ import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.ITransactionBehavior;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.credentials.Credentials;
 
 /**
  * {@link IResource} factory able to generate artificial resources.
@@ -32,11 +33,11 @@ public class TestResourceFactory {
 	 * @return generated resource
 	 */
 	public static IRootResource createIRootResource(final ITransactionBehavior transactionBehavior, final Specification specification,
-			final ILockingBehaviour lockingBehaviour, final Collection<Endpoint> endpoints, final String id) {
+			final ILockingBehaviour lockingBehaviour, final Collection<Endpoint> endpoints, final String id, final Credentials credentials) {
 
 		return new IRootResource() {
 
-			RootResourceDescriptor	descriptor	= RootResourceDescriptor.create(specification, endpoints);
+			RootResourceDescriptor	descriptor	= RootResourceDescriptor.create(specification, endpoints, credentials);
 
 			@Override
 			public ITransactionBehavior getTransactionBehaviour() {

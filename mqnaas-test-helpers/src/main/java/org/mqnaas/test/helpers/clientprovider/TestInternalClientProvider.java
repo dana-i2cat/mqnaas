@@ -1,8 +1,8 @@
 package org.mqnaas.test.helpers.clientprovider;
 
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 
 /**
  * {@link IInternalClientProvider} for testing purposes able to return always a new {@link EmptyClient}.
@@ -24,6 +24,7 @@ public class TestInternalClientProvider implements IInternalClientProvider<Empty
 
 	@Override
 	public EmptyClient getClient(Endpoint ep, Credentials c, EmptyClientConfiguration configuration) {
-		return new EmptyClient();
+		return new EmptyClient(c);
 	}
+
 }

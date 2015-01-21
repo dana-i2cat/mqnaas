@@ -40,6 +40,9 @@ public class RootResourceDescriptor {
 						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
 		}
 
+		if (specification == null || specification.getType() == null)
+			throw new NullPointerException("RootResourceDescriptors require Specification with valid Type.");
+
 		this.specification = specification;
 		this.endpoints = endpoints;
 	}

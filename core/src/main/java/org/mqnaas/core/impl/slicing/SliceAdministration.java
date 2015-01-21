@@ -38,14 +38,11 @@ public class SliceAdministration implements ISliceAdministration {
 
 	private static final Logger	log	= LoggerFactory.getLogger(SliceAdministration.class);
 
-	Object						originalData;
-	Object						currentData;
+	Object						originalData;												// original cube
+	Object						currentData;												// current cube
 
 	// Once the currentData is initialized, this variable contains the number of dimensions
 	private int					nDimensions;
-
-	public SliceAdministration() {
-	}
 
 	public static boolean isSupporting(IResource resource) {
 		return (resource instanceof SliceResource);
@@ -53,12 +50,20 @@ public class SliceAdministration implements ISliceAdministration {
 
 	@Override
 	public void activate() throws ApplicationActivationException {
+		log.info("Initializing SliceAdministration capability for resource " + resource.getId());
 		slice = new Slice(resource, serviceProvider);
+		log.info("Initialized SliceAdministration capability for resource " + resource.getId());
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO should the original and current data be set to "null"
+		log.info("Deactivating SliceAdministration capability of resource " + resource.getId());
+		originalData = null;
+		currentData = null;
+		slice = null;
+		nDimensions = 0;
+		log.info("Deactivated SliceAdministration capability of resource " + resource.getId());
+
 	}
 
 	/**
@@ -69,6 +74,12 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	@Override
 	public void setCubes(CubesList cubes) {
+
+		if (cubes == null)
+			throw new IllegalArgumentException("The list of cubes of the slice can not be null.");
+
+		log.info("Setting cubes in slice " + slice.getResource().getId());
+
 		try {
 			initData();
 
@@ -79,6 +90,8 @@ public class SliceAdministration implements ISliceAdministration {
 
 			for (Cube cube : cubes.getCubes()) {
 
+				log.debug("Found cube to be set in slice " + slice.getResource().getId());
+
 				Range[] ranges = cube.getRanges();
 				int i = 0;
 
@@ -87,20 +100,29 @@ public class SliceAdministration implements ISliceAdministration {
 
 					lowerBounds[i] = ranges[i].getLowerBound() - lowerBound;
 					upperBounds[i] = ranges[i].getUpperBound() - lowerBound;
+					log.trace("Unit: " + unit.getName() + "\t LowerBound: " + lowerBounds[i] + "\t UpperBound: " + upperBounds[i]);
+
 					i++;
+
 				}
 
 				SetOperation set = new SetOperation();
 				executeOperation(null, lowerBounds, upperBounds, set);
+
+				log.debug("Cube unset from slice " + slice.getResource().getId());
+
 			}
 
 			// if is the first time this method is call, we must initialize the originalData values as a copy of the currentData one.
 			if (originalData == null)
 				originalData = cloneSliceData(currentData, units.size());
 
+			log.info("Cubes set in slice " + slice.getResource().getId());
+
 		} catch (CapabilityNotFoundException e) {
-			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
+			throw new RuntimeException("Given slice " + slice.getResource().getId() + " does not support necessary capability", e);
 		}
+
 	}
 
 	@Override
@@ -129,8 +151,13 @@ public class SliceAdministration implements ISliceAdministration {
 	@Override
 	public void cut(IResource otherResource) throws SlicingException {
 
+		if (otherResource == null)
+			throw new NullPointerException("Can't cut a null slice from slice " + slice);
+		if (!(otherResource instanceof SliceResource))
+			throw new IllegalArgumentException("Only SliceResources cant be cut from other slices.");
+
 		try {
-			log.info("Cutting slice");
+			log.info("Cutting slice " + otherResource + " from slice " + slice);
 			initData();
 
 			Slice other = new Slice(otherResource, serviceProvider);
@@ -151,7 +178,7 @@ public class SliceAdministration implements ISliceAdministration {
 			CutOperation cut = new CutOperation();
 			executeOperation(other.getData(), lbs, ubs, cut);
 
-			log.info("Slice cut");
+			log.info("Slice + " + otherResource + " cut from " + slice);
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
 		}
@@ -160,8 +187,13 @@ public class SliceAdministration implements ISliceAdministration {
 	@Override
 	public void add(IResource otherResource) throws SlicingException {
 
+		if (otherResource == null)
+			throw new NullPointerException("Can't add a null slice to slice " + slice);
+		if (!(otherResource instanceof SliceResource))
+			throw new IllegalArgumentException("Only SliceResources can be added to other slices.");
+
 		try {
-			log.info("Adding slice.");
+			log.info("Adding slice + " + otherResource + " to slice " + slice);
 			initData();
 
 			Slice other = new Slice(otherResource, serviceProvider);
@@ -185,7 +217,7 @@ public class SliceAdministration implements ISliceAdministration {
 			AddOperation add = new AddOperation();
 			executeOperation(other.getData(), lbs, ubs, add);
 
-			log.info("Slice added");
+			log.info("Slice " + otherResource + " added to slice " + slice);
 
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
@@ -225,6 +257,8 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	public boolean isInOperationalState() {
 
+		log.info("Cheking if slice " + slice + " is in operational state.");
+
 		List<Unit> units = slice.getUnits();
 
 		int[] lbs = new int[units.size()], ubs = new int[units.size()];
@@ -249,23 +283,38 @@ public class SliceAdministration implements ISliceAdministration {
 	@Override
 	public void unsetCubes(CubesList cubes) {
 
+		if (cubes == null || cubes.getCubes() == null)
+			throw new NullPointerException("List of cubes can not be null.");
+
+		log.info("Unsetting cubes from slice " + slice.getResource().getId());
+
 		List<Unit> units = slice.getUnits();
 
 		int[] lowerBounds = new int[units.size()];
 		int[] upperBounds = new int[units.size()];
 
 		for (Cube cube : cubes.getCubes()) {
+
+			log.debug("Found cube to be unset from slice " + slice.getResource().getId());
+
 			Range[] ranges = cube.getRanges();
 			for (int i = 0; i < units.size(); i++) {
 				int lowerBound = units.get(i).getRange().getLowerBound();
 
 				lowerBounds[i] = ranges[i].getLowerBound() - lowerBound;
 				upperBounds[i] = ranges[i].getUpperBound() - lowerBound;
+
+				log.trace("Unit: " + units.get(i).getName() + "\t LowerBound: " + lowerBounds[i] + "\t UpperBound: " + upperBounds[i]);
+
 			}
 
 			UnsetOperation set = new UnsetOperation();
 			executeOperation(null, lowerBounds, upperBounds, set);
+
+			log.debug("Cube unset from slice " + slice.getResource().getId());
 		}
+
+		log.info("Cubes unset from slice " + slice.getResource().getId());
 	}
 
 	/**
@@ -698,6 +747,8 @@ public class SliceAdministration implements ISliceAdministration {
 
 		List<Unit> units = slice.getUnits();
 		List<Unit> otherUnits = other.getUnits();
+
+		log.trace(slice.getResource().getId() + ": " + units.size() + "dimensions, " + other.getResource().getId() + ": " + otherUnits.size() + " dimensions");
 
 		if (otherUnits.size() != units.size())
 			throw new IllegalArgumentException("Only slices with same dimensions can be compared.");

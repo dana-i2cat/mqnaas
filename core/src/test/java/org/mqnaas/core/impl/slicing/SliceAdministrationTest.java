@@ -16,7 +16,6 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
-import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
@@ -142,9 +141,10 @@ public class SliceAdministrationTest {
 				}
 
 				try {
+					ReflectionTestHelper.injectPrivateField(capability, resource, "resource");
 					capability.activate();
-				} catch (ApplicationActivationException a) {
-					throw new RuntimeException("Could not activate capability " + capability.getClass().getName());
+				} catch (Exception a) {
+					throw new RuntimeException("Could not activate capability " + capability.getClass().getName(), a);
 
 				}
 				capabilities.put(capabilityClass, capability);

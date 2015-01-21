@@ -23,7 +23,8 @@ public class Range implements Serializable {
 	@XmlElement(required = true)
 	private int					upperBound;
 
-	public Range() {
+	// no-arg constructor for JAXB
+	private Range() {
 
 	}
 

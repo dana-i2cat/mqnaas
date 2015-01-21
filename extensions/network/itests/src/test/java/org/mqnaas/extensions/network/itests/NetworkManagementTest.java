@@ -189,8 +189,7 @@ public class NetworkManagementTest {
 
 		portUnit.setRange(new Range(0, 2));
 
-		Cube cube = new Cube();
-		cube.setRanges(new Range[] { new Range(0, 2) });
+		Cube cube = new Cube(new Range[] { new Range(0, 2) });
 		tsonSlice.setCubes(Arrays.asList(cube));
 
 	}
@@ -253,8 +252,7 @@ public class NetworkManagementTest {
 		Unit portUnit = reqTsonSlice.addUnit("port");
 		portUnit.setRange(new Range(0, 2));
 
-		Cube cube = new Cube();
-		cube.setRanges(new Range[] { new Range(0, 2) });
+		Cube cube = new Cube(new Range[] { new Range(0, 2) });
 		reqTsonSlice.setCubes(Arrays.asList(cube));
 
 		// // 2.6 add request period

@@ -187,11 +187,10 @@ public class SliceAdministrationTest {
 		init2DSlice(slice, PORT_UNIT, 2, TIME_UNIT, 4);
 
 		// initialize cube : interfaces (0-1) and vlans (1-3)
-		Cube cube = new Cube();
 		Range[] ranges = new Range[2];
 		ranges[0] = new Range(0, 1);
 		ranges[1] = new Range(1, 3);
-		cube.setRanges(ranges);
+		Cube cube = new Cube(ranges);
 
 		// test and asserts
 		slice.setCubes(Arrays.asList(cube));

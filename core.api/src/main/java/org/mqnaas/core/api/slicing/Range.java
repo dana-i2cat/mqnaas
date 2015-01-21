@@ -28,6 +28,10 @@ public class Range implements Serializable {
 	}
 
 	public Range(int lowerBound, int upperBound) {
+
+		if (lowerBound > upperBound)
+			throw new IllegalArgumentException("LowerBound can't be greater than UpperBound");
+
 		this.lowerBound = lowerBound;
 		this.upperBound = upperBound;
 	}
@@ -72,11 +76,10 @@ public class Range implements Serializable {
 			return false;
 		return true;
 	}
-	
+
 	public int size() {
 		return upperBound - lowerBound + 1;
 	}
-
 
 	@Override
 	public String toString() {

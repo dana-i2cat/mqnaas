@@ -22,6 +22,7 @@ import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.credentials.Credentials;
 import org.mqnaas.core.api.credentials.TrustoreKeystoreCredentials;
+import org.mqnaas.core.api.credentials.UsernamePasswordCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +111,12 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 				// set tlsclientparameters with certificates information into cxf bean
 				WebClient.getConfig(api).getHttpConduit().setTlsClientParameters(clientParams);
 
+			} else if (c instanceof UsernamePasswordCredentials) {
+				bean.setUsername(((UsernamePasswordCredentials) c).getUsername());
+				bean.setPassword(((UsernamePasswordCredentials) c).getPassword());
+			}
+			else {
+				log.warn("Unkown credentials type. Ignoring it. Client won't contain any authentication information.");
 			}
 		}
 

@@ -37,7 +37,7 @@ public class APIProviderFactoryTest {
 			EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null);
+		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null, null);
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();
@@ -62,7 +62,7 @@ public class APIProviderFactoryTest {
 			EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null);
+		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null, null);
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();

@@ -24,6 +24,7 @@ public class TestInternalClientProvider implements IInternalClientProvider<Empty
 
 	@Override
 	public EmptyClient getClient(Endpoint ep, Credentials c, EmptyClientConfiguration configuration) {
-		return new EmptyClient();
+		return new EmptyClient(c);
 	}
+
 }

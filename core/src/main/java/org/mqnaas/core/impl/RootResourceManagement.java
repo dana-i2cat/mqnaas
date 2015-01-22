@@ -5,18 +5,33 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
+import org.mqnaas.core.impl.slicing.UnitManagment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
 
-	private List<IRootResource>	resources	= new ArrayList<IRootResource>();
+	private static final Logger			log			= LoggerFactory.getLogger(UnitManagment.class);
+
+	private List<IRootResource>			resources	= new ArrayList<IRootResource>();
+
+	@DependingOn
+	private IResourceManagementListener	rmListener;
+
+	@Resource
+	private IResource					resource;
 
 	public static boolean isSupporting(IRootResource resource) {
 		Specification specification = resource.getDescriptor().getSpecification();
@@ -29,6 +44,8 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public void setRootResources(Collection<IRootResource> rootResources) {
+		log.info("Initializing RootResources.");
+
 		if (resources.isEmpty())
 			resources.addAll(rootResources);
 		else
@@ -37,16 +54,21 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	@Override
 	public void removeRootResource(IRootResource resource) {
+		log.info("Removing resource " + (resource == null ? null : resource.getId()));
 		resources.remove(resource);
 	}
 
 	@Override
 	public List<IRootResource> getRootResources() {
+		log.info("Getting all RootResources");
 		return new ArrayList<IRootResource>(resources);
 	}
 
 	@Override
 	public List<IRootResource> getRootResources(Specification.Type type, String model, String version) {
+
+		log.info("Getting al RootResources with filter [type=" + type + ",model=" + model + ",version=" + version + "]");
+
 		List<IRootResource> filteredResources = new ArrayList<IRootResource>();
 
 		for (IRootResource resource : getRootResources()) {
@@ -62,6 +84,8 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 				filteredResources.add(resource);
 
 		}
+
+		log.debug("Found " + filteredResources.size() + " resources matching filter [type=" + type + ",model=" + model + ",version=" + version + "]");
 
 		return filteredResources;
 	}
@@ -80,13 +104,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 		if (specification == null)
 			throw new NullPointerException("Specification can't be null.");
 
-		List<IRootResource> filteredResources = new ArrayList<IRootResource>();
-		for (IRootResource resource : resources) {
-			if (specification.equals(resource.getDescriptor().getSpecification()))
-				filteredResources.add(resource);
-		}
-
-		return filteredResources;
+		return getRootResources(specification.getType(), specification.getModel(), specification.getVersion());
 	}
 
 	@Override
@@ -109,7 +127,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 	@Override
 	public IRootResource getRootResource(String id) throws ResourceNotFoundException {
 
-		if (id == null)
+		if (StringUtils.isEmpty(id))
 			throw new NullPointerException("Id of the resource to be found can't be null.");
 
 		for (IRootResource resource : resources) {
@@ -117,18 +135,21 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 				return resource;
 		}
 
-		throw new ResourceNotFoundException("No resource found with this id: " + id);
+		throw new ResourceNotFoundException("No resource found with id: " + id);
 	}
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
+		log.info("Initializing RootResourceManagement");
+
+		log.info("Initialized RootResourceManagement");
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
+		log.info("Removing RootResourceManagement");
 
+		log.info("Removed RootResourceManagement");
 	}
 
 }

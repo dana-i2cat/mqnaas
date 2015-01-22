@@ -75,5 +75,13 @@ public class RootResourceDescriptorTest {
 		Assert.assertEquals("RootResourceDescriptor should containn NETWORK as spesification type.", Type.NETWORK, netRRD.getSpecification()
 				.getType());
 
+		// case 2 - core resource
+
+		RootResourceDescriptor coreRDD = RootResourceDescriptor.create(new Specification(Type.CORE));
+
+		Assert.assertTrue("Network RootResourceDescriptor should contain no endpoints.", coreRDD.getEndpoints().isEmpty());
+		Assert.assertEquals("RootResourceDescriptor should containn NETWORK as spesification type.", Type.CORE, coreRDD.getSpecification()
+				.getType());
+
 	}
 }

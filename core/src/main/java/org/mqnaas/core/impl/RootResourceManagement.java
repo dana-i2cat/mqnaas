@@ -114,7 +114,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 			throw new NullPointerException("Descriptor can't be null.");
 
 		if (descriptor.getEndpoints().isEmpty()) {
-			if (!descriptor.getSpecification().getType().equals(Type.NETWORK))
+			if (!descriptor.getSpecification().getType().equals(Type.NETWORK) && !(descriptor.getSpecification().getType().equals(Type.CORE)))
 				throw new IllegalArgumentException(
 						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + descriptor.getEndpoints());
 		}

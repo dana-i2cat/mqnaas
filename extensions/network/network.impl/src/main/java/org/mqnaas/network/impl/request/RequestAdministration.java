@@ -1,6 +1,7 @@
 package org.mqnaas.network.impl.request;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestAdministration;
 import org.mqnaas.network.api.request.Period;
@@ -11,6 +12,9 @@ import org.mqnaas.network.api.request.Period;
  * @author Georg Mansky-Kummert
  */
 public class RequestAdministration implements IRequestAdministration {
+
+	@Resource
+	IResource	resource;
 
 	public static boolean isSupporting(IResource resource) {
 		return resource instanceof RequestResource;

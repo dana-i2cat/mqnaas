@@ -6,6 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestResourceManagement;
 
@@ -16,6 +17,9 @@ import org.mqnaas.network.api.request.IRequestResourceManagement;
  * @author Georg Mansky-Kummert
  */
 public class RequestResourceManagement implements IRequestResourceManagement {
+
+	@Resource
+	IResource							resource;
 
 	private List<RequestRootResource>	resources;
 

@@ -24,6 +24,8 @@ public class BasicTrigger implements Trigger, Comparable<BasicTrigger> {
 	}
 
 	public BasicTrigger(Date startDate, Date endDate) {
+		if (startDate.after(endDate))
+			throw new IllegalArgumentException("StartDate can't be after the endDate.");
 		this.startDate = startDate;
 	}
 

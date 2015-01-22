@@ -631,7 +631,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		}
 
-		printAvailableApplications();
 	}
 
 	/**
@@ -664,8 +663,6 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				removeApplicationInstance(applicationInstance);
 			}
 		}
-
-		printAvailableApplications();
 	}
 
 	/**

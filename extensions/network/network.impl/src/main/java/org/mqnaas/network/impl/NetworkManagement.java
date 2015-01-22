@@ -16,7 +16,9 @@ import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
 import org.mqnaas.core.api.slicing.ISliceProvider;
@@ -58,6 +60,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	@DependingOn
 	IServiceProvider						serviceProvider;
+
+	@Resource
+	IResource								resource;
 
 	// stores relationship between network IRootResource <-> RequestResource
 	private Map<IRootResource, IResource>	networks;
@@ -144,13 +149,15 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			throw new NetworkCreationException("Network creation failed.", c);
 		} catch (SlicingException e) {
 			throw new NetworkCreationException("Network creation failed.", e);
-
+		} catch (ApplicationNotFoundException e) {
+			throw new NetworkCreationException("Network creation failed.", e);
 		}
 
 		return networkResource;
 	}
 
-	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request) throws CapabilityNotFoundException {
+	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request) throws CapabilityNotFoundException,
+			ApplicationNotFoundException {
 
 		NetworkSubResource resourceWrapper = new NetworkSubResource(resource, serviceProvider);
 
@@ -243,7 +250,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	}
 
 	private IResource createSlice(Network virtualNetwork, NetworkSubResource phyResource, NetworkSubResource virtualResource)
-			throws SlicingException, CapabilityNotFoundException {
+			throws SlicingException, CapabilityNotFoundException, ApplicationNotFoundException {
 
 		ISlicingCapability phySlicingCapab = phyResource.getSlicingCapability();
 

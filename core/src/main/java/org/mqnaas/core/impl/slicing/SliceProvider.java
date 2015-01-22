@@ -9,6 +9,8 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.ISliceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +77,14 @@ public class SliceProvider implements ISliceProvider {
 		log.debug("Created " + slice.getId() + " in resource " + resource.getId());
 
 		// Add resource manually to the platform
-		resourceManagementListener.resourceAdded(slice, this, ISliceProvider.class);
+		try {
+			resourceManagementListener.resourceAdded(slice, this, ISliceProvider.class);
+		} catch (CapabilityNotFoundException e) {
+			throw new ApplicationActivationException(e);
+		} catch (ApplicationNotFoundException e) {
+			throw new ApplicationActivationException(e);
+
+		}
 
 		log.info("Initialized SliceProvider capability for resource " + resource.getId());
 

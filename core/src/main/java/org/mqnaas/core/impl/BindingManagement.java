@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
@@ -177,6 +178,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 					getService(mqNaaS, "resourceRemoved", IResource.class, IApplication.class, Class.class));
 		} catch (ServiceNotFoundException e) {
 			log.error("Error registering observation!", e);
+			throw new ApplicationActivationException(e);
 		}
 		// register proxies as OSGI services
 		BundleContext context = FrameworkUtil.getBundle(BindingManagement.class).getBundleContext();
@@ -249,17 +251,29 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public Multimap<Class<? extends IApplication>, IService> getServices(IResource resource) {
 
+		if (resource == null)
+			throw new NullPointerException("Can't get services of a null resource.");
+
+		log.debug("Getting all services from resource " + resource.getId());
+
 		Multimap<Class<? extends IApplication>, IService> services = ArrayListMultimap.create();
 
 		for (CapabilityInstance representation : filterResolved(getCapabilityInstancesBoundToResource(resource))) {
 			services.putAll(representation.getServices());
 		}
 
+		log.trace("Resource " + resource.getId() + " services: " + services.keySet());
+
 		return services;
 	}
 
 	@Override
 	public IService getService(IResource resource, String name, Class<?>... parameterClasses) throws ServiceNotFoundException {
+
+		if ((resource == null || StringUtils.isEmpty(name)))
+			throw new NullPointerException("Resource and service name are required to get a specific service.");
+
+		log.debug("Getting service [resource=" + resource.getId() + ",service=" + name + ",params=" + parameterClasses + "]");
 
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
@@ -269,11 +283,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			}
 		}
 
-		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
+		throw new ServiceNotFoundException("Service " + name + " of resource " + resource.getId() + " not found.");
 	}
 
 	@Override
 	public IService getApplicationService(IApplication application, String serviceName, Class<?>... parameterClasses) throws ServiceNotFoundException {
+
+		if ((application == null || StringUtils.isEmpty(serviceName)))
+			throw new NullPointerException("Application and service name are required to get a specific service.");
+
+		log.debug("Getting service [application=" + application.getClass().getName() + ",service=" + serviceName + ",params=" + parameterClasses + "]");
 
 		for (ApplicationNode applicationNode : applications) {
 			if (applicationNode.getContent().getInstance().equals(application)) {
@@ -318,26 +337,33 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 *            The IApplication managing given resource
 	 * @param parentInterface
 	 *            The interface managing given resource in managedBy instance
+	 * @throws ApplicationNotFoundException
+	 *             If the application <code>managedBy</code> does not exists in the platform.
+	 * @throws CapabilityNotFoundException
+	 *             If the capability <code>managedBy</code> does not exists in the platform.
 	 */
 	@Override
-	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) {
+	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface)
+			throws CapabilityNotFoundException, ApplicationNotFoundException {
 
-		try {
+		if (resource == null || managedBy == null || parentInterface == null)
+			throw new NullPointerException(
+					"Resource, application instance managing it, and the application interface are required to bind a resource.");
 
-			ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
+		log.info("Resource " + resource.getId() + " added.");
+		log.debug("Added-resource information: [resource=" + resource.getId() + "managedBy=" + managedBy.getClass().getName() + ",parentInterface=" + parentInterface
+				.getName() + "]");
 
-			if (resourceNode == null) {
-				ApplicationNode parent = findApplicationNode(managedBy);
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
 
-				bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
-			}
-			else
-				log.warn("Resource " + resource.getId() + " already bound. Skipping it.");
-		} catch (ApplicationNotFoundException e) {
-			log.error("No parent found!", e);
-		} catch (CapabilityNotFoundException e) {
-			log.error("No parent found!", e);
+		if (resourceNode == null) {
+			ApplicationNode parent = findApplicationNode(managedBy);
+
+			bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
 		}
+		else
+			log.warn("Resource " + resource.getId() + " already bound. Skipping it.");
+
 	}
 
 	/**

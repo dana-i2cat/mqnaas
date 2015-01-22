@@ -23,7 +23,11 @@ import org.mqnaas.core.impl.resourcetree.ApplicationNode;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
 import org.mqnaas.core.impl.resourcetree.ResourceNode;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceEvent;
+import org.osgi.framework.ServiceListener;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * @author Isart Canyameres Gimenez (i2cat)
  *
  */
-public class APIConnector implements IAPIConnector {
+public class APIConnector implements IAPIConnector, ServiceListener {
 
 	private static final Logger					log	= LoggerFactory.getLogger(APIConnector.class);
 
@@ -227,7 +231,16 @@ public class APIConnector implements IAPIConnector {
 		if (FrameworkUtil.getBundle(APIConnector.class) != null) {
 			BundleContext context = FrameworkUtil.getBundle(APIConnector.class).getBundleContext();
 			if (context != null) {
+
 				osgiRegistration = context.registerService(IAPIConnector.class, this, null);
+				try {
+					StringBuilder filter = new StringBuilder();
+					filter.append("(").append(Constants.OBJECTCLASS).append("=").append(IAPIConnector.class.getName()).append(")");
+					context.addServiceListener(this, filter.toString());
+				} catch (InvalidSyntaxException e) {
+					log.error("Error adding APIConnector as OSGI service listener.", e);
+				}
+
 			}
 		}
 	}
@@ -237,5 +250,13 @@ public class APIConnector implements IAPIConnector {
 			osgiRegistration.unregister();
 			osgiRegistration = null;
 		}
+	}
+
+	@Override
+	public void serviceChanged(ServiceEvent event) {
+
+		if (event.getType() == ServiceEvent.UNREGISTERING && osgiRegistration != null)
+			osgiRegistration = null;
+
 	}
 }

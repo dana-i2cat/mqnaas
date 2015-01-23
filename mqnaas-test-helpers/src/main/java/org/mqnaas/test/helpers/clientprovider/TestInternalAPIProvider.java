@@ -1,8 +1,8 @@
 package org.mqnaas.test.helpers.clientprovider;
 
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 
 /**
  * {@link IInternalAPIClientProvider} for testing purposes able to return only {@link EmptyClientAPI}.

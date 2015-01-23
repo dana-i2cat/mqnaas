@@ -13,9 +13,10 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.i2cat.utils.StringBuilderUtils;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.credentials.Credentials;
 
 @XmlRootElement(namespace = "org.mqnaas")
-@XmlType(propOrder = { "specification", "lockingBehaviourClass", "transactionBehaviourClass", "endpoints" })
+@XmlType(propOrder = { "specification", "lockingBehaviourClass", "transactionBehaviourClass", "endpoints", "credentials" })
 @XmlAccessorType(XmlAccessType.FIELD)
 public class RootResourceDescriptor {
 
@@ -30,10 +31,12 @@ public class RootResourceDescriptor {
 	@XmlElement(name = "endpoint")
 	private Collection<Endpoint>					endpoints	= new ArrayList<Endpoint>();
 
+	private Credentials								credentials;
+
 	private RootResourceDescriptor() {
 	}
 
-	private RootResourceDescriptor(Specification specification, Collection<Endpoint> endpoints) {
+	private RootResourceDescriptor(Specification specification, Collection<Endpoint> endpoints, Credentials credentials) {
 		if (endpoints == null || endpoints.size() < 1) {
 			if (!specification.getType().equals(Type.NETWORK) && !(specification.getType().equals(Type.CORE)))
 				throw new IllegalArgumentException(
@@ -45,6 +48,7 @@ public class RootResourceDescriptor {
 
 		this.specification = specification;
 		this.endpoints = endpoints;
+		this.credentials = credentials;
 	}
 
 	public Class<? extends ITransactionBehavior> getTransactionBehaviourClass() {
@@ -97,6 +101,14 @@ public class RootResourceDescriptor {
 		return (endpoints == null || endpoints.isEmpty()) ? Collections.<Endpoint> emptyList() : new ArrayList<Endpoint>(endpoints);
 	}
 
+	public Credentials getCredentials() {
+		return credentials;
+	}
+
+	public void setCredentials(Credentials credentials) {
+		this.credentials = credentials;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -120,27 +132,37 @@ public class RootResourceDescriptor {
 			sb.append(", endpoints=none");
 		}
 
+		if (credentials != null)
+			sb.append(", credentials=(").append(credentials).append(")");
+		else
+			sb.append(", credentials=none");
+
 		sb.append("]");
 
 		return sb.toString();
 	}
 
 	public static RootResourceDescriptor create(Specification specification) {
-		return create(specification, null);
+		return create(specification, null, null);
 	}
 
 	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints) {
-		return new RootResourceDescriptor(specification, endpoints);
+		return create(specification, endpoints, null);
+	}
+
+	public static RootResourceDescriptor create(Specification specification, Collection<Endpoint> endpoints, Credentials credentials) {
+		return new RootResourceDescriptor(specification, endpoints, credentials);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((credentials == null) ? 0 : credentials.hashCode());
 		result = prime * result + ((endpoints == null) ? 0 : endpoints.hashCode());
-		result = prime * result + ((lockingBehaviourClass == null) ? 0 : lockingBehaviourClass.getName().hashCode());
+		result = prime * result + ((lockingBehaviourClass == null) ? 0 : lockingBehaviourClass.hashCode());
 		result = prime * result + ((specification == null) ? 0 : specification.hashCode());
-		result = prime * result + ((transactionBehaviourClass == null) ? 0 : transactionBehaviourClass.getName().hashCode());
+		result = prime * result + ((transactionBehaviourClass == null) ? 0 : transactionBehaviourClass.hashCode());
 		return result;
 	}
 
@@ -153,6 +175,11 @@ public class RootResourceDescriptor {
 		if (getClass() != obj.getClass())
 			return false;
 		RootResourceDescriptor other = (RootResourceDescriptor) obj;
+		if (credentials == null) {
+			if (other.credentials != null)
+				return false;
+		} else if (!credentials.equals(other.credentials))
+			return false;
 		if (endpoints == null) {
 			if (other.endpoints != null)
 				return false;
@@ -171,9 +198,9 @@ public class RootResourceDescriptor {
 		if (transactionBehaviourClass == null) {
 			if (other.transactionBehaviourClass != null)
 				return false;
-		} else if (!transactionBehaviourClass
-				.equals(other.transactionBehaviourClass))
+		} else if (!transactionBehaviourClass.equals(other.transactionBehaviourClass))
 			return false;
 		return true;
 	}
+
 }

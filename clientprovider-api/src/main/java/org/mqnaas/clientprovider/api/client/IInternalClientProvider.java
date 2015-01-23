@@ -1,7 +1,7 @@
 package org.mqnaas.clientprovider.api.client;
 
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 
 /**
  * TODO Javadoc

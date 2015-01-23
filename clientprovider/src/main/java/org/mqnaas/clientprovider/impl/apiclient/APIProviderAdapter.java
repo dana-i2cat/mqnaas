@@ -7,11 +7,11 @@ import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.apiclient.IInternalAPIClientProvider;
 import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.credentials.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,13 +22,13 @@ import org.slf4j.LoggerFactory;
  */
 class APIProviderAdapter<CC> implements InvocationHandler {
 
-	private static final Logger			log	= LoggerFactory.getLogger(APIProviderAdapter.class);
+	private static final Logger				log	= LoggerFactory.getLogger(APIProviderAdapter.class);
 
 	private IInternalAPIClientProvider<CC>	internalAPIProvider;
 
-	private ICoreModelCapability		coreModelCapability;
+	private ICoreModelCapability			coreModelCapability;
 
-	private IEndpointSelectionStrategy	endpointSelectionStrategy;
+	private IEndpointSelectionStrategy		endpointSelectionStrategy;
 
 	public APIProviderAdapter(IInternalAPIClientProvider<CC> internalAPIProvider, ICoreModelCapability coreModelCapability,
 			IEndpointSelectionStrategy endpointSelectionStrategy) {

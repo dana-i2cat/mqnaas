@@ -6,11 +6,11 @@ import java.lang.reflect.Method;
 import org.mqnaas.clientprovider.api.IEndpointSelectionStrategy;
 import org.mqnaas.clientprovider.api.client.IInternalClientProvider;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.credentials.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +53,7 @@ public class ClientProviderAdapter<T, CC> implements InvocationHandler {
 			throw new EndpointNotFoundException(message);
 		}
 
-		// TODO Get credentials...
-		Credentials c = null;
+		Credentials c = rootResource.getDescriptor().getCredentials();
 
 		switch (args == null ? 0 : args.length) {
 			case 1:

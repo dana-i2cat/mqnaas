@@ -1,8 +1,8 @@
 package org.mqnaas.clientprovider.api.apiclient;
 
 import org.mqnaas.clientprovider.exceptions.ClientConfigurationException;
-import org.mqnaas.core.api.Credentials;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.credentials.Credentials;
 
 public interface IInternalAPIClientProvider<CC> {
 

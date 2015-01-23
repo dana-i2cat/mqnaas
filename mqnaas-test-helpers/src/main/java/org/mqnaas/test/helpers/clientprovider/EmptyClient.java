@@ -1,5 +1,7 @@
 package org.mqnaas.test.helpers.clientprovider;
 
+import org.mqnaas.core.api.credentials.Credentials;
+
 /**
  * Empty client to be used for test purposes.
  * 
@@ -8,7 +10,17 @@ package org.mqnaas.test.helpers.clientprovider;
  */
 public class EmptyClient {
 
+	private Credentials	credentials;
+
 	// package-private constructor
 	EmptyClient() {
+	}
+
+	public EmptyClient(Credentials c) {
+		this.credentials = c;
+	}
+
+	public Credentials getCredentials() {
+		return credentials;
 	}
 }

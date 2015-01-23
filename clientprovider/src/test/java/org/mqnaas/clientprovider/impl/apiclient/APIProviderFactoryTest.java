@@ -40,7 +40,8 @@ public class APIProviderFactoryTest {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, new Specification(Type.OTHER), null,
-				TestResourceFactory.createFakeEndpoints(), null);
+				TestResourceFactory.createFakeEndpoints(), null, null);
+
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();
@@ -66,7 +67,8 @@ public class APIProviderFactoryTest {
 
 		// generate artificial objects
 		IRootResource resource = TestResourceFactory.createIRootResource(null, new Specification(Type.OTHER), null,
-				TestResourceFactory.createFakeEndpoints(), null);
+				TestResourceFactory.createFakeEndpoints(), null, null);
+
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();

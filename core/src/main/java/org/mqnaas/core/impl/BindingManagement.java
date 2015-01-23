@@ -433,25 +433,41 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void capabilityInstanceBound(CapabilityNode bound, ResourceNode boundTo) {
 		// add bound capability in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		if (bound == null)
+			throw new NullPointerException("Error adding application to the system: Tried to bound a null capability!");
+		log.debug("Adding capability to the system: " + bound.getContent());
 		dependencyManagement.addApplicationInTheSystem(bound.getContent());
+		log.debug("Added capability to the system: " + bound.getContent());
 	}
 
 	@Override
 	public void capabilityInstanceUnbound(CapabilityNode unbound, ResourceNode wasBoundTo) {
 		// remove unbound capability from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+
+		if (unbound == null)
+			throw new NullPointerException("Error removing application from the system: Tried to unbound a null capability!");
+
+		log.debug("Removing capability from the system: " + unbound.getContent());
 		dependencyManagement.removeApplicationInTheSystem(unbound.getContent());
+		log.debug("Removed capability from the system: " + unbound.getContent());
+
 	}
 
 	@Override
 	public void applicationInstanceAdded(ApplicationInstance added) {
 		// add added application in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		log.debug("Adding application to the system: " + added);
 		dependencyManagement.addApplicationInTheSystem(added);
+		log.debug("Added application to the system: " + added);
 	}
 
 	@Override
 	public void applicationInstanceRemoved(ApplicationInstance removed) {
 		// remove application from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+		log.debug("Removing application from the system: " + removed);
 		dependencyManagement.removeApplicationInTheSystem(removed);
+		log.debug("Removed application from the system: " + removed);
+
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////
@@ -519,7 +535,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy, Class<? extends IApplication> parentInterface) {
 
-		log.info("Adding resource " + resource.getContent() + " managed by application " + managedBy.getContent());
+		if (resource == null || managedBy == null || parentInterface == null)
+			throw new NullPointerException(
+					"Resource, application instance managing it, and the application interface are required to add a resource node.");
+
+		log.trace("Adding resource node:[resourceNode=" + resource + ",managedBy=" + managedBy + ",parentInterface=" + parentInterface.getClass()
+				.getName() + "]");
 
 		// 1. Update the model
 		ResourceCapabilityTreeController.addResourceNode(resource, managedBy, parentInterface);
@@ -532,7 +553,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void removeResourceNode(ResourceNode toRemove, ApplicationNode managedBy) {
 
-		log.info("Removing resource " + toRemove.getContent() + " managed by application " + managedBy.getContent());
+		log.trace("Removing resource node:[resourceNode=" + toRemove + ",managedBy=" + managedBy + "]");
 
 		// 1. Remove on cascade (remove capabilities bound to this resource)
 		// Notice recursivity between removeResource and unbind methods
@@ -549,6 +570,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void bind(CapabilityNode toBind, ResourceNode toBindTo) {
+
+		if (toBind == null || toBindTo == null)
+			throw new NullPointerException("Error binding capability and resource: Capability nor resource can't be null!");
 
 		log.info("Binding " + toBind.getContent() + " to resource " + toBindTo.getContent());
 
@@ -570,6 +594,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void unbind(CapabilityNode toUnbind, ResourceNode boundTo) {
+
+		if (toUnbind == null || boundTo == null)
+			throw new NullPointerException("Error unbinding capability and resource: Capability nor resource can't be null!");
 
 		log.info("Unbinding " + toUnbind.getContent() + " bound to resource " + boundTo.getContent());
 
@@ -873,14 +900,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
+		log.info("Initializing BindingMangement.");
+		log.info("Initialized BindingMangement.");
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
-
+		log.info("Removing BindingMangement.");
+		log.info("Removed BindingMangement.");
 	}
 
 	/**

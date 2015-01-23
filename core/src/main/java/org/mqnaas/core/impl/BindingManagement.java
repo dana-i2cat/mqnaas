@@ -805,8 +805,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		sb.append("------------------------------------------------------------------\n");
 
-		log.info(sb.toString());
-		System.out.println(sb.toString());
+		log.trace(sb.toString());
 	}
 
 	// @Override
@@ -843,8 +842,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 		sb.append("------------------------------------------------------------------\n");
 
-		log.info(sb.toString());
-		System.out.println(sb.toString());
+		log.trace(sb.toString());
 	}
 
 	@Override

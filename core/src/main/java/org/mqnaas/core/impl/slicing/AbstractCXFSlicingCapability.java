@@ -125,11 +125,15 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 
 	@Override
 	public void removeSlice(IResource rootResource) throws SlicingException {
+
+		if (rootResource == null)
+			throw new NullPointerException("Slice to be removed can not be null.");
+
 		log.info("Removing virtual resource " + rootResource.getId());
 
 		if (!virtualResources.contains(rootResource))
 			throw new SlicingException(
-					"Could not remove virtual resource " + rootResource + ": Resource does not exist or is not managed by this capability.");
+					"Could not remove virtual resource " + rootResource.getId() + ": Resource does not exist or is not managed by this capability.");
 
 		virtualResources.remove(rootResource);
 

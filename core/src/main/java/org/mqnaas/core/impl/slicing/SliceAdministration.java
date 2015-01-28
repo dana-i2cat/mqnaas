@@ -152,12 +152,12 @@ public class SliceAdministration implements ISliceAdministration {
 	public void cut(IResource otherResource) throws SlicingException {
 
 		if (otherResource == null)
-			throw new NullPointerException("Can't cut a null slice from slice " + slice);
+			throw new NullPointerException("Can't cut a null slice from slice " + slice.getResource().getId());
 		if (!(otherResource instanceof SliceResource))
 			throw new IllegalArgumentException("Only SliceResources cant be cut from other slices.");
 
 		try {
-			log.info("Cutting slice " + otherResource + " from slice " + slice);
+			log.info("Cutting slice " + otherResource.getId() + " from slice " + slice.getResource().getId());
 			initData();
 
 			Slice other = new Slice(otherResource, serviceProvider);
@@ -178,7 +178,7 @@ public class SliceAdministration implements ISliceAdministration {
 			CutOperation cut = new CutOperation();
 			executeOperation(other.getData(), lbs, ubs, cut);
 
-			log.info("Slice + " + otherResource + " cut from " + slice);
+			log.info("Slice + " + otherResource.getId() + " cut from " + slice.getResource().getId());
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
 		}
@@ -188,12 +188,12 @@ public class SliceAdministration implements ISliceAdministration {
 	public void add(IResource otherResource) throws SlicingException {
 
 		if (otherResource == null)
-			throw new NullPointerException("Can't add a null slice to slice " + slice);
+			throw new NullPointerException("Can't add a null slice to slice " + slice.getResource().getId());
 		if (!(otherResource instanceof SliceResource))
 			throw new IllegalArgumentException("Only SliceResources can be added to other slices.");
 
 		try {
-			log.info("Adding slice + " + otherResource + " to slice " + slice);
+			log.info("Adding slice + " + otherResource.getId() + " to slice " + slice.getResource().getId());
 			initData();
 
 			Slice other = new Slice(otherResource, serviceProvider);
@@ -217,7 +217,7 @@ public class SliceAdministration implements ISliceAdministration {
 			AddOperation add = new AddOperation();
 			executeOperation(other.getData(), lbs, ubs, add);
 
-			log.info("Slice " + otherResource + " added to slice " + slice);
+			log.info("Slice " + otherResource.getId() + " added to slice " + slice.getResource().getId());
 
 		} catch (CapabilityNotFoundException e) {
 			throw new RuntimeException("Given slice " + slice + " does not support necessary capability", e);
@@ -257,7 +257,7 @@ public class SliceAdministration implements ISliceAdministration {
 	 */
 	public boolean isInOperationalState() {
 
-		log.info("Cheking if slice " + slice + " is in operational state.");
+		log.info("Cheking if slice " + slice.getResource().getId() + " is in operational state.");
 
 		List<Unit> units = slice.getUnits();
 

@@ -39,27 +39,30 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		log.info("Initializing SlicingCapability for resource " + resource);
+		log.info("Initializing SlicingCapability for resource " + resource.getId());
 
 		proxiesEndpoints = new HashMap<IRootResource, Server>();
 		virtualResources = new ArrayList<IResource>();
 
-		log.info("Initialized SlicingCapability for resource " + resource);
+		log.info("Initialized SlicingCapability for resource " + resource.getId());
 	}
 
 	@Override
 	public void deactivate() {
-		log.info("Removing SlicingCapability for resource " + resource);
+		log.info("Removing SlicingCapability for resource " + resource.getId());
 
+		log.debug("Unpublishing all virtual resources endpoints of resource " + resource.getId());
 		for (IRootResource iRootResource : proxiesEndpoints.keySet()) {
-			log.debug("Unpublishing all virtual resources endpoints.");
+
+			log.trace("Unpublishing endpoint " + proxiesEndpoints.get(iRootResource).getEndpoint());
 			proxiesEndpoints.get(iRootResource).stop();
+			log.trace("Endpoint " + proxiesEndpoints.get(iRootResource).getEndpoint() + " unpublished.");
 		}
 
 		proxiesEndpoints.clear();
 		virtualResources.clear();
 
-		log.info("Removed SlicingCapability for resource " + resource);
+		log.info("Removed SlicingCapability for resource " + resource.getId());
 	}
 
 	/**
@@ -83,13 +86,21 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 	@Override
 	// TODO current implementation does nothing with the slice. In the future, it has to create the new resource based on the slice information.
 	public IResource createSlice(IResource slice) throws SlicingException {
-		log.info("Virtual resource creation request received.");
+		log.info("Virtual resource creation request received in resource " + resource.getId());
+
+		if (slice == null)
+			throw new NullPointerException("Slice resource to create can not be null.");
+
+		if (!(slice instanceof SliceResource))
+			throw new IllegalArgumentException("Resource must be of type " + SliceResource.class.getName() + ", but is of type + " + slice.getClass()
+					.getName());
 
 		IRootResource createdResource = null;
 
 		Endpoint endpoint = getEndpoint(slice);
 
 		Server proxy = createServer(endpoint);
+		log.trace("Publishing virtual resource proxy endpoint in url " + endpoint);
 		proxy.start();
 
 		try {
@@ -114,6 +125,10 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 
 	@Override
 	public void removeSlice(IResource rootResource) throws SlicingException {
+
+		if (rootResource == null)
+			throw new NullPointerException("Slice to be removed can not be null.");
+
 		log.info("Removing virtual resource " + rootResource.getId());
 
 		if (!virtualResources.contains(rootResource))
@@ -126,6 +141,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 			log.debug("Destroying virtual resource " + rootResource.getId() + " + proxy endpoint.");
 			proxiesEndpoints.get(rootResource).stop();
 			proxiesEndpoints.remove(rootResource);
+			log.trace("Endpoint " + proxiesEndpoints.get(rootResource.getId()) + " unpublished.");
 		}
 		else
 			log.warn("Virtual resource " + rootResource.getId() + " didn't have any active proxy.");
@@ -135,7 +151,7 @@ public abstract class AbstractCXFSlicingCapability implements ISlicingCapability
 
 	@Override
 	public Collection<IResource> getSlices() {
-		log.info("Getting virtual devices of resource " + resource);
+		log.info("Getting virtual devices of resource " + resource.getId());
 		return virtualResources;
 	}
 

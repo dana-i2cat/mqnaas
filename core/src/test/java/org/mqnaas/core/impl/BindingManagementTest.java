@@ -13,6 +13,8 @@ import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.dummy.DummyBundleGuard;
 import org.mqnaas.core.impl.resourcetree.CapabilityNode;
@@ -139,7 +141,8 @@ public class BindingManagementTest {
 	}
 
 	@Test
-	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException {
+	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException, CapabilityNotFoundException,
+			ApplicationNotFoundException {
 
 		addSampleCapability();
 
@@ -191,7 +194,8 @@ public class BindingManagementTest {
 
 	@Ignore
 	@Test
-	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException {
+	public void knownCapabilitiesAreAutomaticallyBoundToNewResources() throws ResourceNotFoundException, CapabilityNotFoundException,
+			ApplicationNotFoundException {
 
 		addSampleCapability();
 
@@ -216,7 +220,8 @@ public class BindingManagementTest {
 	}
 
 	@Test
-	public void capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved() throws ResourceNotFoundException {
+	public void capabilitiesAndResourcesAreUnboundInCascadeWhenResourceIsRemoved() throws ResourceNotFoundException, CapabilityNotFoundException,
+			ApplicationNotFoundException {
 
 		// adding SampleCapability used in this test
 		addSampleCapability();

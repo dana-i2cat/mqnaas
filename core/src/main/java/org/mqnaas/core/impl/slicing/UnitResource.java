@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IResource;
 
 /**
@@ -43,6 +44,8 @@ public class UnitResource implements IResource, Serializable {
 	}
 
 	public UnitResource(String name) {
+		if (StringUtils.isEmpty(name))
+			throw new IllegalArgumentException("Slice unit requires a valid name.");
 		this.name = name;
 		this.type = Type.DISCRETE;
 
@@ -61,7 +64,7 @@ public class UnitResource implements IResource, Serializable {
 	public String getId() {
 		return id;
 	}
-	
+
 	public boolean matches(UnitResource other) {
 		if (other == null)
 			return false;

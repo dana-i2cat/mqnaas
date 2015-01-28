@@ -1,4 +1,4 @@
-package org.mqnaas.core.api.slicing.serialization;
+package org.mqnaas.core.api.serialization;
 
 import java.io.IOException;
 

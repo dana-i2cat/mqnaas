@@ -38,10 +38,13 @@ public class RootResourceDescriptor {
 
 	private RootResourceDescriptor(Specification specification, Collection<Endpoint> endpoints, Credentials credentials) {
 		if (endpoints == null || endpoints.size() < 1) {
-			if (!specification.getType().equals(Type.NETWORK))
+			if (!specification.getType().equals(Type.NETWORK) && !(specification.getType().equals(Type.CORE)))
 				throw new IllegalArgumentException(
 						"Invalid endpoint collection, at least one endpoint is required. Endpoints = " + endpoints);
 		}
+
+		if (specification == null || specification.getType() == null)
+			throw new NullPointerException("RootResourceDescriptors require Specification with valid Type.");
 
 		this.specification = specification;
 		this.endpoints = endpoints;

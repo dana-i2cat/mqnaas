@@ -26,7 +26,7 @@ public class Slice {
 
 	public Slice(IResource slice, IServiceProvider serviceProvider) {
 		if (slice == null)
-			throw new IllegalArgumentException("Resource must be given.");
+			throw new NullPointerException("Resource must be given.");
 		if (!(slice instanceof SliceResource))
 			throw new IllegalArgumentException("Resource must be of type " + SliceResource.class.getName() + ", but is of type + " + slice.getClass()
 					.getName());

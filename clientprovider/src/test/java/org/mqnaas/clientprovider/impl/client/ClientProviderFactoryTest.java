@@ -10,6 +10,8 @@ import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.clientprovider.impl.AbstractProviderFactory;
 import org.mqnaas.core.api.ICoreModelCapability;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.credentials.TrustoreKeystoreCredentials;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
@@ -36,7 +38,9 @@ public class ClientProviderFactoryTest {
 			ProviderNotFoundException, ApplicationActivationException {
 
 		// generate artificial objects
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null, null);
+
+		IRootResource resource = TestResourceFactory.createIRootResource(null, new Specification(Type.OTHER), null,
+				TestResourceFactory.createFakeEndpoints(), null, null);
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();
@@ -67,8 +71,8 @@ public class ClientProviderFactoryTest {
 		credentials.setTrustoreUri(new URI("/home/mqnaas/trustore.jks"));
 		credentials.setTrustorePassword("TRUSTORE_PASS");
 
-		IRootResource resource = TestResourceFactory.createIRootResource(null, null, null, TestResourceFactory.createFakeEndpoints(), null,
-				credentials);
+		IRootResource resource = TestResourceFactory.createIRootResource(null, new Specification(Type.OTHER), null,
+				TestResourceFactory.createFakeEndpoints(), null, credentials);
 		ArtificialBundleGuard bg = TestCapabilitiesFactory.createArtificialBundleGuard();
 		ICoreModelCapability cmc = TestCapabilitiesFactory.createArtificialCoreModelCapability(resource);
 		EmptyClientConfiguration ecc = TestClientProviderFactory.createEmptyClientConfiguration();

@@ -9,10 +9,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
-import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -141,8 +141,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Now activate the resource, the services get visible...
 		// Initialize the MQNaaS resource to be able to bind upcoming
 		// capability implementations to it...
-		IRootResource mqNaaS = resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE),
-				Arrays.asList(new Endpoint())));
+		IRootResource mqNaaS = resourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.CORE)));
 
 		ResourceNode mqNaaSNode = ResourceCapabilityTreeController.createResourceNode(mqNaaS, null, null);
 
@@ -179,6 +178,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 					getService(mqNaaS, "resourceRemoved", IResource.class, IApplication.class, Class.class));
 		} catch (ServiceNotFoundException e) {
 			log.error("Error registering observation!", e);
+			throw new ApplicationActivationException(e);
 		}
 		// register proxies as OSGI services
 		BundleContext context = FrameworkUtil.getBundle(BindingManagement.class).getBundleContext();
@@ -251,17 +251,29 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public Multimap<Class<? extends IApplication>, IService> getServices(IResource resource) {
 
+		if (resource == null)
+			throw new NullPointerException("Can't get services of a null resource.");
+
+		log.debug("Getting all services from resource " + resource.getId());
+
 		Multimap<Class<? extends IApplication>, IService> services = ArrayListMultimap.create();
 
 		for (CapabilityInstance representation : filterResolved(getCapabilityInstancesBoundToResource(resource))) {
 			services.putAll(representation.getServices());
 		}
 
+		log.trace("Resource " + resource.getId() + " services: " + services.keySet());
+
 		return services;
 	}
 
 	@Override
 	public IService getService(IResource resource, String name, Class<?>... parameterClasses) throws ServiceNotFoundException {
+
+		if ((resource == null || StringUtils.isEmpty(name)))
+			throw new NullPointerException("Resource and service name are required to get a specific service.");
+
+		log.debug("Getting service [resource=" + resource.getId() + ",service=" + name + ",params=" + parameterClasses + "]");
 
 		for (IService service : getServices(resource).values()) {
 			if (service.getMetadata().getName().equals(name)) {
@@ -271,11 +283,16 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 			}
 		}
 
-		throw new ServiceNotFoundException("Service " + name + " of resource " + resource + " not found.");
+		throw new ServiceNotFoundException("Service " + name + " of resource " + resource.getId() + " not found.");
 	}
 
 	@Override
 	public IService getApplicationService(IApplication application, String serviceName, Class<?>... parameterClasses) throws ServiceNotFoundException {
+
+		if ((application == null || StringUtils.isEmpty(serviceName)))
+			throw new NullPointerException("Application and service name are required to get a specific service.");
+
+		log.debug("Getting service [application=" + application.getClass().getName() + ",service=" + serviceName + ",params=" + parameterClasses + "]");
 
 		for (ApplicationNode applicationNode : applications) {
 			if (applicationNode.getContent().getInstance().equals(application)) {
@@ -320,26 +337,33 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	 *            The IApplication managing given resource
 	 * @param parentInterface
 	 *            The interface managing given resource in managedBy instance
+	 * @throws ApplicationNotFoundException
+	 *             If the application <code>managedBy</code> does not exists in the platform.
+	 * @throws CapabilityNotFoundException
+	 *             If the capability <code>managedBy</code> does not exists in the platform.
 	 */
 	@Override
-	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) {
+	public void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface)
+			throws CapabilityNotFoundException, ApplicationNotFoundException {
 
-		try {
+		if (resource == null || managedBy == null || parentInterface == null)
+			throw new NullPointerException(
+					"Resource, application instance managing it, and the application interface are required to bind a resource.");
 
-			ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
+		log.info("Resource " + resource.getId() + " added.");
+		log.debug("Added-resource information: [resource=" + resource.getId() + "managedBy=" + managedBy.getClass().getName() + ",parentInterface=" + parentInterface
+				.getName() + "]");
 
-			if (resourceNode == null) {
-				ApplicationNode parent = findApplicationNode(managedBy);
+		ResourceNode resourceNode = ResourceCapabilityTreeController.getResourceNodeWithContent(tree.getRootResourceNode(), resource);
 
-				bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
-			}
-			else
-				log.warn("Resource " + resource.getId() + " already bound. Skipping it.");
-		} catch (ApplicationNotFoundException e) {
-			log.error("No parent found!", e);
-		} catch (CapabilityNotFoundException e) {
-			log.error("No parent found!", e);
+		if (resourceNode == null) {
+			ApplicationNode parent = findApplicationNode(managedBy);
+
+			bindingManagement.addResourceNode(new ResourceNode(resource, parent, parentInterface), parent, parentInterface);
 		}
+		else
+			log.warn("Resource " + resource.getId() + " already bound. Skipping it.");
+
 	}
 
 	/**
@@ -409,25 +433,41 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void capabilityInstanceBound(CapabilityNode bound, ResourceNode boundTo) {
 		// add bound capability in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		if (bound == null)
+			throw new NullPointerException("Error adding application to the system: Tried to bound a null capability!");
+		log.debug("Adding capability to the system: " + bound.getContent());
 		dependencyManagement.addApplicationInTheSystem(bound.getContent());
+		log.debug("Added capability to the system: " + bound.getContent());
 	}
 
 	@Override
 	public void capabilityInstanceUnbound(CapabilityNode unbound, ResourceNode wasBoundTo) {
 		// remove unbound capability from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+
+		if (unbound == null)
+			throw new NullPointerException("Error removing application from the system: Tried to unbound a null capability!");
+
+		log.debug("Removing capability from the system: " + unbound.getContent());
 		dependencyManagement.removeApplicationInTheSystem(unbound.getContent());
+		log.debug("Removed capability from the system: " + unbound.getContent());
+
 	}
 
 	@Override
 	public void applicationInstanceAdded(ApplicationInstance added) {
 		// add added application in dependencyManagement. It will resolve it and those depending on it, an activate them if applicable.
+		log.debug("Adding application to the system: " + added);
 		dependencyManagement.addApplicationInTheSystem(added);
+		log.debug("Added application to the system: " + added);
 	}
 
 	@Override
 	public void applicationInstanceRemoved(ApplicationInstance removed) {
 		// remove application from dependencyManagement. It will unresolve it and those depending on it, an deactivate them if applicable.
+		log.debug("Removing application from the system: " + removed);
 		dependencyManagement.removeApplicationInTheSystem(removed);
+		log.debug("Removed application from the system: " + removed);
+
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////
@@ -495,7 +535,12 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void addResourceNode(ResourceNode resource, ApplicationNode managedBy, Class<? extends IApplication> parentInterface) {
 
-		log.info("Adding resource " + resource.getContent() + " managed by application " + managedBy.getContent());
+		if (resource == null || managedBy == null || parentInterface == null)
+			throw new NullPointerException(
+					"Resource, application instance managing it, and the application interface are required to add a resource node.");
+
+		log.trace("Adding resource node:[resourceNode=" + resource + ",managedBy=" + managedBy + ",parentInterface=" + parentInterface.getClass()
+				.getName() + "]");
 
 		// 1. Update the model
 		ResourceCapabilityTreeController.addResourceNode(resource, managedBy, parentInterface);
@@ -508,7 +553,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void removeResourceNode(ResourceNode toRemove, ApplicationNode managedBy) {
 
-		log.info("Removing resource " + toRemove.getContent() + " managed by application " + managedBy.getContent());
+		log.trace("Removing resource node:[resourceNode=" + toRemove + ",managedBy=" + managedBy + "]");
 
 		// 1. Remove on cascade (remove capabilities bound to this resource)
 		// Notice recursivity between removeResource and unbind methods
@@ -525,6 +570,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void bind(CapabilityNode toBind, ResourceNode toBindTo) {
+
+		if (toBind == null || toBindTo == null)
+			throw new NullPointerException("Error binding capability and resource: Capability nor resource can't be null!");
 
 		log.info("Binding " + toBind.getContent() + " to resource " + toBindTo.getContent());
 
@@ -546,6 +594,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void unbind(CapabilityNode toUnbind, ResourceNode boundTo) {
+
+		if (toUnbind == null || boundTo == null)
+			throw new NullPointerException("Error unbinding capability and resource: Capability nor resource can't be null!");
 
 		log.info("Unbinding " + toUnbind.getContent() + " bound to resource " + boundTo.getContent());
 
@@ -847,14 +898,14 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
+		log.info("Initializing BindingMangement.");
+		log.info("Initialized BindingMangement.");
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
-
+		log.info("Removing BindingMangement.");
+		log.info("Removed BindingMangement.");
 	}
 
 	/**

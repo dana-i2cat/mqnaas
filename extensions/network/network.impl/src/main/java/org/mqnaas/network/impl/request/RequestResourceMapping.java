@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
 
@@ -18,6 +19,9 @@ import org.mqnaas.network.api.request.IRequestResourceMapping;
  * @author Georg Mansky-Kummert
  */
 public class RequestResourceMapping implements IRequestResourceMapping {
+
+	@Resource
+	IResource							resource;
 
 	private Map<IResource, IResource>	mapping;
 

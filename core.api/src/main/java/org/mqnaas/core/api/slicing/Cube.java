@@ -25,7 +25,7 @@ public class Cube implements Serializable {
 	private Range[]				ranges;
 
 	// no-arg constructor for JAXB
-	public Cube() {
+	private Cube() {
 	}
 
 	public Cube(Range[] ranges) {

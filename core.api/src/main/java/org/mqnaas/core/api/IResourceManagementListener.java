@@ -1,5 +1,8 @@
 package org.mqnaas.core.api;
 
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+
 /**
  * <code>IResourceManagementListener</code> is responsible of receiving notifications of {@link IResourceManagement} whenever a {@link IResource} is
  * added to or removed from the platform.
@@ -19,9 +22,12 @@ public interface IResourceManagementListener extends ICapability {
 	 * @param managedBy
 	 *            The IApplication managing given resource
 	 * @param parentInterface
-	 * 			  The interface managing given resource in managedBy instance
+	 *            The interface managing given resource in managedBy instance
+	 * @throws ApplicationNotFoundException
+	 * @throws CapabilityNotFoundException
 	 */
-	void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface);
+	void resourceAdded(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface) throws CapabilityNotFoundException,
+			ApplicationNotFoundException;
 
 	/**
 	 * <p>
@@ -34,7 +40,7 @@ public interface IResourceManagementListener extends ICapability {
 	 * @param managedBy
 	 *            The IApplication managing given resource
 	 * @param parentInterface
-	 * 			  The interface managing given resource in managedBy instance
+	 *            The interface managing given resource in managedBy instance
 	 */
 	void resourceRemoved(IResource resource, IApplication managedBy, Class<? extends IApplication> parentInterface);
 }

@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceProvider;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 
@@ -21,6 +23,9 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 public class NetworkRootResourceProvider implements IRootResourceProvider {
 
 	private List<IRootResource>	resources;
+
+	@Resource
+	IResource					resource;
 
 	public static boolean isSupporting(IRootResource resource) {
 		Specification specification = resource.getDescriptor().getSpecification();

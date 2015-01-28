@@ -16,7 +16,6 @@ import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
-import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 import org.mqnaas.core.api.slicing.Cube;
@@ -142,9 +141,10 @@ public class SliceAdministrationTest {
 				}
 
 				try {
+					ReflectionTestHelper.injectPrivateField(capability, resource, "resource");
 					capability.activate();
-				} catch (ApplicationActivationException a) {
-					throw new RuntimeException("Could not activate capability " + capability.getClass().getName());
+				} catch (Exception a) {
+					throw new RuntimeException("Could not activate capability " + capability.getClass().getName(), a);
 
 				}
 				capabilities.put(capabilityClass, capability);
@@ -187,11 +187,10 @@ public class SliceAdministrationTest {
 		init2DSlice(slice, PORT_UNIT, 2, TIME_UNIT, 4);
 
 		// initialize cube : interfaces (0-1) and vlans (1-3)
-		Cube cube = new Cube();
 		Range[] ranges = new Range[2];
 		ranges[0] = new Range(0, 1);
 		ranges[1] = new Range(1, 3);
-		cube.setRanges(ranges);
+		Cube cube = new Cube(ranges);
 
 		// test and asserts
 		slice.setCubes(Arrays.asList(cube));

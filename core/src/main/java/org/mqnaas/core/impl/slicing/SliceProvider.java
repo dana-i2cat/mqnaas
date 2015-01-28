@@ -7,8 +7,13 @@ import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
+import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.slicing.ISliceProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of the {@link ISliceProvider} capability that at the moment only binds to {@link Type#TSON}s.
@@ -19,7 +24,12 @@ import org.mqnaas.core.api.slicing.ISliceProvider;
  */
 public class SliceProvider implements ISliceProvider {
 
+	private static final Logger			log	= LoggerFactory.getLogger(SliceProvider.class);
+
 	private IResource					slice;
+
+	@Resource
+	private IResource					resource;
 
 	@DependingOn
 	private IResourceManagementListener	resourceManagementListener;
@@ -59,19 +69,39 @@ public class SliceProvider implements ISliceProvider {
 
 	@Override
 	public void activate() throws ApplicationActivationException {
+
+		log.info("Initializing SliceProvider capability for resource " + resource.getId());
 		// TODO: persistence
 		slice = new SliceResource();
 
+		log.debug("Created " + slice.getId() + " in resource " + resource.getId());
+
 		// Add resource manually to the platform
-		resourceManagementListener.resourceAdded(slice, this, ISliceProvider.class);
+		try {
+			resourceManagementListener.resourceAdded(slice, this, ISliceProvider.class);
+		} catch (CapabilityNotFoundException e) {
+			throw new ApplicationActivationException(e);
+		} catch (ApplicationNotFoundException e) {
+			throw new ApplicationActivationException(e);
+
+		}
+
+		log.info("Initialized SliceProvider capability for resource " + resource.getId());
+
 	}
 
 	@Override
 	public void deactivate() {
+		log.info("Removing SliceProvider capability for resource " + resource.getId());
+
 		// TODO: persistence
 
 		// Remove resource manually from the platform
 		resourceManagementListener.resourceRemoved(slice, this, ISliceProvider.class);
-	}
 
+		slice = null;
+
+		log.info("Removed SliceProvider capability for resource " + resource.getId());
+
+	}
 }

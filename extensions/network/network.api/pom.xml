@@ -54,6 +54,7 @@
 							org.mqnaas.network.api.exceptions,
 							org.mqnaas.network.api.infrastructure,
 							org.mqnaas.network.api.request,
+							org.mqnaas.network.api.reservation,							
 							org.mqnaas.network.api.topology,
 							org.mqnaas.network.api.topology.port,
 							org.mqnaas.network.api.topology.link,

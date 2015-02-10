@@ -21,8 +21,8 @@ import org.mqnaas.network.api.request.Period;
  */
 public interface IReservationPlanner extends ICapability {
 
-	void planReservation(ReservationResource reservation, Set<IRootResource> resources, Period period);
+	void planReservation(ReservationResource reservation, Set<IRootResource> resources, Period period) throws ResourceReservationException;
 
-	void cancelPlannedReservation(ReservationResource reservation);
+	void cancelPlannedReservation(ReservationResource reservation) throws ResourceReservationException;
 
 }

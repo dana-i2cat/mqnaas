@@ -102,7 +102,7 @@ public class ReservationPerformer implements IReservationPerformer {
 
 			log.debug("Scheduling end of reservation [id=" + reservation.getId() + ", resources=" + resources + ", endDate=" + period.getEndDate() + "]");
 
-			IService service = serviceProvider.getService(resource, "cancelReservation", ReservationResource.class);
+			IService service = serviceProvider.getService(resource, "finishReservation", ReservationResource.class);
 			Trigger trigger = TriggerFactory.create(period.getEndDate());
 			ServiceExecution serviceExecution = new ServiceExecution(service, trigger);
 			serviceExecutionScheduler.schedule(serviceExecution);
@@ -176,12 +176,7 @@ public class ReservationPerformer implements IReservationPerformer {
 		if (!state.equals(ReservationState.RESERVED))
 			throw new IllegalStateException("Can only finish reservations on RESERVED state.");
 
-		try {
-			serviceExecutionScheduler.cancel(scheduledFinishReservationServicesExecutions.get(reservation));
-		} catch (ServiceExecutionSchedulerException e) {
-			throw new ResourceReservationException("Could not finish performed reservation.", e);
-		}
-
+		scheduledFinishReservationServicesExecutions.remove(reservation);
 		reservationAdminCapab.setState(ReservationState.FINISHED);
 
 		log.info("Finished performed reservation [id=" + reservation.getId() + "]");

@@ -264,6 +264,101 @@ public class PerformAndReleaseReservationTest {
 	}
 
 	/**
+	 * <p>
+	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It releases the reservation of three devices: two
+	 * belongs to NITOS, and the other one is a MqNaaS resource. Therefore, {@link INitosReservationCapability} and {@link IRootResourceManagement}
+	 * have to me mocked.
+	 * </p>
+	 * <p>
+	 * Asserts checks that:
+	 * <ul>
+	 * <li>{@link INitosReservationCapability#releaseDevices(String)} is called only once</li>
+	 * <li>{@link IRootResourceManagement#removeRootResource(IRootResource)} is called for each NITOS reserved device.</li>
+	 * <li>At the end of the method, the <code>Reservation</code> does not longer exists</li>
+	 * </ul>
+	 * </p>
+	 * 
+	 * @throws CapabilityNotFoundException
+	 * @throws URISyntaxException
+	 * @throws ServiceExecutionSchedulerException
+	 * 
+	 */
+	@Test
+	public void finishReservationTest() throws ResourceReservationException, SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException, CapabilityNotFoundException, URISyntaxException, ServiceExecutionSchedulerException {
+
+		// generate reservation object
+		Date startDate = new Date(System.currentTimeMillis());
+		Date endDate = new Date(System.currentTimeMillis() + 5000L);
+
+		// manually create reservation
+		ReservationResource reservation = new ReservationResource();
+
+		// create custom ReservationAdministration - used by serviceProvider
+		reservationAdministrationCapability = new ReservationAdministration();
+		reservationAdministrationCapability.setResources(generateSampleResources());
+		reservationAdministrationCapability.setPeriod(new Period(startDate, endDate));
+		reservationAdministrationCapability.setState(ReservationState.RESERVED);
+
+		Mockito.when(serviceProvider.getCapability(Mockito.eq(reservation), Mockito.eq(IReservationAdministration.class))).thenReturn(
+				reservationAdministrationCapability);
+
+		// manually inject the reservation into the scheduledFinishReservationServicesExecutions map
+		Map<ReservationResource, ServiceExecution> scheduledFinishReservationServicesExecutions = new ConcurrentHashMap<ReservationResource, ServiceExecution>();
+		scheduledFinishReservationServicesExecutions.put(reservation, new ServiceExecution(new MockService(), new DummyTrigger()));
+		ReflectionTestHelper.injectPrivateField(reservationPerformer, scheduledFinishReservationServicesExecutions,
+				"scheduledFinishReservationServicesExecutions");
+
+		// check we correctly injected it..
+		Assert.assertTrue((((ReservationPerformer) reservationPerformer).scheduledFinishReservationServicesExecutions).containsKey(reservation));
+
+		// test and verify method
+		reservationPerformer.finishReservation(reservation);
+
+		Assert.assertEquals(ReservationState.FINISHED, reservationAdministrationCapability.getState());
+		Assert.assertFalse((((ReservationPerformer) reservationPerformer).scheduledFinishReservationServicesExecutions).containsKey(reservation));
+		Mockito.verify(serviceExecutionScheduler, Mockito.times(0)).cancel(Mockito.any(ServiceExecution.class));
+
+	}
+
+	/**
+	 * <p>
+	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It tries to release still-not-reserved reservation,
+	 * which should fail with a {@link ResourceReservationException}.
+	 * </p>
+	 * 
+	 * @throws ResourceReservationException
+	 * @throws URISyntaxException
+	 * @throws InstantiationException
+	 * 
+	 * @throws IllegalAccessException
+	 * @throws CapabilityNotFoundException
+	 * @throws IllegalArgumentException
+	 * @throws SecurityException
+	 */
+	@Test(expected = IllegalStateException.class)
+	public void FinishPlannedReservation() throws ResourceReservationException, InstantiationException, IllegalAccessException, URISyntaxException,
+			CapabilityNotFoundException {
+
+		Date startDate = new Date(System.currentTimeMillis());
+		Date endDate = new Date(System.currentTimeMillis() + 5000L);
+
+		// manually create reservation
+		ReservationResource reservation = new ReservationResource();
+
+		// create custom ReservationAdministration - used by serviceProvider
+		reservationAdministrationCapability = new ReservationAdministration();
+		reservationAdministrationCapability.setResources(generateSampleResources());
+		reservationAdministrationCapability.setPeriod(new Period(startDate, endDate));
+		reservationAdministrationCapability.setState(ReservationState.PLANNED);
+
+		Mockito.when(serviceProvider.getCapability(Mockito.eq(reservation), Mockito.eq(IReservationAdministration.class))).thenReturn(
+				reservationAdministrationCapability);
+
+		reservationPerformer.finishReservation(reservation);
+	}
+
+	/**
 	 * 
 	 * @throws ResourceNotFoundException
 	 * 

@@ -8,6 +8,7 @@ import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.reservation.IReservationAdministration;
+import org.mqnaas.network.api.reservation.ReservationResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,10 @@ public class ReservationAdministration implements IReservationAdministration {
 
 	@Resource
 	IResource					resource;
+
+	public static boolean isSupporting(IResource resource) {
+		return resource instanceof ReservationResource;
+	}
 
 	@Override
 	public void activate() throws ApplicationActivationException {

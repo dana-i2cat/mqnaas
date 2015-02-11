@@ -4,10 +4,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
@@ -34,16 +36,25 @@ import org.slf4j.LoggerFactory;
  */
 public class ReservationPerformer implements IReservationPerformer {
 
-	private static final Logger					log	= LoggerFactory.getLogger(ReservationPerformer.class);
+	private static final Logger	log	= LoggerFactory.getLogger(ReservationPerformer.class);
 
 	@DependingOn
-	IServiceProvider							serviceProvider;
+	IServiceProvider			serviceProvider;
 
 	@DependingOn
-	IServiceExecutionScheduler					serviceExecutionScheduler;
+	IServiceExecutionScheduler	serviceExecutionScheduler;
 
 	@Resource
-	private IResource							resource;
+	private IResource			resource;
+
+	/**
+	 * Support CORE resource and no-nitos networks.
+	 */
+	public static boolean isSupporting(IRootResource rootResource) {
+		Type type = rootResource.getDescriptor().getSpecification().getType();
+
+		return (type == Type.NETWORK && !StringUtils.equals(rootResource.getDescriptor().getSpecification().getModel(), "nitos")) || type == Type.CORE;
+	}
 
 	/**
 	 * Stores relationship between a performed reservation and the {@link ServiceExecution} instance used to schedule its cancellation.

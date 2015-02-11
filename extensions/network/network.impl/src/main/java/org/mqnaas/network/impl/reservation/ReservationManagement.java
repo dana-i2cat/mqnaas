@@ -12,6 +12,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IService;
 import org.mqnaas.core.api.IServiceProvider;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
@@ -63,6 +64,12 @@ public class ReservationManagement implements IReservationManagement, IReservati
 
 	@DependingOn
 	IServiceExecutionScheduler							serviceExecutionScheduler;
+
+	public static boolean isSupporting(IRootResource rootResource) {
+		Type type = rootResource.getDescriptor().getSpecification().getType();
+
+		return type == Type.NETWORK || type == Type.CORE;
+	}
 
 	@Override
 	public void activate() throws ApplicationActivationException {

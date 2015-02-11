@@ -1,6 +1,8 @@
 package org.mqnaas.network.impl.reservation;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
@@ -32,21 +34,28 @@ import org.slf4j.LoggerFactory;
  */
 public class ReservationPerformer implements IReservationPerformer {
 
-	private static final Logger	log	= LoggerFactory.getLogger(ReservationPerformer.class);
+	private static final Logger					log	= LoggerFactory.getLogger(ReservationPerformer.class);
 
 	@DependingOn
-	IServiceProvider			serviceProvider;
+	IServiceProvider							serviceProvider;
 
 	@DependingOn
-	IServiceExecutionScheduler	serviceExecutionScheduler;
+	IServiceExecutionScheduler					serviceExecutionScheduler;
 
 	@Resource
-	private IResource			resource;
+	private IResource							resource;
+
+	/**
+	 * Stores relationship between a performed reservation and the {@link ServiceExecution} instance used to schedule its cancellation.
+	 * 
+	 * @see #performReservation(ReservationResource)
+	 */
+	Map<ReservationResource, ServiceExecution>	scheduledFinishReservationServicesExecutions;
 
 	@Override
 	public void activate() throws ApplicationActivationException {
 		log.info("Initializing ReservationPerformer capability for resource " + resource.getId());
-
+		scheduledFinishReservationServicesExecutions = new ConcurrentHashMap<ReservationResource, ServiceExecution>();
 		log.info("Initialized ReservationPerformer capability for resource " + resource.getId());
 
 	}
@@ -98,6 +107,8 @@ public class ReservationPerformer implements IReservationPerformer {
 			ServiceExecution serviceExecution = new ServiceExecution(service, trigger);
 			serviceExecutionScheduler.schedule(serviceExecution);
 
+			scheduledFinishReservationServicesExecutions.put(reservation, serviceExecution);
+
 			log.debug("Scheduled end of reservation [id=" + reservation.getId() + "]");
 
 		} catch (ServiceExecutionSchedulerException e) {
@@ -132,10 +143,16 @@ public class ReservationPerformer implements IReservationPerformer {
 		if (!state.equals(ReservationState.RESERVED))
 			throw new IllegalStateException("Can only cancel reservations on RESERVED state.");
 
+		try {
+			serviceExecutionScheduler.cancel(scheduledFinishReservationServicesExecutions.get(reservation));
+		} catch (ServiceExecutionSchedulerException e) {
+			throw new ResourceReservationException("Could not cancel reservation.", e);
+		}
+
+		scheduledFinishReservationServicesExecutions.remove(reservation);
 		reservationAdminCapab.setState(ReservationState.FINISHED);
 
 		log.info("Cancelled performed reservation [id=" + reservation.getId() + "]");
 
 	}
-
 }

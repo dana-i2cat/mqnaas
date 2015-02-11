@@ -1,5 +1,7 @@
 package org.mqnaas.network.api.reservation;
 
+import org.mqnaas.core.api.ICapability;
+
 /**
  * 
  * <p>
@@ -9,7 +11,7 @@ package org.mqnaas.network.api.reservation;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public interface IReservationPerformer {
+public interface IReservationPerformer extends ICapability {
 
 	void performReservation(ReservationResource reservation);
 

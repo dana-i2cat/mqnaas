@@ -37,7 +37,7 @@ public class ReservationUtilsTest {
 
 		resource1 = new RootResource(RootResourceDescriptor.create(new Specification(Type.TSON),
 				Arrays.asList(new Endpoint(new URI("http://localhost:8182")))));
-		resource1 = new RootResource(RootResourceDescriptor.create(new Specification(Type.TSON),
+		resource2 = new RootResource(RootResourceDescriptor.create(new Specification(Type.TSON),
 				Arrays.asList(new Endpoint(new URI("http://localhost:8183")))));
 	}
 

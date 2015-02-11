@@ -473,7 +473,7 @@ public class CreateAndCancelReservationTest {
 	class dummyReservationPerformer implements IReservationPerformer {
 
 		@Override
-		public void performReservation(ReservationResource reservation) {
+		public void performReservation(ReservationResource reservation) throws ResourceReservationException {
 			try {
 				serviceProvider.getCapability(reservation, IReservationAdministration.class).setState(ReservationState.RESERVED);
 			} catch (CapabilityNotFoundException e) {

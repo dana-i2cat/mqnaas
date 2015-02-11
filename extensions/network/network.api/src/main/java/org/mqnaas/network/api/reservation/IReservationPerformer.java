@@ -13,8 +13,8 @@ import org.mqnaas.core.api.ICapability;
  */
 public interface IReservationPerformer extends ICapability {
 
-	void performReservation(ReservationResource reservation);
+	void performReservation(ReservationResource reservation) throws ResourceReservationException;
 
-	void cancelReservation(ReservationResource reservation);
+	void cancelReservation(ReservationResource reservation) throws ResourceReservationException;
 
 }

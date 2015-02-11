@@ -180,7 +180,7 @@ public class ReservationManagement implements IReservationManagement, IReservati
 
 					reservationsServicesExeceutions.remove(reservation);
 
-					reservationAdmin.setState(ReservationState.FINISHED);
+					reservationAdmin.setState(ReservationState.CANCELLED);
 
 				} catch (ServiceExecutionSchedulerException e) {
 					throw new ResourceReservationException(e);

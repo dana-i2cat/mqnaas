@@ -7,6 +7,8 @@ package org.mqnaas.core.api;
  */
 public interface IAttributeStore extends ICapability {
 
+	static final String	RESOURCE_EXTERNAL_ID	= "resource.external.id";
+
 	String getAttribute(String name);
 
 	void setAttribute(String name, String value);

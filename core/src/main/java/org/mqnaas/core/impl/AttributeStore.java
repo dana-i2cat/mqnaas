@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
@@ -17,7 +18,11 @@ public class AttributeStore implements IAttributeStore {
 	private Map<String, String>	attributes;
 
 	public static boolean isSupporting(IResource resource) {
-		return resource.getClass().getName().equals("org.mqnaas.network.impl.topology.port.PortResource");
+		return true;
+	}
+
+	public static boolean isSupporting(IRootResource resource) {
+		return true;
 	}
 
 	@Override

@@ -7,6 +7,9 @@ package org.mqnaas.core.api;
  */
 public interface IAttributeStore extends ICapability {
 
+	/**
+	 * This static can be used by all modules defining a map between an OpenNaaS {@link IResource} and an external component.
+	 */
 	static final String	RESOURCE_EXTERNAL_ID	= "resource.external.id";
 
 	String getAttribute(String name);

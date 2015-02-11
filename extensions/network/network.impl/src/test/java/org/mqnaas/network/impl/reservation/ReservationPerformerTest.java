@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.i2cat.dana.mqnaas.capability.reservation.IReservationCapability;
-import net.i2cat.dana.mqnaas.capability.reservation.model.Reservation;
-import net.i2cat.dana.nitos.reservation.INitosReservationCapability;
 import net.i2cat.dana.nitos.reservation.exception.NitosReservationException;
 
 import org.junit.Assert;
@@ -35,6 +32,7 @@ import org.mqnaas.core.api.scheduling.IServiceExecutionScheduler;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
 import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.reservation.IReservationAdministration;
@@ -45,11 +43,14 @@ import org.mqnaas.network.api.reservation.ResourceReservationException;
 import org.powermock.api.mockito.PowerMockito;
 
 /**
+ * <p>
+ * Class containing tests for the {@link ReservationPerformer} implementation.
+ * </p>
  * 
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-public class PerformAndReleaseReservationTest {
+public class ReservationPerformerTest {
 
 	private IReservationPerformer	reservationPerformer;
 
@@ -84,24 +85,17 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#performReservation(Reservation)} method. It performs the reservation of three devices: two
-	 * belongs to NITOS, and the other one is a MqNaaS existing resource. Therefore, {@link INitosReservationCapability} and
-	 * {@link IRootResourceManagement} have to me mocked.
+	 * Test checks the {@link IReservationPerformer#performReservation(ReservationResource)} method. It performs the reservation of three
+	 * {@link IRootResource}s.
 	 * </p>
 	 * <p>
 	 * Asserts checks that:
 	 * <ul>
-	 * <li>{@link INitosReservationCapability#reserveDevices(Set, Date, Date)} only with NITOS devices and the correct dates.</li>
-	 * <li>{@link IRootResourceManagement#createRootResource(Specification, java.util.Collection)} is called for each NITOS reserved device.</li>
-	 * <li>After the service execution, the {@link Reservation} is in the {@link ReservationState#RESERVED} state</li>
-	 * <li>The <code>Reservation</code> contains so many resources as reserved devices.</li>
+	 * <li>The reservation is performed if it's in {@link ReservationState#PLANNED} state.</li>
+	 * <li>The method schedules a service execution to finish the reservation</li>
+	 * <li>After the service execution, the {@link ReservationResource} is in the {@link ReservationState#RESERVED} state</li>
 	 * </ul>
 	 * </p>
-	 * 
-	 * @throws ServiceExecutionSchedulerException
-	 * @throws NitosReservationException
-	 * @throws URISyntaxException
-	 * @throws CapabilityNotFoundException
 	 */
 	@Test
 	public void performReservationTest() throws ResourceReservationException, SecurityException, IllegalArgumentException, IllegalAccessException,
@@ -134,16 +128,9 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#performReservation(Reservation)} method. It tries to perform a reservation of an already
-	 * performed reservation, which should fail with a {@link ResourceReservationException}.
+	 * Test checks the {@link IReservationPerformer#performReservation(ReservationResource)} method. It tries to perform a reservation of an already
+	 * performed reservation (i.e. it's in {@link ReservationState#RESERVED} state), which should fail with an {@link IllegalStateException}.
 	 * </p>
-	 * 
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws SecurityException
-	 * @throws CapabilityNotFoundException
-	 * @throws URISyntaxException
-	 * @throws InstantiationException
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void performAlreadyPerformedReservation() throws ResourceReservationException, SecurityException, IllegalArgumentException,
@@ -170,26 +157,21 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It releases the reservation of three devices: two
-	 * belongs to NITOS, and the other one is a MqNaaS resource. Therefore, {@link INitosReservationCapability} and {@link IRootResourceManagement}
-	 * have to me mocked.
+	 * Test checks the {@link IReservationPerformer#cancelReservation(ReservationResource)} method. It releases the reservation of the three
+	 * {@link IRootResource}s.
 	 * </p>
 	 * <p>
 	 * Asserts checks that:
 	 * <ul>
-	 * <li>{@link INitosReservationCapability#releaseDevices(String)} is called only once</li>
-	 * <li>{@link IRootResourceManagement#removeRootResource(IRootResource)} is called for each NITOS reserved device.</li>
-	 * <li>At the end of the method, the <code>Reservation</code> does not longer exists</li>
+	 * <li>The cancellation is performed only if reservation is in {@link ReservationState#RESERVED} state.</li>
+	 * <li>The method cancels the scheduled service that finished the reservation</li>
+	 * <li>After the service execution, the {@link ReservationResource} is in the {@link ReservationState#CANCELLED} state</li>
 	 * </ul>
 	 * </p>
 	 * 
-	 * @throws CapabilityNotFoundException
-	 * @throws URISyntaxException
-	 * @throws ServiceExecutionSchedulerException
-	 * 
 	 */
 	@Test
-	public void releaseReservationTest() throws ResourceReservationException, SecurityException, IllegalArgumentException, IllegalAccessException,
+	public void cancelReservationTest() throws ResourceReservationException, SecurityException, IllegalArgumentException, IllegalAccessException,
 			InstantiationException, CapabilityNotFoundException, URISyntaxException, ServiceExecutionSchedulerException {
 
 		// generate reservation object
@@ -228,18 +210,9 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It tries to release still-not-reserved reservation,
-	 * which should fail with a {@link ResourceReservationException}.
+	 * Test checks the {@link IReservationPerformer#cancelReservation(ReservationResource)} method. It tries to release still-not-reserved
+	 * reservation, which should fail with an {@link IllegalStateException}.
 	 * </p>
-	 * 
-	 * @throws ResourceReservationException
-	 * @throws URISyntaxException
-	 * @throws InstantiationException
-	 * 
-	 * @throws IllegalAccessException
-	 * @throws CapabilityNotFoundException
-	 * @throws IllegalArgumentException
-	 * @throws SecurityException
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void cancelPlannedReservation() throws ResourceReservationException, InstantiationException, IllegalAccessException, URISyntaxException,
@@ -265,22 +238,18 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It releases the reservation of three devices: two
-	 * belongs to NITOS, and the other one is a MqNaaS resource. Therefore, {@link INitosReservationCapability} and {@link IRootResourceManagement}
-	 * have to me mocked.
+	 * Test checks the {@link IReservationPerformer#finishReservation(ReservationResource))} method. It releases the reservation of the three
+	 * {@link IRootResource}s.
 	 * </p>
 	 * <p>
 	 * Asserts checks that:
 	 * <ul>
-	 * <li>{@link INitosReservationCapability#releaseDevices(String)} is called only once</li>
-	 * <li>{@link IRootResourceManagement#removeRootResource(IRootResource)} is called for each NITOS reserved device.</li>
-	 * <li>At the end of the method, the <code>Reservation</code> does not longer exists</li>
+	 * <li>It's only performed only if reservation is in {@link ReservationState#RESERVED} state.</li>
+	 * <li>The method does not cancel the scheduled service that finished the reservation (it does not make sense, since this service is only executed
+	 * by the {@link ServiceExecutionScheduler}</li>
+	 * <li>After the service execution, the {@link ReservationResource} is in the {@link ReservationState#FINISHED} state</li>
 	 * </ul>
 	 * </p>
-	 * 
-	 * @throws CapabilityNotFoundException
-	 * @throws URISyntaxException
-	 * @throws ServiceExecutionSchedulerException
 	 * 
 	 */
 	@Test
@@ -323,18 +292,9 @@ public class PerformAndReleaseReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#releaseReservation(Reservation)} method. It tries to release still-not-reserved reservation,
-	 * which should fail with a {@link ResourceReservationException}.
+	 * Test checks the {@link IReservationPerformer#finishReservation(ReservationResource)} method. It tries to release still-not-reserved
+	 * reservation, which should fail with an {@link IllegalStateException}.
 	 * </p>
-	 * 
-	 * @throws ResourceReservationException
-	 * @throws URISyntaxException
-	 * @throws InstantiationException
-	 * 
-	 * @throws IllegalAccessException
-	 * @throws CapabilityNotFoundException
-	 * @throws IllegalArgumentException
-	 * @throws SecurityException
 	 */
 	@Test(expected = IllegalStateException.class)
 	public void FinishPlannedReservation() throws ResourceReservationException, InstantiationException, IllegalAccessException, URISyntaxException,

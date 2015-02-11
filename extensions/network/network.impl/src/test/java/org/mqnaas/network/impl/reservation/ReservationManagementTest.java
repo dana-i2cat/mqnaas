@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.i2cat.dana.mqnaas.capability.reservation.IReservationCapability;
-import net.i2cat.dana.mqnaas.capability.reservation.model.Reservation;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +36,7 @@ import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.reservation.IReservationAdministration;
 import org.mqnaas.network.api.reservation.IReservationAdministration.ReservationState;
 import org.mqnaas.network.api.reservation.IReservationPerformer;
+import org.mqnaas.network.api.reservation.IReservationPlanner;
 import org.mqnaas.network.api.reservation.ReservationResource;
 import org.mqnaas.network.api.reservation.ResourceReservationException;
 import org.powermock.api.mockito.PowerMockito;
@@ -52,7 +50,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ReservationManagement.class)
-public class CreateAndCancelReservationTest {
+public class ReservationManagementTest {
 
 	private ReservationManagement	reservationCapability;
 
@@ -101,8 +99,8 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#createReservation(Reservation)} method. It tries to create a reservation with an unvalid period,
-	 * which should launch an {@link IllegalArgumentException}
+	 * Test checks the {@link IReservationPlanner#planReservation(ReservationResource, Set, Period)} method. It tries to create a reservation with an
+	 * invalid period, which should launch an {@link IllegalArgumentException}
 	 * </p>
 	 * 
 	 * @throws Exception
@@ -122,14 +120,14 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#createReservation(Reservation)} method. It tries to reserve unavaialble devices in a specific
-	 * period, which should launch a {@link ResourceReservationException}
+	 * Test checks the {@link IReservationPlanner#planReservation(ReservationResource, Set, Period)} method. It tries to reserve unavailable
+	 * {@link IRootResource}s in a specific period, which should launch a {@link ResourceReservationException}
 	 * </p>
 	 * 
 	 * @throws Exception
 	 */
 	@Test(expected = ResourceReservationException.class)
-	public void reserveUnavailableDevices() throws Exception {
+	public void reserveUnavailableResources() throws Exception {
 
 		Date startDate = new Date(System.currentTimeMillis());
 		Date endDate = new Date(System.currentTimeMillis() + 5000L);
@@ -155,8 +153,8 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#createReservation(Reservation)} method. Reservation should be scheduled, according to the
-	 * reservation period. Test checks:
+	 * Test checks the {@link IReservationPlanner#planReservation(ReservationResource, Set, Period)} method. Reservation should be scheduled,
+	 * according to the reservation period. Test checks:
 	 * <ul>
 	 * <li>Reservation is created</li>
 	 * <li>Reservation is in planned state.</li>
@@ -225,8 +223,8 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#createReservation(Reservation)} method. Reservation should be immediately executed, according to
-	 * the reservation period. Test checks:
+	 * Test checks the {@link IReservationPlanner#planReservation(ReservationResource, Set, Period)} method. Reservation should be immediately
+	 * executed, according to the reservation period. Test checks:
 	 * <ul>
 	 * <li>Reservation is created</li>
 	 * <li>Reservation is in planned state.</li>
@@ -291,8 +289,8 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#cancelReservation(Reservation)} method. Test tries to cancel an unexisting reservation, which
-	 * should fails with a {@link ResourceReservationException}
+	 * Test checks the {@link IReservationPlanner#cancelPlannedReservation(ReservationResource)} method. Test tries to cancel an unexisting
+	 * reservation, which should fails with a {@link ResourceReservationException}
 	 * </p>
 	 * 
 	 * @throws Exception
@@ -308,7 +306,8 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#cancelReservation(Reservation)} method. Test cancels a scheduled reservation, so it checks:
+	 * Test checks the {@link IReservationPlanner#cancelPlannedReservation(ReservationResource)} method. Test cancels a scheduled reservation, so it
+	 * checks:
 	 * <ul>
 	 * <li>The reservation exists before executing the method</li>
 	 * <li>The reservation does not exist after executing the method</li>
@@ -371,14 +370,13 @@ public class CreateAndCancelReservationTest {
 
 	/**
 	 * <p>
-	 * Test checks the {@link IReservationCapability#cancelReservation(Reservation)} method. Test cancels a planned reservation, so it checks:
+	 * Test checks the {@link IReservationPlanner#cancelPlannedReservation(ReservationResource)} method. Test cancels a planned reservation, so it
+	 * checks:
 	 * <ul>
 	 * <li>The reservation exists before executing the method</li>
 	 * <li>The reservation does not exist after executing the method</li>
 	 * <li>The {@link IServiceExecutionScheduler} has not been called</li>
 	 * </ul>
-	 * Take into account that the test does not check if the reservation has been removed, since it's done by the
-	 * {@link IReservationCapability#releaseReservation(Reservation)} method (and it's mocked!)
 	 * </p>
 	 * 
 	 * @throws CapabilityNotFoundException

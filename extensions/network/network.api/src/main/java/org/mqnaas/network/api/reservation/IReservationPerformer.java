@@ -17,4 +17,6 @@ public interface IReservationPerformer extends ICapability {
 
 	void cancelReservation(ReservationResource reservation) throws ResourceReservationException;
 
+	void finishReservation(ReservationResource reservation) throws ResourceReservationException;
+
 }

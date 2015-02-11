@@ -146,13 +146,45 @@ public class ReservationPerformer implements IReservationPerformer {
 		try {
 			serviceExecutionScheduler.cancel(scheduledFinishReservationServicesExecutions.get(reservation));
 		} catch (ServiceExecutionSchedulerException e) {
-			throw new ResourceReservationException("Could not cancel reservation.", e);
+			throw new ResourceReservationException("Could not cancel performed reservation.", e);
 		}
 
 		scheduledFinishReservationServicesExecutions.remove(reservation);
-		reservationAdminCapab.setState(ReservationState.FINISHED);
+		reservationAdminCapab.setState(ReservationState.CANCELLED);
 
 		log.info("Cancelled performed reservation [id=" + reservation.getId() + "]");
+
+	}
+
+	@Override
+	public void finishReservation(ReservationResource reservation) throws ResourceReservationException {
+		if (reservation == null)
+			throw new NullPointerException("Can not cancel a null reservation.");
+
+		log.info("Finished performed reservation [id=" + reservation.getId() + "]");
+		IReservationAdministration reservationAdminCapab;
+
+		try {
+			reservationAdminCapab = serviceProvider.getCapability(reservation, IReservationAdministration.class);
+
+		} catch (CapabilityNotFoundException c) {
+			throw new ResourceReservationException("Could not finish performed reservation [id=" + reservation.getId() + "]", c);
+		}
+
+		ReservationState state = reservationAdminCapab.getState();
+
+		if (!state.equals(ReservationState.RESERVED))
+			throw new IllegalStateException("Can only finish reservations on RESERVED state.");
+
+		try {
+			serviceExecutionScheduler.cancel(scheduledFinishReservationServicesExecutions.get(reservation));
+		} catch (ServiceExecutionSchedulerException e) {
+			throw new ResourceReservationException("Could not finish performed reservation.", e);
+		}
+
+		reservationAdminCapab.setState(ReservationState.FINISHED);
+
+		log.info("Finished performed reservation [id=" + reservation.getId() + "]");
 
 	}
 }

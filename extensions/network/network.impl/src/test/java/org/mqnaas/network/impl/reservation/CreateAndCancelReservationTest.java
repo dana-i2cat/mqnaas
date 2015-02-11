@@ -494,6 +494,16 @@ public class CreateAndCancelReservationTest {
 		}
 
 		@Override
+		public void finishReservation(ReservationResource reservation) throws ResourceReservationException {
+			try {
+				serviceProvider.getCapability(reservation, IReservationAdministration.class).setState(ReservationState.CANCELLED);
+			} catch (CapabilityNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		@Override
 		public void activate() throws ApplicationActivationException {
 			// TODO Auto-generated method stub
 

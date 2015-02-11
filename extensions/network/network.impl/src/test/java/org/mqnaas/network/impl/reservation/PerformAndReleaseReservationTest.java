@@ -220,7 +220,7 @@ public class PerformAndReleaseReservationTest {
 		// test and verify method
 		reservationPerformer.cancelReservation(reservation);
 
-		Assert.assertEquals(ReservationState.FINISHED, reservationAdministrationCapability.getState());
+		Assert.assertEquals(ReservationState.CANCELLED, reservationAdministrationCapability.getState());
 		Assert.assertFalse((((ReservationPerformer) reservationPerformer).scheduledFinishReservationServicesExecutions).containsKey(reservation));
 		Mockito.verify(serviceExecutionScheduler, Mockito.times(1)).cancel(Mockito.any(ServiceExecution.class));
 

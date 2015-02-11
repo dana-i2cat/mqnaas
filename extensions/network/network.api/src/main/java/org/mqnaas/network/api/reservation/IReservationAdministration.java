@@ -20,7 +20,8 @@ public interface IReservationAdministration extends ICapability {
 		CREATED,
 		PLANNED,
 		RESERVED,
-		FINISHED
+		FINISHED,
+		CANCELLED
 	}
 
 	void setResources(Set<IRootResource> resources);

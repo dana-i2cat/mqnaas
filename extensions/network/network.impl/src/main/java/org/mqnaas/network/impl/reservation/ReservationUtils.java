@@ -51,8 +51,8 @@ public class ReservationUtils {
 	public static boolean areResourcesAvailable(IReservationAdministration existingReservationAdmin,
 			IReservationAdministration reservationToCompareAdmin) {
 
-		// if existing reservation is in CREATED state, then it has no resources -> No need to compare.
-		if (existingReservationAdmin.getState() == ReservationState.CREATED)
+		// if existing reservation is in CREATED state, then it has no resources. If it's finished -> No need to compare.
+		if (existingReservationAdmin.getState() == ReservationState.CREATED || existingReservationAdmin.getState() == ReservationState.FINISHED)
 			return true;
 
 		for (IRootResource reservationResource : reservationToCompareAdmin.getResources())

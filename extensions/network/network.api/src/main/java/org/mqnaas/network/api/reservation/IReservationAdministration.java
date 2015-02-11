@@ -20,7 +20,6 @@ public interface IReservationAdministration extends ICapability {
 		CREATED,
 		PLANNED,
 		RESERVED,
-		CANCELLED,
 		FINISHED
 	}
 

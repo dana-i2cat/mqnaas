@@ -358,14 +358,14 @@ public class CreateAndCancelReservationTest {
 		ReflectionTestHelper.injectPrivateField(reservationAdministrationCapability, reservation, "resource");
 
 		// REAL METHOD - call planned reservation
-		Assert.assertTrue(reservationCapability.getReservations(ReservationState.CANCELLED).isEmpty());
+		Assert.assertTrue(reservationCapability.getReservations(ReservationState.FINISHED).isEmpty());
 		reservationCapability.cancelPlannedReservation(reservation);
 
 		// check it was canceled
 		Assert.assertFalse(reservationCapability.getReservations().isEmpty());
 		Mockito.verify(serviceExecutionScheduler, Mockito.times(1)).cancel(Mockito.eq(se));
-		Assert.assertFalse(reservationCapability.getReservations(ReservationState.CANCELLED).isEmpty());
-		Assert.assertEquals(ReservationState.CANCELLED, reservationAdministrationCapability.getState());
+		Assert.assertFalse(reservationCapability.getReservations(ReservationState.FINISHED).isEmpty());
+		Assert.assertEquals(ReservationState.FINISHED, reservationAdministrationCapability.getState());
 
 	}
 
@@ -426,8 +426,8 @@ public class CreateAndCancelReservationTest {
 
 		// check it was canceled
 		Assert.assertFalse(reservationCapability.getReservations().isEmpty());
-		Assert.assertFalse(reservationCapability.getReservations(ReservationState.CANCELLED).isEmpty());
-		Assert.assertEquals(ReservationState.CANCELLED, reservationAdministrationCapability.getState());
+		Assert.assertFalse(reservationCapability.getReservations(ReservationState.FINISHED).isEmpty());
+		Assert.assertEquals(ReservationState.FINISHED, reservationAdministrationCapability.getState());
 
 		Mockito.verify(serviceExecutionScheduler, Mockito.times(0)).cancel(Mockito.eq(se));
 
@@ -484,13 +484,25 @@ public class CreateAndCancelReservationTest {
 		}
 
 		@Override
-		public void cancelReservation(ReservationResource reservation) {
+		public void cancelReservation(ReservationResource reservation) throws ResourceReservationException {
 			try {
-				serviceProvider.getCapability(reservation, IReservationAdministration.class).setState(ReservationState.CANCELLED);
+				serviceProvider.getCapability(reservation, IReservationAdministration.class).setState(ReservationState.FINISHED);
 			} catch (CapabilityNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+
+		@Override
+		public void activate() throws ApplicationActivationException {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void deactivate() {
+			// TODO Auto-generated method stub
+
 		}
 
 	}

@@ -19,7 +19,9 @@ public interface IReservationAdministration extends ICapability {
 	public enum ReservationState {
 		CREATED,
 		PLANNED,
-		RESERVED
+		RESERVED,
+		CANCELLED,
+		FINISHED
 	}
 
 	void setResources(Set<IRootResource> resources);

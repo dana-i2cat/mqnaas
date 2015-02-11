@@ -7,6 +7,7 @@ import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.annotations.AddsResource;
 import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.RemovesResource;
+import org.mqnaas.network.api.reservation.IReservationAdministration.ReservationState;
 
 /**
  * <p>
@@ -26,5 +27,7 @@ public interface IReservationManagement extends ICapability {
 
 	@ListsResources
 	List<IResource> getReservations();
+
+	List<IResource> getReservations(ReservationState state);
 
 }

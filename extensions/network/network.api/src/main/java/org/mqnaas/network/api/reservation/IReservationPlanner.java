@@ -1,7 +1,5 @@
 package org.mqnaas.network.api.reservation;
 
-import java.util.Set;
-
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.network.api.request.Period;
@@ -21,7 +19,7 @@ import org.mqnaas.network.api.request.Period;
  */
 public interface IReservationPlanner extends ICapability {
 
-	void planReservation(ReservationResource reservation, Set<IRootResource> resources, Period period) throws ResourceReservationException;
+	void planReservation(ReservationResource reservation) throws ResourceReservationException;
 
 	void cancelPlannedReservation(ReservationResource reservation) throws ResourceReservationException;
 

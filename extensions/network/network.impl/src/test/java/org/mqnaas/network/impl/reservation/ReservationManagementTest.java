@@ -68,7 +68,7 @@ public class ReservationManagementTest {
 		reservationCapability = PowerMockito.mock(ReservationManagement.class);
 		PowerMockito.doCallRealMethod().when(reservationCapability).createReservation();
 		PowerMockito.doCallRealMethod().when(reservationCapability)
-				.planReservation(Mockito.any(ReservationResource.class), Mockito.anySet(), Mockito.any(Period.class));
+				.planReservation(Mockito.any(ReservationResource.class));
 		PowerMockito.doCallRealMethod().when(reservationCapability).cancelPlannedReservation(Mockito.any(ReservationResource.class));
 		PowerMockito.doCallRealMethod().when(reservationCapability).getReservations();
 		PowerMockito.doCallRealMethod().when(reservationCapability, "getCurrentDate");
@@ -115,7 +115,13 @@ public class ReservationManagementTest {
 
 		ReservationResource reservation = (ReservationResource) reservationCapability.createReservation();
 
-		reservationCapability.planReservation(reservation, rootresources, new Period(startDate, endDate));
+		reservationAdministrationCapability = new ReservationAdministration();
+		reservationAdministrationCapability.setPeriod(new Period(startDate, endDate));
+		reservationAdministrationCapability.setResources(rootresources);
+		Mockito.when(serviceProvider.getCapability(Mockito.eq(reservation), Mockito.eq(IReservationAdministration.class))).thenReturn(
+				reservationAdministrationCapability);
+
+		reservationCapability.planReservation(reservation);
 	}
 
 	/**
@@ -147,8 +153,7 @@ public class ReservationManagementTest {
 		Mockito.when(serviceProvider.getCapability(Mockito.eq(reservation), Mockito.eq(IReservationAdministration.class))).thenReturn(
 				reservationAdministrationCapability);
 
-		reservationCapability.planReservation(reservation, rootresources, new Period(startDate, endDate));
-
+		reservationCapability.planReservation(reservation);
 	}
 
 	/**
@@ -210,7 +215,7 @@ public class ReservationManagementTest {
 		Assert.assertEquals(ReservationState.CREATED, reservationAdministrationCapability.getState());
 
 		// REAL METHOD - plan the reservation
-		reservationCapability.planReservation(reservationResource, rootresources, new Period(startDate, endDate));
+		reservationCapability.planReservation(reservationResource);
 
 		// check reservation was scheduled and it's in PLANNED state
 		Mockito.verify(serviceProvider, Mockito.times(1)).getService(Mockito.any(IResource.class), Mockito.eq("performReservation"),
@@ -275,8 +280,7 @@ public class ReservationManagementTest {
 		Assert.assertEquals(ReservationState.CREATED, reservationAdministrationCapability.getState());
 
 		// REAL METHOD - plan the reservation
-		reservationCapability.planReservation(reservationResource, rootresources, new Period(startDate, endDate));
-
+		reservationCapability.planReservation(reservationResource);
 		// check reservation was not scheduled and it's in RESERVED state
 
 		Mockito.verify(serviceProvider, Mockito.times(0)).getService(Mockito.any(IResource.class), Mockito.eq("performReservation"),

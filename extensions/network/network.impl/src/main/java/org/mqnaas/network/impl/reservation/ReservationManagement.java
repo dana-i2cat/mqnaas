@@ -140,7 +140,7 @@ public class ReservationManagement implements IReservationManagement, IReservati
 		checkResourcesAreAvailable(reservation);
 
 		try {
-			reservationAdmin = serviceProvider.getCapability(reservation, IReservationAdministration.class);
+
 			reservationAdmin.setState(ReservationState.PLANNED);
 
 			if (reservationAdmin.getPeriod().getStartdate().after(new Date(System.currentTimeMillis()))) {
@@ -157,8 +157,6 @@ public class ReservationManagement implements IReservationManagement, IReservati
 			else {
 				reservationPerformer.performReservation(reservation);
 			}
-		} catch (CapabilityNotFoundException c) {
-			throw new ResourceReservationException(c);
 		} catch (ServiceNotFoundException e) {
 			log.error("Could not obtain performReservation service.", e);
 			throw new ResourceReservationException(e);

@@ -40,12 +40,6 @@
 				<artifactId>network.impl</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- MQNaaS Capabilities -->
-			<dependency>
-				<groupId>net.i2cat.dana.mqnaas</groupId>
-				<artifactId>reservation-capability</artifactId>
-				<version>${mqnaas.version}</version>
-			</dependency>
 			<!-- Others -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>

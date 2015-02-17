@@ -123,6 +123,10 @@ public class NetworkManagementTest {
 				// add network features
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
+				// add nitos featuress
+				KarafDistributionOption.features(CoreOptions.maven().groupId("net.i2cat.dana.nitos").artifactId("mqnaas-nitos")
+						.classifier("features")
+						.type("xml").version("0.0.1-SNAPSHOT"), "nitos"),
 				// add tson features
 				KarafDistributionOption.features(CoreOptions.maven().groupId("net.i2cat.dana.tson").artifactId("tson").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "tson"),

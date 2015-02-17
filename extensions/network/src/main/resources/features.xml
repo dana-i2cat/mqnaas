@@ -3,11 +3,9 @@
 
 	<!-- MQNaaS repository -->
 	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
-	<repository>mvn:net.i2cat.dana.mqnaas/reservation-capability/${mqnaas.version}/xml/features</repository>
 	<feature name="network" version="${project.version}">
 
 	    <feature version="${mqnaas.version}">mqnaas</feature>
-	    <feature version="${mqnaas.version}">reservation-capability</feature>
 	    	    
 		<feature version="${project.version}">network-api</feature>
 		<feature version="${project.version}">network-impl</feature>

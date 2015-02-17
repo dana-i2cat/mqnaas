@@ -111,10 +111,21 @@ public class ReservationManagement implements IReservationManagement, IReservati
 	 *             If given <code>resources</code> are not available during the specified <code>period</code>
 	 */
 	@Override
-	public void planReservation(ReservationResource reservation, Set<IRootResource> resources, Period period) throws ResourceReservationException {
+	public void planReservation(ReservationResource reservation) throws ResourceReservationException {
 
-		if (reservation == null || period == null || resources == null)
+		if (reservation == null)
 			throw new NullPointerException("Reservation, resources and period are required to plan a reservation.");
+
+		IReservationAdministration reservationAdmin;
+
+		try {
+			reservationAdmin = serviceProvider.getCapability(reservation, IReservationAdministration.class);
+		} catch (CapabilityNotFoundException c) {
+			throw new ResourceReservationException(c);
+		}
+
+		Set<IRootResource> resources = reservationAdmin.getResources();
+		Period period = reservationAdmin.getPeriod();
 
 		if (resources.isEmpty())
 			throw new IllegalArgumentException("You need at least one resource in order to plan a reservation");
@@ -129,7 +140,7 @@ public class ReservationManagement implements IReservationManagement, IReservati
 		checkResourcesAreAvailable(reservation);
 
 		try {
-			IReservationAdministration reservationAdmin = serviceProvider.getCapability(reservation, IReservationAdministration.class);
+
 			reservationAdmin.setState(ReservationState.PLANNED);
 
 			if (reservationAdmin.getPeriod().getStartdate().after(new Date(System.currentTimeMillis()))) {
@@ -146,8 +157,6 @@ public class ReservationManagement implements IReservationManagement, IReservati
 			else {
 				reservationPerformer.performReservation(reservation);
 			}
-		} catch (CapabilityNotFoundException c) {
-			throw new ResourceReservationException(c);
 		} catch (ServiceNotFoundException e) {
 			log.error("Could not obtain performReservation service.", e);
 			throw new ResourceReservationException(e);

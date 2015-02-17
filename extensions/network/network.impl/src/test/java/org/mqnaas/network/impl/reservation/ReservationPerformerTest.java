@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import net.i2cat.dana.nitos.reservation.exception.NitosReservationException;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,7 +97,7 @@ public class ReservationPerformerTest {
 	 */
 	@Test
 	public void performReservationTest() throws ResourceReservationException, SecurityException, IllegalArgumentException, IllegalAccessException,
-			ServiceExecutionSchedulerException, NitosReservationException, InstantiationException, URISyntaxException, CapabilityNotFoundException {
+			ServiceExecutionSchedulerException, InstantiationException, URISyntaxException, CapabilityNotFoundException {
 
 		Date startDate = new Date(System.currentTimeMillis());
 		Date endDate = new Date(System.currentTimeMillis() + 5000L);

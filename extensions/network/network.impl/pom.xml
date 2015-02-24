@@ -12,7 +12,7 @@
 	<packaging>bundle</packaging>
 
 	<name>MQNaaS :: Network Implementation</name>
-	<description>MQNaaSS Network capabilities implementations</description>
+	<description>MQNaaS Network capabilities implementations</description>
 
 	<dependencies>
 

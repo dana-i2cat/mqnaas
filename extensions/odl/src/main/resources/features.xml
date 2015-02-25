@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"	name="odl">
+
+	<!-- MQNaaS repository -->
+	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
+
+	<feature name="odl" version="${project.version}">
+		<feature version="${mqnaas.version}">mqnaas</feature>
+
+		<feature version="${project.version}">odl-client</feature>
+		<feature version="${project.version}">odl-clientprovider</feature>
+		<feature version="${project.version}">odl-capabilities</feature>
+	</feature>
+
+	<feature name="odl-client" version="${project.version}">
+		<!-- TODO add dependencies -->
+		<bundle>mvn:org.mqnaas.extensions/odl.client/${project.version}</bundle>
+	</feature>
+
+	<feature name="odl-clientprovider" version="${project.version}">
+		<!-- TODO add dependencies -->
+		<bundle>mvn:org.mqnaas.extensions/odl.clientprovider/${project.version}</bundle>
+	</feature>
+
+	<feature name="odl-capabilities" version="${project.version}">
+		<!-- TODO add dependencies -->
+		<bundle>mvn:org.mqnaas.extensions/odl.capabilities/${project.version}</bundle>
+	</feature>
+
+</features>

@@ -29,22 +29,16 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>network.impl</artifactId>
 		</dependency>
-		
-		<!-- Nitos modules -->
-		<dependency>
-			<groupId>net.i2cat.dana.nitos</groupId>
-			<artifactId>nitos-client</artifactId>
-			<scope>test</scope>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 		<!-- Tests libraries-->
 		<dependency>
 			<groupId>junit</groupId>
-			<artifactId>junit</artifactId> 
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.servicemix.bundles</groupId>
 			<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.ops4j.pax.exam</groupId>

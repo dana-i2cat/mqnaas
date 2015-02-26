@@ -6,6 +6,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectors;
 import org.mqnaas.extensions.odl.client.switchnorthbound.api.Nodes;
 
 /**
@@ -26,6 +27,9 @@ public interface ISwitchNorthboundAPI {
 	@Produces(MediaType.APPLICATION_XML)
 	public Nodes getNodes(@PathParam("containerName") String containerName);
 
-	// TODO get node connectors
-
+	@GET
+	@Path("/{containerName}/node/{nodeType}/{nodeId}")
+	@Produces(MediaType.APPLICATION_XML)
+	public NodeConnectors getNodeConnectors(@PathParam("containerName") String containerName, @PathParam("nodeType") String nodeType,
+			@PathParam("nodeId") String nodeId);
 }

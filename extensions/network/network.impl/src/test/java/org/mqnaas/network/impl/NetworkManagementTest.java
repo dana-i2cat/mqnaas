@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -43,13 +44,22 @@ import org.mqnaas.core.impl.slicing.UnitAdministration;
 import org.mqnaas.core.impl.slicing.UnitManagment;
 import org.mqnaas.core.impl.slicing.UnitResource;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
+import org.mqnaas.network.api.exceptions.NetworkCreationException;
+import org.mqnaas.network.api.request.IRequestAdministration;
+import org.mqnaas.network.api.request.IRequestBasedNetworkManagement;
+import org.mqnaas.network.api.request.IRequestManagement;
+import org.mqnaas.network.api.request.IRequestResourceManagement;
 import org.mqnaas.network.api.request.IRequestResourceMapping;
+import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.request.Request;
+import org.mqnaas.network.impl.request.RequestAdministration;
+import org.mqnaas.network.impl.request.RequestManagement;
 import org.mqnaas.network.impl.request.RequestResource;
+import org.mqnaas.network.impl.request.RequestResourceManagement;
 import org.mqnaas.network.impl.request.RequestResourceMapping;
 import org.mqnaas.network.impl.topology.link.LinkAdministration;
 import org.mqnaas.network.impl.topology.link.LinkManagement;
@@ -408,5 +418,100 @@ public class NetworkManagementTest {
 		Assert.assertFalse("Slices resource should contain one port.", portManagement.getPorts().isEmpty());
 		Assert.assertEquals("Slices resource should contain one port.", 1, portManagement.getPorts().size());
 		Assert.assertEquals(portExternalId, slicedResourcePortAttributeStore.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+	}
+
+	@Test
+	public void delegateToSubnetworkTest() throws InstantiationException, IllegalAccessException, CapabilityNotFoundException,
+			ApplicationActivationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException,
+			URISyntaxException, NetworkCreationException {
+
+		// created fake network that "would be created" by the subnetwork
+		IRootResource createdSubnet = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "virtual")));
+
+		// create networks
+		IRootResource physicalSubNetworkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
+		IRootResource virtualSubnetworkResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "virtual")));
+		Network virtualSubnetwork = new Network(virtualSubnetworkResource, serviceProvider);
+
+		// map networks
+		reqMappingCapab.defineMapping(virtualSubnetworkResource, physicalSubNetworkResource);
+
+		// create physical ofSwitch
+		Endpoint endpoint = new Endpoint(new URI("http://www.myfakeresource.com/"));
+		IRootResource phyOfSwitch = new RootResource(RootResourceDescriptor.create(new Specification(Type.OF_SWITCH), Arrays.asList(endpoint)));
+
+		// create physical subnetwork request capability
+		IRequestManagement phySubnetReqMgm = Mockito.spy(new RequestManagement());
+		phySubnetReqMgm.activate();
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(physicalSubNetworkResource), Mockito.eq(IRequestManagement.class))).thenReturn(
+				phySubnetReqMgm);
+
+		// create created virtual subnetwork requestResourceManagement
+		IRequestResourceManagement phySubnetReqResourceMgm = Mockito.spy(new RequestResourceManagement());
+		phySubnetReqResourceMgm.activate();
+
+		// create virtual subnetwork requestResourceManagement
+		IRequestResourceManagement virtSubnetReqResourceMgm = new RequestResourceManagement();
+		virtSubnetReqResourceMgm.activate();
+		IResource virtOfSwich = virtSubnetReqResourceMgm.createResource(Type.OF_SWITCH);
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(virtualSubnetworkResource), Mockito.eq(IRequestResourceManagement.class)))
+				.thenReturn(virtSubnetReqResourceMgm);
+
+		// define mapping between virtual and physical ofswitch
+		reqMappingCapab.defineMapping(virtOfSwich, phyOfSwitch);
+
+		// create virtual subnetwork request IRequestResourceMapping capability
+		IRequestResourceMapping virtSubnetRequestresourceMapping = new RequestResourceMapping();
+		virtSubnetRequestresourceMapping.activate();
+		PowerMockito.when(
+				serviceProvider.getCapability(AdditionalMatchers.not(Mockito.eq(request.getRequestResource())),
+						Mockito.eq(IRequestResourceMapping.class))).thenReturn(virtSubnetRequestresourceMapping);
+
+		// create physical and virtual subnetwork periods
+		Period period = new Period(new Date(System.currentTimeMillis()), new Date(System.currentTimeMillis()));
+		IRequestAdministration reqAdministration = new RequestAdministration();
+		reqAdministration.setPeriod(period);
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(requestResource), Mockito.eq(IRequestAdministration.class))).thenReturn(
+				reqAdministration);
+		IRequestAdministration subnetReqAdmin = Mockito.spy(new RequestAdministration());
+		PowerMockito.when(
+				serviceProvider.getCapability(AdditionalMatchers.not(Mockito.eq(requestResource)), Mockito.eq(IRequestAdministration.class)))
+				.thenReturn(subnetReqAdmin);
+
+		// mock IRequestBasedNetworkManagement from subnetwork
+		IRequestBasedNetworkManagement subneReqBasedNetMgm = PowerMockito.mock(IRequestBasedNetworkManagement.class);
+		PowerMockito.when(subneReqBasedNetMgm.createNetwork(AdditionalMatchers.not(Mockito.eq(request.getRequestResource())))).thenReturn(
+				createdSubnet);
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(physicalSubNetworkResource), Mockito.eq(IRequestBasedNetworkManagement.class)))
+				.thenReturn(subneReqBasedNetMgm);
+
+		// mock service provider to return desired capabilities
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(requestResource), Mockito.eq(IRequestResourceMapping.class))).thenReturn(
+				reqMappingCapab);
+		ReflectionTestHelper.injectPrivateField(networkManagementCapab, serviceProvider, "serviceProvider");
+		PowerMockito.when(
+				serviceProvider.getCapability(AdditionalMatchers.and(AdditionalMatchers.not(Mockito.eq(virtualSubnetworkResource)),
+						AdditionalMatchers.not(Mockito.eq(request.getRequestResource()))),
+						Mockito.eq(IRequestResourceManagement.class))).thenReturn(phySubnetReqResourceMgm);
+
+		// call method by reflection
+		Method method = networkManagementCapab.getClass().getDeclaredMethod("delegateToSubnetwork", Request.class, Network.class);
+		method.setAccessible(true);
+
+		Network network = (Network) method.invoke(networkManagementCapab, request, virtualSubnetwork);
+
+		// assert returned network is the expected one
+		Assert.assertEquals("Created network should contain the virtual network created by the physical subnetwork", createdSubnet,
+				network.getNetworkResource());
+
+		// assert only one request has been created for subnetwork
+		Mockito.verify(phySubnetReqMgm, Mockito.times(1)).createRequest();
+
+		// assert one resource was created in the request, with the correct resource type
+		Mockito.verify(phySubnetReqResourceMgm, Mockito.times(1)).createResource(Type.OF_SWITCH);
+
+		// assert period was set in request
+		Mockito.verify(subnetReqAdmin, Mockito.times(1)).setPeriod(period);
+
 	}
 }

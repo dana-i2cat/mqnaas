@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectors;
 import org.mqnaas.extensions.odl.client.switchnorthbound.api.Nodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +25,13 @@ import com.github.tomakehurst.wiremock.junit.WireMockRule;
  */
 public class SwitchNorthboundAPITests {
 
-	private static final Logger	log				= LoggerFactory.getLogger(SwitchNorthboundAPITests.class);
+	private static final Logger	log							= LoggerFactory.getLogger(SwitchNorthboundAPITests.class);
 
-	private final static String	TEST_NODES_FILE	= "/serialization/test-nodes.xml";
+	private final static String	TEST_NODES_FILE				= "/serialization/test-nodes.xml";
+	private final static String	TEST_NODE_CONNECTORS_FILE	= "/serialization/test-node-connectors.xml";
 
 	@Rule
-	public WireMockRule			wireMockRule	= new WireMockRule(8080);
+	public WireMockRule			wireMockRule				= new WireMockRule(8080);
 
 	@Test
 	public void testGetSwitches() {
@@ -41,6 +43,18 @@ public class SwitchNorthboundAPITests {
 		log.info("Expected Nodes:\n" + expectedNodes);
 
 		Assert.assertEquals("Deserialized nodes must be equals to the sample one.", expectedNodes, obtainedNodes);
+	}
+
+	@Test
+	public void testGetPorts() {
+		ISwitchNorthboundAPI client = getClient("http://localhost:8080/", "admin", "admin");
+		NodeConnectors obtainedNodeConnectors = client.getNodeConnectors("default", "OF", "00:00:00:00:00:00:00:01");
+		log.info("Obtained Node Connectors:\n" + obtainedNodeConnectors);
+
+		NodeConnectors expectedNodeConnectors = NodeConnectorsSerializationTests.generateSampleNodeConnectors();
+		log.info("Expected Node Connectors:\n" + expectedNodeConnectors);
+
+		Assert.assertEquals("Deserialized node connectors must be equals to the sample one.", expectedNodeConnectors, obtainedNodeConnectors);
 	}
 
 	@Before
@@ -57,6 +71,20 @@ public class SwitchNorthboundAPITests {
 								.withHeader("Content-Type", MediaType.APPLICATION_XML)
 								.withHeader("Authorization", "Basic YWRtaW46YWRtaW4=")
 								.withBody(getNodesResponse)
+						));
+
+		// get node connectors test response body
+		String getNodeConnectorsResponse = IOUtils.toString(this.getClass().getResourceAsStream(TEST_NODE_CONNECTORS_FILE));
+
+		// get nodes connectors endpoint
+		WireMock.stubFor(
+				WireMock.get(
+						WireMock.urlEqualTo("/controller/nb/v2/switchmanager/default/node/OF/00:00:00:00:00:00:00:01"))
+						.willReturn(WireMock.aResponse()
+								.withStatus(200)
+								.withHeader("Content-Type", MediaType.APPLICATION_XML)
+								.withHeader("Authorization", "Basic YWRtaW46YWRtaW4=")
+								.withBody(getNodeConnectorsResponse)
 						));
 	}
 

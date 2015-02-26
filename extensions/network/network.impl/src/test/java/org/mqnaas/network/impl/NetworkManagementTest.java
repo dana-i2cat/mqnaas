@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +15,7 @@ import org.junit.Test;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
@@ -30,6 +34,7 @@ import org.mqnaas.core.api.slicing.IUnitAdministration;
 import org.mqnaas.core.api.slicing.IUnitManagement;
 import org.mqnaas.core.api.slicing.Range;
 import org.mqnaas.core.api.slicing.SlicingException;
+import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.core.impl.slicing.Slice;
 import org.mqnaas.core.impl.slicing.SliceAdministration;
@@ -42,6 +47,7 @@ import org.mqnaas.network.api.request.IRequestResourceMapping;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.INetworkPortManagement;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.request.Request;
 import org.mqnaas.network.impl.request.RequestResource;
 import org.mqnaas.network.impl.request.RequestResourceMapping;
@@ -49,6 +55,7 @@ import org.mqnaas.network.impl.topology.link.LinkAdministration;
 import org.mqnaas.network.impl.topology.link.LinkManagement;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.NetworkPortManagement;
+import org.mqnaas.network.impl.topology.port.PortManagement;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -343,5 +350,63 @@ public class NetworkManagementTest {
 		Slice slicedResourceSlice = new Slice(slicedResourceSliceProvider.getSlice(), serviceProvider);
 		Assert.assertEquals("Create slice should contain same slice cubes as the virtual one.", "OOXX", slicedResourceSlice.toMatrix());
 
+	}
+
+	@Test
+	public void createResourcePortsTest() throws URISyntaxException, InstantiationException, IllegalAccessException, CapabilityNotFoundException,
+			ApplicationActivationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
+
+		final String portExternalId = "eth0";
+
+		// create slicedResource
+		Endpoint endpoint = new Endpoint(new URI("http://www.myfakeresource.com/"));
+		IRootResource slicedResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.OF_SWITCH), Arrays.asList(endpoint)));
+
+		// create ports
+		PortResource phyPort = new PortResource();
+		PortResource virtPort = new PortResource();
+
+		// map ports in request
+		reqMappingCapab.defineMapping(virtPort, phyPort);
+
+		// create portManagement capability
+		IPortManagement portManagement = new PortManagement();
+		ReflectionTestHelper.injectPrivateField(portManagement, new CopyOnWriteArrayList<PortResource>(), "ports");
+
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(slicedResource), Mockito.eq(IPortManagement.class))).thenReturn(portManagement);
+
+		// create mocked IResourceManagementListener
+		IResourceManagementListener rmListener = PowerMockito.mock(IResourceManagementListener.class);
+		ReflectionTestHelper.injectPrivateField(networkManagementCapab, rmListener, "resourceManagementListener");
+		ReflectionTestHelper.injectPrivateField(networkManagementCapab, serviceProvider, "serviceProvider");
+
+		// mock attribute store capabilities
+		IAttributeStore phyPortAttributeStore = new AttributeStore();
+		ReflectionTestHelper.injectPrivateField(phyPortAttributeStore, phyPort, "resource");
+		phyPortAttributeStore.activate();
+		IAttributeStore slicedResourcePortAttributeStore = new AttributeStore();
+		ReflectionTestHelper.injectPrivateField(slicedResourcePortAttributeStore, new ConcurrentHashMap<String, String>(), "attributes");
+		phyPortAttributeStore.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, portExternalId);
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(phyPort), Mockito.eq(IAttributeStore.class))).thenReturn(
+				phyPortAttributeStore);
+		PowerMockito.when(serviceProvider.getCapability(AdditionalMatchers.not(Mockito.eq(phyPort)), Mockito.eq(IAttributeStore.class))).thenReturn(
+				slicedResourcePortAttributeStore);
+
+		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(requestResource), Mockito.eq(IRequestResourceMapping.class))).thenReturn(
+				reqMappingCapab);
+
+		Assert.assertTrue("Slices resource should contain no ports on startup.", portManagement.getPorts().isEmpty());
+
+		// call method by reflection
+		Method method = networkManagementCapab.getClass().getDeclaredMethod("createResourcePorts", List.class, IResource.class,
+				Request.class);
+		method.setAccessible(true);
+
+		method.invoke(networkManagementCapab, Arrays.asList(virtPort), slicedResource, request);
+
+		// assert sliced resource has one port with mapped id
+		Assert.assertFalse("Slices resource should contain one port.", portManagement.getPorts().isEmpty());
+		Assert.assertEquals("Slices resource should contain one port.", 1, portManagement.getPorts().size());
+		Assert.assertEquals(portExternalId, slicedResourcePortAttributeStore.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
 	}
 }

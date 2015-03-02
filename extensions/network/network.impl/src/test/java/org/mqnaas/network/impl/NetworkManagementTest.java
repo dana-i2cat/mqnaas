@@ -6,7 +6,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -108,12 +110,12 @@ public class NetworkManagementTest {
 		PortResource phyPort1 = new PortResource();
 		PortResource phyPort2 = new PortResource();
 
-		PortResource virtPort1 = new PortResource();
-		PortResource virtPort2 = new PortResource();
+		PortResource reqPort1 = new PortResource();
+		PortResource reqPort2 = new PortResource();
 
 		// map ports in request
-		reqMappingCapab.defineMapping(virtPort1, phyPort1);
-		reqMappingCapab.defineMapping(virtPort2, phyPort2);
+		reqMappingCapab.defineMapping(reqPort1, phyPort1);
+		reqMappingCapab.defineMapping(reqPort2, phyPort2);
 
 		// create links capabilities
 		ILinkManagement netLinkManagementCapab = new LinkManagement();
@@ -127,8 +129,8 @@ public class NetworkManagementTest {
 		// create link in request
 		reqLinkManagementCapab.createLink();
 		// set req link ports
-		reqLinkAdministration.setSrcPort(virtPort1);
-		reqLinkAdministration.setDestPort(virtPort2);
+		reqLinkAdministration.setSrcPort(reqPort1);
+		reqLinkAdministration.setDestPort(reqPort2);
 
 		// mock service provider responses
 		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(virtualNetwork), Mockito.eq(ILinkManagement.class))).thenReturn(
@@ -143,11 +145,20 @@ public class NetworkManagementTest {
 		// assert network has no links
 		Assert.assertTrue(netLinkManagementCapab.getLinks().isEmpty());
 
+		// create map between requestPort-virtualPort
+
+		IResource virtPort1 = new PortResource();
+		IResource virtPort2 = new PortResource();
+
+		Map<IResource, IResource> portsMap = new HashMap<IResource, IResource>();
+		portsMap.put(reqPort1, virtPort1);
+		portsMap.put(reqPort2, virtPort2);
+
 		// call method by reflection
-		Method method = networkManagementCapab.getClass().getDeclaredMethod("createNetworkLinks", IRootResource.class, Request.class);
+		Method method = networkManagementCapab.getClass().getDeclaredMethod("createNetworkLinks", IRootResource.class, Request.class, Map.class);
 		method.setAccessible(true);
 
-		method.invoke(networkManagementCapab, virtualNetwork, request);
+		method.invoke(networkManagementCapab, virtualNetwork, request, portsMap);
 
 		// assert network has 1 link with corresponding ports
 		Assert.assertFalse("Network should contain a configured link.", netLinkManagementCapab.getLinks().isEmpty());
@@ -156,8 +167,8 @@ public class NetworkManagementTest {
 		Assert.assertNotNull("Virtual link should contain a source port", netLinkAdministration.getSrcPort());
 		Assert.assertNotNull("Virtual link should contain a destination port", netLinkAdministration.getDestPort());
 
-		Assert.assertEquals("Virtual link should contain phyport1 as source port", phyPort1, netLinkAdministration.getSrcPort());
-		Assert.assertEquals("Virtual link should contain phyport2 as destination port", phyPort2, netLinkAdministration.getDestPort());
+		Assert.assertEquals("Virtual link should contain virtPort1 as source port", virtPort1, netLinkAdministration.getSrcPort());
+		Assert.assertEquals("Virtual link should contain virtPort2 as destination port", virtPort2, netLinkAdministration.getDestPort());
 
 	}
 
@@ -407,17 +418,23 @@ public class NetworkManagementTest {
 
 		Assert.assertTrue("Slices resource should contain no ports on startup.", portManagement.getPorts().isEmpty());
 
+		Map<IResource, IResource> portsMap = new HashMap<IResource, IResource>();
+
 		// call method by reflection
 		Method method = networkManagementCapab.getClass().getDeclaredMethod("createResourcePorts", List.class, IResource.class,
-				Request.class);
+				Request.class, Map.class);
 		method.setAccessible(true);
 
-		method.invoke(networkManagementCapab, Arrays.asList(virtPort), slicedResource, request);
+		method.invoke(networkManagementCapab, Arrays.asList(virtPort), slicedResource, request, portsMap);
 
 		// assert sliced resource has one port with mapped id
 		Assert.assertFalse("Slices resource should contain one port.", portManagement.getPorts().isEmpty());
 		Assert.assertEquals("Slices resource should contain one port.", 1, portManagement.getPorts().size());
 		Assert.assertEquals(portExternalId, slicedResourcePortAttributeStore.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+
+		Assert.assertEquals("Port map should have been fulfilled with one port.", 1, portsMap.size());
+		Assert.assertNotNull("Request port should have been mapped into a virtual one.", portsMap.get(virtPort));
+
 	}
 
 	@Test

@@ -29,6 +29,11 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>network.impl</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network-test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- Tests libraries-->
 		<dependency>
 			<groupId>junit</groupId>
@@ -70,5 +75,15 @@
 			<artifactId>wiremock</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<scope>test</scope>
+		</dependency>		
 	</dependencies>
 </project>

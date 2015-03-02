@@ -19,6 +19,7 @@
 		<module>network.api</module>
 		<module>network.impl</module>
 		<module>itests</module>
+		<module>network-test-helpers</module>
 	</modules>
 
 	<properties>
@@ -39,6 +40,12 @@
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>network.impl</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network-test-helpers</artifactId>
+				<version>${project.version}</version>
+				<scope>test</scope>
 			</dependency>
 			<!-- Others -->
 			<dependency>

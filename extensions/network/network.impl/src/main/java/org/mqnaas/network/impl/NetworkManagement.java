@@ -2,6 +2,7 @@ package org.mqnaas.network.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,6 +91,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 			Request request = new Request(requestResource, serviceProvider);
 
+			// this map will store relationship between virtualPorts and requestPorts, needed when creating the network links
+			Map<IResource, IResource> virtualPortMapping = new HashMap<IResource, IResource>();
+
 			List<IResource> networkRootResources = request.getRootResources();
 			for (IResource netRootResource : networkRootResources) {
 
@@ -110,7 +114,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 					resourceMapping.put(virtualResource.getResource(), createdResource);
 
 					// create ports in this resource
-					createResourcePorts(virtualResource.getPorts(), createdResource, request);
+					createResourcePorts(virtualResource.getPorts(), createdResource, request, virtualPortMapping);
 
 					// add created resource to list of resources to be reserved
 					virtualNetworkResources.add((IRootResource) createdResource);
@@ -130,7 +134,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 			}
 
-			createNetworkLinks(networkResource, request);
+			createNetworkLinks(networkResource, request, virtualPortMapping);
 			defineNetworkPorts(networkResource, request);
 
 			// TODO in the future, reserve
@@ -156,7 +160,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		return networkResource;
 	}
 
-	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request) throws CapabilityNotFoundException,
+	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request,
+			Map<IResource, IResource> virtualPortMapping) throws CapabilityNotFoundException,
 			ApplicationNotFoundException {
 
 		NetworkSubResource resourceWrapper = new NetworkSubResource(resource, serviceProvider);
@@ -170,6 +175,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 					serviceProvider.getCapability(resource, IPortManagement.class), IPortManagement.class);
 
 			newPort.setAttribute(PORT_INTERNAL_ID_ATTRIBUTE, physicalPort.getAttribute(PORT_INTERNAL_ID_ATTRIBUTE));
+
+			virtualPortMapping.put(port, newPort.getPortResource());
 		}
 	}
 
@@ -211,7 +218,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		return new Network(virtualNetResource, serviceProvider);
 	}
 
-	private void createNetworkLinks(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
+	private void createNetworkLinks(IRootResource networkResource, Request request, Map<IResource, IResource> portMapping)
+			throws CapabilityNotFoundException {
 		// links
 		ILinkManagement networkLinkManagement = serviceProvider.getCapability(networkResource, ILinkManagement.class);
 
@@ -221,15 +229,16 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			Link netLink = new Link(networkLinkManagement.createLink(), serviceProvider);
 			Link reqLink = new Link(link, serviceProvider);
 
-			IResource srcPort = request.getMappedDevice(reqLink.getSrcPort());
-			IResource dstPort = request.getMappedDevice(reqLink.getDstPort());
+			IResource srcPort = portMapping.get(reqLink.getSrcPort());
+			IResource dstPort = portMapping.get(reqLink.getDstPort());
 
 			netLink.setSrcPort(srcPort);
 			netLink.setDstPort(dstPort);
 		}
 	}
 
-	private void defineNetworkPorts(IRootResource networkResource, Request request) throws CapabilityNotFoundException {
+	private void defineNetworkPorts(IRootResource networkResource, Request request)
+			throws CapabilityNotFoundException {
 
 		log.info("Defining network external ports for network " + networkResource.getId());
 

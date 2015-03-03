@@ -1,5 +1,7 @@
 package org.mqnaas.core.api;
 
+import java.util.Collection;
+
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ServiceNotFoundException;
 
@@ -45,14 +47,15 @@ public interface IServiceProvider extends ICapability {
 	 * Returns the service with a specific name of the given {@link IApplication}.
 	 * 
 	 * @param application
-	 * @param serviceName The name of the service
-	 * @param parameters service parameter types
+	 * @param serviceName
+	 *            The name of the service
+	 * @param parameters
+	 *            service parameter types
 	 * @return The service with the given name.
-	 * @throws ServiceNotFoundException if there is no such service available at the moment.
+	 * @throws ServiceNotFoundException
+	 *             if there is no such service available at the moment.
 	 */
 	IService getApplicationService(IApplication application, String serviceName, Class<?>... parameters) throws ServiceNotFoundException;
-
-
 
 	/**
 	 * Returns the capability instance of type <code>capabilityClass</code> bound to the given {@link IResource}
@@ -67,6 +70,15 @@ public interface IServiceProvider extends ICapability {
 	 *             If the given resource does not contain any capability of type <code>capabilityclass</code>
 	 */
 	<C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException;
+
+	/**
+	 * Returns all capability instances bound to the given {@link IResource}
+	 * 
+	 * @param resource
+	 *            {@link IResource} containing the capabilities to retrieve.
+	 * @return {@link Collection} of {@link ICapability} bound to the given resource.
+	 */
+	Collection<Class<? extends ICapability>> getCapabilities(IResource resource);
 
 	/**
 	 * FIXME This is a service to play with during development and will not be part of the final API

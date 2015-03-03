@@ -954,6 +954,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	}
 
 	@Override
+	public Collection<Class<? extends ICapability>> getCapabilities(IResource resource) {
+
+		Collection<Class<? extends ICapability>> resourceCapabilities = new ArrayList<Class<? extends ICapability>>();
+
+		Iterable<CapabilityInstance> capabilities = filterResolved(getCapabilityInstancesBoundToResource(resource));
+		for (CapabilityInstance capabilityInstance : capabilities)
+			resourceCapabilities.addAll(capabilityInstance.getCapabilities());
+
+		return resourceCapabilities;
+	}
+
+	@Override
 	// safe-casting of classes, checked previously
 	@SuppressWarnings("unchecked")
 	public <C extends ICapability> C getCapability(IResource resource, Class<C> capabilityClass) throws CapabilityNotFoundException {

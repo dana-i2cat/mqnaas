@@ -41,29 +41,35 @@
 		<!-- SLF4J version -->
 		<slf4j-version>1.7.7</slf4j-version>
 
+		<!-- Apache CXF bundle version -->
+		<cxf-version>2.7.14</cxf-version>
+
 		<!-- Apache Commons IO version -->
 		<commons-io.version>2.4</commons-io.version>
-		
+
 		<!-- Wiremock version -->
 		<wiremock.version>1.51</wiremock.version>
-		
+
 		<!-- Powermock version -->
 		<powermock.version>1.5.4</powermock.version>
-		
+
 		<!-- Javax Inject version -->
 		<javax.inject.version>1_2</javax.inject.version>
-		
+
 		<!-- Apache Karaf version -->
 		<karaf.version>3.0.1</karaf.version>
-		
+
 		<!-- Pax Exam version -->
 		<pax.exam.version>3.5.0</pax.exam.version>
-		
+
 		<!-- JUnit version -->
 		<junit.version>4.11</junit.version>
-		
+
 		<!-- XMLUnit version -->
 		<xmlunit.version>1.5</xmlunit.version>
+
+		<!-- SLF4J version -->
+		<slf4j-version>1.7.7</slf4j-version>
 	</properties>
 
 	<dependencyManagement>
@@ -83,7 +89,7 @@
 				<groupId>org.mqnaas</groupId>
 				<artifactId>test-helpers</artifactId>
 				<version>${mqnaas.version}</version>
-				<scope>test</scope>		
+				<scope>test</scope>
 			</dependency>
 			<!-- Testing libraries -->
 			<dependency>
@@ -157,7 +163,25 @@
 				<scope>test</scope>
 				<version>${karaf.version}</version>
 			</dependency>
-
+			<!-- SLF4J logging API -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j-version}</version>
+			</dependency>
+			<!-- SLF4J Simple for tests binding -->
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-simple</artifactId>
+				<version>${slf4j-version}</version>
+				<scope>test</scope>
+			</dependency>
+			<!-- CXF bundle -->
+			<dependency>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-bundle</artifactId>
+				<version>${cxf-version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

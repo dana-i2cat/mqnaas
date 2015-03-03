@@ -18,6 +18,14 @@
 		<module>odl</module>
 	</modules>
 
+	<licenses>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
 	<properties>
 		<!-- UTF-8 encoding -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -70,6 +78,15 @@
 
 		<!-- SLF4J version -->
 		<slf4j-version>1.7.7</slf4j-version>
+
+		<!-- Maven license plugin version -->
+		<license.plugin.version>1.8</license.plugin.version>
+
+		<!-- Properties for license -->
+		<project.inceptionYear>2007</project.inceptionYear>
+		<project.organization.name>Fundació Privada i2CAT, Internet i
+			Innovació a Catalunya</project.organization.name>
+		<project.name>OpenNaaS</project.name>
 	</properties>
 
 	<dependencyManagement>
@@ -186,6 +203,33 @@
 	</dependencyManagement>
 
 	<build>
+		<plugins>
+			<!-- License plugin configured below -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<verbose>false</verbose>
+				</configuration>
+				<executions>
+					<execution>
+						<id>extensions-license</id>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>compile</phase>
+						<configuration>
+							<licenseName>apache_v2</licenseName>
+							<roots>
+								<root>src/main/java</root>
+								<root>src/test/java</root>
+							</roots>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+
 		<pluginManagement>
 			<plugins>
 				<!-- Maven bundle plugin allowing the creation of OSGI bundles -->
@@ -262,6 +306,13 @@
 						<source>1.6</source>
 						<target>1.6</target>
 					</configuration>
+				</plugin>
+
+				<!-- License plugin -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>${license.plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

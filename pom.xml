@@ -88,12 +88,21 @@
 
 		<!-- OSGified javax.inject version -->
 		<javax.inject-version>1_2</javax.inject-version>
-		
+
 		<!-- XMLUnit version -->
 		<xmlunit.version>1.5</xmlunit.version>
 
 		<!-- ASM version -->
 		<asm-version>3.3.1_1</asm-version>
+
+		<!-- Maven license plugin version -->
+		<license.plugin.version>1.8</license.plugin.version>
+
+		<!-- Properties for license -->
+		<project.inceptionYear>2007</project.inceptionYear>
+		<project.organization.name>Fundació Privada i2CAT, Internet i
+			Innovació a Catalunya</project.organization.name>
+		<project.name>OpenNaaS</project.name>
 	</properties>
 
 	<dependencyManagement>
@@ -196,7 +205,7 @@
 				<artifactId>xmlunit</artifactId>
 				<version>${xmlunit.version}</version>
 				<scope>test</scope>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
@@ -252,7 +261,7 @@
 				<artifactId>test-helpers</artifactId>
 				<version>${project.version}</version>
 				<scope>test</scope>
-			</dependency>			
+			</dependency>
 			<dependency>
 				<groupId>org.powermock</groupId>
 				<artifactId>powermock-api-mockito</artifactId>
@@ -264,7 +273,7 @@
 				<artifactId>powermock-module-junit4</artifactId>
 				<version>${powermock.version}</version>
 				<scope>test</scope>
-			</dependency>			
+			</dependency>
 
 			<!-- Runtime dependencies -->
 			<dependency>
@@ -299,6 +308,31 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>build-helper-maven-plugin</artifactId>
+			</plugin>
+
+			<!-- License plugin configured below -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>license-maven-plugin</artifactId>
+				<configuration>
+					<verbose>false</verbose>
+				</configuration>
+				<executions>
+					<execution>
+						<id>core-license</id>
+						<goals>
+							<goal>update-file-header</goal>
+						</goals>
+						<phase>compile</phase>
+						<configuration>
+							<licenseName>lgpl_v3</licenseName>
+							<roots>
+								<root>src/main/java</root>
+								<root>src/test/java</root>
+							</roots>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 
@@ -372,6 +406,13 @@
 							<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						</instructions>
 					</configuration>
+				</plugin>
+
+				<!-- License plugin -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>${license.plugin.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

@@ -31,6 +31,10 @@ public class ResourceModelWrapper {
 	@XmlElement(name = "resource")
 	private List<ResourceModelWrapper>	resources;
 
+	// constructor withour arguments, required by JAXB
+	ResourceModelWrapper() {
+	}
+
 	public ResourceModelWrapper(String id) {
 		this.id = id;
 	}

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<list>
+	<nodeProperties>
+		<node>
+			<id>00:00:00:00:00:00:00:02</id>
+			<type>OF</type>
+		</node>
+		<properties>
+			<tables>
+				<value>-1</value>
+			</tables>
+			<description>
+				<value>Switch2</value>
+			</description>
+			<actions>
+				<value>4095</value>
+			</actions>
+			<macAddress>
+				<value>00:00:00:00:00:02</value>
+			</macAddress>
+			<capabilities>
+				<value>199</value>
+			</capabilities>
+			<timeStamp>
+				<value>1377291227877</value>
+				<name>connectedSince</name>
+			</timeStamp>
+			<buffers>
+				<value>256</value>
+			</buffers>
+		</properties>
+	</nodeProperties>
+</list>
+ 

@@ -17,16 +17,13 @@
 	<properties>
 		<commons.io.version>1.4</commons.io.version>
 		<cxf.version>2.7.14</cxf.version>
-		<!-- Jackson (old version of Jackson, instead of 2.x, due to bug integrating with CXF DOSGi
-			http://cxf.547215.n5.nabble.com/Using-Jackson-as-JSON-body-reader-writer-with-DOSGi-td5729257.html)-->
-		<jackson.version>1.9.12</jackson.version>
+		<!-- javax.ws.rs API (REST) version -->
+		<javax.ws.rs-api-version>2.0-m10</javax.ws.rs-api-version>
 		<junit-version>4.11</junit-version>
 		<jsonassert.version>1.2.0</jsonassert.version>
 		<servicemix.specs.version>2.2.0</servicemix.specs.version>
 		<!-- SLF4J version -->
 		<slf4j.version>1.7.7</slf4j.version>
-		<!-- OpenDaylight Hellium versions -->
-		<opendaylight.sal.version>0.8.4-SNAPSHOT</opendaylight.sal.version>
 	</properties>
 
 	<dependencies>
@@ -36,48 +33,49 @@
 			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 			<version>${cxf.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.servicemix.specs</groupId>
-			<artifactId>org.apache.servicemix.specs.jsr311-api-1.1</artifactId>
-			<version>${servicemix.specs.version}</version>
-		</dependency>
-		<!-- Jackson -->
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-mapper-asl</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-xc</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.codehaus.jackson</groupId>
-			<artifactId>jackson-jaxrs</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
-		<!-- JSON Assert (https://github.com/skyscreamer/JSONassert) -->
-		<dependency>
-			<groupId>org.skyscreamer</groupId>
-			<artifactId>jsonassert</artifactId>
-			<version>${jsonassert.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>${commons.io.version}</version>
-		</dependency>
+		<!-- SLF4J logging API -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+		<!-- javax.ws.rs API (REST) -->
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>${javax.ws.rs-api-version}</version>
+		</dependency>
+		<!-- IO Utils -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<!-- CXF bundle -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-bundle</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Testing libraries -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>${junit-version}</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tomakehurst</groupId>
+			<artifactId>wiremock</artifactId>
 		</dependency>
 	</dependencies>
 

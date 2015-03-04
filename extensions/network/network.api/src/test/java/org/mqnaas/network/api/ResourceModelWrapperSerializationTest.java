@@ -49,11 +49,13 @@ public class ResourceModelWrapperSerializationTest {
 	private final static String	SWITCH_RESOURCE_ID	= "ofswitch-2";
 	private static final String	PORT1_RESOURCE_ID	= "port-1";
 	private static final String	PORT2_RESOURCE_ID	= "port-2";
+	private static final String	PORT1_EXTERNAL_ID	= "eth0";
+	private static final String	PORT2_EXTERNAL_ID	= "eth1";
 
 	private final static String	RESULT_FILE			= "/serialization/resourceModelWrapper.xml";
 
 	@Test
-	public void periodSerializationTest() throws JAXBException, SAXException, IOException {
+	public void serializationTest() throws JAXBException, SAXException, IOException {
 		ResourceModelWrapper resourceModelWrapper = generateSampleResourceModelWrapper();
 
 		String serializedXml = SerializationUtils.toXml(resourceModelWrapper);
@@ -64,13 +66,13 @@ public class ResourceModelWrapperSerializationTest {
 	}
 
 	@Test
-	public void periodDeserializationTest() throws IOException, JAXBException {
+	public void deserializationTest() throws IOException, JAXBException {
 
 		String xml = IOUtils.toString(this.getClass().getResourceAsStream(RESULT_FILE));
 		ResourceModelWrapper deserializedModel = SerializationUtils.fromXml(xml, ResourceModelWrapper.class);
 		ResourceModelWrapper expectedModel = generateSampleResourceModelWrapper();
 
-		Assert.assertEquals("Deserialized period should be equals to the sample one.", expectedModel, deserializedModel);
+		Assert.assertEquals("Deserialized resource model should be equals to the sample one.", expectedModel, deserializedModel);
 
 	}
 
@@ -78,9 +80,11 @@ public class ResourceModelWrapperSerializationTest {
 
 		ResourceModelWrapper switchPort1 = new ResourceModelWrapper(PORT1_RESOURCE_ID);
 		switchPort1.setType("port");
+		switchPort1.setExternalId(PORT1_EXTERNAL_ID);
 
 		ResourceModelWrapper switchPort2 = new ResourceModelWrapper(PORT2_RESOURCE_ID);
 		switchPort2.setType("port");
+		switchPort2.setExternalId(PORT2_EXTERNAL_ID);
 
 		ResourceModelWrapper switchModel = new ResourceModelWrapper(SWITCH_RESOURCE_ID);
 		switchModel.setType(Specification.Type.OF_SWITCH.toString());

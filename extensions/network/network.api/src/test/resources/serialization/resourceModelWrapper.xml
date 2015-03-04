@@ -10,10 +10,12 @@
                 <resource>
                     <id>port-1</id>
                     <type>port</type>
+                    <externalId>eth0</externalId>
                 </resource>
                 <resource>
                     <id>port-2</id>
                     <type>port</type>
+                    <externalId>eth1</externalId>
                 </resource>
             </resources>
         </resource>

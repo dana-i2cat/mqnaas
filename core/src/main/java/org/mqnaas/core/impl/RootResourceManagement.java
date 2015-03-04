@@ -39,13 +39,12 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
-import org.mqnaas.core.impl.slicing.UnitManagment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RootResourceManagement implements IRootResourceProvider, IRootResourceAdministration {
 
-	private static final Logger			log			= LoggerFactory.getLogger(UnitManagment.class);
+	private static final Logger			log			= LoggerFactory.getLogger(RootResourceManagement.class);
 
 	private List<IRootResource>			resources	= new ArrayList<IRootResource>();
 
@@ -61,6 +60,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 		return specification.getType() == Type.CORE ||
 				(specification.getType() == Type.NETWORK && (
 				!StringUtils.equals(specification.getModel(), "nitos") &&
+						!StringUtils.equals(specification.getModel(), "odl") &&
 				!StringUtils.equals(specification.getModel(), "virtual")));
 	}
 

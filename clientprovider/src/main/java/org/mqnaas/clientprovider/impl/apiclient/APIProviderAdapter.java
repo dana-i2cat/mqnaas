@@ -78,8 +78,7 @@ class APIProviderAdapter<CC> implements InvocationHandler {
 			throw new EndpointNotFoundException(message);
 		}
 
-		// TODO Get credentials...
-		Credentials c = null;
+		Credentials c = rootResource.getDescriptor().getCredentials();
 
 		switch (args.length) {
 			case 2:

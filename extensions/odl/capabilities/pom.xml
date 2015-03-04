@@ -15,6 +15,47 @@
 	<description>MQNaaS OpenDaylight Capabilities</description>
 
 	<dependencies>
+		<!-- MQNaaS modules -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider</artifactId>
+		</dependency>
+		<!-- ODL modules -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>odl.client</artifactId>
+		</dependency>
+		<!-- Testing dependencies -->	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>			
+		
+		
 	</dependencies>
 
 	<build>

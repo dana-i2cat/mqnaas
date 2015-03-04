@@ -42,10 +42,12 @@ import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.network.api.modelreader.IResourceModelReader;
 import org.mqnaas.network.api.modelreader.ResourceModelWrapper;
 import org.mqnaas.network.impl.Network;
 import org.mqnaas.network.impl.NetworkSubResource;
+import org.mqnaas.network.impl.PortResourceWrapper;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -76,6 +78,9 @@ public class ResourceModelReaderTest {
 	private IRootResource		ofSwitch;
 	private IResource			ofSwitchPort1;
 	private IResource			ofSwitchPort2;
+
+	private static final String	OFSWITCH_PORT1_EXT_ID	= "eth1";
+	private static final String	OFSWITCH_PORT2_EXT_ID	= "eth2";
 
 	@Configuration
 	public Option[] config() {
@@ -120,6 +125,11 @@ public class ResourceModelReaderTest {
 		ofSwitchPort1 = ofSwitchWrapper.createPort();
 		ofSwitchPort2 = ofSwitchWrapper.createPort();
 
+		PortResourceWrapper ofSwitchPort1Wrapper = new PortResourceWrapper(ofSwitchPort1, serviceProvider);
+		PortResourceWrapper ofSwitchPort2Wrapper = new PortResourceWrapper(ofSwitchPort2, serviceProvider);
+		ofSwitchPort1Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT1_EXT_ID);
+		ofSwitchPort2Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT2_EXT_ID);
+
 	}
 
 	@Test
@@ -163,6 +173,16 @@ public class ResourceModelReaderTest {
 
 		Assert.assertTrue("First model port should not contain subresources.", port1Model.getResources().isEmpty());
 		Assert.assertTrue("Second model port should not contain subresources.", port2Model.getResources().isEmpty());
+
+		if (port1Model.getId().equals(ofSwitchPort1.getId())) {
+			Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port1Model.getExternalId());
+			Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
+		}
+		else {
+			Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port1Model.getExternalId());
+			Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port2Model.getExternalId());
+
+		}
 
 	}
 }

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
@@ -37,6 +38,7 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.network.api.modelreader.IResourceModelReader;
 import org.mqnaas.network.api.modelreader.ResourceModelWrapper;
 import org.mqnaas.network.impl.topology.link.LinkResource;
@@ -88,25 +90,34 @@ public class ResourceModelReader implements IResourceModelReader {
 		// we look for all management capabilities bound to this resource. They contain a method with annotation "listResources"
 		for (Class<? extends ICapability> capabilityClass : serviceProvider.getCapabilities(resource)) {
 			try {
-				Method listResourcesMethod = getListResourcesMethod(capabilityClass);
 
-				if (listResourcesMethod != null) {
+				if (capabilityClass.equals(IAttributeStore.class)) {
+					IAttributeStore attributeStoreCapab = serviceProvider.getCapability(resource, IAttributeStore.class);
+					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID) != null)
+						modelWrapper.setExternalId(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
+				}
+				else {
 
-					// invoke the method annotated with "listResoures"
-					IService listResourcesService = serviceProvider.getService(resource, listResourcesMethod.getName(),
-							listResourcesMethod.getParameterTypes());
+					Method listResourcesMethod = getListResourcesMethod(capabilityClass);
 
-					@SuppressWarnings("unchecked")
-					// safe casting
-					List<IResource> managedResources = (List<IResource>) serviceExecution.execute(listResourcesService, null);
-					List<ResourceModelWrapper> subResources = new ArrayList<ResourceModelWrapper>();
+					if (listResourcesMethod != null) {
 
-					// for each resource returned by the management capability, call its ResourceModelReader capability
-					for (IResource managedResource : managedResources) {
-						IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource, IResourceModelReader.class);
-						subResources.add(subResourceModelReader.getResourceModel());
+						// invoke the method annotated with "listResoures"
+						IService listResourcesService = serviceProvider.getService(resource, listResourcesMethod.getName(),
+								listResourcesMethod.getParameterTypes());
+
+						@SuppressWarnings("unchecked")
+						// safe casting
+						List<IResource> managedResources = (List<IResource>) serviceExecution.execute(listResourcesService, null);
+						List<ResourceModelWrapper> subResources = new ArrayList<ResourceModelWrapper>();
+
+						// for each resource returned by the management capability, call its ResourceModelReader capability
+						for (IResource managedResource : managedResources) {
+							IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource, IResourceModelReader.class);
+							subResources.add(subResourceModelReader.getResourceModel());
+						}
+						modelWrapper.getResources().addAll(subResources);
 					}
-					modelWrapper.getResources().addAll(subResources);
 				}
 
 			} catch (Exception e) {

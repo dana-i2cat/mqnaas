@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name="mqnaas-modelreader">
+
+	<!-- MQNaaS repository -->
+	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
+	<!-- MQNaaS network repository -->
+	<repository>mvn:org.mqnaas.extensions/network/${mqnaas.version}/xml/features</repository>
+	
+	<feature name="mqnaas-modelreader" version="${project.version}">
+
+	    <feature version="${mqnaas.version}">mqnaas</feature>	    
+	    <feature version="${mqnaas.version}">network</feature>	    
+	    
+		<bundle>mvn:org.mqnaas.extensions/modelreader/${project.version}</bundle>
+
+	</feature>
+</features>

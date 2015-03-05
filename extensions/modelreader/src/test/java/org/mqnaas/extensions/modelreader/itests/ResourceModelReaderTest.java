@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.network.itests;
+package org.mqnaas.extensions.modelreader.itests;
 
 /*
  * #%L
@@ -28,6 +28,7 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,9 +43,10 @@ import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
+import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.AttributeStore;
-import org.mqnaas.network.api.modelreader.IResourceModelReader;
-import org.mqnaas.network.api.modelreader.ResourceModelWrapper;
+import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
+import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.network.impl.Network;
 import org.mqnaas.network.impl.NetworkSubResource;
 import org.mqnaas.network.impl.PortResourceWrapper;
@@ -106,6 +108,8 @@ public class ResourceModelReaderTest {
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("modelreader")
+						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
 		};
@@ -130,6 +134,19 @@ public class ResourceModelReaderTest {
 		ofSwitchPort1Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT1_EXT_ID);
 		ofSwitchPort2Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT2_EXT_ID);
 
+	}
+
+	@After
+	public void removeResources() throws ResourceNotFoundException {
+
+		NetworkSubResource ofSwitchWrapper = new NetworkSubResource(ofSwitch, serviceProvider);
+		ofSwitchWrapper.removePort(ofSwitchPort1);
+		ofSwitchWrapper.removePort(ofSwitchPort2);
+
+		Network networkWrapper = new Network(network, serviceProvider);
+		networkWrapper.removeResource(ofSwitch);
+
+		rootResourceAdministration.removeRootResource(network);
 	}
 
 	@Test
@@ -185,4 +202,5 @@ public class ResourceModelReaderTest {
 		}
 
 	}
+
 }

@@ -1,4 +1,4 @@
-package org.mqnaas.network.api.modelreader;
+package org.mqnaas.extensions.modelreader.api;
 
 /*
  * #%L

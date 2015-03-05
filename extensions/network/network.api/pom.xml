@@ -58,8 +58,7 @@
 							org.mqnaas.network.api.topology,
 							org.mqnaas.network.api.topology.port,
 							org.mqnaas.network.api.topology.link,
-							org.mqnaas.network.api.topology.device,
-							org.mqnaas.network.api.modelreader
+							org.mqnaas.network.api.topology.device
 						</Export-Package>
 					</instructions>
 				</configuration>

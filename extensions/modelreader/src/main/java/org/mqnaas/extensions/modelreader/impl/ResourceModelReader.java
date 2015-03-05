@@ -1,4 +1,4 @@
-package org.mqnaas.network.impl.modelreader;
+package org.mqnaas.extensions.modelreader.impl;
 
 /*
  * #%L
@@ -39,8 +39,8 @@ import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.impl.AttributeStore;
-import org.mqnaas.network.api.modelreader.IResourceModelReader;
-import org.mqnaas.network.api.modelreader.ResourceModelWrapper;
+import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
+import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.slf4j.Logger;

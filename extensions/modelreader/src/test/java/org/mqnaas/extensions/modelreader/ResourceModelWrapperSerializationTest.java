@@ -1,4 +1,4 @@
-package org.mqnaas.network.api;
+package org.mqnaas.extensions.modelreader;
 
 /*
  * #%L
@@ -31,8 +31,8 @@ import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mqnaas.core.api.Specification;
+import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
-import org.mqnaas.network.api.modelreader.ResourceModelWrapper;
 import org.xml.sax.SAXException;
 
 /**

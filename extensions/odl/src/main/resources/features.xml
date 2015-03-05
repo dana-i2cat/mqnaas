@@ -3,6 +3,8 @@
 
 	<!-- MQNaaS repository -->
 	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
+	<repository>mvn:org.mqnaas.extensions/network/${network.version}/xml/features</repository> 
+	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
 
 	<feature name="odl" version="${project.version}">
 		<feature version="${mqnaas.version}">mqnaas</feature>
@@ -23,7 +25,8 @@
 	</feature>
 
 	<feature name="odl-capabilities" version="${project.version}">
-		<!-- TODO add dependencies -->
+		<feature version="${network.version}">network</feature>
+		
 		<bundle>mvn:org.mqnaas.extensions/odl.capabilities/${project.version}</bundle>
 	</feature>
 

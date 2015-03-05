@@ -33,6 +33,7 @@ import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IAttributeStore;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -50,8 +51,11 @@ import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.extensions.odl.client.switchnorthbound.ISwitchNorthboundAPI;
 import org.mqnaas.extensions.odl.client.switchnorthbound.api.Node.NodeType;
+import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectorProperties;
+import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectors;
 import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeProperties;
 import org.mqnaas.extensions.odl.client.switchnorthbound.api.Nodes;
+import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,6 +201,18 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 			Collection<Endpoint> odlResourceEndpoints = new ArrayList<Endpoint>(resource.getDescriptor().getEndpoints());
 			IRootResource odlResource = new RootResource(RootResourceDescriptor.create(new Specification(nodeType), odlResourceEndpoints));
 			rmListener.resourceAdded(odlResource, this, IRootResourceProvider.class);
+
+			// create ports
+			IPortManagement portMgm = serviceProvider.getCapability(odlResource, IPortManagement.class);
+			NodeConnectors nodePorts = odlClient.getNodeConnectors(DEFAULT_CONNECTOR_NAME, nodeProperties.getNode().getNodeType().toString(), nodeId);
+			for (NodeConnectorProperties nodePortProperties : nodePorts.getNodeConnectorProperties()) {
+				String nodePortId = nodePortProperties.getNodeConnector().getNodeConnectorID();
+				String nodePortName = nodePortProperties.getProperties().get("name").getValue();
+				IResource port = portMgm.createPort();
+				IAttributeStore portAttributeStore = serviceProvider.getCapability(port, IAttributeStore.class);
+				portAttributeStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, nodePortId);
+				portAttributeStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME, nodePortName);
+			}
 
 			// stores the map between the created RootResource and the odl node id
 			IAttributeStore attributeStore = serviceProvider.getCapability(odlResource, IAttributeStore.class);

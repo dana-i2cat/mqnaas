@@ -24,6 +24,7 @@
 	<properties>
 		<project.version>0.0.1-SNAPSHOT</project.version>
 		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
+		<network.version>0.0.1-SNAPSHOT</network.version>
 	</properties>
 
 	<dependencyManagement>
@@ -45,6 +46,17 @@
 				<artifactId>clientprovider</artifactId>
 				<version>${mqnaas.version}</version>
 			</dependency>
+			<!-- Network modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.api</artifactId>
+				<version>${network.version}</version>
+			</dependency>	
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.impl</artifactId>
+				<version>${network.version}</version>
+			</dependency>					
 		</dependencies>
 	</dependencyManagement>
 

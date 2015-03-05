@@ -33,6 +33,16 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>odl.client</artifactId>
 		</dependency>
+		<!-- Network modules -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.impl</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<!-- Testing dependencies -->	
 		<dependency>
 			<groupId>junit</groupId>

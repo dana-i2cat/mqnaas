@@ -21,8 +21,6 @@ package org.mqnaas.extensions.odl.capabilities.flows;
  * #L%
  */
 
-import java.util.Collection;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -37,6 +35,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
 
 @Path("/")
 public interface IFlowManagement extends ICapability {
@@ -49,7 +48,7 @@ public interface IFlowManagement extends ICapability {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Collection<FlowConfig> getFlows() throws Exception;
+	public FlowConfigs getFlows() throws Exception;
 	
 	/**
 	 * 
@@ -62,7 +61,7 @@ public interface IFlowManagement extends ICapability {
 	@Path("/{dpid}")
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public Collection<FlowConfig> getFlows(@PathParam("dpid") String dpid) throws NotFoundException, IllegalStateException, Exception;
+	public FlowConfigs getFlows(@PathParam("dpid") String dpid) throws NotFoundException, IllegalStateException, Exception;
 	
 	/**
 	 * 

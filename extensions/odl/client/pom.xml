@@ -94,7 +94,7 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							<!-- TODO add exported packages -->
+							org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api
 						</Export-Package>
 					</instructions>
 				</configuration>

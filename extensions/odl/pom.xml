@@ -24,6 +24,7 @@
 
 	<properties>
 		<project.version>0.0.1-SNAPSHOT</project.version>
+		<network.version>0.0.1-SNAPSHOT</network.version>
 	</properties>
 
 	<dependencyManagement>

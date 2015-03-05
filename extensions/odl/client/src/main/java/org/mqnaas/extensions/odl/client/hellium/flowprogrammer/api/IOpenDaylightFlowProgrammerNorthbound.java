@@ -29,8 +29,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.model.FlowConfig;
-import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.model.FlowConfigs;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
 
 
 

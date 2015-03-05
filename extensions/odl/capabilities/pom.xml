@@ -45,7 +45,6 @@
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
-
 	<build>
 		<plugins>
 			<plugin>
@@ -56,7 +55,8 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							<!-- TODO add exported packages -->
+							org.mqnaas.extensions.odl.capabilities.flows,
+							org.mqnaas.extensions.odl.client.switchnorthbound.api
 						</Export-Package>
 					</instructions>
 				</configuration>

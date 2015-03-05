@@ -41,6 +41,7 @@ import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
+import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.slf4j.Logger;
@@ -95,6 +96,11 @@ public class ResourceModelReader implements IResourceModelReader {
 					IAttributeStore attributeStoreCapab = serviceProvider.getCapability(resource, IAttributeStore.class);
 					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID) != null)
 						modelWrapper.setExternalId(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
+				}
+				// FIXME this should be generalized.
+				else if (capabilityClass.equals(IFlowManagement.class)) {
+					IFlowManagement flowMgmCapab = serviceProvider.getCapability(resource, IFlowManagement.class);
+					modelWrapper.setConfiguredRules(flowMgmCapab.getFlows());
 				}
 				else {
 

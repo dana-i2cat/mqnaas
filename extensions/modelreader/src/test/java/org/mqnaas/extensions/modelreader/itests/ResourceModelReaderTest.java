@@ -28,9 +28,12 @@ import java.util.Arrays;
 
 import javax.inject.Inject;
 
+import org.apache.cxf.common.util.ProxyClassLoader;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
@@ -47,6 +50,12 @@ import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
+import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
+import org.mqnaas.extensions.odl.client.switchnorthbound.api.Node.NodeType;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.Action;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.ActionType;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.Node;
 import org.mqnaas.network.impl.Network;
 import org.mqnaas.network.impl.NetworkSubResource;
 import org.mqnaas.network.impl.PortResourceWrapper;
@@ -80,9 +89,13 @@ public class ResourceModelReaderTest {
 	private IRootResource		ofSwitch;
 	private IResource			ofSwitchPort1;
 	private IResource			ofSwitchPort2;
+	private FlowConfig			openflowRule;
 
 	private static final String	OFSWITCH_PORT1_EXT_ID	= "eth1";
 	private static final String	OFSWITCH_PORT2_EXT_ID	= "eth2";
+
+	private static final String	RULE_SRC_IP				= "192.168.1.10";
+	private static final String	RULE_DST_IP				= "192.168.1.11";
 
 	@Configuration
 	public Option[] config() {
@@ -108,7 +121,11 @@ public class ResourceModelReaderTest {
 				// add network feature
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("network").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "network"),
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("odl").classifier("features")
+						.type("xml").version("0.0.1-SNAPSHOT"), "odl"),
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("modelreader")
+						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas-wiremock")
 						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
@@ -116,9 +133,9 @@ public class ResourceModelReaderTest {
 	}
 
 	@Before
-	public void startResources() throws InstantiationException, IllegalAccessException, URISyntaxException {
+	public void startResources() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException {
 		// create network
-		network = rootResourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK)));
+		network = rootResourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "odl")));
 		Network networkWrapper = new Network(network, serviceProvider);
 
 		// create ofswitch inside network
@@ -126,13 +143,27 @@ public class ResourceModelReaderTest {
 		ofSwitch = networkWrapper.createResource(new Specification(Type.OF_SWITCH), Arrays.asList(endpoint));
 		NetworkSubResource ofSwitchWrapper = new NetworkSubResource(ofSwitch, serviceProvider);
 
+		// create ports in the switch
 		ofSwitchPort1 = ofSwitchWrapper.createPort();
 		ofSwitchPort2 = ofSwitchWrapper.createPort();
 
+		// map ports external id
 		PortResourceWrapper ofSwitchPort1Wrapper = new PortResourceWrapper(ofSwitchPort1, serviceProvider);
 		PortResourceWrapper ofSwitchPort2Wrapper = new PortResourceWrapper(ofSwitchPort2, serviceProvider);
 		ofSwitchPort1Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT1_EXT_ID);
 		ofSwitchPort2Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT2_EXT_ID);
+
+		// create openflow rules in the network, specifying the switch id
+
+		Action action = new Action(ActionType.OUTPUT, OFSWITCH_PORT2_EXT_ID);
+		openflowRule = new FlowConfig();
+		openflowRule.setIngressPort(OFSWITCH_PORT1_EXT_ID);
+		openflowRule.setSrcIp(RULE_SRC_IP);
+		openflowRule.setDstIp(RULE_DST_IP);
+		openflowRule.setActions(Arrays.asList(action.toString()));
+		openflowRule.setNode(new Node(OFSWITCH_PORT1_EXT_ID, NodeType.OF.toString()));
+		IFlowManagement flowMgmCapab = serviceProvider.getCapability(network, IFlowManagement.class);
+		flowMgmCapab.addFlow(openflowRule);
 
 	}
 
@@ -165,6 +196,13 @@ public class ResourceModelReaderTest {
 				.getSpecification().getType().toString(), networkModel.getType());
 		Assert.assertEquals("Network model representation should contain 1 subresource.", 1, networkModel.getResources().size());
 
+		// network openflow rules
+		Assert.assertNotNull("Network model should contain configured rules.", networkModel.getConfiguredRules());
+		Assert.assertNotNull("Network model should contain configured rules.", networkModel.getConfiguredRules().getFlowConfig());
+		Assert.assertEquals("Network model should contain one configured rule.", 1, networkModel.getConfiguredRules().getFlowConfig().size());
+		Assert.assertEquals("Network model should contain the openflowrule of the device.", openflowRule, networkModel.getConfiguredRules()
+				.getFlowConfig().get(0));
+
 		// Switch resource asserts
 		ResourceModelWrapper switchModel = networkModel.getResources().get(0);
 		Assert.assertNotNull("Switch model should not be null.", switchModel);
@@ -173,6 +211,7 @@ public class ResourceModelReaderTest {
 		Assert.assertEquals("Switch resource reporesentation in model should contain the same type as the real switch", ofSwitch.getDescriptor()
 				.getSpecification().getType().toString(), switchModel.getType());
 		Assert.assertEquals("Switch model representation should contain 2 subresources.", 1, networkModel.getResources().size());
+		Assert.assertNull("Switch model should not contain any openflow rules!", networkModel.getConfiguredRules());
 
 		// Switch ports asserts
 		ResourceModelWrapper port1Model = switchModel.getResources().get(0);
@@ -191,6 +230,9 @@ public class ResourceModelReaderTest {
 		Assert.assertTrue("First model port should not contain subresources.", port1Model.getResources().isEmpty());
 		Assert.assertTrue("Second model port should not contain subresources.", port2Model.getResources().isEmpty());
 
+		Assert.assertNull("Ports should not contain any openflow rule!", port1Model.getConfiguredRules());
+		Assert.assertNull("Ports should not contain any openflow rule!", port2Model.getConfiguredRules());
+
 		if (port1Model.getId().equals(ofSwitchPort1.getId())) {
 			Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port1Model.getExternalId());
 			Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
@@ -203,4 +245,30 @@ public class ResourceModelReaderTest {
 
 	}
 
+	@Test
+	@Ignore
+	public void modelReaderWSTest() {
+
+		String networkId = network.getId();
+		IResourceModelReader wsClient = createClient("http://localhost:9000/mqnaas/IRootResourceAdministration/" + networkId + "/IResourceModelReader/resourceModel");
+
+		ResourceModelWrapper model = wsClient.getResourceModel();
+
+		System.out.println(model);
+
+	}
+
+	private IResourceModelReader createClient(String addressUri) {
+
+		// create CXF client
+		ProxyClassLoader classLoader = new ProxyClassLoader(IResourceModelReader.class.getClassLoader());
+		classLoader.addLoader(JAXRSClientFactoryBean.class.getClassLoader());
+
+		JAXRSClientFactoryBean bean = new JAXRSClientFactoryBean();
+		bean.setAddress(addressUri);
+		bean.setResourceClass(IResourceModelReader.class);
+		bean.setClassLoader(classLoader);
+
+		return (IResourceModelReader) bean.create();
+	}
 }

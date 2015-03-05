@@ -4,12 +4,15 @@
 	<!-- MQNaaS repository -->
 	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
 	<!-- MQNaaS network repository -->
-	<repository>mvn:org.mqnaas.extensions/network/${mqnaas.version}/xml/features</repository>
+	<repository>mvn:org.mqnaas.extensions/network/${network.version}/xml/features</repository>
+	<!-- MQNaaS ODL repository -->
+	<repository>mvn:org.mqnaas.extensions/odl/${odl.version}/xml/features</repository>
 	
 	<feature name="mqnaas-modelreader" version="${project.version}">
 
 	    <feature version="${mqnaas.version}">mqnaas</feature>	    
-	    <feature version="${mqnaas.version}">network</feature>	    
+	    <feature version="${network.version}">network</feature>	    
+	  	<feature version="${odl.version}">odl</feature>	    
 	    
 		<bundle>mvn:org.mqnaas.extensions/modelreader/${project.version}</bundle>
 

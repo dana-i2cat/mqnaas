@@ -31,11 +31,14 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
 
 /**
  * <p>
  * Wrapper class of resources, containing the tree of {@link IResource}s representing the model of a resource.
  * </p>
+ * 
+ * FIXME It contains specific openflow information. This class should be modified when we implement a generic way to specify the state of a resource.
  * 
  * @author Adrián Roselló Rey (i2CAT)
  *
@@ -54,6 +57,8 @@ public class ResourceModelWrapper {
 	@XmlElementWrapper(name = "resources")
 	@XmlElement(name = "resource")
 	private List<ResourceModelWrapper>	resources;
+
+	private FlowConfigs					configuredRules;
 
 	// constructor withour arguments, required by JAXB
 	ResourceModelWrapper() {
@@ -95,10 +100,19 @@ public class ResourceModelWrapper {
 		this.resources = resources;
 	}
 
+	public FlowConfigs getConfiguredRules() {
+		return configuredRules;
+	}
+
+	public void setConfiguredRules(FlowConfigs configuredRules) {
+		this.configuredRules = configuredRules;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((configuredRules == null) ? 0 : configuredRules.hashCode());
 		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((resources == null) ? 0 : resources.hashCode());
@@ -115,6 +129,11 @@ public class ResourceModelWrapper {
 		if (getClass() != obj.getClass())
 			return false;
 		ResourceModelWrapper other = (ResourceModelWrapper) obj;
+		if (configuredRules == null) {
+			if (other.configuredRules != null)
+				return false;
+		} else if (!configuredRules.equals(other.configuredRules))
+			return false;
 		if (externalId == null) {
 			if (other.externalId != null)
 				return false;
@@ -140,7 +159,7 @@ public class ResourceModelWrapper {
 
 	@Override
 	public String toString() {
-		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", externalId=" + externalId + ", resources=" + resources + "]";
+		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", externalId=" + externalId + ", resources=" + resources + ", configuredRules=" + configuredRules + "]";
 	}
 
 }

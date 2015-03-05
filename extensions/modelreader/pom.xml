@@ -16,6 +16,7 @@
 	<properties>
 		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
 		<network.version>0.0.1-SNAPSHOT</network.version>
+		<odl.version>0.0.1-SNAPSHOT</odl.version>
 	</properties>
 
 
@@ -36,7 +37,13 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>network.impl</artifactId>
 			<version>${network.version}</version>
-		</dependency>	
+		</dependency>
+		<!-- ODL modules -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>odl.capabilities</artifactId>
+			<version>${odl.version}</version>
+		</dependency>
 		<!-- Tests libraries-->
 		<dependency>
 			<groupId>junit</groupId>

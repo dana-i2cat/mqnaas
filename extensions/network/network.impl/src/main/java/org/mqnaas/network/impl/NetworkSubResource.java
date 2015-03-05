@@ -97,4 +97,9 @@ public class NetworkSubResource {
 		return getCapability(IPortManagement.class).getPorts();
 	}
 
+	public void removePort(IResource port) {
+		getCapability(IPortManagement.class).removePort(port);
+
+	}
+
 }

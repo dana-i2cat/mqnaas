@@ -24,10 +24,45 @@
 
 	<properties>
 		<project.version>0.0.1-SNAPSHOT</project.version>
+		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
+		<network.version>0.0.1-SNAPSHOT</network.version>
 	</properties>
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- Own modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>odl.client</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>odl.model</artifactId>
+				<version>${project.version}</version>
+			</dependency>			
+			<!-- MQNaaS modules -->
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider-api</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<!-- Network modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.api</artifactId>
+				<version>${network.version}</version>
+			</dependency>	
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.impl</artifactId>
+				<version>${network.version}</version>
+			</dependency>					
 		</dependencies>
 	</dependencyManagement>
 

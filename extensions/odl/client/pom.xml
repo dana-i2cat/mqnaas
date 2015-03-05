@@ -94,7 +94,8 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							<!-- TODO add exported packages -->
+							org.mqnaas.extensions.odl.client.switchnorthbound,
+							org.mqnaas.extensions.odl.client.switchnorthbound.api							
 						</Export-Package>
 					</instructions>
 				</configuration>

@@ -34,6 +34,8 @@ public interface IAttributeStore extends ICapability {
 	 */
 	static final String	RESOURCE_EXTERNAL_ID	= "resource.external.id";
 
+	static final String	RESOURCE_EXTERNAL_NAME	= "resource.external.name";
+
 	String getAttribute(String name);
 
 	void setAttribute(String name, String value);

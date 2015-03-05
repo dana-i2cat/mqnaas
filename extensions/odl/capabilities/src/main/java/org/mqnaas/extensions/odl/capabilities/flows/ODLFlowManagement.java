@@ -21,9 +21,6 @@ package org.mqnaas.extensions.odl.capabilities.flows;
  * #L%
  */
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.NotFoundException;
 
@@ -40,8 +37,9 @@ import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
 import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
 
-public class FlowManagement implements IFlowManagement {
+public class ODLFlowManagement implements IFlowManagement {
 	
 	@Resource
 	IResource	network;
@@ -70,13 +68,13 @@ public class FlowManagement implements IFlowManagement {
 	}
 
 	@Override
-	public Collection<FlowConfig> getFlows() throws IllegalStateException, Exception {
-		return new ArrayList<FlowConfig>(getFlowProgrammerClient().getStaticFlows().getFlowConfig());
+	public FlowConfigs getFlows() throws IllegalStateException, Exception {
+		return getFlowProgrammerClient().getStaticFlows();
 	}
 
 	@Override
-	public Collection<FlowConfig> getFlows(String dpid) throws IllegalStateException, Exception {
-		return getFlowProgrammerClient().getStaticFlows(dpid).getFlowConfig();
+	public FlowConfigs getFlows(String dpid) throws IllegalStateException, Exception {
+		return getFlowProgrammerClient().getStaticFlows(dpid);
 	}
 	
 	@Override

@@ -13,13 +13,31 @@
 
 	<name>MQNaaS :: ODL Client</name>
 	<description>MQNaaS OpenDaylight Client</description>
-
+	
 	<properties>
+		<commons.io.version>1.4</commons.io.version>
+		<cxf.version>2.7.14</cxf.version>
 		<!-- javax.ws.rs API (REST) version -->
 		<javax.ws.rs-api-version>2.0-m10</javax.ws.rs-api-version>
+		<junit-version>4.11</junit-version>
+		<jsonassert.version>1.2.0</jsonassert.version>
+		<servicemix.specs.version>2.2.0</servicemix.specs.version>
+		<!-- SLF4J version -->
+		<slf4j.version>1.7.7</slf4j.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>odl.model</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!-- CXF -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
 		<!-- SLF4J logging API -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

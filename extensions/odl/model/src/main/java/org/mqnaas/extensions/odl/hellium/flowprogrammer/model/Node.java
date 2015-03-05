@@ -1,8 +1,8 @@
-package org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.model;
+package org.mqnaas.extensions.odl.hellium.flowprogrammer.model;
 
 /*
  * #%L
- * MQNaaS :: ODL Client
+ * MQNaaS :: ODL Model
  * %%
  * Copyright (C) 2007 - 2015 Fundació Privada i2CAT, Internet i
  * 			Innovació a Catalunya
@@ -29,17 +29,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class Node {
-	
+
 	@XmlElement
-	private String id;
+	private String	id;
 	@XmlElement
-	private String type;
-	
+	private String	type;
+
 	// To satisfy JAXB
 	@SuppressWarnings("unused")
 	private Node() {
 	}
-	
+
 	public Node(String id, String type) {
 		super();
 		this.id = id;

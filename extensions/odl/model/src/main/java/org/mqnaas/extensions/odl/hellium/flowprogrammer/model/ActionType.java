@@ -13,7 +13,7 @@
 
 /*
  * #%L
- * MQNaaS :: ODL Client
+ * MQNaaS :: ODL Model
  * %%
  * Copyright (C) 2007 - 2015 Fundació Privada i2CAT, Internet i
  * 			Innovació a Catalunya
@@ -31,7 +31,7 @@
  * limitations under the License.
  * #L%
  */
-package org.mqnaas.extensions.odl.client;
+package org.mqnaas.extensions.odl.hellium.flowprogrammer.model;
 
 /**
  * The enumeration of actions supported by the controller

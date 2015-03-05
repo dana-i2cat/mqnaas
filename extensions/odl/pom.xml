@@ -16,6 +16,7 @@
 	<description>MQNaaS OpenDaylight</description>
 
 	<modules>
+		<module>model</module>
 		<module>client</module>
 		<module>clientprovider</module>
 		<module>capabilities</module>
@@ -33,6 +34,11 @@
 			<dependency>
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>odl.client</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>odl.model</artifactId>
 				<version>${project.version}</version>
 			</dependency>			
 			<!-- MQNaaS modules -->

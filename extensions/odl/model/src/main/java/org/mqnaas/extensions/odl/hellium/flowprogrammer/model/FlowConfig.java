@@ -1,8 +1,8 @@
-package org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.model;
+package org.mqnaas.extensions.odl.hellium.flowprogrammer.model;
 
 /*
  * #%L
- * MQNaaS :: ODL Client
+ * MQNaaS :: ODL Model
  * %%
  * Copyright (C) 2007 - 2015 Fundació Privada i2CAT, Internet i
  * 			Innovació a Catalunya
@@ -20,7 +20,6 @@ package org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.model;
  * limitations under the License.
  * #L%
  */
-
 import java.util.ArrayList;
 import java.util.List;
 

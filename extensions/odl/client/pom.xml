@@ -95,7 +95,9 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api,
-							org.mqnaas.extensions.odl.client.switchnorthbound.api.adapter				
+							org.mqnaas.extensions.odl.client.switchnorthbound,
+							org.mqnaas.extensions.odl.client.switchnorthbound.api,
+							org.mqnaas.extensions.odl.client.switchnorthbound.api.adapter
 						</Export-Package>
 					</instructions>
 				</configuration>

@@ -124,9 +124,7 @@ public class ResourceModelReaderTest {
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("odl").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "odl"),
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("modelreader")
-						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
-				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas-wiremock")
-						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
+						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader")
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
 		};

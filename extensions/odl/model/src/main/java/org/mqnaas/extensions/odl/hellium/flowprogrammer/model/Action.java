@@ -20,25 +20,24 @@ package org.mqnaas.extensions.odl.hellium.flowprogrammer.model;
  * limitations under the License.
  * #L%
  */
-
 public class Action {
-	
-	private ActionType type;
-	private String parameter;
-	
+
+	private ActionType	type;
+	private String		parameter;
+
 	public Action(ActionType type, String parameter) {
 		super();
-		
+
 		this.type = type;
 		this.parameter = parameter;
-		
+
 		checkValidity();
 	}
-	
+
 	public Action(String type, String parameter) {
 		if (type == null)
 			throw new IllegalArgumentException("Type cannot be null");
-		
+
 		ActionType validType = null;
 		for (ActionType candidate : ActionType.values()) {
 			if (candidate.toString().equals(type)) {
@@ -47,24 +46,24 @@ public class Action {
 			}
 		}
 		if (validType == null)
-			throw new IllegalArgumentException("Invalid action type");	
-		
+			throw new IllegalArgumentException("Invalid action type");
+
 		this.type = validType;
 		this.parameter = parameter;
-		
+
 		checkValidity();
 	}
-	
+
 	public Action(ActionType type) {
 		this(type, null);
 	}
-	
+
 	// To satisfy JAXB
 	@SuppressWarnings("unused")
 	private Action() {
-		
+
 	}
-	
+
 	public ActionType getType() {
 		return type;
 	}
@@ -75,9 +74,9 @@ public class Action {
 
 	@Override
 	public String toString() {
-		// Returned value is being used in org.mqnaas.extensions.odl.client.api.model.FlowConfig 
+		// Returned value is being used in org.mqnaas.extensions.odl.client.api.model.FlowConfig
 		// it will be parsed by ODL in org.opendaylight.controller.forwardingrulesmanager.FlowConfig
-		if (! type.takesParameter())
+		if (!type.takesParameter())
 			return type.toString();
 		return type.toString() + "=" + parameter;
 	}
@@ -110,11 +109,11 @@ public class Action {
 			return false;
 		return true;
 	}
-	
+
 	private void checkValidity() {
 		if (type == null)
 			throw new IllegalArgumentException("Type cannot be null");
-		
+
 		if (type.takesParameter())
 			if (parameter == null)
 				throw new IllegalArgumentException("Parameter is required for action " + type.toString());

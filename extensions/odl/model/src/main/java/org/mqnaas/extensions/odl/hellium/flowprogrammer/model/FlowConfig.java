@@ -20,7 +20,6 @@ package org.mqnaas.extensions.odl.hellium.flowprogrammer.model;
  * limitations under the License.
  * #L%
  */
-
 import java.util.ArrayList;
 import java.util.List;
 

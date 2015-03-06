@@ -3,7 +3,7 @@
 
 	<!-- MQNaaS repository -->
 	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
-	<repository>mvn:org.mqnaas.extensions/network/${mqnaas.version}/xml/features</repository>
+	<repository>mvn:org.mqnaas.extensions/network/${network.version}/xml/features</repository>
 
 	<feature name="odl" version="${project.version}">
 		<feature version="${mqnaas.version}">mqnaas</feature>

@@ -29,17 +29,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class Node {
-	
+
 	@XmlElement
-	private String id;
+	private String	id;
 	@XmlElement
-	private String type;
-	
+	private String	type;
+
 	// To satisfy JAXB
 	@SuppressWarnings("unused")
 	private Node() {
 	}
-	
+
 	public Node(String id, String type) {
 		super();
 		this.id = id;

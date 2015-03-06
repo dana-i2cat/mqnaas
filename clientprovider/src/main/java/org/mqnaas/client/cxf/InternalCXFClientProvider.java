@@ -135,6 +135,7 @@ public class InternalCXFClientProvider<CC extends CXFConfiguration> implements I
 			} else if (c instanceof UsernamePasswordCredentials) {
 				bean.setUsername(((UsernamePasswordCredentials) c).getUsername());
 				bean.setPassword(((UsernamePasswordCredentials) c).getPassword());
+				api = bean.create(apiClass);
 			}
 			else {
 				log.warn("Unkown credentials type. Ignoring it. Client won't contain any authentication information.");

@@ -90,7 +90,7 @@ public class UsernamePasswordCredentials extends Credentials {
 
 	@Override
 	public String toString() {
-		return "UsernnamePasswordCredentials [username=" + username + ", password=****]";
+		return "UsernamePasswordCredentials [username=" + username + ", password=****]";
 	}
 
 }

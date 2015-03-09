@@ -200,6 +200,12 @@ public class SliceAdministrationTest {
 			throw new RuntimeException("Not implemented.");
 		}
 
+		@Override
+		public Collection<Class<? extends ICapability>> getCapabilities(IResource resource) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
 	}
 
 	@Test

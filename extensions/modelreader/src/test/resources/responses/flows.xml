@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<list>
+	<flowConfig>
+		<installInHw>true</installInHw>
+		<name>test1-p1-p2</name>
+		<node>
+			<id>00:00:00:00:00:00:00:02</id>
+			<type>OF</type>
+		</node>
+		<ingressPort>1</ingressPort>
+		<priority>500</priority>
+		<etherType>0x800</etherType>
+		<actions>OUTPUT=2</actions>
+	</flowConfig>
+	<flowConfig>
+		<installInHw>true</installInHw>
+		<name>test1-p2-p1</name>
+		<node>
+			<id>00:00:00:00:00:00:00:02</id>
+			<type>OF</type>
+		</node>
+		<ingressPort>2</ingressPort>
+		<priority>500</priority>
+		<etherType>0x800</etherType>
+		<actions>OUTPUT=1</actions>
+	</flowConfig>
+</list>

@@ -96,6 +96,9 @@ public class ResourceModelReader implements IResourceModelReader {
 					IAttributeStore attributeStoreCapab = serviceProvider.getCapability(resource, IAttributeStore.class);
 					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID) != null)
 						modelWrapper.setExternalId(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
+					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME) != null)
+						modelWrapper.setExternalName(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME));
+
 				}
 				// FIXME this should be generalized.
 				else if (capabilityClass.equals(IFlowManagement.class)) {

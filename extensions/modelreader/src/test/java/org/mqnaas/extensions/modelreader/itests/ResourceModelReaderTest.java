@@ -37,7 +37,6 @@ import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -212,7 +211,6 @@ public class ResourceModelReaderTest {
 	}
 
 	@Test
-	@Ignore
 	public void modelReaderWSTest() {
 
 		String networkId = network.getId();

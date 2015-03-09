@@ -15,8 +15,7 @@
 
 	<feature name="odl-client" version="${project.version}">
 		<!-- TODO add dependencies -->
-		
-		<bundle>mvn:org.mqnaas.extensions/odl.model/${project.version}</bundle>
+		<bundle dependency="true">mvn:org.mqnaas.extensions/odl.model/${project.version}</bundle>
 		<bundle>mvn:org.mqnaas.extensions/odl.client/${project.version}</bundle>
 	</feature>
 

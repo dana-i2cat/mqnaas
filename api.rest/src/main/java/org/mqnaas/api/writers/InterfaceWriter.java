@@ -199,6 +199,30 @@ public class InterfaceWriter extends AbstractWriter implements Opcodes {
 				serviceName = serviceName.substring(3, 4).toLowerCase() + serviceName.substring(4);
 				httpMethod = PUT.class;
 			}
+			
+			else if (serviceName.startsWith("delete") && serviceName.length() > 6) {
+				log.trace("Found \"delete\" method: " + method);
+
+				httpMethod = DELETE.class;
+			}
+			
+			else if (serviceName.startsWith("add") && serviceName.length() > 3) {
+				log.trace("Found \"add\" method: " + method);
+
+				httpMethod = PUT.class;
+			}
+			
+			else if (serviceName.startsWith("update") && serviceName.length() > 6) {
+				log.trace("Found \"update\" method: " + method);
+
+				httpMethod = PUT.class;
+			}
+			
+			else if (serviceName.startsWith("remove") && serviceName.length() > 6) {
+				log.trace("Found \"remove\" method: " + method);
+
+				httpMethod = DELETE.class;
+			}
 
 			writer.addAnnotationWriter(new AnnotationWriter(httpMethod));
 			writer.addAnnotationWriter(new AnnotationWriter(Path.class, new AnnotationParamWriter("value", serviceName)));

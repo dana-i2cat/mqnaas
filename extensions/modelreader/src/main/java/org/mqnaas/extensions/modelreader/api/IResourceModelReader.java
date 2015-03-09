@@ -21,6 +21,11 @@ package org.mqnaas.extensions.modelreader.api;
  * #L%
  */
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 
@@ -36,8 +41,12 @@ import org.mqnaas.core.api.IResource;
  * @author Adrián Roselló Rey
  *
  */
+@Path("/")
 public interface IResourceModelReader extends ICapability {
 
+	@Path("/")
+	@GET
+	@Produces(MediaType.APPLICATION_XML)
 	public ResourceModelWrapper getResourceModel();
 
 }

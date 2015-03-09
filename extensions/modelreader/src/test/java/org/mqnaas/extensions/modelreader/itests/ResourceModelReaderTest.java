@@ -160,6 +160,21 @@ public class ResourceModelReaderTest {
 
 		ResourceModelWrapper networkModel = modelReader.getResourceModel();
 
+		checkResourceModelReaderCapabililityResponse(networkModel);
+
+	}
+
+	@Test
+	public void modelReaderWSTest() {
+
+		String networkId = network.getId();
+		IResourceModelReader wsClient = createClient("http://localhost:9000/mqnaas/IRootResourceAdministration/" + networkId + "/IResourceModelReader/resourceModel");
+
+		ResourceModelWrapper networkModel = wsClient.getResourceModel();
+		checkResourceModelReaderCapabililityResponse(networkModel);
+	}
+
+	private void checkResourceModelReaderCapabililityResponse(ResourceModelWrapper networkModel) {
 		// Network resource asserts
 		Assert.assertNotNull("Network model should not be null.", networkModel);
 		Assert.assertEquals("Network resource reporesentation in model should contain the same id as the real network", network.getId(),
@@ -207,19 +222,6 @@ public class ResourceModelReaderTest {
 		Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
 		Assert.assertEquals("Second model port should contain the expected external port name. ", OFSWITCH_PORT2_EXT_NAME,
 				port2Model.getExternalName());
-
-	}
-
-	@Test
-	public void modelReaderWSTest() {
-
-		String networkId = network.getId();
-		IResourceModelReader wsClient = createClient("http://localhost:9000/mqnaas/IRootResourceAdministration/" + networkId + "/IResourceModelReader/resourceModel");
-
-		ResourceModelWrapper model = wsClient.getResourceModel();
-
-		System.out.println(model);
-
 	}
 
 	private IResourceModelReader createClient(String addressUri) {

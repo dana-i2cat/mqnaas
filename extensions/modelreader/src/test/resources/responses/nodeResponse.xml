@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<list>
+    <nodeProperties>
+        <node>
+            <id>00:00:00:00:00:00:00:02</id>
+            <type>OF</type>
+        </node>
+        <properties>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="tables">
+                <value>-1</value>
+            </property>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="description">
+                <value>None</value>
+            </property>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="forwardingMode">
+                <value>0</value>
+            </property>
+            <property/>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="macAddress">
+                <value>00:00:00:00:00:02</value>
+            </property>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="timeStamp">
+                <value>1424856064717</value>
+                <name>connectedSince</name>
+            </property>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="capabilities">
+                <value>199</value>
+            </property>
+            <property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="buffers">
+                <value>256</value>
+            </property>
+        </properties>
+    </nodeProperties>
+</list>

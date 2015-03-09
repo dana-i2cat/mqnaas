@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<list>
+	<nodeConnectorProperties>
+		<nodeconnector>
+			<node>
+				<id>00:00:00:00:00:00:00:02</id>
+				<type>OF</type>
+			</node>
+			<id>2</id>
+			<type>OF</type>
+		</nodeconnector>
+		<properties>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="state">
+				<value>1</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="config">
+				<value>1</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="bandwidth">
+				<value>10000000000</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="name">
+				<value>eth1</value>
+			</property>
+		</properties>
+	</nodeConnectorProperties>
+	<nodeConnectorProperties>
+		<nodeconnector>
+			<node>
+				<id>00:00:00:00:00:00:00:02</id>
+				<type>OF</type>
+			</node>
+			<id>1</id>
+			<type>OF</type>
+		</nodeconnector>
+		<properties>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="state">
+				<value>1</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="config">
+				<value>1</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="bandwidth">
+				<value>10000000000</value>
+			</property>
+			<property xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+				xsi:type="name">
+				<value>eth0</value>
+			</property>
+		</properties>
+	</nodeConnectorProperties>
+</list>

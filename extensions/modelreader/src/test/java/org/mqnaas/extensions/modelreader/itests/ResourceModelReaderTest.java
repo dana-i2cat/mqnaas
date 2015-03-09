@@ -21,12 +21,16 @@ package org.mqnaas.extensions.modelreader.itests;
  * #L%
  */
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import javax.inject.Inject;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.cxf.common.util.ProxyClassLoader;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
@@ -34,10 +38,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
-import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -47,18 +51,9 @@ import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
-import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
-import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.Node.NodeType;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.Action;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.ActionType;
 import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.Node;
-import org.mqnaas.network.impl.Network;
-import org.mqnaas.network.impl.NetworkSubResource;
-import org.mqnaas.network.impl.PortResourceWrapper;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
@@ -66,6 +61,9 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
+
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockRule;
 
 /**
  * 
@@ -75,6 +73,9 @@ import org.ops4j.pax.exam.spi.reactors.PerClass;
 @RunWith(PaxExam.class)
 @ExamReactorStrategy(PerClass.class)
 public class ResourceModelReaderTest {
+
+	@Rule
+	public WireMockRule			wireMockRule					= new WireMockRule(8080);
 
 	@Inject
 	IRootResourceProvider		rootResourceProvider;
@@ -86,16 +87,18 @@ public class ResourceModelReaderTest {
 	IServiceProvider			serviceProvider;
 
 	private IRootResource		network;
-	private IRootResource		ofSwitch;
-	private IResource			ofSwitchPort1;
-	private IResource			ofSwitchPort2;
-	private FlowConfig			openflowRule;
 
-	private static final String	OFSWITCH_PORT1_EXT_ID	= "eth1";
-	private static final String	OFSWITCH_PORT2_EXT_ID	= "eth2";
+	private static final String	OF_SWITCH_EXT_ID				= "00:00:00:00:00:00:00:02";
 
-	private static final String	RULE_SRC_IP				= "192.168.1.10";
-	private static final String	RULE_DST_IP				= "192.168.1.11";
+	private static final String	OFSWITCH_PORT1_EXT_ID			= "2";
+	private static final String	OFSWITCH_PORT2_EXT_ID			= "1";
+
+	private static final String	OFSWITCH_PORT1_EXT_NAME			= "eth1";
+	private static final String	OFSWITCH_PORT2_EXT_NAME			= "eth0";
+
+	private static final String	NODES_RESPONSE_FILE				= "/responses/nodeResponse.xml";
+	private static final String	NODECONNECTORS_RESPONSE_FILE	= "/responses/nodeConnectorsResponse.xml";
+	private static final String	FLOWS_RESPONSE_FILE				= "/responses/flows.xml";					;
 
 	@Configuration
 	public Option[] config() {
@@ -124,56 +127,28 @@ public class ResourceModelReaderTest {
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("odl").classifier("features")
 						.type("xml").version("0.0.1-SNAPSHOT"), "odl"),
 				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas.extensions").artifactId("modelreader")
-						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader")
+						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-modelreader"),
+				KarafDistributionOption.features(CoreOptions.maven().groupId("org.mqnaas").artifactId("mqnaas")
+						.classifier("features").type("xml").version("0.0.1-SNAPSHOT"), "mqnaas-wiremock"),
 		// debug option
 		// KarafDistributionOption.debugConfiguration()
 		};
 	}
 
 	@Before
-	public void startResources() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException {
+	public void startResources() throws InstantiationException, IllegalAccessException, URISyntaxException, CapabilityNotFoundException, IOException {
+
+		mockODLInstance();
+
 		// create network
-		network = rootResourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "odl")));
-		Network networkWrapper = new Network(network, serviceProvider);
-
-		// create ofswitch inside network
-		Endpoint endpoint = new Endpoint(new URI("http://www.myfakeswitch.com"));
-		ofSwitch = networkWrapper.createResource(new Specification(Type.OF_SWITCH), Arrays.asList(endpoint));
-		NetworkSubResource ofSwitchWrapper = new NetworkSubResource(ofSwitch, serviceProvider);
-
-		// create ports in the switch
-		ofSwitchPort1 = ofSwitchWrapper.createPort();
-		ofSwitchPort2 = ofSwitchWrapper.createPort();
-
-		// map ports external id
-		PortResourceWrapper ofSwitchPort1Wrapper = new PortResourceWrapper(ofSwitchPort1, serviceProvider);
-		PortResourceWrapper ofSwitchPort2Wrapper = new PortResourceWrapper(ofSwitchPort2, serviceProvider);
-		ofSwitchPort1Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT1_EXT_ID);
-		ofSwitchPort2Wrapper.setAttribute(AttributeStore.RESOURCE_EXTERNAL_ID, OFSWITCH_PORT2_EXT_ID);
-
-		// create openflow rules in the network, specifying the switch id
-
-		Action action = new Action(ActionType.OUTPUT, OFSWITCH_PORT2_EXT_ID);
-		openflowRule = new FlowConfig();
-		openflowRule.setIngressPort(OFSWITCH_PORT1_EXT_ID);
-		openflowRule.setSrcIp(RULE_SRC_IP);
-		openflowRule.setDstIp(RULE_DST_IP);
-		openflowRule.setActions(Arrays.asList(action.toString()));
-		openflowRule.setNode(new Node(OFSWITCH_PORT1_EXT_ID, NodeType.OF.toString()));
-		IFlowManagement flowMgmCapab = serviceProvider.getCapability(network, IFlowManagement.class);
-		flowMgmCapab.addFlow(openflowRule);
+		Endpoint endpoint = new Endpoint(new URI("http://localhost:8080"));
+		network = rootResourceAdministration.createRootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "odl"),
+				Arrays.asList(endpoint)));
 
 	}
 
 	@After
 	public void removeResources() throws ResourceNotFoundException {
-
-		NetworkSubResource ofSwitchWrapper = new NetworkSubResource(ofSwitch, serviceProvider);
-		ofSwitchWrapper.removePort(ofSwitchPort1);
-		ofSwitchWrapper.removePort(ofSwitchPort2);
-
-		Network networkWrapper = new Network(network, serviceProvider);
-		networkWrapper.removeResource(ofSwitch);
 
 		rootResourceAdministration.removeRootResource(network);
 	}
@@ -195,32 +170,27 @@ public class ResourceModelReaderTest {
 		Assert.assertEquals("Network model representation should contain 1 subresource.", 1, networkModel.getResources().size());
 
 		// network openflow rules
-		Assert.assertNotNull("Network model should contain configured rules.", networkModel.getConfiguredRules());
-		Assert.assertNotNull("Network model should contain configured rules.", networkModel.getConfiguredRules().getFlowConfig());
-		Assert.assertEquals("Network model should contain one configured rule.", 1, networkModel.getConfiguredRules().getFlowConfig().size());
-		Assert.assertEquals("Network model should contain the openflowrule of the device.", openflowRule, networkModel.getConfiguredRules()
-				.getFlowConfig().get(0));
+		Assert.assertNotNull("Network model should contain two configured rules.", networkModel.getConfiguredRules());
+		Assert.assertNotNull("Network model should contain two configured rules.", networkModel.getConfiguredRules().getFlowConfig());
+		Assert.assertEquals("Network model should contain two configured rules.", 2, networkModel.getConfiguredRules().getFlowConfig().size());
+		FlowConfig firstFlow = networkModel.getConfiguredRules().getFlowConfig().get(0);
+		FlowConfig secondFlow = networkModel.getConfiguredRules().getFlowConfig().get(1);
+		Assert.assertNotNull("First openflow rule of the network should not be null.", firstFlow);
+		Assert.assertNotNull("First openflow rule of the network should not be null.", secondFlow);
 
 		// Switch resource asserts
 		ResourceModelWrapper switchModel = networkModel.getResources().get(0);
 		Assert.assertNotNull("Switch model should not be null.", switchModel);
-		Assert.assertEquals("Switch resource reporesentation in model should contain the same id as the real switch", ofSwitch.getId(),
-				switchModel.getId());
-		Assert.assertEquals("Switch resource reporesentation in model should contain the same type as the real switch", ofSwitch.getDescriptor()
-				.getSpecification().getType().toString(), switchModel.getType());
-		Assert.assertEquals("Switch model representation should contain 2 subresources.", 1, networkModel.getResources().size());
-		Assert.assertNull("Switch model should not contain any openflow rules!", networkModel.getConfiguredRules());
+		Assert.assertEquals("Switch resource representation in model should be of type " + Type.OF_SWITCH, Type.OF_SWITCH.toString(),
+				switchModel.getType());
+		Assert.assertEquals("Switch model should contain as external id " + OF_SWITCH_EXT_ID, OF_SWITCH_EXT_ID, switchModel.getExternalId());
+		Assert.assertEquals("Switch model representation should contain 2 subresources.", 2, switchModel.getResources().size());
+		Assert.assertNull("Switch model should not contain any openflow rules!", switchModel.getConfiguredRules());
 
 		// Switch ports asserts
 		ResourceModelWrapper port1Model = switchModel.getResources().get(0);
 		ResourceModelWrapper port2Model = switchModel.getResources().get(1);
 		Assert.assertFalse("Both model ports should be different.", port1Model.equals(port2Model));
-
-		Assert.assertTrue("First model port should be a representation of a real switch port.",
-				port1Model.getId().equals(ofSwitchPort1.getId()) || port1Model.getId().equals(ofSwitchPort2.getId()));
-		Assert.assertTrue("Second model port should be a representation of a real switch port.",
-				port2Model.getId().equals(ofSwitchPort1.getId()) || port2Model.getId().equals(ofSwitchPort2.getId()));
-		Assert.assertFalse("Both model ports should contain different ids.", port1Model.getId().equals(port2Model.getId()));
 
 		Assert.assertEquals("First model port should be of type port.", "port", port1Model.getType());
 		Assert.assertEquals("Second model port should be of type port.", "port", port2Model.getType());
@@ -231,15 +201,13 @@ public class ResourceModelReaderTest {
 		Assert.assertNull("Ports should not contain any openflow rule!", port1Model.getConfiguredRules());
 		Assert.assertNull("Ports should not contain any openflow rule!", port2Model.getConfiguredRules());
 
-		if (port1Model.getId().equals(ofSwitchPort1.getId())) {
-			Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port1Model.getExternalId());
-			Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
-		}
-		else {
-			Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port1Model.getExternalId());
-			Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port2Model.getExternalId());
+		Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port1Model.getExternalId());
+		Assert.assertEquals("First model port should contain the expected external port name. ", OFSWITCH_PORT1_EXT_NAME,
+				port1Model.getExternalName());
 
-		}
+		Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
+		Assert.assertEquals("Second model port should contain the expected external port name. ", OFSWITCH_PORT2_EXT_NAME,
+				port2Model.getExternalName());
 
 	}
 
@@ -268,5 +236,50 @@ public class ResourceModelReaderTest {
 		bean.setClassLoader(classLoader);
 
 		return (IResourceModelReader) bean.create();
+	}
+
+	private String textFileToString(String fileLocation) throws IOException {
+		String fileString = "";
+		BufferedReader br = new BufferedReader(
+				new InputStreamReader(getClass().getResourceAsStream(fileLocation)));
+		String line;
+		while ((line = br.readLine()) != null) {
+			fileString += line += "\n";
+		}
+		br.close();
+		return fileString;
+	}
+
+	private void mockODLInstance() throws IOException {
+
+		WireMock.stubFor(
+				WireMock.get(
+						WireMock.urlEqualTo("/controller/nb/v2/switchmanager/default/nodes"))
+						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_XML))
+						.willReturn(WireMock.aResponse()
+								.withStatus(200)
+								.withHeader("Content-Type", MediaType.APPLICATION_XML)
+								.withBody(textFileToString(NODES_RESPONSE_FILE))
+						));
+
+		WireMock.stubFor(
+				WireMock.get(
+						WireMock.urlEqualTo("/controller/nb/v2/switchmanager/default/node/OF/" + OF_SWITCH_EXT_ID))
+						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_XML))
+						.willReturn(WireMock.aResponse()
+								.withStatus(200)
+								.withHeader("Content-Type", MediaType.APPLICATION_XML)
+								.withBody(textFileToString(NODECONNECTORS_RESPONSE_FILE))
+						));
+
+		WireMock.stubFor(
+				WireMock.get(
+						WireMock.urlEqualTo("/controller/nb/v2/flowprogrammer/default"))
+						.withHeader("Content-Type", WireMock.equalTo(MediaType.APPLICATION_XML))
+						.willReturn(WireMock.aResponse()
+								.withStatus(200)
+								.withHeader("Content-Type", MediaType.APPLICATION_XML)
+								.withBody(textFileToString(FLOWS_RESPONSE_FILE))
+						));
 	}
 }

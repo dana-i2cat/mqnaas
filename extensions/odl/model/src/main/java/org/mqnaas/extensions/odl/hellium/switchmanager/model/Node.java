@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model;
 
 /*
  * #%L
@@ -21,58 +21,75 @@ package org.mqnaas.extensions.odl.client.switchnorthbound.api;
  * #L%
  */
 
-import java.util.Map;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.adapter.PropertiesMapAdapter;
 
 /**
- * Node Properties composed by a {@link Node} and an arbitrary set of properties.
+ * Node, a generic network element.
+ * 
+ * Based on OpenDaylight Helium release (<a href=
+ * "https://github.com/opendaylight/controller/blob/stable/helium/opendaylight/sal/api/src/main/java/org/opendaylight/controller/sal/core/Node.java"
+ * >reference</a>).
  * 
  * @author Julio Carlos Barrera
  *
  */
-@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
-public class NodeProperties {
+@XmlRootElement
+public class Node {
 
-	@XmlElement
-	private Node						node;
-
-	@XmlElement
-	@XmlJavaTypeAdapter(PropertiesMapAdapter.class)
-	private Map<String, PropertyValue>	properties;
-
-	public NodeProperties() {
+	public static enum NodeType {
+		/**
+		 * Identifier for an OpenFlow node
+		 */
+		OF,
+		/**
+		 * Identifier for a PCEP node
+		 */
+		PE,
+		/**
+		 * Identifier for a ONEPK node
+		 */
+		PK,
+		/**
+		 * Identifier for a node in a non-SDN network
+		 */
+		PR;
 	}
 
-	public Node getNode() {
-		return node;
+	@XmlElement(name = "id")
+	private String		nodeID;
+
+	@XmlElement(name = "type")
+	private NodeType	nodeType;
+
+	public Node() {
 	}
 
-	public void setNode(Node node) {
-		this.node = node;
+	public String getNodeID() {
+		return nodeID;
 	}
 
-	public Map<String, PropertyValue> getProperties() {
-		return properties;
+	public void setNodeID(String nodeID) {
+		this.nodeID = nodeID;
 	}
 
-	public void setProperties(Map<String, PropertyValue> properties) {
-		this.properties = properties;
+	public NodeType getNodeType() {
+		return nodeType;
+	}
+
+	public void setNodeType(NodeType nodeType) {
+		this.nodeType = nodeType;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((node == null) ? 0 : node.hashCode());
-		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
+		result = prime * result + ((nodeID == null) ? 0 : nodeID.hashCode());
+		result = prime * result + ((nodeType == null) ? 0 : nodeType.hashCode());
 		return result;
 	}
 
@@ -84,23 +101,20 @@ public class NodeProperties {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NodeProperties other = (NodeProperties) obj;
-		if (node == null) {
-			if (other.node != null)
+		Node other = (Node) obj;
+		if (nodeID == null) {
+			if (other.nodeID != null)
 				return false;
-		} else if (!node.equals(other.node))
+		} else if (!nodeID.equals(other.nodeID))
 			return false;
-		if (properties == null) {
-			if (other.properties != null)
-				return false;
-		} else if (!properties.equals(other.properties))
+		if (nodeType != other.nodeType)
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "NodeProperties [node=" + node + ", properties=" + properties + "]";
+		return "Node [nodeID=" + nodeID + ", nodeType=" + nodeType + "]";
 	}
 
 }

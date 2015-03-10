@@ -31,8 +31,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectors;
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.Nodes;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.helpers.SwitchManagerModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class SwitchNorthboundAPITests {
 		Nodes obtainedNodes = client.getNodes("default");
 		log.info("Obtained Nodes:\n" + obtainedNodes);
 
-		Nodes expectedNodes = NodesSerializationTests.generateSampleNodes();
+		Nodes expectedNodes = SwitchManagerModelHelper.generateSampleNodes();
 		log.info("Expected Nodes:\n" + expectedNodes);
 
 		Assert.assertEquals("Deserialized nodes must be equals to the sample one.", expectedNodes, obtainedNodes);
@@ -72,7 +73,7 @@ public class SwitchNorthboundAPITests {
 		NodeConnectors obtainedNodeConnectors = client.getNodeConnectors("default", "OF", "00:00:00:00:00:00:00:01");
 		log.info("Obtained Node Connectors:\n" + obtainedNodeConnectors);
 
-		NodeConnectors expectedNodeConnectors = NodeConnectorsSerializationTests.generateSampleNodeConnectors();
+		NodeConnectors expectedNodeConnectors = SwitchManagerModelHelper.generateSampleNodeConnectors();
 		log.info("Expected Node Connectors:\n" + expectedNodeConnectors);
 
 		Assert.assertEquals("Deserialized node connectors must be equals to the sample one.", expectedNodeConnectors, obtainedNodeConnectors);

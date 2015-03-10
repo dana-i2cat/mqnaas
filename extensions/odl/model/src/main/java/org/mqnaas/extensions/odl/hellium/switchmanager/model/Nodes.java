@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model;
 
 /*
  * #%L
@@ -21,56 +21,44 @@ package org.mqnaas.extensions.odl.client.switchnorthbound.api;
  * #L%
  */
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * {@link NodeProperties} property value with mandatory value and optional name attributes.
+ * {@link NodeProperties} wrapper.
+ * 
+ * Based on OpenDaylight Helium release (<a href=
+ * "https://github.com/opendaylight/controller/blob/stable/helium/opendaylight/northbound/switchmanager/src/main/java/org/opendaylight/controller/switchmanager/northbound/Nodes.java"
+ * >reference</a>).
  * 
  * @author Julio Carlos Barrera
  *
  */
-@XmlRootElement
+@XmlRootElement(name = "list")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PropertyValue {
+public class Nodes {
 
-	private String	value;
+	private List<NodeProperties>	nodeProperties;
 
-	@XmlElement(required = false)
-	private String	name;
-
-	public PropertyValue() {
+	public Nodes() {
 	}
 
-	public PropertyValue(String value, String name) {
-		this.value = value;
-		this.name = name;
+	public List<NodeProperties> getNodeProperties() {
+		return nodeProperties;
 	}
 
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
+	public void setNodeProperties(List<NodeProperties> nodeProperties) {
+		this.nodeProperties = nodeProperties;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		result = prime * result + ((nodeProperties == null) ? 0 : nodeProperties.hashCode());
 		return result;
 	}
 
@@ -82,23 +70,18 @@ public class PropertyValue {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		PropertyValue other = (PropertyValue) obj;
-		if (name == null) {
-			if (other.name != null)
+		Nodes other = (Nodes) obj;
+		if (nodeProperties == null) {
+			if (other.nodeProperties != null)
 				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		if (value == null) {
-			if (other.value != null)
-				return false;
-		} else if (!value.equals(other.value))
+		} else if (!nodeProperties.equals(other.nodeProperties))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "PropertyValue [value=" + value + ", name=" + name + "]";
+		return "Nodes [nodeProperties=" + nodeProperties + "]";
 	}
 
 }

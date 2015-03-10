@@ -27,8 +27,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.NodeConnectors;
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.Nodes;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
 
 /**
  * Partial Switch Northbound API.

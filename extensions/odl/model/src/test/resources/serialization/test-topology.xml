@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns2:topology xmlns:ns2="org.mqnaas">
+    <edgeProperties>
+        <edge>
+            <tailNodeConnector>
+                <node>
+                    <id>00:00:00:00:00:00:00:01</id>
+                    <type>OF</type>
+                </node>
+                <id>2</id>
+                <type>OF</type>
+            </tailNodeConnector>
+            <headNodeConnector>
+                <node>
+                    <id>00:00:00:00:00:00:00:03</id>
+                    <type>OF</type>
+                </node>
+                <id>3</id>
+                <type>OF</type>
+            </headNodeConnector>
+        </edge>
+        <properties>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="state">
+                <value>1</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="config">
+                <value>1</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="name">
+                <value>s3-eth3</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bandwidth">
+                <value>100</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="timeStamp">
+                <value>1424856065071</value>
+                <name>creation</name>
+            </property>
+        </properties>
+    </edgeProperties>
+    <edgeProperties>
+        <edge>
+            <tailNodeConnector>
+                <node>
+                    <id>00:00:00:00:00:00:00:03</id>
+                    <type>OF</type>
+                </node>
+                <id>3</id>
+                <type>OF</type>
+            </tailNodeConnector>
+            <headNodeConnector>
+                <node>
+                    <id>00:00:00:00:00:00:00:01</id>
+                    <type>OF</type>
+                </node>
+                <id>2</id>
+                <type>OF</type>
+            </headNodeConnector>
+        </edge>
+        <properties>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="state">
+                <value>1</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="config">
+                <value>1</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="bandwidth">
+                <value>100</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="name">
+                <value>s1-eth2</value>
+            </property>
+            <property 
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="timeStamp">
+                <value>1424856065071</value>
+                <name>creation</name>
+            </property>
+        </properties>
+    </edgeProperties>
+</ns2:topology>

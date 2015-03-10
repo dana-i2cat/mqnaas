@@ -2,7 +2,7 @@ package org.mqnaas.extensions.odl.hellium.switchmanager.model.adapter;
 
 /*
  * #%L
- * MQNaaS :: ODL Client
+ * MQNaaS :: ODL Model
  * %%
  * Copyright (C) 2007 - 2015 Fundació Privada i2CAT, Internet i
  * 			Innovació a Catalunya

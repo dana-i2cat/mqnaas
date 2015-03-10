@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.hellium.switchmanager.model;
+package org.mqnaas.extensions.odl.hellium.topology.model;
 
 /*
  * #%L
@@ -25,40 +25,42 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * {@link NodeProperties} wrapper.
+ * <p>
+ * Class representing the Topology of a network managed by Opendaylight Hellium.
+ * </p>
  * 
- * Based on OpenDaylight Helium release (<a href=
- * "https://github.com/opendaylight/controller/blob/stable/helium/opendaylight/northbound/switchmanager/src/main/java/org/opendaylight/controller/switchmanager/northbound/Nodes.java"
- * >reference</a>).
- * 
- * @author Julio Carlos Barrera
+ * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlRootElement(name = "list")
+@XmlRootElement(namespace = "org.mqnaas")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Nodes {
+public class Topology {
 
-	private List<NodeProperties>	nodeProperties;
+	@XmlElement(name = "edgeProperties")
+	private List<EdgeProperty>	edgeProperties;
 
-	public Nodes() {
+	public List<EdgeProperty> getEdgeProperties() {
+		return edgeProperties;
 	}
 
-	public List<NodeProperties> getNodeProperties() {
-		return nodeProperties;
+	public void setEdgeProperties(List<EdgeProperty> edgeProperties) {
+		this.edgeProperties = edgeProperties;
 	}
 
-	public void setNodeProperties(List<NodeProperties> nodeProperties) {
-		this.nodeProperties = nodeProperties;
+	@Override
+	public String toString() {
+		return "Topology [edgeProperties=" + edgeProperties + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((nodeProperties == null) ? 0 : nodeProperties.hashCode());
+		result = prime * result + ((edgeProperties == null) ? 0 : edgeProperties.hashCode());
 		return result;
 	}
 
@@ -70,18 +72,13 @@ public class Nodes {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Nodes other = (Nodes) obj;
-		if (nodeProperties == null) {
-			if (other.nodeProperties != null)
+		Topology other = (Topology) obj;
+		if (edgeProperties == null) {
+			if (other.edgeProperties != null)
 				return false;
-		} else if (!nodeProperties.equals(other.nodeProperties))
+		} else if (!edgeProperties.containsAll(other.edgeProperties) && !(other.edgeProperties.containsAll(edgeProperties)))
 			return false;
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Nodes [nodeProperties=" + nodeProperties + "]";
 	}
 
 }

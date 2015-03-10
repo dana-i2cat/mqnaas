@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.hellium.switchmanager.model;
+package org.mqnaas.extensions.odl.hellium.topology.model;
 
 /*
  * #%L
@@ -26,37 +26,36 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.PropertyValue;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.adapter.PropertiesMapAdapter;
 
 /**
- * NodeConnector Properties composed by a {@link NodeConnector} and an arbitrary set of properties.
+ * <p>
+ * Wrapper class containing the information of an {@link Edge}
+ * </p>
  * 
- * @author Julio Carlos Barrera
+ * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlRootElement
-@XmlAccessorType(XmlAccessType.NONE)
-public class NodeConnectorProperties {
+@XmlType(propOrder = { "edge", "properties" })
+@XmlAccessorType(XmlAccessType.FIELD)
+public class EdgeProperty {
 
-	@XmlElement(name = "nodeconnector")
-	private NodeConnector				nodeConnector;
+	private Edge						edge;
 
 	@XmlElement
 	@XmlJavaTypeAdapter(PropertiesMapAdapter.class)
 	private Map<String, PropertyValue>	properties;
 
-	public NodeConnectorProperties() {
+	public Edge getEdge() {
+		return edge;
 	}
 
-	public NodeConnector getNodeConnector() {
-		return nodeConnector;
-	}
-
-	public void setNodeConnector(NodeConnector nodeConnector) {
-		this.nodeConnector = nodeConnector;
+	public void setEdge(Edge edge) {
+		this.edge = edge;
 	}
 
 	public Map<String, PropertyValue> getProperties() {
@@ -71,7 +70,7 @@ public class NodeConnectorProperties {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((nodeConnector == null) ? 0 : nodeConnector.hashCode());
+		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
 		result = prime * result + ((properties == null) ? 0 : properties.hashCode());
 		return result;
 	}
@@ -84,11 +83,11 @@ public class NodeConnectorProperties {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		NodeConnectorProperties other = (NodeConnectorProperties) obj;
-		if (nodeConnector == null) {
-			if (other.nodeConnector != null)
+		EdgeProperty other = (EdgeProperty) obj;
+		if (edge == null) {
+			if (other.edge != null)
 				return false;
-		} else if (!nodeConnector.equals(other.nodeConnector))
+		} else if (!edge.equals(other.edge))
 			return false;
 		if (properties == null) {
 			if (other.properties != null)
@@ -100,7 +99,6 @@ public class NodeConnectorProperties {
 
 	@Override
 	public String toString() {
-		return "NodeConnectorProperties [nodeConnector=" + nodeConnector + ", properties=" + properties + "]";
+		return "EdgeProperty [edge=" + edge + ", properties=" + properties + "]";
 	}
-
 }

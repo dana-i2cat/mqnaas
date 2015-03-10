@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model;
 
 /*
  * #%L
@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.adapter.PropertiesMapAdapter;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.adapter.PropertiesMapAdapter;
 
 /**
  * NodeConnector Properties composed by a {@link NodeConnector} and an arbitrary set of properties.

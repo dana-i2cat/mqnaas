@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api.adapter;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model.adapter;
 
 /*
  * #%L
@@ -29,7 +29,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.mqnaas.extensions.odl.client.switchnorthbound.api.PropertyValue;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.PropertyValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;

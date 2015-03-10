@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model;
 
 /*
  * #%L

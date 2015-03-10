@@ -1,4 +1,4 @@
-package org.mqnaas.extensions.odl.client.switchnorthbound.api;
+package org.mqnaas.extensions.odl.hellium.switchmanager.model;
 
 /*
  * #%L
@@ -28,10 +28,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * {@link NodeProperties} wrapper.
+ * {@link NodeConnectorProperties} wrapper.
  * 
  * Based on OpenDaylight Helium release (<a href=
- * "https://github.com/opendaylight/controller/blob/stable/helium/opendaylight/northbound/switchmanager/src/main/java/org/opendaylight/controller/switchmanager/northbound/Nodes.java"
+ * "https://github.com/opendaylight/controller/blob/stable/helium/opendaylight/northbound/switchmanager/src/main/java/org/opendaylight/controller/switchmanager/northbound/NodeConnectors.java"
  * >reference</a>).
  * 
  * @author Julio Carlos Barrera
@@ -39,26 +39,26 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement(name = "list")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Nodes {
+public class NodeConnectors {
 
-	private List<NodeProperties>	nodeProperties;
+	private List<NodeConnectorProperties>	nodeConnectorProperties;
 
-	public Nodes() {
+	public NodeConnectors() {
 	}
 
-	public List<NodeProperties> getNodeProperties() {
-		return nodeProperties;
+	public List<NodeConnectorProperties> getNodeConnectorProperties() {
+		return nodeConnectorProperties;
 	}
 
-	public void setNodeProperties(List<NodeProperties> nodeProperties) {
-		this.nodeProperties = nodeProperties;
+	public void setNodeConnectorProperties(List<NodeConnectorProperties> nodeConnectorProperties) {
+		this.nodeConnectorProperties = nodeConnectorProperties;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((nodeProperties == null) ? 0 : nodeProperties.hashCode());
+		result = prime * result + ((nodeConnectorProperties == null) ? 0 : nodeConnectorProperties.hashCode());
 		return result;
 	}
 
@@ -70,18 +70,18 @@ public class Nodes {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Nodes other = (Nodes) obj;
-		if (nodeProperties == null) {
-			if (other.nodeProperties != null)
+		NodeConnectors other = (NodeConnectors) obj;
+		if (nodeConnectorProperties == null) {
+			if (other.nodeConnectorProperties != null)
 				return false;
-		} else if (!nodeProperties.equals(other.nodeProperties))
+		} else if (!nodeConnectorProperties.equals(other.nodeConnectorProperties))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "Nodes [nodeProperties=" + nodeProperties + "]";
+		return "NodeConnectors [nodeConnectorProperties=" + nodeConnectorProperties + "]";
 	}
 
 }

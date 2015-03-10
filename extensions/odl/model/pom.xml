@@ -14,6 +14,35 @@
 	<name>MQNaaS :: ODL Model</name>
 	<description>MQNaaS OpenDaylight Model containing objects used by other ODL related modules</description>
 
+	<dependencies>
+		<!-- Logs -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<!-- Testing libraries -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>test-helpers</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>xmlunit</groupId>
+			<artifactId>xmlunit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -24,7 +53,8 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.extensions.odl.hellium.flowprogrammer.model
+							org.mqnaas.extensions.odl.hellium.flowprogrammer.model,
+							org.mqnaas.extensions.odl.hellium.switchmanager.model
 						</Export-Package>
 					</instructions>
 				</configuration>

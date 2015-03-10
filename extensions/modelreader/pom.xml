@@ -8,7 +8,7 @@
 	</parent>
 
 	<artifactId>modelreader</artifactId>
-	<packaging>bundle</packaging>
+	<packaging>pom</packaging>
 
 	<name>MQNaaS :: Generic Resource Model Reader</name>
 	<description>Generic implementation exposing the whole model of a resource</description>
@@ -17,107 +17,125 @@
 		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
 		<network.version>0.0.1-SNAPSHOT</network.version>
 		<odl.version>0.0.1-SNAPSHOT</odl.version>
+		
+		
+		<javax.inject.version>1_2</javax.inject.version>
+		<karaf.version>3.0.1</karaf.version>
+		<paxexam.version>3.5.0</paxexam.version>
+		<powermock.version>1.5.5</powermock.version>
+		<wiremock.version>1.51</wiremock.version>
+		
+		
 	</properties>
 
+	<modules>
+		<module>modelreader-capability</module>
+		<module>modelreader-itests</module>
+	</modules>
 
-	<dependencies>
-		<!-- MQNaaS modules -->
-		<dependency>
-			<groupId>org.mqnaas</groupId>
-			<artifactId>core.api</artifactId>
-			<version>${mqnaas.version}</version>
-		</dependency>
-		<!-- Network modules -->
-		<dependency>
-			<groupId>org.mqnaas.extensions</groupId>
-			<artifactId>network.api</artifactId>
-			<version>${network.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mqnaas.extensions</groupId>
-			<artifactId>network.impl</artifactId>
-			<version>${network.version}</version>
-		</dependency>
-		<!-- ODL modules -->
-		<dependency>
-			<groupId>org.mqnaas.extensions</groupId>
-			<artifactId>odl.capabilities</artifactId>
-			<version>${odl.version}</version>
-		</dependency>
-		<!-- Tests libraries-->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.servicemix.bundles</groupId>
-			<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-container-karaf</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-junit4</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.ops4j.pax.exam</groupId>
-			<artifactId>pax-exam-spi</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.karaf</groupId>
-			<artifactId>apache-karaf</artifactId>
-			<type>tar.gz</type>
-			<scope>test</scope>
-		</dependency> 			
-		<dependency>
-			<groupId>com.github.tomakehurst</groupId>
-			<artifactId>wiremock</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-module-junit4</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.powermock</groupId>
-			<artifactId>powermock-api-mockito</artifactId>
-			<scope>test</scope>
-		</dependency>	
-		<dependency>
-			<groupId>org.mqnaas</groupId>
-			<artifactId>test-helpers</artifactId>			
-			<version>${mqnaas.version}</version>
-		</dependency>	
-	
-	</dependencies>
+	<dependencyManagement>
+		<dependencies>
+			<!-- Own modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>modelreader-capability</artifactId>
+				<version>${project.version}</version>
+			</dependency>		
+			<!-- MQNaaS modules -->
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>core.api</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<!-- Network modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.api</artifactId>
+				<version>${network.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.impl</artifactId>
+				<version>${network.version}</version>
+			</dependency>
+			<!-- ODL modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>odl.capabilities</artifactId>
+				<version>${odl.version}</version>
+			</dependency>
+			<!-- Tests libraries -->
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<scope>test</scope>
+				<version>${junit.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.servicemix.bundles</groupId>
+				<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+				<scope>test</scope>
+				<version>${javax.inject.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-container-karaf</artifactId>
+				<scope>test</scope>
+				<version>${paxexam.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam</artifactId>
+				<scope>test</scope>
+				<version>${paxexam.version}</version>				
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-junit4</artifactId>
+				<scope>test</scope>
+				<version>${paxexam.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.ops4j.pax.exam</groupId>
+				<artifactId>pax-exam-spi</artifactId>
+				<version>${paxexam.version}</version>				
+			</dependency>
+			<dependency>
+				<groupId>org.apache.karaf</groupId>
+				<artifactId>apache-karaf</artifactId>
+				<type>tar.gz</type>
+				<scope>test</scope>
+				<version>${karaf.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.github.tomakehurst</groupId>
+				<artifactId>wiremock</artifactId>
+				<scope>test</scope>
+				<version>${wiremock.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-module-junit4</artifactId>
+				<scope>test</scope>
+				<version>${powermock.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<scope>test</scope>
+				<version>${powermock.version}</version>				
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>test-helpers</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Import-Package>*</Import-Package>
-						<Export-Package>
-							org.mqnaas.extensions.modelreader.api
-						</Export-Package>
-					</instructions>
-				</configuration>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -136,5 +154,6 @@
 			</plugin>
 		</plugins>
 	</build>
+
 
 </project>

@@ -14,7 +14,7 @@
 	    <feature version="${network.version}">network</feature>	    
 	  	<feature version="${odl.version}">odl</feature>	    
 	    
-		<bundle>mvn:org.mqnaas.extensions/modelreader/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas.extensions/modelreader-capability/${project.version}</bundle>
 
 	</feature>
 </features>

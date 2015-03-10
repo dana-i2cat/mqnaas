@@ -77,9 +77,11 @@ public interface IFlowManagement extends ICapability {
 	 * 
 	 * @param flowName
 	 * @throws NotFoundException when given flowName is unknown
+	 * @throws IllegalStateException
+	 * @throws Exception if there is any error while deleting the flow
 	 */
 	@Path("/{flow}")
 	@DELETE
-	public void deleteFlow(@PathParam("dpid") String dpid, @PathParam("flow") String flowName) throws NotFoundException;
+	public void deleteFlow(@PathParam("dpid") String dpid, @PathParam("flow") String flowName) throws NotFoundException, IllegalStateException, Exception;
 	
 }

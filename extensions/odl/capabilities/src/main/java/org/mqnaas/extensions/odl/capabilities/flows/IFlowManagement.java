@@ -27,7 +27,6 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -67,10 +66,12 @@ public interface IFlowManagement extends ICapability {
 	 * 
 	 * @param flow
 	 * @throws BadRequestException when flow is already configured
+	 * @throws IllegalStateException 
+	 * @throws Exception if there is any error while configuring the flow
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_XML)
-	public void addFlow(FlowConfig flow) throws BadRequestException;
+	public void addFlow(FlowConfig flow) throws BadRequestException, IllegalStateException, Exception;
 	
 	/**
 	 * 
@@ -79,16 +80,6 @@ public interface IFlowManagement extends ICapability {
 	 */
 	@Path("/{flow}")
 	@DELETE
-	public void deleteFlow(@PathParam("flow") String flowName) throws NotFoundException;
+	public void deleteFlow(@PathParam("dpid") String dpid, @PathParam("flow") String flowName) throws NotFoundException;
 	
-	/**
-	 * 
-	 * @param flowName
-	 * @param updated
-	 * @throws NotFoundException when given flowName is unknown
-	 */
-	@Path("/{flow}")
-	@PUT
-	@Consumes(MediaType.APPLICATION_XML)
-	public void updateFlow(@PathParam("flow") String flowName, FlowConfig updated) throws NotFoundException;
 }

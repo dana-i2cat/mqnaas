@@ -78,17 +78,12 @@ public class ODLFlowManagement implements IFlowManagement {
 	}
 	
 	@Override
-	public void addFlow(FlowConfig flow) throws BadRequestException {
+	public void addFlow(FlowConfig flow) throws IllegalStateException, Exception {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	@Override
-	public void deleteFlow(String flowName) throws NotFoundException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	@Override
-	public void updateFlow(String flowName, FlowConfig updated) throws NotFoundException {
+	public void deleteFlow(String dpid, String flowName) throws NotFoundException {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 	

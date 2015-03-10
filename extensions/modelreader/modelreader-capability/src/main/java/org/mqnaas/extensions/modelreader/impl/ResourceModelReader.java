@@ -103,7 +103,7 @@ public class ResourceModelReader implements IResourceModelReader {
 				// FIXME this should be generalized.
 				else if (capabilityClass.equals(IFlowManagement.class)) {
 					IFlowManagement flowMgmCapab = serviceProvider.getCapability(resource, IFlowManagement.class);
-					modelWrapper.setConfiguredRules(flowMgmCapab.getFlows());
+					modelWrapper.setConfiguredRules(flowMgmCapab.getAllFlows());
 				}
 				else {
 

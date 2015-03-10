@@ -47,7 +47,7 @@ public interface IFlowManagement extends ICapability {
 	 */
 	@GET
 	@Produces(MediaType.APPLICATION_XML)
-	public FlowConfigs getFlows() throws Exception;
+	public FlowConfigs getAllFlows() throws Exception;
 	
 	/**
 	 * 

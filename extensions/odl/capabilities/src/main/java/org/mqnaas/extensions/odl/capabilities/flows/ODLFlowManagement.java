@@ -65,7 +65,7 @@ public class ODLFlowManagement implements IFlowManagement {
 	}
 
 	@Override
-	public FlowConfigs getFlows() throws IllegalStateException, Exception {
+	public FlowConfigs getAllFlows() throws IllegalStateException, Exception {
 		return getFlowProgrammerClient().getStaticFlows();
 	}
 

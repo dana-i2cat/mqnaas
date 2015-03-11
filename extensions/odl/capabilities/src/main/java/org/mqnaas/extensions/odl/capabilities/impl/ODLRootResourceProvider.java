@@ -95,7 +95,7 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 	private List<IRootResource>		resources;
 
-	private ISwitchNorthboundAPI	odlClient;
+	private ISwitchNorthboundAPI	odlSwitchManagerClient;
 
 	public static boolean isSupporting(IRootResource resource) {
 		Specification specification = resource.getDescriptor().getSpecification();
@@ -108,7 +108,7 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 		log.info("Initializing ODLRootResourceProvider for resource " + resource.getId());
 
 		try {
-			odlClient = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class).getAPIClient(resource, ISwitchNorthboundAPI.class);
+			odlSwitchManagerClient = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class).getAPIClient(resource, ISwitchNorthboundAPI.class);
 		} catch (EndpointNotFoundException e) {
 			log.error("Error activating ODLRootResourceProvider capability: Endpoint could not be found", e);
 			throw new ApplicationActivationException(e);
@@ -190,7 +190,7 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 		resources = new CopyOnWriteArrayList<IRootResource>();
 
-		Nodes nodes = odlClient.getNodes(DEFAULT_CONNECTOR_NAME);
+		Nodes nodes = odlSwitchManagerClient.getNodes(DEFAULT_CONNECTOR_NAME);
 
 		for (NodeProperties nodeProperties : nodes.getNodeProperties()) {
 			// get information from the node
@@ -204,7 +204,7 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 			// create ports
 			IPortManagement portMgm = serviceProvider.getCapability(odlResource, IPortManagement.class);
-			NodeConnectors nodePorts = odlClient.getNodeConnectors(DEFAULT_CONNECTOR_NAME, nodeProperties.getNode().getNodeType().toString(), nodeId);
+			NodeConnectors nodePorts = odlSwitchManagerClient.getNodeConnectors(DEFAULT_CONNECTOR_NAME, nodeProperties.getNode().getNodeType().toString(), nodeId);
 			for (NodeConnectorProperties nodePortProperties : nodePorts.getNodeConnectorProperties()) {
 				String nodePortId = nodePortProperties.getNodeConnector().getNodeConnectorID();
 				String nodePortName = nodePortProperties.getProperties().get("name").getValue();

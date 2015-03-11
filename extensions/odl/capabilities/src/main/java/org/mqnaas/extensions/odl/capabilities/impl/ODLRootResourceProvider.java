@@ -23,7 +23,9 @@ package org.mqnaas.extensions.odl.capabilities.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.commons.lang3.StringUtils;
@@ -49,12 +51,18 @@ import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.extensions.odl.client.hellium.topology.api.IOpenDaylightTopologyNorthbound;
 import org.mqnaas.extensions.odl.client.switchnorthbound.ISwitchNorthboundAPI;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node.NodeType;
+import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnector;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectorProperties;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeProperties;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
-import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node.NodeType;
+import org.mqnaas.extensions.odl.hellium.topology.model.EdgeProperty;
+import org.mqnaas.extensions.odl.hellium.topology.model.Topology;
+import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,25 +85,29 @@ import org.slf4j.LoggerFactory;
  */
 public class ODLRootResourceProvider implements IRootResourceProvider {
 
-	private static final Logger		log						= LoggerFactory.getLogger(ODLRootResourceProvider.class);
+	private static final Logger				log						= LoggerFactory.getLogger(ODLRootResourceProvider.class);
 
-	private static final String		DEFAULT_CONNECTOR_NAME	= "default";
+	private static final String				DEFAULT_CONNECTOR_NAME	= "default";
 
 	@Resource
-	IRootResource					resource;
+	IRootResource							resource;
 
 	@DependingOn
-	IServiceProvider				serviceProvider;
+	IServiceProvider						serviceProvider;
 
 	@DependingOn
-	IAPIClientProviderFactory		apiProviderFactory;
+	IAPIClientProviderFactory				apiProviderFactory;
 
 	@DependingOn
-	IResourceManagementListener		rmListener;
+	IResourceManagementListener				rmListener;
 
-	private List<IRootResource>		resources;
+	@DependingOn
+	ILinkManagement							linkManagement;
 
-	private ISwitchNorthboundAPI	odlSwitchManagerClient;
+	private List<IRootResource>				resources;
+
+	private ISwitchNorthboundAPI			odlSwitchManagerClient;
+	private IOpenDaylightTopologyNorthbound	odlTopologyClient;
 
 	public static boolean isSupporting(IRootResource resource) {
 		Specification specification = resource.getDescriptor().getSpecification();
@@ -109,6 +121,8 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 		try {
 			odlSwitchManagerClient = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class).getAPIClient(resource, ISwitchNorthboundAPI.class);
+			odlTopologyClient = apiProviderFactory.getAPIProvider(ICXFAPIProvider.class)
+					.getAPIClient(resource, IOpenDaylightTopologyNorthbound.class);
 		} catch (EndpointNotFoundException e) {
 			log.error("Error activating ODLRootResourceProvider capability: Endpoint could not be found", e);
 			throw new ApplicationActivationException(e);
@@ -118,7 +132,9 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 		}
 
 		try {
-			initializeResources();
+			Map<NodeConnector, IResource> portMapping = new HashMap<NodeConnector, IResource>();
+			initializeResources(portMapping);
+			initializeLinks(portMapping);
 		} catch (Exception e) {
 			log.error("Could not initialize RootResources in odl network " + resource.getId(), e);
 			throw new ApplicationActivationException("Could not initialize RootResources in odl network " + resource.getId(), e);
@@ -184,7 +200,19 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 		throw new UnsupportedOperationException("Service not implemented for ODL networks.");
 	}
 
-	private void initializeResources() throws InstantiationException, IllegalAccessException, CapabilityNotFoundException,
+	/**
+	 * Retrieves ODL controller switches and creates switch IRootResources representing them.
+	 * 
+	 * @param portsMapping
+	 *            Optional map where (when provided) this function will store a mapping between retrieved NodeConnectors and ports (IResources)
+	 *            created to represent them.
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws CapabilityNotFoundException
+	 * @throws ApplicationNotFoundException
+	 */
+	private void initializeResources(Map<NodeConnector, IResource> portsMapping) throws InstantiationException,
+			IllegalAccessException, CapabilityNotFoundException,
 			ApplicationNotFoundException {
 		log.info("Initializing ODL resources for ODL network " + resource.getId());
 
@@ -204,7 +232,8 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 			// create ports
 			IPortManagement portMgm = serviceProvider.getCapability(odlResource, IPortManagement.class);
-			NodeConnectors nodePorts = odlSwitchManagerClient.getNodeConnectors(DEFAULT_CONNECTOR_NAME, nodeProperties.getNode().getNodeType().toString(), nodeId);
+			NodeConnectors nodePorts = odlSwitchManagerClient.getNodeConnectors(DEFAULT_CONNECTOR_NAME, nodeProperties.getNode().getNodeType()
+					.toString(), nodeId);
 			for (NodeConnectorProperties nodePortProperties : nodePorts.getNodeConnectorProperties()) {
 				String nodePortId = nodePortProperties.getNodeConnector().getNodeConnectorID();
 				String nodePortName = nodePortProperties.getProperties().get("name").getValue();
@@ -212,6 +241,9 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 				IAttributeStore portAttributeStore = serviceProvider.getCapability(port, IAttributeStore.class);
 				portAttributeStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, nodePortId);
 				portAttributeStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME, nodePortName);
+
+				if (portsMapping != null)
+					portsMapping.put(nodePortProperties.getNodeConnector(), port);
 			}
 
 			// stores the map between the created RootResource and the odl node id
@@ -225,6 +257,49 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 
 		log.info("Initialized ODL resources in ODL network " + resource.getId());
 
+	}
+
+	/**
+	 * Retrieves ODL controller topology and creates link IResources matching Edges in the topology.
+	 * 
+	 * @param ports
+	 *            Mapping NodeConnector to IResources representing the ports. Read-Only
+	 * @throws CapabilityNotFoundException
+	 */
+	private void initializeLinks(final Map<NodeConnector, IResource> ports) throws CapabilityNotFoundException {
+		log.info("Initializing links for ODL network " + resource.getId());
+
+		Topology topology = odlTopologyClient.getTopology(DEFAULT_CONNECTOR_NAME);
+
+		for (EdgeProperty edge : topology.getEdgeProperties()) {
+			IResource srcPort = ports.get(edge.getEdge().getHeadNodeConnector());
+			IResource dstPort = ports.get(edge.getEdge().getTailNodeconnector());
+
+			String edgeName = null;
+			if (edge.getProperties().get("name") != null)
+				edgeName = edge.getProperties().get("name").getValue();
+
+			if (srcPort != null && dstPort != null) {
+				createLink(srcPort, dstPort, edgeName);
+			} else {
+				log.warn("Failed to load link " + edge.toString() + ". Unknown NodeConnector!");
+			}
+		}
+
+		log.info("Initialized links in ODL network " + resource.getId());
+	}
+
+	private void createLink(IResource srcPort, IResource dstPort, String externalName) throws CapabilityNotFoundException {
+
+		IResource link = linkManagement.createLink();
+		ILinkAdministration linkCtrl = serviceProvider.getCapability(link, ILinkAdministration.class);
+		linkCtrl.setSrcPort(srcPort);
+		linkCtrl.setDestPort(dstPort);
+
+		if (externalName != null) {
+			IAttributeStore attributeStore = serviceProvider.getCapability(link, IAttributeStore.class);
+			attributeStore.setAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME, externalName);
+		}
 	}
 
 	private Type parseNodeType(NodeType nodeType) {

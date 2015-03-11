@@ -21,9 +21,6 @@ package org.mqnaas.extensions.odl.capabilities.flows;
  * #L%
  */
 
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.NotFoundException;
-
 import org.apache.commons.lang3.StringUtils;
 import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
@@ -68,7 +65,7 @@ public class ODLFlowManagement implements IFlowManagement {
 	}
 
 	@Override
-	public FlowConfigs getFlows() throws IllegalStateException, Exception {
+	public FlowConfigs getAllFlows() throws IllegalStateException, Exception {
 		return getFlowProgrammerClient().getStaticFlows();
 	}
 
@@ -78,18 +75,13 @@ public class ODLFlowManagement implements IFlowManagement {
 	}
 	
 	@Override
-	public void addFlow(FlowConfig flow) throws BadRequestException {
-		throw new UnsupportedOperationException("Not implemented");
+	public void addFlow(FlowConfig flow) throws IllegalStateException, Exception {
+		getFlowProgrammerClient().addOrModifyFlow(flow, flow.getNode().getId(), flow.getName());
 	}
 
 	@Override
-	public void deleteFlow(String flowName) throws NotFoundException {
-		throw new UnsupportedOperationException("Not implemented");
-	}
-
-	@Override
-	public void updateFlow(String flowName, FlowConfig updated) throws NotFoundException {
-		throw new UnsupportedOperationException("Not implemented");
+	public void deleteFlow(String dpid, String flowName) throws IllegalStateException, Exception {
+		getFlowProgrammerClient().deleteFlow(dpid, flowName);
 	}
 	
 	/**

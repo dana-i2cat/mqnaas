@@ -28,14 +28,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.AdditionalMatchers;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.mqnaas.client.cxf.ICXFAPIProvider;
 import org.mqnaas.clientprovider.api.apiclient.IAPIClientProviderFactory;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
@@ -99,16 +98,7 @@ public class ODLRootResourceProviderTest {
 
 	IServiceProvider			mockedServiceProvider;
 
-	IAttributeStore				attributeStoreResource1;
-	IAttributeStore				attributeStoreResource2;
-	IAttributeStore				attributeStoreResource3;
-
-	IAttributeStore				attributeStorePort1;
-	IAttributeStore				attributeStorePort2;
-
-	IPortManagement				resource1PortMgm;
-	IPortManagement				resource2PortMgm;
-	IPortManagement				resource3PortMgm;
+	CapabilityFactory			capabilityFactory;
 
 	/**
 	 * This method initialize the {@link ODLRootResourceProvider} capability, and create all required structures used on its activation method.
@@ -116,6 +106,8 @@ public class ODLRootResourceProviderTest {
 	@Before
 	public void prepareTest() throws SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException, URISyntaxException,
 			CapabilityNotFoundException, ApplicationActivationException, EndpointNotFoundException, ProviderNotFoundException {
+
+		capabilityFactory = new CapabilityFactory();
 
 		odlIRootResourceProvider = new ODLRootResourceProvider();
 
@@ -130,10 +122,11 @@ public class ODLRootResourceProviderTest {
 	 * This method tests the {@link IRootResourceProvider#getRootResource(String)}, {@link IRootResourceProvider#getRootResources()} and the
 	 * {@link IRootResourceProvider#getRootResources(Type, String, String)} implemented in the {@link ODLRootResourceProvider} class. The capability
 	 * should contain 2 Openflow switches and 1 "other" resource, representing the Opendaylight devices returned by the mocked client.
+	 * 
 	 */
 	@Test
 	public void capabilityImplementationTest() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-			InvocationTargetException, ResourceNotFoundException {
+			InvocationTargetException, ResourceNotFoundException, CapabilityNotFoundException {
 
 		// test getResources() method
 		List<IRootResource> odlResources = odlIRootResourceProvider.getRootResources();
@@ -156,11 +149,17 @@ public class ODLRootResourceProviderTest {
 		Assert.assertEquals("Switch1 resource should contain ODL network endpoint.", 1, switch1Resource.getDescriptor().getEndpoints().size());
 		Assert.assertTrue("Switch1 resource should contain ODL network endpoint.",
 				switch1Resource.getDescriptor().getEndpoints().contains(fakeOdlEndpoint));
+
+		IAttributeStore attributeStoreResource1 = mockedServiceProvider.getCapability(switch1Resource, IAttributeStore.class);
 		Assert.assertNotNull("AttributeStore of Switch1 should contain the external port id",
 				attributeStoreResource1.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("AttributeStore of Switch1 should contain the external port id of the device it represents.", OFSWITCH_NODE_1_ID,
 				attributeStoreResource1.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
+
+		IPortManagement resource1PortMgm = mockedServiceProvider.getCapability(switch1Resource, IPortManagement.class);
 		Assert.assertEquals("First resource should contain two ports", 2, resource1PortMgm.getPorts().size());
+
+		IAttributeStore attributeStorePort1 = mockedServiceProvider.getCapability(resource1PortMgm.getPorts().get(0), IAttributeStore.class);
 		Assert.assertNotNull("Port1 should contain the mapped external resource id.",
 				attributeStorePort1.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertNotNull("Port1 should contain the mapped external resource name",
@@ -170,6 +169,7 @@ public class ODLRootResourceProviderTest {
 		Assert.assertEquals("Port1 should contain the external port name " + PORT1_EXTERNAL_NAME, PORT1_EXTERNAL_NAME,
 				attributeStorePort1.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME));
 
+		IAttributeStore attributeStorePort2 = mockedServiceProvider.getCapability(resource1PortMgm.getPorts().get(1), IAttributeStore.class);
 		Assert.assertNotNull("Port2 should contain the mapped external resource id.",
 				attributeStorePort2.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertNotNull("Port2 should contain the mapped external resource name",
@@ -188,6 +188,8 @@ public class ODLRootResourceProviderTest {
 		Assert.assertEquals("Switch2 resource should contain ODL network endpoint.", 1, switch2Resource.getDescriptor().getEndpoints().size());
 		Assert.assertTrue("Switch2 resource should contain ODL network endpoint.",
 				switch2Resource.getDescriptor().getEndpoints().contains(fakeOdlEndpoint));
+
+		IAttributeStore attributeStoreResource2 = mockedServiceProvider.getCapability(switch2Resource, IAttributeStore.class);
 		Assert.assertNotNull("AttributeStore of Switch2 should contain the external port id",
 				attributeStoreResource2.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("AttributeStore of Switch2 should contain the external port id of the device it represents.", OFSWITCH_NODE_2_ID,
@@ -202,6 +204,8 @@ public class ODLRootResourceProviderTest {
 		Assert.assertEquals("EP resource should contain ODL network endpoint.", 1, peResource.getDescriptor().getEndpoints().size());
 		Assert.assertTrue("EP resource should contain ODL network endpoint.",
 				peResource.getDescriptor().getEndpoints().contains(fakeOdlEndpoint));
+
+		IAttributeStore attributeStoreResource3 = mockedServiceProvider.getCapability(peResource, IAttributeStore.class);
 		Assert.assertNotNull("AttributeStore of EP should contain the external port id",
 				attributeStoreResource3.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("AttributeStore of EP should contain the external port id of the device it represents.", PE_NODE_ID,
@@ -344,36 +348,33 @@ public class ODLRootResourceProviderTest {
 		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, mockedRmListener, "rmListener");
 
 		// mock and inject serviceProvider
-		attributeStoreResource1 = new AttributeStore();
-		attributeStoreResource2 = new AttributeStore();
-		attributeStoreResource3 = new AttributeStore();
-		attributeStorePort1 = new AttributeStore();
-		attributeStorePort2 = new AttributeStore();
-
-		ReflectionTestHelper.injectPrivateField(attributeStoreResource1, new ConcurrentHashMap<String, String>(), "attributes");
-		ReflectionTestHelper.injectPrivateField(attributeStoreResource2, new ConcurrentHashMap<String, String>(), "attributes");
-		ReflectionTestHelper.injectPrivateField(attributeStoreResource3, new ConcurrentHashMap<String, String>(), "attributes");
-		ReflectionTestHelper.injectPrivateField(attributeStorePort1, new ConcurrentHashMap<String, String>(), "attributes");
-		ReflectionTestHelper.injectPrivateField(attributeStorePort2, new ConcurrentHashMap<String, String>(), "attributes");
 
 		mockedServiceProvider = PowerMockito.mock(IServiceProvider.class);
-		PowerMockito.when(mockedServiceProvider.getCapability(Mockito.any(IRootResource.class), Mockito.eq(IAttributeStore.class)))
-				.thenReturn(attributeStoreResource1).thenReturn(attributeStoreResource2).thenReturn(attributeStoreResource3);
-		PowerMockito
-				.when(mockedServiceProvider.getCapability(
-						AdditionalMatchers.and(Matchers.isA(IResource.class), AdditionalMatchers.not(Matchers.isA(IRootResource.class))),
-						Mockito.eq(IAttributeStore.class)))
-				.thenReturn(attributeStorePort1).thenReturn(attributeStorePort2);
 
-		resource1PortMgm = new PortManagement();
-		resource1PortMgm.activate();
-		resource2PortMgm = new PortManagement();
-		resource2PortMgm.activate();
-		resource3PortMgm = new PortManagement();
-		resource3PortMgm.activate();
+		// config mockedServiceProvider to return IAttributeStore(s)
+		PowerMockito.when(mockedServiceProvider.getCapability(Mockito.any(IResource.class), Mockito.eq(IAttributeStore.class)))
+				.thenAnswer(new Answer<IAttributeStore>() {
 
+					@Override
+					public IAttributeStore answer(InvocationOnMock invocation) throws Throwable {
+						IResource resource = (IResource) invocation.getArguments()[0];
+
+						return capabilityFactory.getCapability(resource, AttributeStore.class);
+					}
+				});
+
+		// config mockedServiceProvider to return IPortManagement(s)
 		PowerMockito.when(mockedServiceProvider.getCapability(Mockito.any(IRootResource.class), Mockito.eq(IPortManagement.class)))
-				.thenReturn(resource1PortMgm).thenReturn(resource2PortMgm).thenReturn(resource3PortMgm);
+				.thenAnswer(new Answer<IPortManagement>() {
+
+					@Override
+					public IPortManagement answer(InvocationOnMock invocation) throws Throwable {
+						IResource resource = (IResource) invocation.getArguments()[0];
+
+						return capabilityFactory.getCapability(resource, PortManagement.class);
+					}
+				});
+
 		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, mockedServiceProvider, "serviceProvider");
 
 	}

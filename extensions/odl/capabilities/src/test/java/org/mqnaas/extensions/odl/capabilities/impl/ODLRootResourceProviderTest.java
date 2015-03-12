@@ -24,6 +24,7 @@ package org.mqnaas.extensions.odl.capabilities.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.extensions.odl.client.hellium.topology.api.IOpenDaylightTopologyNorthbound;
 import org.mqnaas.extensions.odl.client.switchnorthbound.ISwitchNorthboundAPI;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node.NodeType;
@@ -63,6 +65,8 @@ import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeProperties;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.PropertyValue;
+import org.mqnaas.extensions.odl.hellium.topology.model.EdgeProperty;
+import org.mqnaas.extensions.odl.hellium.topology.model.Topology;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.topology.port.PortManagement;
@@ -92,6 +96,8 @@ public class ODLRootResourceProviderTest {
 	Nodes						odlNodes;
 	NodeConnectors				resource1NodeConnectors;
 
+	Topology					odlTopology;
+
 	Endpoint					fakeOdlEndpoint;
 
 	IResourceManagementListener	mockedRmListener;
@@ -112,6 +118,7 @@ public class ODLRootResourceProviderTest {
 		odlIRootResourceProvider = new ODLRootResourceProvider();
 
 		createFakeOdlResponse();
+		createFakeOdlTopologyResponse();
 		mockRequiredFeatures();
 
 		odlIRootResourceProvider.activate();
@@ -231,6 +238,8 @@ public class ODLRootResourceProviderTest {
 		resource = odlIRootResourceProvider.getRootResource(peResource.getId());
 		Assert.assertEquals("OdlRootResourceProvier capability did not retreive the requested resource.", peResource, resource);
 
+		// TODO test links are in place
+
 	}
 
 	/**
@@ -306,6 +315,18 @@ public class ODLRootResourceProviderTest {
 		return nodeProperties;
 	}
 
+	private void createFakeOdlTopologyResponse() {
+
+		Topology topology = new Topology();
+
+		List<EdgeProperty> edgeProperties = new ArrayList<EdgeProperty>(0);
+
+		// TODO complete the topology
+
+		topology.setEdgeProperties(edgeProperties);
+		odlTopology = topology;
+	}
+
 	/**
 	 * Mock all capabilities and resources used by the {@link ODLRootResourceProvider} implementation.
 	 * 
@@ -314,7 +335,7 @@ public class ODLRootResourceProviderTest {
 	private void mockRequiredFeatures() throws SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException,
 			URISyntaxException, CapabilityNotFoundException, EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
-		// mock client
+		// mock switch client
 		ISwitchNorthboundAPI mockedOdlClient = PowerMockito.mock(ISwitchNorthboundAPI.class);
 		PowerMockito.when(mockedOdlClient.getNodes(Mockito.eq("default"))).thenReturn(odlNodes);
 		PowerMockito.when(
@@ -327,11 +348,18 @@ public class ODLRootResourceProviderTest {
 				mockedOdlClient.getNodeConnectors(Mockito.eq("default"), Mockito.eq(NodeType.PE.toString()), Mockito.eq(PE_NODE_ID))).thenReturn(
 				resource1NodeConnectors);
 
+		// mock topology client
+		IOpenDaylightTopologyNorthbound mockedTopologyClient = PowerMockito.mock(IOpenDaylightTopologyNorthbound.class);
+		PowerMockito.when(mockedTopologyClient.getTopology(Mockito.eq("default"))).thenReturn(odlTopology);
+
 		// mock and inject apiclientprovider
 
 		ICXFAPIProvider mockedCxfApiProvider = PowerMockito.mock(ICXFAPIProvider.class);
 		PowerMockito.when(mockedCxfApiProvider.getAPIClient(Mockito.any(IResource.class), Mockito.eq(ISwitchNorthboundAPI.class))).thenReturn(
 				mockedOdlClient);
+		PowerMockito.when(mockedCxfApiProvider.getAPIClient(Mockito.any(IResource.class), Mockito.eq(IOpenDaylightTopologyNorthbound.class)))
+				.thenReturn(
+						mockedTopologyClient);
 
 		IAPIClientProviderFactory mockedApiProviderFactory = PowerMockito.mock(IAPIClientProviderFactory.class);
 		PowerMockito.when(mockedApiProviderFactory.getAPIProvider(Mockito.eq(ICXFAPIProvider.class))).thenReturn(mockedCxfApiProvider);
@@ -374,6 +402,9 @@ public class ODLRootResourceProviderTest {
 						return capabilityFactory.getCapability(resource, PortManagement.class);
 					}
 				});
+
+		// TODO config mockedServiceProvider to return ILinkManagement for the network
+		// TODO config mockedServiceProvider to return ILinkAdministration for each LinkResource
 
 		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, mockedServiceProvider, "serviceProvider");
 

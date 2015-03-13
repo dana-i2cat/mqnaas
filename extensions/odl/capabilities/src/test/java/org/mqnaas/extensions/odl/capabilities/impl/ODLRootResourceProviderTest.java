@@ -24,6 +24,7 @@ package org.mqnaas.extensions.odl.capabilities.impl;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -54,6 +55,7 @@ import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
+import org.mqnaas.extensions.odl.client.hellium.topology.api.IOpenDaylightTopologyNorthbound;
 import org.mqnaas.extensions.odl.client.switchnorthbound.ISwitchNorthboundAPI;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Node.NodeType;
@@ -63,8 +65,16 @@ import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeProperties;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
 import org.mqnaas.extensions.odl.hellium.switchmanager.model.PropertyValue;
+import org.mqnaas.extensions.odl.hellium.topology.model.Edge;
+import org.mqnaas.extensions.odl.hellium.topology.model.EdgeProperty;
+import org.mqnaas.extensions.odl.hellium.topology.model.Topology;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
+import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.api.topology.link.ILinkManagement;
 import org.mqnaas.network.api.topology.port.IPortManagement;
+import org.mqnaas.network.impl.topology.link.LinkAdministration;
+import org.mqnaas.network.impl.topology.link.LinkManagement;
+import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortManagement;
 import org.powermock.api.mockito.PowerMockito;
 
@@ -87,10 +97,16 @@ public class ODLRootResourceProviderTest {
 	private static final String	PORT1_EXTERNAL_NAME	= "eth0";
 	private static final String	PORT2_EXTERNAL_NAME	= "eth1";
 
+	IRootResource				fakeOdlResource;
+
 	IRootResourceProvider		odlIRootResourceProvider;
 
 	Nodes						odlNodes;
 	NodeConnectors				resource1NodeConnectors;
+	NodeConnectors				resource2NodeConnectors;
+	NodeConnectors				resource3NodeConnectors;
+
+	Topology					odlTopology;
 
 	Endpoint					fakeOdlEndpoint;
 
@@ -112,6 +128,7 @@ public class ODLRootResourceProviderTest {
 		odlIRootResourceProvider = new ODLRootResourceProvider();
 
 		createFakeOdlResponse();
+		createFakeOdlTopologyResponse();
 		mockRequiredFeatures();
 
 		odlIRootResourceProvider.activate();
@@ -123,10 +140,13 @@ public class ODLRootResourceProviderTest {
 	 * {@link IRootResourceProvider#getRootResources(Type, String, String)} implemented in the {@link ODLRootResourceProvider} class. The capability
 	 * should contain 2 Openflow switches and 1 "other" resource, representing the Opendaylight devices returned by the mocked client.
 	 * 
+	 * @throws ApplicationActivationException
+	 * @throws InstantiationException
+	 * 
 	 */
 	@Test
 	public void capabilityImplementationTest() throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException,
-			InvocationTargetException, ResourceNotFoundException, CapabilityNotFoundException {
+			InvocationTargetException, ResourceNotFoundException, CapabilityNotFoundException, InstantiationException, ApplicationActivationException {
 
 		// test getResources() method
 		List<IRootResource> odlResources = odlIRootResourceProvider.getRootResources();
@@ -231,6 +251,69 @@ public class ODLRootResourceProviderTest {
 		resource = odlIRootResourceProvider.getRootResource(peResource.getId());
 		Assert.assertEquals("OdlRootResourceProvier capability did not retreive the requested resource.", peResource, resource);
 
+		// test links are in place
+		ILinkManagement linkManagement = capabilityFactory.getCapability(fakeOdlResource, LinkManagement.class);
+		Assert.assertNotNull(linkManagement.getLinks());
+		Assert.assertFalse(linkManagement.getLinks().isEmpty());
+		Assert.assertEquals(odlTopology.getEdgeProperties().size(), linkManagement.getLinks().size());
+
+		for (EdgeProperty edgeProperty : odlTopology.getEdgeProperties()) {
+
+			String name = edgeProperty.getProperties().get("name").getValue();
+			String srcPortId = edgeProperty.getEdge().getHeadNodeConnector().getNodeConnectorID();
+			String srcNodeId = edgeProperty.getEdge().getHeadNodeConnector().getNode().getNodeID();
+			String dstPortId = edgeProperty.getEdge().getTailNodeconnector().getNodeConnectorID();
+			String dstNodeId = edgeProperty.getEdge().getTailNodeconnector().getNode().getNodeID();
+
+			// getLinkByExternalName(name)
+			LinkResource link = null;
+			for (IResource alink : linkManagement.getLinks()) {
+				if (mockedServiceProvider.getCapability(alink, IAttributeStore.class).getAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME)
+						.equals(name)) {
+					link = (LinkResource) alink;
+					break;
+				}
+			}
+			Assert.assertNotNull("There must be a link named " + name, link);
+
+			ILinkAdministration linkAdmin = mockedServiceProvider.getCapability(link, ILinkAdministration.class);
+			Assert.assertEquals(
+					"Link source port should match edge src port",
+					srcPortId,
+					mockedServiceProvider.getCapability(linkAdmin.getSrcPort(), IAttributeStore.class).getAttribute(
+							AttributeStore.RESOURCE_EXTERNAL_ID));
+			Assert.assertEquals(
+					"Link dst port should match edge dst port",
+					dstPortId,
+					mockedServiceProvider.getCapability(linkAdmin.getDestPort(), IAttributeStore.class).getAttribute(
+							AttributeStore.RESOURCE_EXTERNAL_ID));
+
+			// check the resource containing linkAdmin.getSrcPort() has external id == srcNodeId
+			// check the resource containing linkAdmin.getDestPort() has external id == dstNodeId
+			boolean srcNodeFound = false;
+			boolean dstNodeFound = false;
+			for (IRootResource rootResource : odlResources) {
+				for (IResource port : mockedServiceProvider.getCapability(rootResource, IPortManagement.class).getPorts()) {
+					if (port.equals(linkAdmin.getSrcPort())) {
+						srcNodeFound = true;
+						Assert.assertEquals(
+								srcNodeId,
+								mockedServiceProvider.getCapability(rootResource, IAttributeStore.class).getAttribute(
+										AttributeStore.RESOURCE_EXTERNAL_ID));
+					}
+					if (port.equals(linkAdmin.getDestPort())) {
+						dstNodeFound = true;
+						Assert.assertEquals(
+								dstNodeId,
+								mockedServiceProvider.getCapability(rootResource, IAttributeStore.class).getAttribute(
+										AttributeStore.RESOURCE_EXTERNAL_ID));
+					}
+				}
+			}
+			Assert.assertTrue(srcNodeFound);
+			Assert.assertTrue(dstNodeFound);
+		}
+
 	}
 
 	/**
@@ -263,18 +346,35 @@ public class ODLRootResourceProviderTest {
 
 		resource1NodeConnectors = new NodeConnectors();
 
-		NodeConnectorProperties port1Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID, PORT1_EXTERNAL_NAME);
-		NodeConnectorProperties port2Properties = generateNodeConnectorProperties(PORT2_EXTERNAL_ID, PORT2_EXTERNAL_NAME);
+		NodeConnectorProperties port0Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID, PORT1_EXTERNAL_NAME,
+				switch1NodeProperties.getNode());
+		NodeConnectorProperties port1Properties = generateNodeConnectorProperties(PORT2_EXTERNAL_ID, PORT2_EXTERNAL_NAME,
+				switch1NodeProperties.getNode());
 
-		resource1NodeConnectors.setNodeConnectorProperties(Arrays.asList(port1Properties, port2Properties));
+		resource1NodeConnectors.setNodeConnectorProperties(Arrays.asList(port0Properties, port1Properties));
+
+		resource2NodeConnectors = new NodeConnectors();
+		NodeConnectorProperties port2Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID + 2, PORT1_EXTERNAL_NAME,
+				switch2NodeProperties.getNode());
+		NodeConnectorProperties port3Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID + 3, PORT2_EXTERNAL_NAME,
+				switch2NodeProperties.getNode());
+		resource2NodeConnectors.setNodeConnectorProperties(Arrays.asList(port2Properties, port3Properties));
+
+		resource3NodeConnectors = new NodeConnectors();
+		NodeConnectorProperties port4Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID + 4, PORT1_EXTERNAL_NAME,
+				peNodeProperties.getNode());
+		NodeConnectorProperties port5Properties = generateNodeConnectorProperties(PORT1_EXTERNAL_ID + 5, PORT2_EXTERNAL_NAME,
+				peNodeProperties.getNode());
+		resource3NodeConnectors.setNodeConnectorProperties(Arrays.asList(port4Properties, port5Properties));
 
 	}
 
-	private NodeConnectorProperties generateNodeConnectorProperties(String ncId, String ncName) {
+	private NodeConnectorProperties generateNodeConnectorProperties(String ncId, String ncName, Node node) {
 
 		NodeConnectorProperties ncProperties = new NodeConnectorProperties();
 		NodeConnector nc = new NodeConnector();
 		nc.setNodeConnectorID(ncId);
+		nc.setNode(node);
 
 		ncProperties.setNodeConnector(nc);
 		Map<String, PropertyValue> ncPropertiesMap = new HashMap<String, PropertyValue>();
@@ -306,6 +406,56 @@ public class ODLRootResourceProviderTest {
 		return nodeProperties;
 	}
 
+	private void createFakeOdlTopologyResponse() {
+		// creates a following topology:
+		// 1|switch2|0 <-----> 0|switch1|1 <-----> 1|PE|0
+
+		Topology topology = new Topology();
+
+		List<EdgeProperty> edgeProperties = new ArrayList<EdgeProperty>(0);
+
+		// Create bidirectional link between switch1 and switch2
+
+		EdgeProperty first = new EdgeProperty();
+		first.setEdge(new Edge(resource1NodeConnectors.getNodeConnectorProperties().get(0).getNodeConnector(),
+				resource2NodeConnectors.getNodeConnectorProperties().get(0).getNodeConnector()));
+		Map<String, PropertyValue> firstProperties = new HashMap<String, PropertyValue>();
+		firstProperties.put("name", new PropertyValue("first", null));
+		first.setProperties(firstProperties);
+		edgeProperties.add(first);
+
+		// Edges are uni-directional
+		// second is the reverse of first
+		EdgeProperty second = new EdgeProperty();
+		second.setEdge(new Edge(resource2NodeConnectors.getNodeConnectorProperties().get(0).getNodeConnector(),
+				resource1NodeConnectors.getNodeConnectorProperties().get(0).getNodeConnector()));
+		Map<String, PropertyValue> secondProperties = new HashMap<String, PropertyValue>();
+		secondProperties.put("name", new PropertyValue("second", null));
+		second.setProperties(secondProperties);
+		edgeProperties.add(second);
+
+		// Create bidirectional link between switch1 and PE
+		EdgeProperty third = new EdgeProperty();
+		third.setEdge(new Edge(resource1NodeConnectors.getNodeConnectorProperties().get(1).getNodeConnector(),
+				resource3NodeConnectors.getNodeConnectorProperties().get(1).getNodeConnector()));
+		Map<String, PropertyValue> thirdProperties = new HashMap<String, PropertyValue>();
+		thirdProperties.put("name", new PropertyValue("third", null));
+		third.setProperties(thirdProperties);
+		edgeProperties.add(third);
+
+		// fourth is the reverse of third
+		EdgeProperty fourth = new EdgeProperty();
+		fourth.setEdge(new Edge(resource3NodeConnectors.getNodeConnectorProperties().get(1).getNodeConnector(),
+				resource1NodeConnectors.getNodeConnectorProperties().get(1).getNodeConnector()));
+		Map<String, PropertyValue> fourthProperties = new HashMap<String, PropertyValue>();
+		fourthProperties.put("name", new PropertyValue("fourth", null));
+		fourth.setProperties(fourthProperties);
+		edgeProperties.add(fourth);
+
+		topology.setEdgeProperties(edgeProperties);
+		odlTopology = topology;
+	}
+
 	/**
 	 * Mock all capabilities and resources used by the {@link ODLRootResourceProvider} implementation.
 	 * 
@@ -314,7 +464,7 @@ public class ODLRootResourceProviderTest {
 	private void mockRequiredFeatures() throws SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException,
 			URISyntaxException, CapabilityNotFoundException, EndpointNotFoundException, ProviderNotFoundException, ApplicationActivationException {
 
-		// mock client
+		// mock switch client
 		ISwitchNorthboundAPI mockedOdlClient = PowerMockito.mock(ISwitchNorthboundAPI.class);
 		PowerMockito.when(mockedOdlClient.getNodes(Mockito.eq("default"))).thenReturn(odlNodes);
 		PowerMockito.when(
@@ -322,16 +472,23 @@ public class ODLRootResourceProviderTest {
 				.thenReturn(resource1NodeConnectors);
 		PowerMockito.when(
 				mockedOdlClient.getNodeConnectors(Mockito.eq("default"), Mockito.eq(NodeType.OF.toString()), Mockito.eq(OFSWITCH_NODE_2_ID)))
-				.thenReturn(resource1NodeConnectors);
+				.thenReturn(resource2NodeConnectors);
 		PowerMockito.when(
 				mockedOdlClient.getNodeConnectors(Mockito.eq("default"), Mockito.eq(NodeType.PE.toString()), Mockito.eq(PE_NODE_ID))).thenReturn(
-				resource1NodeConnectors);
+				resource3NodeConnectors);
+
+		// mock topology client
+		IOpenDaylightTopologyNorthbound mockedTopologyClient = PowerMockito.mock(IOpenDaylightTopologyNorthbound.class);
+		PowerMockito.when(mockedTopologyClient.getTopology(Mockito.eq("default"))).thenReturn(odlTopology);
 
 		// mock and inject apiclientprovider
 
 		ICXFAPIProvider mockedCxfApiProvider = PowerMockito.mock(ICXFAPIProvider.class);
 		PowerMockito.when(mockedCxfApiProvider.getAPIClient(Mockito.any(IResource.class), Mockito.eq(ISwitchNorthboundAPI.class))).thenReturn(
 				mockedOdlClient);
+		PowerMockito.when(mockedCxfApiProvider.getAPIClient(Mockito.any(IResource.class), Mockito.eq(IOpenDaylightTopologyNorthbound.class)))
+				.thenReturn(
+						mockedTopologyClient);
 
 		IAPIClientProviderFactory mockedApiProviderFactory = PowerMockito.mock(IAPIClientProviderFactory.class);
 		PowerMockito.when(mockedApiProviderFactory.getAPIProvider(Mockito.eq(ICXFAPIProvider.class))).thenReturn(mockedCxfApiProvider);
@@ -339,13 +496,17 @@ public class ODLRootResourceProviderTest {
 
 		// inject fake resource in capability
 		fakeOdlEndpoint = new Endpoint(new URI("http://www.myfakeodl.com/"));
-		IRootResource fakeOdlResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "odl"),
+		fakeOdlResource = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "odl"),
 				Arrays.asList(fakeOdlEndpoint)));
 		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, fakeOdlResource, "resource");
 
 		// mock and inject rmListener
 		mockedRmListener = PowerMockito.mock(IResourceManagementListener.class);
 		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, mockedRmListener, "rmListener");
+
+		// inject linkManagement
+		ReflectionTestHelper.injectPrivateField(odlIRootResourceProvider, capabilityFactory.getCapability(fakeOdlResource, LinkManagement.class),
+				"linkManagement");
 
 		// mock and inject serviceProvider
 
@@ -372,6 +533,18 @@ public class ODLRootResourceProviderTest {
 						IResource resource = (IResource) invocation.getArguments()[0];
 
 						return capabilityFactory.getCapability(resource, PortManagement.class);
+					}
+				});
+
+		// config mockedServiceProvider to return ILinkAdministration for each LinkResource
+		PowerMockito.when(mockedServiceProvider.getCapability(Mockito.any(LinkResource.class), Mockito.eq(ILinkAdministration.class)))
+				.thenAnswer(new Answer<ILinkAdministration>() {
+
+					@Override
+					public ILinkAdministration answer(InvocationOnMock invocation) throws Throwable {
+						IResource resource = (IResource) invocation.getArguments()[0];
+
+						return capabilityFactory.getCapability(resource, LinkAdministration.class);
 					}
 				});
 

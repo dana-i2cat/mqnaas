@@ -36,7 +36,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlRootElement(namespace = "org.mqnaas")
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Topology {
 

@@ -97,10 +97,13 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 			Specification specification = resource.getDescriptor().getSpecification();
 
+			// Unspecified model (=null) matches all models
+			// Unspecified version (=null) matches all versions
+			// Specified fields (type, model and version !=null) match only the same value
 			boolean matches = true;
-			matches &= type != null ? specification.getType().equals(type) : true;
-			matches &= model != null ? specification.getModel().equals(model) : true;
-			matches &= version != null ? specification.getVersion().equals(version) : true;
+			matches &= (type != null) ? specification.getType().equals(type) : true;
+			matches &= (model != null) ? StringUtils.equals(specification.getModel(), model) : true;
+			matches &= (version != null) ? StringUtils.equals(specification.getVersion(), version) : true;
 
 			if (matches)
 				filteredResources.add(resource);

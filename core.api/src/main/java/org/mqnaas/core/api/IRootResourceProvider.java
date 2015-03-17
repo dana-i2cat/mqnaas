@@ -54,6 +54,10 @@ public interface IRootResourceProvider extends ICapability {
 	/**
 	 * Returns the subset of {@link IRootResource}s managed by this capability matching a specific {@link Specification.Type}, model and version.
 	 * 
+	 * Unspecified model (=null) matches all models. <br>
+	 * Unspecified version (=null) matches all versions. <br>
+	 * Specified fields (type, model and version !=null) match only the same value.
+	 * 
 	 * @param type
 	 *            Resource type.
 	 * @param model

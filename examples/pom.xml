@@ -147,6 +147,7 @@
 		<module>testapp</module>
 		<module>sampleResource</module>
 		<module>api-testapp</module>
+		<module>hello-world</module>
 	</modules>
 
 	<repositories>

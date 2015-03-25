@@ -46,7 +46,8 @@ public class ServerFactory extends JAXRSServerFactoryBean {
 	public ServerFactory(Class<? extends ICapability> interfaceToBePublished, String uri) {
 		super();
 
-		setAddress("http://localhost:9000" + uri);
+		// FIXME configure address in a file
+		setAddress("http://0.0.0.0:9000" + uri);
 
 		setProviders(providers);
 

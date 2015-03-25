@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.2.0" name="mqnaas">
+
+	<!-- MQNaaS features repository -->
+	<repository>mvn:org.mqnaas/mqnaas/${mqnaas-version}/xml/features</repository>
+
+	<feature name="mqnaas-examples-helloworld" version="${project.version}">
+		<!-- dependencies features -->		
+		<feature version="${mqnaas-version}">mqnaas</feature>
+		
+		<!-- no bundle dependencies -->
+		
+		<!-- included bundles -->
+		<bundle>mvn:${project.groupId}/${project.artifactId}/${project.version}</bundle>
+	</feature>
+
+</features>

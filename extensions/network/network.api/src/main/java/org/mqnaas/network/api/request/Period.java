@@ -73,6 +73,26 @@ public class Period implements Comparable<Period> {
 	}
 
 	/**
+	 * Checks if this period overlaps with other.
+	 * 
+	 * @param other
+	 *            Period to be checked with this.
+	 * @return <code>true</code> if both periods overlap. <code>false</code> otherwise.
+	 */
+	public boolean overlap(Period other) {
+		if (this.getEndDate().after(other.getStartdate()) && this.getEndDate().before(other.getEndDate()))
+			return true;
+		if (this.getStartdate().after(other.getStartdate()) && this.getStartdate().before(other.getEndDate()))
+			return true;
+
+		if (this.getStartdate().before(other.getStartdate()) && this.getEndDate().after(other.getEndDate()))
+			return true;
+
+		return (this.getStartdate().equals(other.getStartdate()) || this.getEndDate().equals(other.getEndDate()) || this.getStartdate()
+				.equals(other.getEndDate()) || this.getEndDate().equals(other.getStartdate()));
+	}
+
+	/**
 	 * @return <ul>
 	 *         <li>"-1", if the starting and end date are smaller than the starting date of the <code>other</code> period.</li>
 	 *         <li>"1", if the starting and end date are smaller than the end date of the <code>other</code>period.</li>

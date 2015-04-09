@@ -167,6 +167,35 @@ public class BindingManagementTest {
 	}
 
 	@Test
+	public void bindDifferentCapabilityInstancesToDifferentResources() throws CapabilityNotFoundException, ApplicationNotFoundException {
+
+		addSampleCapability();
+
+		IResource core = coreProvider.getCore();
+
+		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+
+		Assert.assertTrue("CI should be bound to the resource",
+				bindingManagement.getCapabilityInstancesBoundToResource(core).contains(sampleCI));
+
+		IResource sampleResource = generateSampleResource();
+		bindingManagement.resourceAdded(sampleResource, sampleCI.getInstance(), ISampleCapability.class);
+
+		CapabilityInstance sampleCIForCoreResource = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+		CapabilityInstance sampleCIForSampleResource = getCapabilityInstanceBoundToResource(sampleResource, SampleCapability.class);
+
+		Assert.assertNotNull("SampleCapability should be bound to any resource.", sampleCIForCoreResource);
+		Assert.assertNotNull("SampleCapability should be bound to any resource.", sampleCIForSampleResource);
+		Assert.assertFalse("Both resources should contained two different bound capabilities instances of the same type.",
+				sampleCIForCoreResource.getInstance() == sampleCIForSampleResource.getInstance());
+
+		bindingManagement.resourceRemoved(sampleResource, sampleCI.getInstance(), ISampleCapability.class);
+
+		removeSampleCapability();
+
+	}
+
+	@Test
 	public void addAndRemoveResourceInCapabilityInstance() throws ResourceNotFoundException, CapabilityNotFoundException,
 			ApplicationNotFoundException {
 

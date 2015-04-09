@@ -171,6 +171,8 @@ public class BindingManagementTest {
 		IResource core = coreProvider.getCore();
 
 		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+		Assert.assertTrue(bindingManagement.knownCapabilities.contains(SampleCapability.class));
+
 		Assert.assertNotNull(sampleCI);
 
 		IResource sampleResource = generateSampleResource();
@@ -188,10 +190,15 @@ public class BindingManagementTest {
 
 		bindingManagement.resourceRemoved(sampleResource, sampleCI.getInstance(), ISampleCapability.class);
 
-		Assert.assertFalse("SampleResource should NOT provided by SampleCapability",
+		Assert.assertFalse("SampleResource should NOT be provided by SampleCapability",
 				bindingManagement.getResourcesProvidedByCapabilityInstance(sampleCI).contains(sampleResource));
 
 		removeSampleCapability();
+
+		Assert.assertNull("SampleCapability should have been unbound from core resource.",
+				getCapabilityInstanceBoundToResource(core, SampleCapability.class));
+		Assert.assertFalse("SampleCapability should have been removed from the list of known capabilities.",
+				bindingManagement.knownCapabilities.contains(SampleCapability.class));
 	}
 
 	@Test

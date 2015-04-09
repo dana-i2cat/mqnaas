@@ -37,6 +37,7 @@ import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
@@ -55,6 +56,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  * http://www.codeproject.com/Articles/806508/Using-PowerMockito-to-Mock-Final-and-Static-Method
  * 
  * @author Isart Canyameres Gimenez (i2cat)
+ * @author Adrián Roselló Rey (i2CAT)
  * 
  */
 // needed to mock static method of FrameworkUtil class.
@@ -317,6 +319,33 @@ public class BindingManagementTest {
 		removeSampleCapability();
 	}
 
+	@Test
+	public void doNotBindTwoImplementationsOfSameCapability() {
+
+		addSampleCapability();
+
+		List<Class<? extends ICapability>> anotherSampleCapability = new ArrayList<Class<? extends ICapability>>(1);
+		anotherSampleCapability.add(AnotherSampleCapability.class);
+		bindingManagement.capabilitiesAdded(anotherSampleCapability);
+
+		IResource core = coreProvider.getCore();
+		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+		Assert.assertTrue("BindingManagement should contain SampleCapability in the list of known capabilities.",
+				bindingManagement.knownCapabilities.contains(SampleCapability.class));
+		Assert.assertNotNull("SampleCapability should be bound to any resource.", sampleCI);
+
+		CapabilityInstance anotherSampleCI = getCapabilityInstanceBoundToResource(core, AnotherSampleCapability.class);
+		Assert.assertTrue("BindingManagement should contain AnotherSampleCapability in the list of known capabilities.",
+				bindingManagement.knownCapabilities.contains(AnotherSampleCapability.class));
+		Assert.assertNull(
+				"AnotherSampleCapability should not be bound to any resource, since it already exists one implementation of ISampleCapability bound to them.",
+				anotherSampleCI);
+
+		bindingManagement.capabilitiesRemoved(anotherSampleCapability);
+		removeSampleCapability();
+
+	}
+
 	private static List<Class<? extends ICapability>>	sampleCapability;
 
 	static {
@@ -344,6 +373,38 @@ public class BindingManagementTest {
 
 	private IResource generateSampleResource() {
 		return new SampleResource();
+	}
+
+	static class AnotherSampleCapability implements ISampleCapability {
+
+		@org.mqnaas.core.api.annotations.Resource
+		private IResource	resource;
+
+		@Override
+		public void activate() throws ApplicationActivationException {
+		}
+
+		@Override
+		public void deactivate() {
+		}
+
+		@Override
+		public void increment() {
+		}
+
+		@Override
+		public void setCounter(int counterValue) {
+		}
+
+		@Override
+		public int getCounter() {
+			return 0;
+		}
+
+		public static boolean isSupporting(IResource resource) {
+			return true;
+		}
+
 	}
 
 }

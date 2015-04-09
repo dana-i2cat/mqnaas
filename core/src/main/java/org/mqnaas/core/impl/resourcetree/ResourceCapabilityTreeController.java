@@ -22,6 +22,7 @@ package org.mqnaas.core.impl.resourcetree;
  * #L%
  */
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -104,8 +105,9 @@ public class ResourceCapabilityTreeController {
 
 	public static boolean isBound(Class<? extends ICapability> capabilityClass, ResourceNode resourceNode) {
 		for (CapabilityNode capabilityNode : resourceNode.getChildren()) {
-			if (capabilityNode.getContent().getClazz().equals(capabilityClass))
-				return true;
+			for (Class<?> capabilityIface : capabilityNode.getContent().getClazz().getInterfaces())
+				if (Arrays.asList(capabilityClass.getInterfaces()).contains(capabilityIface))
+					return true;
 		}
 		return false;
 	}

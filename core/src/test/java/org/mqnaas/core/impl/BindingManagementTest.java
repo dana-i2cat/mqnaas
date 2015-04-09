@@ -30,6 +30,8 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.mqnaas.core.api.IApplication;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
@@ -57,7 +59,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
  */
 // needed to mock static method of FrameworkUtil class.
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(FrameworkUtil.class)
+@PrepareForTest({ FrameworkUtil.class, SampleCapability.class })
 public class BindingManagementTest {
 
 	static RootResourceManagement	resourceManagement;
@@ -293,6 +295,24 @@ public class BindingManagementTest {
 			Assert.assertTrue("Resource should NOT be provided by capability",
 					bindingManagement.getResourcesProvidedByCapabilityInstance(chainCapabilityInstances.get(i)).isEmpty());
 		}
+
+		removeSampleCapability();
+	}
+
+	@Test
+	public void doNotBindCapabilityToUnsopportedResources() {
+
+		addSampleCapability();
+
+		PowerMockito.mockStatic(SampleCapability.class);
+		BDDMockito.given(SampleCapability.isSupporting(Mockito.any(IResource.class))).willReturn(false);
+
+		IResource core = coreProvider.getCore();
+
+		CapabilityInstance sampleCI = getCapabilityInstanceBoundToResource(core, SampleCapability.class);
+		Assert.assertTrue("BindingManagement should contain SampleCapability in the list of known capabilities.",
+				bindingManagement.knownCapabilities.contains(SampleCapability.class));
+		Assert.assertNull("SampleCapability should not be bound to any resource.", sampleCI);
 
 		removeSampleCapability();
 	}

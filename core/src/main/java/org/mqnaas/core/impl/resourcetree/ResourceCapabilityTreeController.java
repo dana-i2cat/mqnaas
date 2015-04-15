@@ -105,9 +105,24 @@ public class ResourceCapabilityTreeController {
 
 	public static boolean isBound(Class<? extends ICapability> capabilityClass, ResourceNode resourceNode) {
 		for (CapabilityNode capabilityNode : resourceNode.getChildren()) {
-			for (Class<?> capabilityIface : capabilityNode.getContent().getClazz().getInterfaces())
-				if (Arrays.asList(capabilityClass.getInterfaces()).contains(capabilityIface))
+			if (capabilityNode.getContent().getClazz().equals(capabilityClass))
+				return true;
+		}
+		return false;
+	}
+
+	public static boolean canBind(Class<? extends ICapability> capabilityClass, ResourceNode resourceNode) {
+		// To be able to bind, any of the interfaces implemented by capabilityClass MUST NOT be already implemented
+		// by capabilities already bound to the resource.
+		return !doesCapabilityImplementAlreadyProvidedInterfaces(capabilityClass, resourceNode);
+	}
+
+	private static boolean doesCapabilityImplementAlreadyProvidedInterfaces(Class<? extends ICapability> capabilityClass, ResourceNode resourceNode) {
+		for (Class<?> capabilityIface : capabilityClass.getInterfaces()) {
+			for (CapabilityNode capabilityNode : resourceNode.getChildren()) {
+				if (Arrays.asList(capabilityNode.getContent().getClazz().getInterfaces()).contains(capabilityIface))
 					return true;
+			}
 		}
 		return false;
 	}

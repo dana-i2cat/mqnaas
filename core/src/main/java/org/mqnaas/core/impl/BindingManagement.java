@@ -438,7 +438,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		// Bind matching capabilities
 		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
 			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
-				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)) {
+				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)
+						&& ResourceCapabilityTreeController.canBind(capabilityClass, added)) {
 					bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
 				} else {
 					log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
@@ -756,7 +757,8 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		for (ResourceNode resourceNode : ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode())) {
 			for (Class<? extends ICapability> capabilityClass : capabilityClasses) {
 				if (bindingDecider.shouldBeBound(resourceNode.getContent(), capabilityClass)) {
-					if (!ResourceCapabilityTreeController.isBound(capabilityClass, resourceNode))
+					if (!ResourceCapabilityTreeController.isBound(capabilityClass, resourceNode)
+							&& ResourceCapabilityTreeController.canBind(capabilityClass, resourceNode))
 						if (bindingManagement != null) {
 							bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), resourceNode);
 						} else {

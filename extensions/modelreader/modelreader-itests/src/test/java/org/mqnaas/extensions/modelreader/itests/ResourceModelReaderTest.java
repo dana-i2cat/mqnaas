@@ -52,7 +52,7 @@ import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfig;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;

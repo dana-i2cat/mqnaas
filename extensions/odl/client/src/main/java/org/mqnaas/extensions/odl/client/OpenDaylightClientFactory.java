@@ -22,7 +22,7 @@ package org.mqnaas.extensions.odl.client;
 
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.common.util.ProxyClassLoader;
-import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
+import org.mqnaas.extensions.odl.client.helium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
 
 /**
  * @author Isart Canyameres Gimenez (i2cat Foundation)

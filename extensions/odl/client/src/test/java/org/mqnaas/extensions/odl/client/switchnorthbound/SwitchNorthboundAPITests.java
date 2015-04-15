@@ -31,9 +31,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.mqnaas.extensions.odl.hellium.switchmanager.model.NodeConnectors;
-import org.mqnaas.extensions.odl.hellium.switchmanager.model.Nodes;
-import org.mqnaas.extensions.odl.hellium.switchmanager.model.helpers.SwitchManagerModelHelper;
+import org.mqnaas.extensions.odl.helium.switchmanager.model.NodeConnectors;
+import org.mqnaas.extensions.odl.helium.switchmanager.model.Nodes;
+import org.mqnaas.extensions.odl.helium.switchmanager.model.helpers.SwitchManagerModelHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

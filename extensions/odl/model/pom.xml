@@ -53,9 +53,9 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
-							org.mqnaas.extensions.odl.hellium.flowprogrammer.model,
-							org.mqnaas.extensions.odl.hellium.switchmanager.model,
-							org.mqnaas.extensions.odl.hellium.topology.model
+							org.mqnaas.extensions.odl.helium.flowprogrammer.model,
+							org.mqnaas.extensions.odl.helium.switchmanager.model,
+							org.mqnaas.extensions.odl.helium.topology.model
 						</Export-Package>
 					</instructions>
 				</configuration>

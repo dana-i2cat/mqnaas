@@ -28,10 +28,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.Node;
+import org.mqnaas.extensions.odl.client.helium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.Node;
 
 
 

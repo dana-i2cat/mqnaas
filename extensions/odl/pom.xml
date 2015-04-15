@@ -18,7 +18,6 @@
 	<modules>
 		<module>model</module>
 		<module>client</module>
-		<module>clientprovider</module>
 		<module>capabilities</module>
 	</modules>
 

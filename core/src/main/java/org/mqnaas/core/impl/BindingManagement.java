@@ -442,7 +442,10 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 						&& ResourceCapabilityTreeController.canBind(capabilityClass, added)) {
 					bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
 				} else {
-					log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
+					if (ResourceCapabilityTreeController.isBound(capabilityClass, added))
+						log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
+					else
+						log.info("Unable to bind " + capabilityClass + " to resource " + added.getContent());
 				}
 			}
 		}

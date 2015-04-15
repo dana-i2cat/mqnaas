@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * <p>
- * Class representing the Topology of a network managed by Opendaylight Hellium.
+ * Class representing the Topology of a network managed by Opendaylight Helium.
  * </p>
  * 
  * @author Adrián Roselló Rey (i2CAT)

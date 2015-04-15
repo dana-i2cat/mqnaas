@@ -1,5 +1,5 @@
 /*
- * Extracted from org.opendaylight.controller.sal.action in OpenDaylight Hellium release
+ * Extracted from org.opendaylight.controller.sal.action in OpenDaylight Helium release
  */
 
 /*

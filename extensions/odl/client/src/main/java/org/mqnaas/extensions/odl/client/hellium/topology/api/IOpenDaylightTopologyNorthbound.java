@@ -31,7 +31,7 @@ import org.mqnaas.extensions.odl.hellium.topology.model.Topology;
 
 /**
  * <p>
- * Interface representing the Opendaylight Topology Northbound API for the Hellium release.
+ * Interface representing the Opendaylight Topology Northbound API for the Helium release.
  * </p>
  * 
  * @author Adrián Roselló Rey (i2CAT)

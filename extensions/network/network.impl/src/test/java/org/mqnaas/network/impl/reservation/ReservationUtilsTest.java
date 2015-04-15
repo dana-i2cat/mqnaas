@@ -63,61 +63,6 @@ public class ReservationUtilsTest {
 	}
 
 	/**
-	 * Test checks the {@link ReservationUtils#periodsOverlap(Period, Period)} method with different periods combinations.
-	 */
-	@Test
-	public void periodsOverlapTest() {
-
-		long currentTime = System.currentTimeMillis();
-
-		// startDate2 < endDate2 < starDate1 < endDate1 -> FALSE
-
-		Period period1 = new Period(new Date(currentTime), new Date(currentTime + 5000L));
-		Period period2 = new Period(new Date(currentTime - 6000L), new Date(currentTime - 5000L));
-		Assert.assertFalse(ReservationUtils.periodsOverlap(period1, period2));
-
-		// startDate1 < endDate1 < starDate2 < endDate2 -> FALSE
-
-		period1 = new Period(new Date(currentTime), new Date(currentTime + 5000L));
-		period2 = new Period(new Date(currentTime + 10000L), new Date(currentTime + 15000L));
-		Assert.assertFalse(ReservationUtils.periodsOverlap(period1, period2));
-
-		// strartDate2 < startDate1 < endDate1 < endDate2 -> TRUE
-
-		period1 = new Period(new Date(currentTime), new Date(currentTime + 15000L));
-		period2 = new Period(new Date(currentTime + 5000L), new Date(currentTime + 10000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-		// strartDate2 < startDate1 < endDate2 < endDate1 -> TRUE
-
-		period1 = new Period(new Date(currentTime), new Date(currentTime + 10000L));
-		period2 = new Period(new Date(currentTime + 5000L), new Date(currentTime + 15000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-		// strartDate1 < startDate2 < endDate1 < endDate2 -> TRUE
-
-		period1 = new Period(new Date(currentTime + 5000L), new Date(currentTime + 15000L));
-		period2 = new Period(new Date(currentTime), new Date(currentTime + 10000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-		// startDate1 = startDate2
-		period1 = new Period(new Date(currentTime), new Date(currentTime + 15000L));
-		period2 = new Period(new Date(currentTime), new Date(currentTime + 10000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-		// endDate1 = endDate2
-		period1 = new Period(new Date(currentTime + 5000), new Date(currentTime + 10000L));
-		period2 = new Period(new Date(currentTime), new Date(currentTime + 10000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-		// endDateX = startDateY
-		period1 = new Period(new Date(currentTime), new Date(currentTime + 5000L));
-		period2 = new Period(new Date(currentTime + 5000L), new Date(currentTime + 10000L));
-		Assert.assertTrue(ReservationUtils.periodsOverlap(period1, period2));
-
-	}
-
-	/**
 	 * Test checks {@link ReservationUtils#areResourcesAvailable(IReservationAdministration, IReservationAdministration) method with different
 	 * resources-periods combinations.}
 	 */

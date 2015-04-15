@@ -36,29 +36,6 @@ import org.mqnaas.network.api.reservation.ReservationResource;
 public class ReservationUtils {
 
 	/**
-	 * Checks if both periods overlap or not.
-	 * 
-	 * @param period1
-	 *            First period to be checked.
-	 * @param period2
-	 *            Second period to be checked.
-	 * @return <code>true</code> if both periods overlap. <code>false</code> otherwise.
-	 */
-	public static boolean periodsOverlap(Period period1, Period period2) {
-		if (period1.getEndDate().after(period2.getStartdate()) && period1.getEndDate().before(period2.getEndDate()))
-			return true;
-		if (period1.getStartdate().after(period2.getStartdate()) && period1.getStartdate().before(period2.getEndDate()))
-			return true;
-
-		if (period1.getStartdate().before(period2.getStartdate()) && period1.getEndDate().after(period2.getEndDate()))
-			return true;
-
-		return (period1.getStartdate().equals(period2.getStartdate()) || period1.getEndDate().equals(period2.getEndDate()) || period1.getStartdate()
-				.equals(period2.getEndDate()) || period1.getEndDate().equals(period2.getStartdate()));
-
-	}
-
-	/**
 	 * Checks if any {@link IRootResource} stored in the {@link IReservationAdministration} of a new {@link ReservationResource} are contained in the
 	 * <code>existingReservationAdmin</code> for the same {@link Period}.
 	 * 
@@ -78,7 +55,7 @@ public class ReservationUtils {
 
 		for (IRootResource reservationResource : reservationToCompareAdmin.getResources())
 			if (existingReservationAdmin.getResources().contains(reservationResource))
-				if (periodsOverlap(existingReservationAdmin.getPeriod(), reservationToCompareAdmin.getPeriod()))
+				if (existingReservationAdmin.getPeriod().overlap(reservationToCompareAdmin.getPeriod()))
 					return false;
 
 		return true;

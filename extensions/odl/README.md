@@ -82,7 +82,7 @@ First of all, it is necessary creating an OpendDaylight resource (type `network`
 Obtain switches of the OpenDaylight network resource
 ----------------------------------------------------
 
-Once the resource is created, it is possible to call its capabilities. As a network resource has subresources, in order to manage them, Root Resource Provider capability should be used. To obtain switches as subresources of parent OpenDaylith network resource use this call:
+Once the resource is created, it is possible to call its capabilities. As a network resource has subresources, in order to manage them, Root Resource Provider capability should be used. To obtain switches as subresources of parent OpenDaylight network resource use this call:
 
   GET http://{MQNaaS_host}:{MQNaaS_port}/mqnaas/IRootResourceAdministration/Network-odl-2/IRootResourceProvider
   
@@ -113,7 +113,7 @@ Each switch has ports as subresources. To obtain subresource ports of a given sw
 
   GET http://{MQNaaS_host}:{MQNaaS_port}/mqnaas/IRootResourceAdministration/Network-odl-2/IRootResourceProvider/OFSwitch-3/IPortManagement
   
-  With this expected response (containing in this case, 3 switch resources):
+  With this expected response (containing in this case, 4 port resources):
   
   ```xml
   <IResource>

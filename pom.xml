@@ -113,6 +113,11 @@
 				<artifactId>org.osgi.core</artifactId>
 				<version>${osgi.core-version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.osgi</groupId>
+				<artifactId>org.osgi.compendium</artifactId>
+				<version>${osgi.core-version}</version>				
+			</dependency>			
 			<!-- MqNaaS modules -->
 			<dependency>
 				<groupId>org.mqnaas</groupId>

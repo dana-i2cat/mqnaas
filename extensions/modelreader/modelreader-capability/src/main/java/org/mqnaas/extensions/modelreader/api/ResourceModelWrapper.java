@@ -31,7 +31,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
 
 /**
  * <p>

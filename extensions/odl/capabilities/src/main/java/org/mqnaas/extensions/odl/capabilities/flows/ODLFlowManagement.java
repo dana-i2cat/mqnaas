@@ -32,9 +32,9 @@ import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
-import org.mqnaas.extensions.odl.client.hellium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfig;
-import org.mqnaas.extensions.odl.hellium.flowprogrammer.model.FlowConfigs;
+import org.mqnaas.extensions.odl.client.helium.flowprogrammer.api.IOpenDaylightFlowProgrammerNorthbound;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfig;
+import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
 
 public class ODLFlowManagement implements IFlowManagement {
 	

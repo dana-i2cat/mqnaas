@@ -18,12 +18,10 @@
 	<modules>
 		<module>model</module>
 		<module>client</module>
-		<module>clientprovider</module>
 		<module>capabilities</module>
 	</modules>
 
 	<properties>
-		<project.version>0.0.1-SNAPSHOT</project.version>
 		<mqnaas.version>0.0.1-SNAPSHOT</mqnaas.version>
 		<network.version>0.0.1-SNAPSHOT</network.version>
 	</properties>

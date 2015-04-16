@@ -68,7 +68,7 @@ public interface IHelloWorldCapability extends ICapability {
 This is one of the simplest capability definitions one can develop.
 
 ### Capability implementation
-A capability implementation is simply a Java class implementing an ICapability interface. There can be one or more implementations, but only one at the time can be used. In this example, one single implementation is provided and used.
+A capability implementation is simply a Java class implementing an ICapability interface. There can be one or more implementations, but only one at the time can be used for an specific resource. In this example, one single implementation is provided and used.
 
 First of all, each method of the interface must be implemented, as usual. In this case, a simple approach could be:
 
@@ -215,6 +215,8 @@ In order to build the Hello World project, follow these steps:
     
     Other-hello-world-1.0-2
     ```
+    
+    The returned value in the body response is the ID of the recently created resource.
     
     * Call the capability with your name (in this sample, Alice is used as name):
     

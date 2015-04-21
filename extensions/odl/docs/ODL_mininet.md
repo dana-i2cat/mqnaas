@@ -17,7 +17,7 @@ For this example, creating a predefined topology is the easiest option. Use this
 
 It instantiates 3 switches in a tree topology, all controlled by an OpenFlow controller in the same machine.
 
-OpneDaylight Helium
+OpenDaylight Helium
 ===================
 
 OpenDaylight would be OpenFlow controller for previously instantiated switches. In order to execute OpenDaylight, the easiest choice is downloading latest stable binary release from [downloads page](http://www.opendaylight.org/software/downloads), in this case, [Helium SR3](https://nexus.opendaylight.org/content/groups/public/org/opendaylight/integration/distribution-karaf/0.2.3-Helium-SR3/distribution-karaf-0.2.3-Helium-SR3.tar.gz). Once downloaded, extract it in any user's folder. Execute it invoking `bin/karaf` located in the extracted folder.

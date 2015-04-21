@@ -140,13 +140,6 @@
 	</build>
 
 	<modules>
-		<module>api.router</module>
-		<module>router</module>
-		<module>junosRouter</module>
-		<module>openerRouter</module>
-		<module>testapp</module>
-		<module>sampleResource</module>
-		<module>api-testapp</module>
 		<module>hello-world</module>
 	</modules>
 

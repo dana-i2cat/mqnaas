@@ -80,7 +80,7 @@ public class AddressLoader {
 			String address = (String) wsProperties.get(ADDRESS_PROPERTY);
 
 			try {
-				URI uri = new URI(address);
+				new URI(address);
 			} catch (URISyntaxException e) {
 				log.warn("Malformed URI in WS configuration file. Using defult address: " + DEFAULT_ADDRESS, e);
 				return DEFAULT_ADDRESS;

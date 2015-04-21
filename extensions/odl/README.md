@@ -26,7 +26,7 @@ Using the REST API
 
 It is possible to use the MQNaaS REST API in order to interact with ODL network resource instances.
 
-<img src="/docs/images/info.png" height=25 /> A quick way to test these capabilities is using OpenDaylight Helium and Mininet. [This guide](TODO_link) shows a basic setup without any extra equipment requirement.
+<img src="/docs/images/info.png" height=25 /> A quick way to test these capabilities is using OpenDaylight Helium and Mininet. [This guide](docs/ODL_mininet.md) shows a basic setup without any extra equipment requirement.
 
 Once an OpenDayligth instance is available, MQNaaS can be executed and required Apache Karaf features can be installed. In a Karaf shell, execute these commands (in this case `0.0.1-SNAPSHOT` version is used):
 

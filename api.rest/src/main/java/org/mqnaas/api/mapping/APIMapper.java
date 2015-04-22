@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.i2cat.utils.StringBuilderUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A collection of {@link IMethodMapper}s to support mapping from methods from a Web API interface to a Java interface.
@@ -37,6 +39,8 @@ import org.i2cat.utils.StringBuilderUtils;
  * 
  */
 public class APIMapper implements InvocationHandler {
+
+	private static final Logger			log				= LoggerFactory.getLogger(APIMapper.class);
 
 	private Class<?>					interfaceAPI;
 
@@ -56,7 +60,7 @@ public class APIMapper implements InvocationHandler {
 
 	@Override
 	public Object invoke(Object arg0, Method method, Object[] params) throws Throwable {
-		System.out.println("Invoking " + method.getName() + " on " + arg0.getClass() + " with params " + Arrays.toString(params));
+		log.info("Invoking " + method.getName() + " on " + arg0.getClass() + " with params " + Arrays.toString(params));
 
 		MethodMapper mm = methodMappers.get(method);
 

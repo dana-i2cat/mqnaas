@@ -60,13 +60,13 @@
 		<wiremock.version>1.51</wiremock.version>
 
 		<!-- Powermock version -->
-		<powermock.version>1.5.4</powermock.version>
+		<powermock.version>1.5.5</powermock.version>
 
 		<!-- Javax Inject version -->
 		<javax.inject.version>1_2</javax.inject.version>
 
 		<!-- Apache Karaf version -->
-		<karaf.version>3.0.1</karaf.version>
+		<karaf.version>3.0.3</karaf.version>
 
 		<!-- Pax Exam version -->
 		<pax.exam.version>3.5.0</pax.exam.version>
@@ -108,6 +108,22 @@
 				<artifactId>test-helpers</artifactId>
 				<version>${mqnaas.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.api</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>network.impl</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<!-- ODL modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>odl.capabilities</artifactId>
+				<version>${project.version}</version>
 			</dependency>
 			<!-- Testing libraries -->
 			<dependency>

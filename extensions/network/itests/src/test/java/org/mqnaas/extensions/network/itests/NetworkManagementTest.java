@@ -98,10 +98,10 @@ public class NetworkManagementTest {
 		// FIXME Read mqnass features version from maven.
 		// now mqnaas features version in this file must be changed manually in each release!
 		return new Option[] {
-				// distribution to test: Karaf 3.0.1
+				// distribution to test: Karaf 3.0.3
 				KarafDistributionOption.karafDistributionConfiguration()
-						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").version("3.0.1"))
-						.karafVersion("3.0.1").name("Apache Karaf").useDeployFolder(false)
+						.frameworkUrl(CoreOptions.maven().groupId("org.apache.karaf").artifactId("apache-karaf").type("tar.gz").version("3.0.3"))
+						.karafVersion("3.0.3").name("Apache Karaf").useDeployFolder(false)
 						// keep deployed Karaf
 						.unpackDirectory(new File("target/paxexam")),
 				// no local and remote consoles

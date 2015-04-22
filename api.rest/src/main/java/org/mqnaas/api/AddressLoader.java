@@ -79,8 +79,13 @@ public class AddressLoader {
 			Dictionary<String, Object> wsProperties = configAdmin.getConfiguration(ADDRESS_CONFIG_FILE).getProperties();
 			String address = (String) wsProperties.get(ADDRESS_PROPERTY);
 
+			if (address == null) {
+				log.warn("No URI present in WS configuration file. Using defult address: " + DEFAULT_ADDRESS);
+				return DEFAULT_ADDRESS;
+			}
+
 			try {
-				URI uri = new URI(address);
+				new URI(address);
 			} catch (URISyntaxException e) {
 				log.warn("Malformed URI in WS configuration file. Using defult address: " + DEFAULT_ADDRESS, e);
 				return DEFAULT_ADDRESS;

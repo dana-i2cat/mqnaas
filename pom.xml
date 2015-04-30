@@ -75,7 +75,7 @@
 		<karaf-version>3.0.3</karaf-version>
 
 		<!-- OPS4J Pax Exam version -->
-		<pax-exam-version>3.5.0</pax-exam-version>
+		<pax-exam-version>4.5.0</pax-exam-version>
 
 		<!-- PowerMock version -->
 		<powermock.version>1.5.5</powermock.version>

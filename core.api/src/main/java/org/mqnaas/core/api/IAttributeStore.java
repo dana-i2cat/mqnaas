@@ -32,9 +32,13 @@ public interface IAttributeStore extends ICapability {
 	/**
 	 * This static can be used by all modules defining a map between an OpenNaaS {@link IResource} and an external component.
 	 */
-	static final String	RESOURCE_EXTERNAL_ID	= "resource.external.id";
+	static final String	RESOURCE_EXTERNAL_ID		= "resource.external.id";
 
-	static final String	RESOURCE_EXTERNAL_NAME	= "resource.external.name";
+	static final String	RESOURCE_EXTERNAL_NAME		= "resource.external.name";
+
+	static final String	RESOURCE_CREATION_TIME		= "resource.creation.time";
+
+	static final String	RESOURCE_CONCLUSION_TIME	= "resource.conclusion.time";
 
 	String getAttribute(String name);
 

@@ -171,20 +171,6 @@ public class ResourcesIntegrationTest {
 		ILinkManagement linkManagementCapab = serviceProvider.getCapability(networkResource, ILinkManagement.class);
 		Assert.assertNotNull("Network resource should contain a bound ILinkManagement capability.", linkManagementCapab);
 
-		// other resource, for example, tson
-		linkManagementCapab = serviceProvider.getCapability(tsonResource, ILinkManagement.class);
-		Assert.assertNotNull("All RootResources should contain a bound ILinkManagement capability.",
-				linkManagementCapab);
-
-	}
-
-	@Test
-	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
-			IllegalAccessException, InterruptedException {
-
-		ILinkManagement linkManagementCapab = serviceProvider.getCapability(tsonResource, ILinkManagement.class);
-		Assert.assertNotNull("TSON resource should contain a bound ILinkManagement capability.", linkManagementCapab);
-
 		// link resource capabilities
 		IResource link = linkManagementCapab.createLink();
 		Assert.assertNotNull(link);
@@ -195,6 +181,13 @@ public class ResourcesIntegrationTest {
 
 		// remove created resources
 		linkManagementCapab.removeLink(link);
+	}
+
+	@Test(expected = CapabilityNotFoundException.class)
+	public void linkAdministrationBindingTest() throws CapabilityNotFoundException, ResourceNotFoundException, InstantiationException,
+			IllegalAccessException, InterruptedException {
+
+		serviceProvider.getCapability(tsonResource, ILinkManagement.class);
 
 	}
 

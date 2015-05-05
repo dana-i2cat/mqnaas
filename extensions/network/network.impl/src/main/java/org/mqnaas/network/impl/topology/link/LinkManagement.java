@@ -46,7 +46,7 @@ public class LinkManagement implements ILinkManagement {
 	}
 
 	public static boolean isSupporting(IRootResource resource) {
-		return (!resource.getDescriptor().getSpecification().getType().equals(Type.CORE));
+		return (resource.getDescriptor().getSpecification().getType().equals(Type.NETWORK));
 	}
 
 	private List<LinkResource>	links;

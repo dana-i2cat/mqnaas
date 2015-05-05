@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.MapWrapper;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.slf4j.Logger;
@@ -80,4 +81,9 @@ public class AttributeStore implements IAttributeStore {
 
 	}
 
+	@Override
+	public MapWrapper getAttributes() {
+		log.info("Getting all attributes of resource " + resource.getId());
+		return new MapWrapper(attributes);
+	}
 }

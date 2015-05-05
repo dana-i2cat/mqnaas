@@ -1,5 +1,6 @@
 package org.mqnaas.core.api;
 
+
 /*
  * #%L
  * MQNaaS :: Core.API
@@ -43,5 +44,7 @@ public interface IAttributeStore extends ICapability {
 	String getAttribute(String name);
 
 	void setAttribute(String name, String value);
+
+	MapWrapper getAttributes();
 
 }

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,6 +37,7 @@ import org.mqnaas.bundletree.IBundleGuard;
 import org.mqnaas.bundletree.IClassFilter;
 import org.mqnaas.bundletree.IClassListener;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IBindingDecider;
 import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.ICoreModelCapability;
@@ -449,6 +451,17 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 				}
 			}
 		}
+
+		// set resource creation time, in number of ms since 1970/01/01
+		try {
+			long creationTime = new GregorianCalendar().getTimeInMillis();
+			IAttributeStore attributeStore = getCapability(added.getContent(), IAttributeStore.class);
+			attributeStore.setAttribute(IAttributeStore.RESOURCE_CREATION_TIME, String.valueOf(creationTime));
+
+		} catch (CapabilityNotFoundException c) {
+			log.warn("Could not set creation time metadata in resource " + added.getContent().getId(), c);
+		}
+
 	}
 
 	@Override

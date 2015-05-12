@@ -36,6 +36,7 @@ import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.api.exceptions.ServiceExecutionSchedulerException;
 import org.mqnaas.core.api.scheduling.ServiceExecution;
 import org.mqnaas.core.api.scheduling.Trigger;
+import org.mqnaas.core.impl.samples.SampleService;
 import org.mqnaas.core.impl.scheduling.ServiceExecutionScheduler;
 import org.mqnaas.core.impl.scheduling.TriggerFactory;
 import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;

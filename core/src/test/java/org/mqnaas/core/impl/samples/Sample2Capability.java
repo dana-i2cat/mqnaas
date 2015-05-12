@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,23 +22,49 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * 
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public class SampleResource implements IResource {
+public class Sample2Capability implements ISample2Capability {
 
 	@Override
-	public String getId() {
-		return "SampleResource";
+	public void a() {
+		// TODO Auto-generated method stub
+
 	}
-	
+
 	@Override
-	public String toString() {
-		return getId();
+	public void a(int b) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void a(int b, String c) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void a(String b, String c) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void activate() throws ApplicationActivationException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
 	}
 
 }

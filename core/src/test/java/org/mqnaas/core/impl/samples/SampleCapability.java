@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L

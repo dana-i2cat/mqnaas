@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,20 +22,19 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import java.util.List;
-
 import org.mqnaas.core.api.ICapability;
-import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.RemovesResource;
 
-public interface ISampleMgmtCapability extends ICapability {
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
+public interface ISampleCapability extends ICapability {
 
-	@AddsResource
-	public void addSampleResource(SampleResource resource);
+	public void increment();
 
-	@RemovesResource
-	public void removeSampleResource(SampleResource resource);
+	public void setCounter(int counterValue);
 
-	public List<SampleResource> getSampleResources();
+	public int getCounter();
 
 }

@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,28 +22,21 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.IService;
-import org.mqnaas.core.api.IServiceMetaData;
+import org.mqnaas.core.api.ICapability;
 
-public class SampleService implements IService {
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
+public interface ISample2Capability extends ICapability {
 
-	@Override
-	public IResource getResource() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	void a();
 
-	@Override
-	public IServiceMetaData getMetadata() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	void a(int b);
 
-	@Override
-	public String getId() {
-		// TODO Auto-generated method stub
-		return "SampleService";
-	}
+	void a(int b, String c);
+
+	void a(String b, String c);
 
 }

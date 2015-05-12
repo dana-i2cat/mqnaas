@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,49 +22,28 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.IService;
+import org.mqnaas.core.api.IServiceMetaData;
 
-/**
- * 
- * @author Isart Canyameres Gimenez (i2cat)
- * 
- */
-public class Sample2Capability implements ISample2Capability {
+public class SampleService implements IService {
 
 	@Override
-	public void a() {
+	public IResource getResource() {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void a(int b) {
+	public IServiceMetaData getMetadata() {
 		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 	@Override
-	public void a(int b, String c) {
+	public String getId() {
 		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void a(String b, String c) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-
+		return "SampleService";
 	}
 
 }

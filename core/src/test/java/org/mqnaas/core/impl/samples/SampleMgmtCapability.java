@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,19 +22,41 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.ICapability;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * 
- * @author Isart Canyameres Gimenez (i2cat)
- * 
- */
-public interface ISampleCapability extends ICapability {
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
-	public void increment();
+public class SampleMgmtCapability implements ISampleMgmtCapability {
 
-	public void setCounter(int counterValue);
+	private List<SampleResource>	resources	= new ArrayList<SampleResource>();
 
-	public int getCounter();
+	@Override
+	public void addSampleResource(SampleResource resource) {
+		resources.add(resource);
+	}
+
+	@Override
+	public void removeSampleResource(SampleResource resource) {
+		resources.remove(resource);
+
+	}
+
+	@Override
+	public List<SampleResource> getSampleResources() {
+		return new ArrayList<SampleResource>(resources);
+	}
+
+	@Override
+	public void activate() throws ApplicationActivationException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void deactivate() {
+		// TODO Auto-generated method stub
+
+	}
 
 }

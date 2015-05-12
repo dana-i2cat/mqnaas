@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,29 +22,20 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.IApplication;
-import org.mqnaas.core.api.exceptions.ApplicationActivationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
-/**
- * 
- * @author Isart Canyameres Gimenez (i2cat)
- * 
- */
-public class SampleApplication implements IApplication {
+import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.annotations.AddsResource;
+import org.mqnaas.core.api.annotations.RemovesResource;
 
-	private static final Logger	log	= LoggerFactory.getLogger(BindingManagement.class);
+public interface ISampleMgmtCapability extends ICapability {
 
-	@Override
-	public void activate() throws ApplicationActivationException {
-		log.info("SampleApplication activated!");
-	}
+	@AddsResource
+	public void addSampleResource(SampleResource resource);
 
-	@Override
-	public void deactivate() {
-		log.info("SampleApplication deactivated!");
+	@RemovesResource
+	public void removeSampleResource(SampleResource resource);
 
-	}
+	public List<SampleResource> getSampleResources();
 
 }

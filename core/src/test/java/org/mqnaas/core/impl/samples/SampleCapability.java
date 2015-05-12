@@ -69,14 +69,10 @@ public class SampleCapability implements ISampleCapability {
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
-
 	}
 
 }

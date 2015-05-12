@@ -30,19 +30,16 @@ public class SampleService implements IService {
 
 	@Override
 	public IResource getResource() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IServiceMetaData getMetadata() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public String getId() {
-		// TODO Auto-generated method stub
 		return "SampleService";
 	}
 

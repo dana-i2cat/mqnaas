@@ -54,7 +54,7 @@ public class Network implements IRootResourceProvider {
 		this.serviceProvider = serviceProvider;
 	}
 
-	public <C extends ICapability> C getCapability(Class<C> capabilityClass) {
+	private <C extends ICapability> C getCapability(Class<C> capabilityClass) {
 		try {
 			return serviceProvider.getCapability(network, capabilityClass);
 		} catch (CapabilityNotFoundException e) {

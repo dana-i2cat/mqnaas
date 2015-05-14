@@ -22,13 +22,9 @@
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>bundletree</artifactId>
-	<!-- 		<exclusions>
-				<exclusion>
-					<groupId>org.osgi</groupId>
-					<artifactId>org.osgi.core</artifactId>
-				</exclusion>
-			</exclusions>
- -->		</dependency>
+			<!-- <exclusions> <exclusion> <groupId>org.osgi</groupId> <artifactId>org.osgi.core</artifactId> 
+				</exclusion> </exclusions> -->
+		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -43,16 +39,17 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
 		<!-- Scheduling mechanism -->
 		<dependency>
 			<groupId>com.opensymphony.quartz</groupId>
 			<artifactId>com.springsource.org.quartz</artifactId>
 		</dependency>
 		<!-- Testing -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>mqnaas-test-helpers</artifactId>
@@ -81,6 +78,36 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.servicemix.bundles</groupId>
+			<artifactId>org.apache.servicemix.bundles.javax-inject</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-container-karaf</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ops4j.pax.exam</groupId>
+			<artifactId>pax-exam-spi</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.karaf</groupId>
+			<artifactId>apache-karaf</artifactId>
+			<type>tar.gz</type>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

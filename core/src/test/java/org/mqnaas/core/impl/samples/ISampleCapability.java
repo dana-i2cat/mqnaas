@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,23 +22,19 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.ICapability;
 
 /**
  * 
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public class SampleResource implements IResource {
+public interface ISampleCapability extends ICapability {
 
-	@Override
-	public String getId() {
-		return "SampleResource";
-	}
-	
-	@Override
-	public String toString() {
-		return getId();
-	}
+	public void increment();
+
+	public void setCounter(int counterValue);
+
+	public int getCounter();
 
 }

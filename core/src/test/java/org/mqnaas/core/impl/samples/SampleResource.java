@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -23,60 +23,22 @@ package org.mqnaas.core.impl;
  */
 
 import org.mqnaas.core.api.IResource;
-import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * 
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public class SampleCapability implements ISampleCapability {
-
-	private int				counter;
-	private final Object	lock	= new Object();
-
-	@org.mqnaas.core.api.annotations.Resource
-	private IResource		resource;
+public class SampleResource implements IResource {
 
 	@Override
-	public void increment() {
-		synchronized (lock) {
-			counter++;
-		}
+	public String getId() {
+		return "SampleResource";
 	}
-
+	
 	@Override
-	public void setCounter(int counterValue) {
-		synchronized (lock) {
-			counter = counterValue;
-		}
-	}
-
-	@Override
-	public int getCounter() {
-		synchronized (lock) {
-			return counter;
-		}
-	}
-
-	public static boolean isSupporting(IResource resource) {
-		return true;
-	}
-
-	public IResource getResource() {
-		return resource;
-	}
-
-	@Override
-	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void deactivate() {
-		// TODO Auto-generated method stub
-
+	public String toString() {
+		return getId();
 	}
 
 }

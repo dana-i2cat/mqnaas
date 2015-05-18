@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.test.helpers.capability.sample;
 
 /*
  * #%L
@@ -22,49 +22,41 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
+import org.apache.commons.lang3.StringUtils;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.IRootResourceProvider;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
+ * Implementation of {@link ISampleCapability} that only binds to {@link ResourceA} with a private {@link IRootResourceProvider} attribute to be
+ * injected using {@link @DependingOn} annotation.
  * 
- * @author Isart Canyameres Gimenez (i2cat)
- * 
+ * @author Julio Carlos Barrera (i2CAT Foundation)
+ *
  */
-public class Sample2Capability implements ISample2Capability {
+public class SampleCapabilityImpl implements ISampleCapability {
 
-	@Override
-	public void a() {
-		// TODO Auto-generated method stub
+	@DependingOn
+	private IRootResourceProvider	rootResourceProvider;
 
-	}
+	public static boolean isSupporting(IRootResource resource) {
+		Specification specification = resource.getDescriptor().getSpecification();
 
-	@Override
-	public void a(int b) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void a(int b, String c) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void a(String b, String c) {
-		// TODO Auto-generated method stub
-
+		return specification.getType() == ResourceA.RESOURCE_A_TYPE && StringUtils.equals(specification.getModel(), ResourceA.RESOURCE_A_MODEL);
 	}
 
 	@Override
 	public void activate() throws ApplicationActivationException {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void deactivate() {
-		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public void sampleMethod() {
 	}
 
 }

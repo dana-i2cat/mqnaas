@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.test.helpers.capability.sample;
 
 /*
  * #%L
@@ -25,16 +25,13 @@ package org.mqnaas.core.impl;
 import org.mqnaas.core.api.ICapability;
 
 /**
+ * Sample Capability
  * 
- * @author Isart Canyameres Gimenez (i2cat)
- * 
+ * @author Julio Carlos Barrera (i2CAT Foundation)
+ *
  */
 public interface ISampleCapability extends ICapability {
 
-	public void increment();
-
-	public void setCounter(int counterValue);
-
-	public int getCounter();
+	public void sampleMethod();
 
 }

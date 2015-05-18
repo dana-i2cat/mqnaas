@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,21 +22,57 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
 /**
  * 
  * @author Isart Canyameres Gimenez (i2cat)
  * 
  */
-public interface ISample2Capability extends ICapability {
+public class SampleCapability implements ISampleCapability {
 
-	void a();
+	private int				counter;
+	private final Object	lock	= new Object();
 
-	void a(int b);
+	@org.mqnaas.core.api.annotations.Resource
+	private IResource		resource;
 
-	void a(int b, String c);
+	@Override
+	public void increment() {
+		synchronized (lock) {
+			counter++;
+		}
+	}
 
-	void a(String b, String c);
+	@Override
+	public void setCounter(int counterValue) {
+		synchronized (lock) {
+			counter = counterValue;
+		}
+	}
+
+	@Override
+	public int getCounter() {
+		synchronized (lock) {
+			return counter;
+		}
+	}
+
+	public static boolean isSupporting(IResource resource) {
+		return true;
+	}
+
+	public IResource getResource() {
+		return resource;
+	}
+
+	@Override
+	public void activate() throws ApplicationActivationException {
+	}
+
+	@Override
+	public void deactivate() {
+	}
 
 }

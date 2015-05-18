@@ -1,4 +1,4 @@
-package org.mqnaas.core.impl;
+package org.mqnaas.core.impl.samples;
 
 /*
  * #%L
@@ -22,20 +22,37 @@ package org.mqnaas.core.impl;
  * #L%
  */
 
-import java.util.List;
+import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 
-import org.mqnaas.core.api.ICapability;
-import org.mqnaas.core.api.annotations.AddsResource;
-import org.mqnaas.core.api.annotations.RemovesResource;
+/**
+ * 
+ * @author Isart Canyameres Gimenez (i2cat)
+ * 
+ */
+public class Sample2Capability implements ISample2Capability {
 
-public interface ISampleMgmtCapability extends ICapability {
+	@Override
+	public void a() {
+	}
 
-	@AddsResource
-	public void addSampleResource(SampleResource resource);
+	@Override
+	public void a(int b) {
+	}
 
-	@RemovesResource
-	public void removeSampleResource(SampleResource resource);
+	@Override
+	public void a(int b, String c) {
+	}
 
-	public List<SampleResource> getSampleResources();
+	@Override
+	public void a(String b, String c) {
+	}
+
+	@Override
+	public void activate() throws ApplicationActivationException {
+	}
+
+	@Override
+	public void deactivate() {
+	}
 
 }

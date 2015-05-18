@@ -23,7 +23,6 @@
 	</modules>
 
 	<properties>
-		<project.version>0.0.1-SNAPSHOT</project.version>
 		<!-- Apache Commons Lang 3 version -->
 		<commons-lang3>3.3.1</commons-lang3>
 	</properties>
@@ -58,14 +57,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
 			<!-- Maven resources plugin configured below -->
 			<plugin>
 				<artifactId>maven-resources-plugin</artifactId>

@@ -13,6 +13,11 @@
 	<name>MQNaaS :: Generic Resource Model Reader</name>
 	<description>Generic implementation exposing the whole model of a resource</description>
 
+	<properties>	
+		<network.version>0.0.1-SNAPSHOT</network.version>
+		<odl.version>0.0.1-SNAPSHOT</odl.version>
+	</properties>
+
 	<modules>
 		<module>modelreader-capability</module>
 		<module>modelreader-itests</module>
@@ -28,5 +33,21 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<!-- Maven resources plugin configured by parent pom -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+
+			<!-- Build helper Maven plugin configured by parent pom -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<inherited>false</inherited>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

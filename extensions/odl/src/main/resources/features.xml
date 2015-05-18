@@ -9,7 +9,6 @@
 		<feature version="${mqnaas.version}">mqnaas</feature>
 
 		<feature version="${project.version}">odl-client</feature>
-		<feature version="${project.version}">odl-clientprovider</feature>
 		<feature version="${project.version}">odl-capabilities</feature>
 	</feature>
 
@@ -17,11 +16,6 @@
 		<!-- TODO add dependencies -->
 		<bundle dependency="true">mvn:org.mqnaas.extensions/odl.model/${project.version}</bundle>
 		<bundle>mvn:org.mqnaas.extensions/odl.client/${project.version}</bundle>
-	</feature>
-
-	<feature name="odl-clientprovider" version="${project.version}">
-		<!-- TODO add dependencies -->
-		<bundle>mvn:org.mqnaas.extensions/odl.clientprovider/${project.version}</bundle>
 	</feature>
 
 	<feature name="odl-capabilities" version="${project.version}">

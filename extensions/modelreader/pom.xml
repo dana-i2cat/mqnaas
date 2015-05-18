@@ -13,9 +13,7 @@
 	<name>MQNaaS :: Generic Resource Model Reader</name>
 	<description>Generic implementation exposing the whole model of a resource</description>
 
-	<properties>
-		<project.version>0.0.1-SNAPSHOT</project.version>
-	
+	<properties>	
 		<network.version>0.0.1-SNAPSHOT</network.version>
 		<odl.version>0.0.1-SNAPSHOT</odl.version>
 	</properties>

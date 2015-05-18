@@ -23,7 +23,6 @@
 	</modules>
 
 	<properties>
-		<project.version>0.0.1-SNAPSHOT</project.version>
 		<!-- Apache Commons Lang 3 version -->
 		<commons-lang3>3.3.1</commons-lang3>
 	</properties>

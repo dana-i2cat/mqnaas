@@ -75,7 +75,7 @@ public class Specification implements Cloneable {
 		 */
 		LTE("LTE"),
 		/**
-		 * Client premises equiment
+		 * Client premises equipment
 		 */
 		CPE("CPE"),
 		/**
@@ -86,6 +86,10 @@ public class Specification implements Cloneable {
 		 * Wifi
 		 */
 		CHANNEL("CHANNEL"),
+		/**
+		 * Cloud Manager
+		 */
+		CLOUD_MANAGER("Cloud-Manager"),
 		/**
 		 * Other devices
 		 */

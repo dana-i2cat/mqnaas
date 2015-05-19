@@ -13,8 +13,19 @@
 
 	<name>MQNaaS :: JClouds Client Provider</name>
 	<description>JClouds Client Provider</description>
-	
+
 	<dependencies>
+		<!-- Apache jClouds -->
+		<dependency>
+			<groupId>org.apache.jclouds</groupId>
+			<artifactId>jclouds-all</artifactId>
+			<version>${jclouds.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jclouds.labs</groupId>
+			<artifactId>openstack-neutron</artifactId>
+			<version>${jclouds.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

@@ -22,6 +22,7 @@
 	</modules>
 
 	<properties>
+		<jclouds.version>1.8.1</jclouds.version>
 	</properties>
 
 	<dependencyManagement>

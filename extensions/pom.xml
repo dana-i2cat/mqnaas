@@ -17,6 +17,7 @@
 		<module>network</module>
 		<module>odl</module>
 		<module>modelreader</module>
+		<module>openstack</module>
 	</modules>
 
 	<licenses>

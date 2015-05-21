@@ -28,6 +28,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.mqnaas.network.impl.request.RequestRootResource;
@@ -39,6 +40,9 @@ import org.mqnaas.network.impl.request.RequestRootResource;
  * @author Georg Mansky-Kummert
  */
 public class PortManagement implements IPortManagement {
+
+	@Resource
+	IResource	resource;
 
 	public static boolean isSupporting(IRootResource resource) {
 		Type type = resource.getDescriptor().getSpecification().getType();

@@ -3,6 +3,14 @@
 
 	<repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds.version}/xml/features</repository>
 
+	<feature name="mqnaas-openstack" version="${project.version}">
+		<feature version="${project.version}">mqnaas-jclouds</feature>
+
+		<bundle>mvn:org.mqnaas.extensions/jclouds-client-provider/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas.extensions/openstack-api/${project.version}</bundle>
+		<bundle>mvn:org.mqnaas.extensions/openstack-impl/${project.version}</bundle>
+	</feature>
+
 	<feature name="mqnaas-jclouds" version="${project.version}">
 		<feature version="${jclouds.version}">jclouds</feature>
 		<feature version="${jclouds.version}">jclouds-api-openstack-keystone</feature>

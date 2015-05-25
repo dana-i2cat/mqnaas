@@ -111,6 +111,17 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider-api</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas</groupId>
+				<artifactId>clientprovider</artifactId>
+				<version>${mqnaas.version}</version>
+			</dependency>
+			<!-- Network modules -->
+			<dependency>
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>network.api</artifactId>
 				<version>${mqnaas.version}</version>

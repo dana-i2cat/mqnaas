@@ -26,6 +26,24 @@
 			<artifactId>openstack-neutron</artifactId>
 			<version>${jclouds.version}</version>
 		</dependency>
+		<!-- MQNaaS modules -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider</artifactId>
+		</dependency>
+		<!-- SLF4J logging API -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -36,8 +54,14 @@
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>
-						<Import-Package>*</Import-Package>
+						<Import-Package>
+							<!-- hidden package by Java proxies, manually imported -->
+							org.mqnaas.clientprovider.exceptions,
+							*
+						</Import-Package>
 						<Export-Package>
+							org.mqnaas.extensions.openstack.jclouds.clientprovider,
+							org.mqnaas.extensions.openstack.jclouds.clientprovider.internal
 						</Export-Package>
 					</instructions>
 				</configuration>

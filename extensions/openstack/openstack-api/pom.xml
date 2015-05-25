@@ -8,7 +8,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>openstack.api</artifactId>
+	<artifactId>openstack-api</artifactId>
 	<packaging>bundle</packaging>
 
 	<name>MQNaaS :: OpenStack API</name>

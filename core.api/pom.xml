@@ -65,6 +65,7 @@
 						<Import-Package>*</Import-Package>
 						<Export-Package>
 							org.mqnaas.core.api,
+							org.mqnaas.core.api.user,
 							org.mqnaas.core.api.annotations,
 							org.mqnaas.core.api.credentials,
 							org.mqnaas.core.api.exceptions,

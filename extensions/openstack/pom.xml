@@ -19,6 +19,7 @@
 		<module>jclouds-client-provider</module>
 		<module>openstack-api</module>
 		<module>openstack-impl</module>
+		<module>openstack-itests</module>
 	</modules>
 
 	<properties>
@@ -41,6 +42,11 @@
 			<dependency>
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>openstack-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>openstack-itests</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>

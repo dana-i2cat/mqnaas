@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UserManagement implements IUserManagement {
 
-	private static final Logger	LOG					= LoggerFactory.getLogger(BindingManagement.class);
+	private static final Logger	LOG					= LoggerFactory.getLogger(UserManagement.class);
 
 	private static final String	USERS_CONFIG_FILE	= "etc/org.mqnaas.users";
 

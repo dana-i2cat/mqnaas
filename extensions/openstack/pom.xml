@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mqnaas.extensions</groupId>
+		<artifactId>extensions</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>openstack</artifactId>
+	<packaging>pom</packaging>
+
+	<name>MQNaaS :: OpenStack</name>
+	<description>MQNaaS OpenStack Resource Capabilities</description>
+
+	<modules>
+		<module>jclouds-client-provider</module>
+		<module>openstack-api</module>
+		<module>openstack-impl</module>
+		<module>openstack-itests</module>
+	</modules>
+
+	<properties>
+		<jclouds.version>1.8.1</jclouds.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- Own modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>jclouds-client-provider</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>openstack-api</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>openstack-impl</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>openstack-itests</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<plugins>
+			<!-- Maven resources plugin configured below -->
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+
+			<!-- Build helper Maven plugin configured below -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<inherited>false</inherited>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -107,8 +107,8 @@ public class DependencyInjectionTests {
 						.version("0.0.1-SNAPSHOT"), "mqnaas"),
 				// install mqnaas-test-helpers bundle
 				CoreOptions.mavenBundle().groupId("org.mqnaas").artifactId("mqnaas-test-helpers").version("0.0.1-SNAPSHOT"),
-				// debug option
-				KarafDistributionOption.debugConfiguration()
+		// debug option
+		// KarafDistributionOption.debugConfiguration()
 		};
 	}
 
@@ -128,7 +128,7 @@ public class DependencyInjectionTests {
 
 	@Ignore
 	@Test
-	public void rootResourceProiderInjectionTest() throws IllegalArgumentException, IllegalAccessException, CapabilityNotFoundException {
+	public void rootResourceProviderInjectionTest() throws IllegalArgumentException, IllegalAccessException, CapabilityNotFoundException {
 		// get ISampleCapability instances of each resourceA instance
 		ISampleCapability resourceA1SampleCapabilityInstance = serviceProvider.getCapabilityInstance(resourceAInstance1, ISampleCapability.class);
 		ISampleCapability resourceA2SampleCapabilityInstance = serviceProvider.getCapabilityInstance(resourceAInstance2, ISampleCapability.class);

@@ -1,0 +1,71 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.mqnaas.extensions</groupId>
+		<artifactId>openstack</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>jclouds-client-provider</artifactId>
+	<packaging>bundle</packaging>
+
+	<name>MQNaaS :: JClouds Client Provider</name>
+	<description>JClouds Client Provider</description>
+
+	<dependencies>
+		<!-- Apache jClouds -->
+		<dependency>
+			<groupId>org.apache.jclouds</groupId>
+			<artifactId>jclouds-all</artifactId>
+			<version>${jclouds.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.jclouds.labs</groupId>
+			<artifactId>openstack-neutron</artifactId>
+			<version>${jclouds.version}</version>
+		</dependency>
+		<!-- MQNaaS modules -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>clientprovider</artifactId>
+		</dependency>
+		<!-- SLF4J logging API -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Import-Package>
+							<!-- hidden package by Java proxies, manually imported -->
+							org.mqnaas.clientprovider.exceptions,
+							*
+						</Import-Package>
+						<Export-Package>
+							org.mqnaas.extensions.openstack.jclouds.clientprovider,
+							org.mqnaas.extensions.openstack.jclouds.clientprovider.internal
+						</Export-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>

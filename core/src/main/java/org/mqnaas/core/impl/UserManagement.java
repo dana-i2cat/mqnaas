@@ -73,7 +73,7 @@ public class UserManagement implements IUserManagement {
 		try {
 			readUsersFromConfigFile();
 		} catch (IOException e) {
-			LOG.warn("Could not read users from configuration file. File does not exists.");
+			throw new ApplicationActivationException("Could not read users from configuration file. File does not exists.");
 		}
 		LOG.info("Initialized UserManagement capability for resource " + resource.getId());
 

@@ -69,7 +69,7 @@ public class ResourceAssignment implements IResourceAssignation {
 	public void deactivate() {
 		LOG.info("Removing ResourceAssignment capability from resource " + resource.getId());
 		resourcesAssignations.clear();
-		LOG.info("Removing ResourceAssignment capability from resource " + resource.getId());
+		LOG.info("Removed ResourceAssignment capability from resource " + resource.getId());
 	}
 
 	@Override

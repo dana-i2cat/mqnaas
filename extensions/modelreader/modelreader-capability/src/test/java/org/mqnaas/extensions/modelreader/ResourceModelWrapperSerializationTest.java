@@ -30,6 +30,7 @@ import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.general.test.helpers.serialization.SerializationUtils;
@@ -61,6 +62,8 @@ public class ResourceModelWrapperSerializationTest {
 		String serializedXml = SerializationUtils.toXml(resourceModelWrapper);
 		String expectedXml = IOUtils.toString(this.getClass().getResourceAsStream(RESULT_FILE));
 
+		System.out.println(serializedXml);
+
 		XMLAssert.assertXMLEqual("Serialized xml should be equals to the expected one.", expectedXml, serializedXml);
 
 	}
@@ -80,11 +83,11 @@ public class ResourceModelWrapperSerializationTest {
 
 		ResourceModelWrapper switchPort1 = new ResourceModelWrapper(PORT1_RESOURCE_ID);
 		switchPort1.setType("port");
-		switchPort1.setExternalId(PORT1_EXTERNAL_ID);
+		switchPort1.getAttributes().put(IAttributeStore.RESOURCE_EXTERNAL_ID, PORT1_EXTERNAL_ID);
 
 		ResourceModelWrapper switchPort2 = new ResourceModelWrapper(PORT2_RESOURCE_ID);
 		switchPort2.setType("port");
-		switchPort2.setExternalId(PORT2_EXTERNAL_ID);
+		switchPort2.getAttributes().put(IAttributeStore.RESOURCE_EXTERNAL_ID, PORT2_EXTERNAL_ID);
 
 		ResourceModelWrapper switchModel = new ResourceModelWrapper(SWITCH_RESOURCE_ID);
 		switchModel.setType(Specification.Type.OF_SWITCH.toString());
@@ -96,5 +99,4 @@ public class ResourceModelWrapperSerializationTest {
 
 		return networkModel;
 	}
-
 }

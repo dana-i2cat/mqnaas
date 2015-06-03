@@ -41,6 +41,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -197,7 +198,8 @@ public class ResourceModelReaderTest {
 		Assert.assertNotNull("Switch model should not be null.", switchModel);
 		Assert.assertEquals("Switch resource representation in model should be of type " + Type.OF_SWITCH, Type.OF_SWITCH.toString(),
 				switchModel.getType());
-		Assert.assertEquals("Switch model should contain as external id " + OF_SWITCH_EXT_ID, OF_SWITCH_EXT_ID, switchModel.getExternalId());
+		Assert.assertEquals("Switch model should contain as external id " + OF_SWITCH_EXT_ID, OF_SWITCH_EXT_ID,
+				switchModel.getAttributes().get(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("Switch model representation should contain 2 subresources.", 2, switchModel.getResources().size());
 		Assert.assertNull("Switch model should not contain any openflow rules!", switchModel.getConfiguredRules());
 
@@ -215,13 +217,15 @@ public class ResourceModelReaderTest {
 		Assert.assertNull("Ports should not contain any openflow rule!", port1Model.getConfiguredRules());
 		Assert.assertNull("Ports should not contain any openflow rule!", port2Model.getConfiguredRules());
 
-		Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID, port1Model.getExternalId());
+		Assert.assertEquals("First model port should contain the expected external port id. ", OFSWITCH_PORT1_EXT_ID,
+				port1Model.getAttributes().get(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("First model port should contain the expected external port name. ", OFSWITCH_PORT1_EXT_NAME,
-				port1Model.getExternalName());
+				port1Model.getAttributes().get(IAttributeStore.RESOURCE_EXTERNAL_NAME));
 
-		Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getExternalId());
+		Assert.assertEquals("Second model port should contain the expected external port id. ", OFSWITCH_PORT2_EXT_ID, port2Model.getAttributes()
+				.get(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("Second model port should contain the expected external port name. ", OFSWITCH_PORT2_EXT_NAME,
-				port2Model.getExternalName());
+				port2Model.getAttributes().get(IAttributeStore.RESOURCE_EXTERNAL_NAME));
 	}
 
 	private IResourceModelReader createClient(String addressUri) {

@@ -22,7 +22,9 @@ package org.mqnaas.extensions.modelreader.api;
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -52,9 +54,7 @@ public class ResourceModelWrapper {
 	@XmlElement(required = true)
 	private String						type;
 
-	private String						externalId;
-
-	private String						externalName;
+	private Map<String, String>			attributes;
 
 	@XmlElementWrapper(name = "resources")
 	@XmlElement(name = "resource")
@@ -82,20 +82,14 @@ public class ResourceModelWrapper {
 		this.type = type;
 	}
 
-	public String getExternalId() {
-		return externalId;
+	public Map<String, String> getAttributes() {
+		if (attributes == null)
+			attributes = new HashMap<String, String>();
+		return attributes;
 	}
 
-	public void setExternalId(String externalId) {
-		this.externalId = externalId;
-	}
-
-	public String getExternalName() {
-		return externalName;
-	}
-
-	public void setExternalName(String externalName) {
-		this.externalName = externalName;
+	public void setAttributes(Map<String, String> attributes) {
+		this.attributes = attributes;
 	}
 
 	public List<ResourceModelWrapper> getResources() {
@@ -122,9 +116,8 @@ public class ResourceModelWrapper {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result + ((configuredRules == null) ? 0 : configuredRules.hashCode());
-		result = prime * result + ((externalId == null) ? 0 : externalId.hashCode());
-		result = prime * result + ((externalName == null) ? 0 : externalName.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((resources == null) ? 0 : resources.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -140,20 +133,15 @@ public class ResourceModelWrapper {
 		if (getClass() != obj.getClass())
 			return false;
 		ResourceModelWrapper other = (ResourceModelWrapper) obj;
+		if (attributes == null) {
+			if (other.attributes != null)
+				return false;
+		} else if (!attributes.equals(other.attributes))
+			return false;
 		if (configuredRules == null) {
 			if (other.configuredRules != null)
 				return false;
 		} else if (!configuredRules.equals(other.configuredRules))
-			return false;
-		if (externalId == null) {
-			if (other.externalId != null)
-				return false;
-		} else if (!externalId.equals(other.externalId))
-			return false;
-		if (externalName == null) {
-			if (other.externalName != null)
-				return false;
-		} else if (!externalName.equals(other.externalName))
 			return false;
 		if (id == null) {
 			if (other.id != null)
@@ -175,7 +163,7 @@ public class ResourceModelWrapper {
 
 	@Override
 	public String toString() {
-		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", externalId=" + externalId + ", externalName=" + externalName + ", resources=" + resources + ", configuredRules=" + configuredRules + "]";
+		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", attributes=" + attributes + ", resources=" + resources + ", configuredRules=" + configuredRules + "]";
 	}
 
 }

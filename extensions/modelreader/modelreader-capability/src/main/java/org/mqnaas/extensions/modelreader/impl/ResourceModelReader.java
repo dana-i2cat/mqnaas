@@ -38,7 +38,6 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
-import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
@@ -94,10 +93,7 @@ public class ResourceModelReader implements IResourceModelReader {
 
 				if (capabilityClass.equals(IAttributeStore.class)) {
 					IAttributeStore attributeStoreCapab = serviceProvider.getCapability(resource, IAttributeStore.class);
-					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID) != null)
-						modelWrapper.setExternalId(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_ID));
-					if (attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME) != null)
-						modelWrapper.setExternalName(attributeStoreCapab.getAttribute(AttributeStore.RESOURCE_EXTERNAL_NAME));
+					modelWrapper.setAttributes(attributeStoreCapab.getAttributes().getMap());
 
 				}
 				// FIXME this should be generalized.
@@ -122,8 +118,14 @@ public class ResourceModelReader implements IResourceModelReader {
 
 						// for each resource returned by the management capability, call its ResourceModelReader capability
 						for (IResource managedResource : managedResources) {
-							IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource, IResourceModelReader.class);
-							subResources.add(subResourceModelReader.getResourceModel());
+
+							// This filter has been introduced to avoid an infinite recursion over MQNaaS-Core resource, since its
+							// IRootResourceProvider capability returns the MQNaaS-Core as well in the list of its managed resources.
+							if (!managedResource.equals(resource)) {
+								IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource,
+										IResourceModelReader.class);
+								subResources.add(subResourceModelReader.getResourceModel());
+							}
 						}
 						modelWrapper.getResources().addAll(subResources);
 					}

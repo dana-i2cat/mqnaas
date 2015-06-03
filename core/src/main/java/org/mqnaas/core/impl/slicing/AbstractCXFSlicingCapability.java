@@ -50,7 +50,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractCXFSlicingCapability implements ISlicingCapability {
 
-	private static final Logger				log	= LoggerFactory.getLogger(AbstractCXFSlicingCapability.class.getName());
+	private static final Logger				log				= LoggerFactory.getLogger(AbstractCXFSlicingCapability.class.getName());
+
+	public static final String				PROXY_BASE_URL	= "http://localhost:9090/";
 
 	@Resource
 	protected IRootResource					resource;

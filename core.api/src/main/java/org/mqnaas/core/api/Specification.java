@@ -83,7 +83,11 @@ public class Specification implements Cloneable {
 		 */
 		ARN("ARN"),
 		/**
-		 * Wifi
+		 * Wireless Node
+		 */
+		WNODE("WNODE"),
+		/**
+		 * Wireless Channel
 		 */
 		CHANNEL("CHANNEL"),
 		/**

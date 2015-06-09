@@ -117,8 +117,8 @@ public class JCloudsClientProvidersTest {
 								.version("0.0.1-SNAPSHOT"), "mqnaas-openstack"),
 				// install mqnaas-test-helpers bundle
 				CoreOptions.mavenBundle().groupId("org.mqnaas").artifactId("mqnaas-test-helpers").version("0.0.1-SNAPSHOT"),
-				// debug option
-				KarafDistributionOption.debugConfiguration()
+		// debug option
+		// KarafDistributionOption.debugConfiguration()
 		};
 	}
 

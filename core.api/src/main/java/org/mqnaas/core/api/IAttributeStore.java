@@ -1,6 +1,5 @@
 package org.mqnaas.core.api;
 
-
 /*
  * #%L
  * MQNaaS :: Core.API
@@ -40,6 +39,11 @@ public interface IAttributeStore extends ICapability {
 	static final String	RESOURCE_CREATION_TIME		= "resource.creation.time";
 
 	static final String	RESOURCE_CONCLUSION_TIME	= "resource.conclusion.time";
+
+	/**
+	 * Standard unknown value for attributes
+	 */
+	static final String	UNKNOWN_VALUE				= "UNKNOWN";
 
 	String getAttribute(String name);
 

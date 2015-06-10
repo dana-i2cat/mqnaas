@@ -369,6 +369,17 @@ public class NetworkManagementTest {
 		PowerMockito.when(serviceProvider.getCapabilityInstance(Mockito.any(IResource.class), Mockito.any(Class.class))).thenReturn(null);
 		ReflectionTestHelper.injectPrivateField(networkManagementCapab, rmListener, "resourceManagementListener");
 
+		// generate a valid AttributeStore to be called
+		IAttributeStore as = new AttributeStore();
+		ReflectionTestHelper.injectPrivateField(as, new IResource() {
+			@Override
+			public String getId() {
+				return "fakeID";
+			}
+		}, "resource");
+		as.activate();
+		PowerMockito.when(serviceProvider.getCapability(Mockito.any(IResource.class), Mockito.eq(IAttributeStore.class))).thenReturn(as);
+
 		// call method by reflection
 		Method method = networkManagementCapab.getClass().getDeclaredMethod("createSlice", Network.class, NetworkSubResource.class,
 				NetworkSubResource.class);

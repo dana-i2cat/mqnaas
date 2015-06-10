@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
@@ -297,6 +298,9 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		resourceManagementListener.resourceAdded(newResource,
 				serviceProvider.getCapabilityInstance(virtualNetwork.getNetworkResource(), IRootResourceProvider.class), IRootResourceProvider.class);
 
+		// add unknown value to RESOURCE_EXTERNAL_ID attribute for sliced resource
+		getAttributeStore(newResource).setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, IAttributeStore.UNKNOWN_VALUE);
+
 		// remove slice information from physical
 		phySlice.cut(virtSlice);
 
@@ -384,6 +388,10 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 
 	@Override
 	public void deactivate() {
+	}
+
+	private IAttributeStore getAttributeStore(IResource resource) throws CapabilityNotFoundException {
+		return serviceProvider.getCapability(resource, IAttributeStore.class);
 	}
 
 }

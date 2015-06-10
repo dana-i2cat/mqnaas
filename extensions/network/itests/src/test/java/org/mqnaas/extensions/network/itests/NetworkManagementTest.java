@@ -34,6 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
+import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceAdministration;
@@ -176,7 +177,7 @@ public class NetworkManagementTest {
 	}
 
 	@Test
-	public void createNetworkTest() throws NetworkCreationException, ResourceNotFoundException {
+	public void createNetworkTest() throws NetworkCreationException, ResourceNotFoundException, CapabilityNotFoundException {
 
 		// create request
 		Request request = new Request(physicalNetwork.createRequest(), serviceProvider);
@@ -244,6 +245,12 @@ public class NetworkManagementTest {
 		Assert.assertEquals("Both creates switches should contain 1 port.", 1, createdOfSwitch1.getPorts().size());
 		Assert.assertEquals("Both creates switches should contain 1 port.", 1, createdOfSwitch2.getPorts().size());
 
+		// check RESOURCE_EXTERNAL_ID values in AttributeStore
+		Assert.assertEquals("RESOURCE_EXTERNAL_ID should contain UNKNOWN value.", IAttributeStore.UNKNOWN_VALUE,
+				getAttributeStore(createdOfSwitch1.getResource()).getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
+		Assert.assertEquals("RESOURCE_EXTERNAL_ID should contain UNKNOWN value.", IAttributeStore.UNKNOWN_VALUE,
+				getAttributeStore(createdOfSwitch2.getResource()).getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
+
 		PortResourceWrapper createdOfSwitch1Port = new PortResourceWrapper(createdOfSwitch1.getPorts().get(0), serviceProvider);
 		PortResourceWrapper createdOfSwitch2Port = new PortResourceWrapper(createdOfSwitch2.getPorts().get(0), serviceProvider);
 
@@ -280,5 +287,9 @@ public class NetworkManagementTest {
 		Assert.assertEquals("Slice of virtual switch 2 should contain port unit.", PORT_UNIT_NAME, createdOfswitch2Slice.getUnits().get(0).getName());
 		Assert.assertEquals("Slice cube of virtual switch 2 should contain port 0", "XO", createdOfswitch2Slice.toMatrix());
 
+	}
+
+	private IAttributeStore getAttributeStore(IResource resource) throws CapabilityNotFoundException {
+		return serviceProvider.getCapability(resource, IAttributeStore.class);
 	}
 }

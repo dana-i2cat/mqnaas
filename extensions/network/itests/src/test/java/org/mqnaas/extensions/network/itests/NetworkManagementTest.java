@@ -203,14 +203,9 @@ public class NetworkManagementTest {
 		virtualLink.setSrcPort(virtualPort1);
 		virtualLink.setDstPort(virtualPort2);
 
-		// create port slice units in both switches
+		// get slices of virtual resources - they were automatically created from mapped physical device.
 		Slice switch1Slice = new Slice(virtualSwitch1.getSlice(), serviceProvider);
-		Unit portUnitSlice1 = switch1Slice.addUnit(PORT_UNIT_NAME);
-		portUnitSlice1.setRange(new Range(0, 1));
-
 		Slice switch2Slice = new Slice(virtualSwitch2.getSlice(), serviceProvider);
-		Unit portUnitSlice2 = switch2Slice.addUnit(PORT_UNIT_NAME);
-		portUnitSlice2.setRange(new Range(0, 1));
 
 		// initialize slice cubes with one port in both switches
 		Range[] switch1Range = new Range[1];

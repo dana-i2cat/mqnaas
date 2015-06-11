@@ -36,6 +36,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
 import org.mqnaas.core.api.Endpoint;
@@ -63,6 +64,7 @@ import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.core.impl.slicing.Slice;
 import org.mqnaas.core.impl.slicing.SliceAdministration;
 import org.mqnaas.core.impl.slicing.SliceProvider;
+import org.mqnaas.core.impl.slicing.SliceableResource;
 import org.mqnaas.core.impl.slicing.UnitAdministration;
 import org.mqnaas.core.impl.slicing.UnitManagment;
 import org.mqnaas.core.impl.slicing.UnitResource;
@@ -91,7 +93,11 @@ import org.mqnaas.network.impl.topology.port.NetworkPortManagement;
 import org.mqnaas.network.impl.topology.port.PortManagement;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ SliceableResource.class })
 public class NetworkManagementTest {
 
 	private NetworkManagement		networkManagementCapab;
@@ -473,6 +479,11 @@ public class NetworkManagementTest {
 	public void delegateToSubnetworkTest() throws InstantiationException, IllegalAccessException, CapabilityNotFoundException,
 			ApplicationActivationException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException,
 			URISyntaxException, NetworkCreationException {
+
+		// we have to mock this method. We are not able to inject service provider on capabilities of resources created by the implementation
+		// dinamically, so it would be always null (and launch a NullPointer) on capabilities implementations.
+		PowerMockito.mockStatic(SliceableResource.class);
+		PowerMockito.when(SliceableResource.isSliceable(Mockito.isNull(IServiceProvider.class), Mockito.any(IResource.class))).thenReturn(false);
 
 		// created fake network that "would be created" by the subnetwork
 		IRootResource createdSubnet = new RootResource(RootResourceDescriptor.create(new Specification(Type.NETWORK, "virtual")));

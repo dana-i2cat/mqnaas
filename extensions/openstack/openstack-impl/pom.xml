@@ -15,6 +15,18 @@
 	<description>MQNaaS OpenStack capabilities implementations</description>
 
 	<dependencies>
+		
+		<!-- Other Openstack modules -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>jclouds-client-provider</artifactId>
+		</dependency>
+	
+		<!-- MQNaaS modules -->
+		<dependency>
+			<groupId>org.mqnaas</groupId>
+			<artifactId>core.api</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -27,6 +39,7 @@
 					<instructions>
 						<Import-Package>*</Import-Package>
 						<Export-Package>
+							org.mqnaas.extensions.openstack.capabilities.impl
 						</Export-Package>
 					</instructions>
 				</configuration>

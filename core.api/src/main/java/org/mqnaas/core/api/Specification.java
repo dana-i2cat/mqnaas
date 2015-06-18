@@ -99,6 +99,10 @@ public class Specification implements Cloneable {
 		 */
 		CLOUD_MANAGER("Cloud-Manager"),
 		/**
+		 * Host
+		 */
+		HOST("Host"),
+		/**
 		 * Other devices
 		 */
 		OTHER("Other");

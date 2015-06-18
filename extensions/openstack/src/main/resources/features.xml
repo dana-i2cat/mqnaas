@@ -2,8 +2,11 @@
 <features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
 	<repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds.version}/xml/features</repository>
+	<!-- MQNaaS repository -->
+	<repository>mvn:org.mqnaas/mqnaas/${mqnaas.version}/xml/features</repository>
 
 	<feature name="mqnaas-openstack" version="${project.version}">
+		<feature version="${mqnaas.version}">mqnaas</feature>
 		<feature version="${project.version}">mqnaas-jclouds</feature>
 
 		<bundle>mvn:org.mqnaas.extensions/jclouds-client-provider/${project.version}</bundle>

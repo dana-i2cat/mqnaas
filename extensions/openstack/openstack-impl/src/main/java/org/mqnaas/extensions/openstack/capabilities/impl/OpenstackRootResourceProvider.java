@@ -172,6 +172,9 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 		if (StringUtils.isEmpty(id))
 			throw new IllegalArgumentException("Valid id is required to retrieve specific IRootResource instance.");
 
+		if (vms.get(id) == null)
+			throw new ResourceNotFoundException("No resource found with id: " + id);
+
 		return vms.get(id);
 	}
 

@@ -21,6 +21,10 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>jclouds-client-provider</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>openstack-api</artifactId>
+		</dependency>
 
 		<!-- MQNaaS modules -->
 		<dependency>

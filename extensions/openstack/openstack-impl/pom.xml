@@ -60,6 +60,11 @@
 			<artifactId>powermock-module-junit4</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.impl</artifactId>
+			<scope>test</scope>
+		</dependency>
 
 	</dependencies>
 

@@ -43,12 +43,12 @@ public interface IHostAdministration extends ICapability {
 	/**
 	 * Returns the host amount of memory in MB.
 	 */
-	float getMemorySize();
+	int getMemorySize();
 
 	/**
 	 * Returns the Disk size in GB.
 	 */
-	float getDiskSize();
+	int getDiskSize();
 
 	/**
 	 * Returns the size of the Swap partition.

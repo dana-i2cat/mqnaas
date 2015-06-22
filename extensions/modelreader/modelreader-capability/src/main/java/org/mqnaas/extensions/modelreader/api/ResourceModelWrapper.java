@@ -40,7 +40,8 @@ import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
  * Wrapper class of resources, containing the tree of {@link IResource}s representing the model of a resource.
  * </p>
  * 
- * FIXME It contains specific openflow information. This class should be modified when we implement a generic way to specify the state of a resource.
+ * FIXME It contains specific openflow information, as well as specific information for hosts. This class should be modified when we implement a
+ * generic way to specify the state of a resource.
  * 
  * @author Adrián Roselló Rey (i2CAT)
  *
@@ -62,7 +63,9 @@ public class ResourceModelWrapper {
 
 	private FlowConfigs					configuredRules;
 
-	// constructor withour arguments, required by JAXB
+	private HostInformationWrapper		hostInformation;
+
+	// constructor without arguments, required by JAXB
 	ResourceModelWrapper() {
 	}
 
@@ -112,12 +115,21 @@ public class ResourceModelWrapper {
 		this.configuredRules = configuredRules;
 	}
 
+	public HostInformationWrapper getHostInformation() {
+		return hostInformation;
+	}
+
+	public void setHostInformation(HostInformationWrapper hostInformation) {
+		this.hostInformation = hostInformation;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result + ((configuredRules == null) ? 0 : configuredRules.hashCode());
+		result = prime * result + ((hostInformation == null) ? 0 : hostInformation.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((resources == null) ? 0 : resources.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
@@ -143,6 +155,11 @@ public class ResourceModelWrapper {
 				return false;
 		} else if (!configuredRules.equals(other.configuredRules))
 			return false;
+		if (hostInformation == null) {
+			if (other.hostInformation != null)
+				return false;
+		} else if (!hostInformation.equals(other.hostInformation))
+			return false;
 		if (id == null) {
 			if (other.id != null)
 				return false;
@@ -163,7 +180,7 @@ public class ResourceModelWrapper {
 
 	@Override
 	public String toString() {
-		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", attributes=" + attributes + ", resources=" + resources + ", configuredRules=" + configuredRules + "]";
+		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", attributes=" + attributes + ", resources=" + resources + ", configuredRules=" + configuredRules + ", hostInformation=" + hostInformation + "]";
 	}
 
 }

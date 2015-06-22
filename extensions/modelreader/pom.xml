@@ -16,6 +16,7 @@
 	<properties>	
 		<network.version>0.0.1-SNAPSHOT</network.version>
 		<odl.version>0.0.1-SNAPSHOT</odl.version>
+		<openstack.version>0.0.1-SNAPSHOT</openstack.version>
 	</properties>
 
 	<modules>
@@ -30,6 +31,12 @@
 				<groupId>org.mqnaas.extensions</groupId>
 				<artifactId>modelreader-capability</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+			<!-- Openstack modules -->
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>openstack-api</artifactId>
+				<version>${openstack.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -38,9 +38,11 @@ import org.mqnaas.core.api.annotations.DependingOn;
 import org.mqnaas.core.api.annotations.ListsResources;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
+import org.mqnaas.extensions.modelreader.api.HostInformationWrapper;
 import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
+import org.mqnaas.extensions.openstack.capabilities.host.api.IHostAdministration;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.slf4j.Logger;
@@ -101,6 +103,12 @@ public class ResourceModelReader implements IResourceModelReader {
 					IFlowManagement flowMgmCapab = serviceProvider.getCapability(resource, IFlowManagement.class);
 					modelWrapper.setConfiguredRules(flowMgmCapab.getAllFlows());
 				}
+				else if (capabilityClass.equals(IHostAdministration.class)) {
+					IHostAdministration hostAdminCapab = serviceProvider.getCapability(resource, IHostAdministration.class);
+					HostInformationWrapper hostInfo = new HostInformationWrapper(hostAdminCapab.getNumberOfCpus(), hostAdminCapab.getMemorySize(),
+							hostAdminCapab.getDiskSize(), hostAdminCapab.getSwapSize());
+					modelWrapper.setHostInformation(hostInfo);
+				}
 				else {
 
 					Method listResourcesMethod = getListResourcesMethod(capabilityClass);
@@ -150,10 +158,12 @@ public class ResourceModelReader implements IResourceModelReader {
 	 */
 	private Method getListResourcesMethod(Class<? extends ICapability> capabilityClass) {
 		for (Method method : capabilityClass.getMethods()) {
-			for (Annotation annotation : Arrays.asList(method.getAnnotations())) {
-				if (annotation instanceof ListsResources)
-					return method;
-			}
+			// We always want to retrieve the @ListResources method without arguments.
+			if (method.getTypeParameters().length == 0)
+				for (Annotation annotation : Arrays.asList(method.getAnnotations())) {
+					if (annotation instanceof ListsResources)
+						return method;
+				}
 		}
 
 		return null;

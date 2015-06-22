@@ -7,12 +7,15 @@
 	<repository>mvn:org.mqnaas.extensions/network/${network.version}/xml/features</repository>
 	<!-- MQNaaS ODL repository -->
 	<repository>mvn:org.mqnaas.extensions/odl/${odl.version}/xml/features</repository>
+	<!-- MQNaaS Openstack repository -->
+	<repository>mvn:org.mqnaas.extensions/openstack/${openstack.version}/xml/features</repository>
 	
 	<feature name="mqnaas-modelreader" version="${project.version}">
 
 	    <feature version="${mqnaas.version}">mqnaas</feature>	    
 	    <feature version="${network.version}">network</feature>	    
-	  	<feature version="${odl.version}">odl</feature>	    
+	  	<feature version="${odl.version}">odl</feature>	   
+	  	<feature version="${openstack.version}">mqnaas-openstack</feature>	    	  	 
 	    
 		<bundle>mvn:org.mqnaas.extensions/modelreader-capability/${project.version}</bundle>
 

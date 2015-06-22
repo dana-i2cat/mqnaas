@@ -34,6 +34,11 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>odl.capabilities</artifactId>
 		</dependency>
+		<!-- Openstack modules -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>openstack-api</artifactId>
+		</dependency>
 		<!-- Testing libraries -->
 		<dependency>
 			<groupId>junit</groupId>

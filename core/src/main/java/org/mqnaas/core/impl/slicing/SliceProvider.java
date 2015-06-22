@@ -53,7 +53,7 @@ public class SliceProvider implements ISliceProvider {
 	@Resource
 	private IResource					resource;
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IResourceManagementListener	resourceManagementListener;
 
 	@Override

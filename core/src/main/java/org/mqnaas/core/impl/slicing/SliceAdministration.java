@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SliceAdministration implements ISliceAdministration {
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IServiceProvider	serviceProvider;
 
 	@Resource

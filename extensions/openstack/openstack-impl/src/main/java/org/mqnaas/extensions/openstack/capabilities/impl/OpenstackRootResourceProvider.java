@@ -81,16 +81,16 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 
 	private NovaApi						novaClient;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IResourceManagementListener			resourceManagementListener;
 
 	@DependingOn
 	IJCloudsNovaClientProvider			jcloudsClientProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IResourceManagementListener			rmListener;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider					serviceProvider;
 
 	@Resource

@@ -48,7 +48,7 @@ public class RootResourceManagement implements IRootResourceProvider, IRootResou
 
 	private List<IRootResource>			resources	= new ArrayList<IRootResource>();
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IResourceManagementListener	rmListener;
 
 	@Resource

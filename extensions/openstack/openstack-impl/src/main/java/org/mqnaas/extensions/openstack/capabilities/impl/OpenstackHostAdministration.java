@@ -28,7 +28,9 @@ import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.domain.Flavor;
 import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
+import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
@@ -66,7 +68,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 	IAttributeStore				attributeStore;
 
 	@DependingOn
-	IJCloudsNovaClientProvider	jcloudsClientProvider;
+	IClientProviderFactory		clientProviderFactory;
 
 	@Resource
 	IRootResource				resource;
@@ -82,8 +84,10 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		log.info("Initializing OpenstackHostAdministration capability for resource " + resource.getId());
 
 		try {
-			novaClient = jcloudsClientProvider.getClient(resource);
+			novaClient = clientProviderFactory.getClientProvider(IJCloudsNovaClientProvider.class).getClient(resource);
 		} catch (EndpointNotFoundException e) {
+			throw new ApplicationActivationException("Could not instantiate JClouds client.", e);
+		} catch (ProviderNotFoundException e) {
 			throw new ApplicationActivationException("Could not instantiate JClouds client.", e);
 		}
 

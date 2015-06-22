@@ -36,7 +36,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
+import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IAttributeStore;
 import org.mqnaas.core.api.IRootResource;
@@ -112,7 +114,7 @@ public class OpenstackHostAdministrationTest {
 
 	@Before
 	public void prepareTest() throws ApplicationActivationException, SecurityException, IllegalArgumentException, IllegalAccessException,
-			InstantiationException, URISyntaxException, EndpointNotFoundException {
+			InstantiationException, URISyntaxException, EndpointNotFoundException, ProviderNotFoundException {
 
 		openstackHostAdminCapability = new OpenstackHostAdministration();
 
@@ -165,9 +167,11 @@ public class OpenstackHostAdministrationTest {
 
 	/**
 	 * Create and/or mock the dependencies of the capability to be tested, as well as the response of those componentes.
+	 * 
+	 * @throws ProviderNotFoundException
 	 */
 	private void mockAndCreateCapabilityDependencies() throws URISyntaxException, SecurityException, IllegalArgumentException,
-			IllegalAccessException, InstantiationException, EndpointNotFoundException, ApplicationActivationException {
+			IllegalAccessException, InstantiationException, EndpointNotFoundException, ApplicationActivationException, ProviderNotFoundException {
 
 		// create and inject resource in capability
 		Specification spec = new Specification(Type.HOST, "openstack");
@@ -195,9 +199,13 @@ public class OpenstackHostAdministrationTest {
 		PowerMockito.when(mockedServerApi.get(Mockito.eq(HOST_EXT_ID))).thenReturn(server);
 
 		// mock jCloudsClientProvider and inject it in capability.
+
 		mockedJcloudsClientProvider = PowerMockito.mock(IJCloudsNovaClientProvider.class);
 		PowerMockito.when(mockedJcloudsClientProvider.getClient(Mockito.eq(hostResource))).thenReturn(mockedNovaApi);
-		ReflectionTestHelper.injectPrivateField(openstackHostAdminCapability, mockedJcloudsClientProvider, "jcloudsClientProvider");
+		IClientProviderFactory mockedClientProviderFactory = PowerMockito.mock(IClientProviderFactory.class);
+		PowerMockito.when(mockedClientProviderFactory.getClientProvider(Mockito.eq(IJCloudsNovaClientProvider.class))).thenReturn(
+				mockedJcloudsClientProvider);
+		ReflectionTestHelper.injectPrivateField(openstackHostAdminCapability, mockedClientProviderFactory, "clientProviderFactory");
 
 	}
 

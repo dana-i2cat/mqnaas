@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICapability;
 import org.mqnaas.core.api.IExecutionService;
 import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IService;
@@ -69,6 +70,7 @@ import com.google.common.collect.Multimap;
  * 
  * @author Georg Mansky-Kummert (i2CAT)
  * @author Isart Canyameres Gimenez (i2cat)
+ * @author Julio Carlos Barrera (i2CAT Foundation)
  */
 public class ApplicationInstance {
 
@@ -114,11 +116,11 @@ public class ApplicationInstance {
 				instance = clazz.newInstance();
 			} catch (InstantiationException e) {
 				// ignore for now
-				log.error("Failed to instantiate application " +  clazz.getName(), e);
+				log.error("Failed to instantiate application " + clazz.getName(), e);
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
 				// ignore for now
-				log.error("Failed to instantiate application " +  clazz.getName(), e);
+				log.error("Failed to instantiate application " + clazz.getName(), e);
 				e.printStackTrace();
 			}
 		}
@@ -321,6 +323,8 @@ public class ApplicationInstance {
 
 			for (Field field : ReflectionUtils.getAnnotationFields(clazz, DependingOn.class)) {
 
+				boolean isCore = field.getAnnotation(DependingOn.class).core();
+
 				if (!(IApplication.class.isAssignableFrom(field.getType()))) {
 					throw new IllegalArgumentException(
 							"In " + clazz.getName() + " " + field.getType().getName() + " does not implement " + IApplication.class.getName() +
@@ -331,14 +335,14 @@ public class ApplicationInstance {
 				@SuppressWarnings("unchecked")
 				Class<? extends IApplication> type = (Class<? extends IApplication>) field.getType();
 
-				add(new Dependency(field, type, instance));
+				add(new Dependency(field, type, instance, isCore));
 			}
 
 			if (!IExecutionService.class.isAssignableFrom(clazz)) {
 				// add executionService dependency
 				try {
 					add(new Dependency(ApplicationInstance.class.getDeclaredField("executionService"), IExecutionService.class,
-							ApplicationInstance.this));
+							ApplicationInstance.this, true));
 				} catch (SecurityException e) {
 					// This exception should never happen (a class should has access to its declared private fields)
 					log.error("Error populating application dependencies. Unable to define execution service dependency: ", e);
@@ -421,22 +425,121 @@ public class ApplicationInstance {
 		 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was
 		 *         not before)
 		 */
+
+		// TODO check this logic!!! mother of god!
 		private Collection<Dependency> resolveDependencies(ApplicationInstance potentialDependency) {
 
 			Collection<Dependency> affected = new ArrayList<Dependency>();
 
-			for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
-
+			// if this ApplicationInstance is a CapabilityInstance
+			if (ApplicationInstance.this instanceof CapabilityInstance) {
+				IResource applicationInstanceResource = ((CapabilityInstance) ApplicationInstance.this).getResource();
+				// iterate over pending dependencies
 				for (Dependency dep : getPendingDependencies()) {
-					if (dep.isResolvedBy(capabilityClass)) {
-						dep.resolveWith(potentialDependency);
-						affected.add(dep);
+
+					// if dependency requires Core resource
+					if (dep.coreDependency) {
+						// if dep implements ICapability
+						if (ICapability.class.isAssignableFrom(dep.getFieldType())) {
+							// if potential dependency is a ICapability
+							if (potentialDependency instanceof CapabilityInstance) {
+								// if potential capability dependency has core as resource
+								if (CoreProvider.isCore(((CapabilityInstance) potentialDependency).getResource())) {
+									for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+										if (dep.isResolvedBy(capabilityClass)) {
+											dep.resolveWith(potentialDependency);
+											affected.add(dep);
+										}
+									}
+								}
+							}
+
+						}
+						// if dep is a pure IApplication
+						else if (IApplication.class.isAssignableFrom(dep.getFieldType())) {
+							log.error(dep.getFieldType() + " can not be annotated with " + DependingOn.class
+									+ " and core parameter equals to true because IApplications have no associated IResource.");
+						}
+					}
+					// dependency requires same resource
+					else {
+						// if dep implements ICapability
+						if (ICapability.class.isAssignableFrom(dep.getFieldType())) {
+							// if potential dependency is a ICapability
+							if (potentialDependency instanceof CapabilityInstance) {
+								// if potential capability dependency has core as resource
+								if (((CapabilityInstance) potentialDependency).getResource().equals(applicationInstanceResource)) {
+									for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+										if (dep.isResolvedBy(capabilityClass)) {
+											dep.resolveWith(potentialDependency);
+											affected.add(dep);
+										}
+									}
+								}
+							}
+						}
+						// if dep is a pure IApplication
+						else if (IApplication.class.isAssignableFrom(dep.getFieldType())) {
+							for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+								if (dep.isResolvedBy(capabilityClass)) {
+									dep.resolveWith(potentialDependency);
+									affected.add(dep);
+								}
+							}
+						}
+					}
+				}
+			}
+			// if this ApplicationInstance is pure ApplicationInstance
+			else {
+				for (Dependency dep : getPendingDependencies()) {
+					// if dependency requires Core resource
+					if (dep.coreDependency) {
+						// if dep implements ICapability
+						if (ICapability.class.isAssignableFrom(dep.getFieldType())) {
+							// if potential dependency is a ICapability
+							if (potentialDependency instanceof CapabilityInstance) {
+								// if potential capability dependency has core as resource
+								if (CoreProvider.isCore(((CapabilityInstance) potentialDependency).getResource())) {
+									for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+										if (dep.isResolvedBy(capabilityClass)) {
+											dep.resolveWith(potentialDependency);
+											affected.add(dep);
+										}
+									}
+								}
+							}
+						}
+						// if dep is a pure IApplication
+						else if (IApplication.class.isAssignableFrom(dep.getFieldType())) {
+							log.error(dep.getFieldType() + " can not be annotated with " + DependingOn.class
+									+ " and core parameter equals to true because IApplications have no associated IResource.");
+						}
+					}
+					// dependency requires same resource
+					else {
+						// if dep implements ICapability
+						if (ICapability.class.isAssignableFrom(dep.getFieldType())) {
+							// if potential dependency is a ICapability
+							if (potentialDependency instanceof CapabilityInstance) {
+								log.error("An IApplication can not have a " + DependingOn.class
+										+ " annotated field beacuse pure IApplication's have no associated resource.");
+							}
+						}
+						// if dep is a pure IApplication
+						else if (IApplication.class.isAssignableFrom(dep.getFieldType())) {
+							for (Class<? extends IApplication> capabilityClass : potentialDependency.getApplications()) {
+								if (dep.isResolvedBy(capabilityClass)) {
+									dep.resolveWith(potentialDependency);
+									affected.add(dep);
+								}
+							}
+						}
 					}
 				}
 			}
 			return affected;
 		}
-
 	}
 
 	/**
@@ -458,10 +561,14 @@ public class ApplicationInstance {
 		// ApplicationInstance this Dependency is resolvedWith (the field is set with a proxy, not the ApplicationInstance itself)
 		private ApplicationInstance				resolvedWith;
 
-		public Dependency(Field field, Class<? extends IApplication> type, Object instance) {
+		// this dependency must be resolved with core resource
+		private boolean							coreDependency	= false;
+
+		public Dependency(Field field, Class<? extends IApplication> type, Object instance, boolean coreDependency) {
 			this.field = field;
 			this.fieldType = type;
 			this.instance = instance;
+			this.coreDependency = coreDependency;
 		}
 
 		/**
@@ -541,6 +648,7 @@ public class ApplicationInstance {
 			sb.append("Dependency [");
 			sb.append("type=").append(fieldType);
 			sb.append(", name=").append(field.getName());
+			sb.append(", core=").append(coreDependency);
 			sb.append(", instance=").append(instance.getClass().getName());
 			sb.append("]");
 			return sb.toString();

@@ -425,8 +425,6 @@ public class ApplicationInstance {
 		 * @return whether the internal state of this instance has changed after this call or not (after the call is using potentialDependency and was
 		 *         not before)
 		 */
-
-		// TODO check this logic!!! mother of god!
 		private Collection<Dependency> resolveDependencies(ApplicationInstance potentialDependency) {
 
 			Collection<Dependency> affected = new ArrayList<Dependency>();

@@ -37,7 +37,7 @@ import org.mqnaas.core.api.Specification.Type;
  * @author Adrián Roselló Rey (i2CAT)
  *
  */
-@XmlType(name = "hostInformation")
+@XmlType(name = "hostInformation", propOrder = { "numberOfCPUs", "memorySize", "diskSize", "swapSize" })
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HostInformationWrapper implements Serializable {
 

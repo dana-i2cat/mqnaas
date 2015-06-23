@@ -46,7 +46,7 @@
 		<maven-bundle-plugin-version>2.4.0</maven-bundle-plugin-version>
 
 		<!-- Google Guava library version -->
-		<guava-version>16.0.1</guava-version>
+		<guava-version>17.0</guava-version>
 
 		<!-- Apache Commons Lang 3 version -->
 		<commons-lang3>3.3.1</commons-lang3>

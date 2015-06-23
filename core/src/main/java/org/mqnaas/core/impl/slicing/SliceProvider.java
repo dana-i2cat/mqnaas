@@ -89,7 +89,7 @@ public class SliceProvider implements ISliceProvider {
 
 	private static boolean isSupporting(Type resourceType) {
 		return resourceType.equals(Type.TSON) || resourceType.equals(Type.OF_SWITCH) || resourceType.equals(Type.CPE) ||
-				resourceType.equals(Type.ARN) || resourceType.equals(Type.EPC) || resourceType.equals(Type.LTE);
+				resourceType.equals(Type.ARN) || resourceType.equals(Type.EPC) || resourceType.equals(Type.LTE) || resourceType.equals(Type.WNODE);
 	}
 
 	@Override

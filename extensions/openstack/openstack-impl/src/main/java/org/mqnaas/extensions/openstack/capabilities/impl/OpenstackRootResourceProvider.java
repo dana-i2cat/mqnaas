@@ -81,17 +81,19 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 
 	private NovaApi						novaClient;
 
+	private NeutronApi					neutronClient;
+
 	@DependingOn(core = true)
 	IResourceManagementListener			resourceManagementListener;
 
 	@DependingOn
-	IJCloudsNovaClientProvider			jcloudsClientProvider;
-
-	@DependingOn(core = true)
 	IResourceManagementListener			rmListener;
 
 	@DependingOn(core = true)
 	IServiceProvider					serviceProvider;
+
+	@DependingOn(core = true)
+	IClientProviderFactory				clientProviderFactory;
 
 	@Resource
 	IRootResource						resource;
@@ -108,15 +110,18 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 		log.info("Initializing OpenstackRootResourceProvider capability for resource " + resource.getId());
 
 		try {
-			novaClient = jcloudsClientProvider.getClient(resource);
+			novaClient = clientProviderFactory.getClientProvider(IJCloudsNovaClientProvider.class).getClient(resource);
+			neutronClient = clientProviderFactory.getClientProvider(IJCloudsNeutronClientProvider.class).getClient(resource);
 		} catch (EndpointNotFoundException e) {
+			throw new ApplicationActivationException("Could not instantiate JClouds client.", e);
+		} catch (ProviderNotFoundException e) {
 			throw new ApplicationActivationException("Could not instantiate JClouds client.", e);
 		}
 
 		try {
 			initializeVms();
 		} catch (Exception e) {
-			throw new ApplicationActivationException("Cloud not initialize Openstack VMs.", e);
+			throw new ApplicationActivationException("Could not initialize Openstack VMs.", e);
 		}
 		log.info("Initialized OpenstackRootResourceProvider capability for resource " + resource.getId());
 
@@ -202,11 +207,8 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 
 				log.debug("Instantied Openstack VM [MqNaas-id=" + rootResource.getId() + ", Openstack-id=" + server.getId() + "]");
 
-				IAttributeStore attrStore = serviceProvider.getCapability(rootResource, IAttributeStore.class);
-
-				attrStore.setAttribute(ZONE_ATTRIBUTE, zone);
-				attrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, server.getId());
-				attrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME, server.getName());
+				storeMetadataInAttributeStore(rootResource, server, zone);
+				createResourcePorts(rootResource, server, zone);
 
 				vms.put(rootResource.getId(), rootResource);
 			}
@@ -229,5 +231,65 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 		vm.getDescriptor().setCredentials(resource.getDescriptor().getCredentials());
 
 		return vm;
+	}
+
+	/**
+	 * Stores the resource external id and name in the <code>rootResource</code> {@link IAttributeStore} capability, as well as the Openstack zone the
+	 * given {@link Server} belongs to.
+	 *
+	 * @param rootResource
+	 *            MQNaaS representation of the Openstack {@link Server}
+	 * @param server
+	 *            The Openstack VM.
+	 * @param zone
+	 *            Openstack zone the VM belongs to.
+	 * @throws CapabilityNotFoundException
+	 *             If the given {@link IRootResource} does not have a bound {@link IAttributeStore} capability.
+	 */
+	private void storeMetadataInAttributeStore(IRootResource rootResource, Server server, String zone) throws CapabilityNotFoundException {
+
+		IAttributeStore attrStore = serviceProvider.getCapability(rootResource, IAttributeStore.class);
+
+		attrStore.setAttribute(ZONE_ATTRIBUTE, zone);
+		attrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, server.getId());
+		attrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME, server.getName());
+
+	}
+
+	/**
+	 * For each {@link Port} contained in the given {@link Server}, it creates an MQNaaS {@link IResource port resource} in the {@link IRootResource}
+	 * representing the Openstack server. Each MQNaaS port will contain the external id and name in its {@link IAttributeStore} capability.
+	 * 
+	 * @param rootResource
+	 *            Representation of the Openstack server in MQNaaS.
+	 * @param server
+	 *            Openstack VM represented by the <code>rootResource</code> parameter.
+	 * @param zone
+	 *            Openstack zone the server belongs to.
+	 * @throws CapabilityNotFoundException
+	 *             If the given rootResource does not contain a {@link IPortManagement} capability, and also the created ports does not contain
+	 *             {@link IAttributeStore} capability bound to store port metadata.
+	 */
+	private void createResourcePorts(IRootResource rootResource, Server server, String zone) throws CapabilityNotFoundException {
+
+		log.info("Creating ports for rootResource [id=" + rootResource.getId() + "]");
+
+		IPortManagement portMgmnt = serviceProvider.getCapability(rootResource, IPortManagement.class);
+
+		PortApi portApi = neutronClient.getPortApi(zone);
+
+		for (Port openstackPort : portApi.list().concat()) {
+			if (StringUtils.equals(server.getId(), openstackPort.getDeviceId())) {
+
+				log.debug("Port found [resourceId=" + rootResource.getId() + ", portName=[ " + openstackPort.getName() + ", portId=" + openstackPort
+						.getId() + "]");
+
+				IResource mqnaasPort = portMgmnt.createPort();
+				IAttributeStore portAttrStore = serviceProvider.getCapability(mqnaasPort, IAttributeStore.class);
+				portAttrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, openstackPort.getId());
+				portAttrStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_NAME, openstackPort.getName());
+			}
+		}
+
 	}
 }

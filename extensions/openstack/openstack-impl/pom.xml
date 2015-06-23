@@ -21,12 +21,23 @@
 			<groupId>org.mqnaas.extensions</groupId>
 			<artifactId>jclouds-client-provider</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>openstack-api</artifactId>
+		</dependency>
 
 		<!-- MQNaaS modules -->
 		<dependency>
 			<groupId>org.mqnaas</groupId>
 			<artifactId>core.api</artifactId>
 		</dependency>
+
+		<!-- Network module, required to manage ports -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.api</artifactId>
+		</dependency>
+
 
 		<!-- Testing dependencies -->
 		<dependency>
@@ -47,6 +58,11 @@
 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>network.impl</artifactId>
 			<scope>test</scope>
 		</dependency>
 

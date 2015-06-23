@@ -110,7 +110,7 @@ import com.google.common.collect.Multimap;
 public class BindingManagement implements IServiceProvider, IResourceManagementListener, IBindingManagement,
 		IBindingManagementEventListener, ICoreModelCapability {
 
-	private static final Logger					log	= LoggerFactory.getLogger(BindingManagement.class);
+	private static final Logger					log						= LoggerFactory.getLogger(BindingManagement.class);
 
 	// At the moment, this is the home of the MQNaaS resource
 	// private MQNaaS mqNaaS;
@@ -134,6 +134,7 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 
 	// Holds known capability implementations that will be checked for compatibility with resources in the system.
 	Set<Class<? extends ICapability>>			knownCapabilities;
+	private final Object						knownCapabilitiesMutex	= new Object();
 	// Holds known application implementations
 	private Set<Class<? extends IApplication>>	knownApplications;
 
@@ -438,16 +439,18 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 	@Override
 	public void resourceAdded(ResourceNode added, ApplicationNode managedBy) {
 		// Bind matching capabilities
-		for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
-			if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
-				if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)
-						&& ResourceCapabilityTreeController.canBind(capabilityClass, added)) {
-					bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
-				} else {
-					if (ResourceCapabilityTreeController.isBound(capabilityClass, added))
-						log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
-					else
-						log.info("Unable to bind " + capabilityClass + " to resource " + added.getContent());
+		synchronized (knownCapabilitiesMutex) {
+			for (Class<? extends ICapability> capabilityClass : knownCapabilities) {
+				if (bindingDecider.shouldBeBound(added.getContent(), capabilityClass)) {
+					if (!ResourceCapabilityTreeController.isBound(capabilityClass, added)
+							&& ResourceCapabilityTreeController.canBind(capabilityClass, added)) {
+						bindingManagement.bind(new CapabilityNode(new CapabilityInstance(capabilityClass)), added);
+					} else {
+						if (ResourceCapabilityTreeController.isBound(capabilityClass, added))
+							log.info("Already bound " + capabilityClass + " to resource " + added.getContent());
+						else
+							log.info("Unable to bind " + capabilityClass + " to resource " + added.getContent());
+					}
 				}
 			}
 		}
@@ -767,7 +770,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		if (capabilityClasses.isEmpty())
 			return;
 
-		knownCapabilities.addAll(capabilityClasses);
+		synchronized (knownCapabilitiesMutex) {
+			knownCapabilities.addAll(capabilityClasses);
+		}
 
 		// Establish matches
 		for (ResourceNode resourceNode : ResourceCapabilityTreeController.getAllResourceNodes(tree.getRootResourceNode())) {
@@ -796,7 +801,9 @@ public class BindingManagement implements IServiceProvider, IResourceManagementL
 		if (capabilityClasses.isEmpty())
 			return;
 
-		knownCapabilities.removeAll(capabilityClasses);
+		synchronized (knownCapabilitiesMutex) {
+			knownCapabilities.removeAll(capabilityClasses);
+		}
 
 		// unbind logic
 		for (CapabilityNode capabilityNode : ResourceCapabilityTreeController.getAllCapabilityNodes(tree.getRootResourceNode())) {

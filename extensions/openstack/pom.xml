@@ -24,6 +24,7 @@
 
 	<properties>
 		<jclouds.version>1.8.1</jclouds.version>
+		<network.version>0.0.1-SNAPSHOT</network.version>
 	</properties>
 
 	<dependencyManagement>

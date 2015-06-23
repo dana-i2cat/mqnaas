@@ -31,6 +31,7 @@ import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.domain.Flavor;
 import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.jclouds.openstack.nova.v2_0.domain.Server.Status;
+import org.jclouds.openstack.nova.v2_0.features.FlavorApi;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
 import org.junit.Assert;
 import org.junit.Before;
@@ -104,7 +105,7 @@ public class OpenstackHostAdministrationTest {
 	IJCloudsNovaClientProvider	mockedJcloudsClientProvider;
 	NovaApi						mockedNovaApi;
 	ServerApi					mockedServerApi;
-
+	FlavorApi					mockedFlavorApi;
 	/**
 	 * Objects returned by mocked capabilities/clients.
 	 */
@@ -195,8 +196,12 @@ public class OpenstackHostAdministrationTest {
 
 		mockedNovaApi = PowerMockito.mock(NovaApi.class);
 		mockedServerApi = PowerMockito.mock(ServerApi.class);
+		mockedFlavorApi = PowerMockito.mock(FlavorApi.class);
 		PowerMockito.when(mockedNovaApi.getServerApiForZone(Mockito.eq(ZONE))).thenReturn(mockedServerApi);
+		PowerMockito.when(mockedNovaApi.getFlavorApiForZone(Mockito.eq(ZONE))).thenReturn(mockedFlavorApi);
+
 		PowerMockito.when(mockedServerApi.get(Mockito.eq(HOST_EXT_ID))).thenReturn(server);
+		PowerMockito.when(mockedFlavorApi.get(Mockito.eq(flavor.getId()))).thenReturn(flavor);
 
 		// mock jCloudsClientProvider and inject it in capability.
 

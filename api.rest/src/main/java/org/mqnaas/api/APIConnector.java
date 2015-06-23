@@ -92,7 +92,6 @@ public class APIConnector implements IAPIConnector, ServiceListener {
 	 * observed services in activate() method.
 	 */
 	@DependingOn(core = true)
-	@SuppressWarnings("unused")
 	IBindingManagement							bindingManagement;
 
 	@DependingOn(core = true)
@@ -101,6 +100,7 @@ public class APIConnector implements IAPIConnector, ServiceListener {
 	@DependingOn(core = true)
 	IRootResourceProvider						rootResourceProvider;
 
+	@DependingOn(core = true)
 	IRootResourceAdministration					rootResourceAdmin;
 
 	private ServiceRegistration<IAPIConnector>	osgiRegistration;

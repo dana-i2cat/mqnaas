@@ -29,18 +29,12 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jclouds.openstack.neutron.v2.NeutronApi;
-import org.jclouds.openstack.neutron.v2.domain.Port;
-import org.jclouds.openstack.neutron.v2.features.PortApi;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.domain.Server;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
-import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
-import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.core.api.Endpoint;
 import org.mqnaas.core.api.IAttributeStore;
-import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IResourceManagementListener;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.IRootResourceProvider;
@@ -56,9 +50,7 @@ import org.mqnaas.core.api.exceptions.ApplicationNotFoundException;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.core.impl.RootResource;
-import org.mqnaas.extensions.openstack.jclouds.clientprovider.IJCloudsNeutronClientProvider;
 import org.mqnaas.extensions.openstack.jclouds.clientprovider.IJCloudsNovaClientProvider;
-import org.mqnaas.network.api.topology.port.IPortManagement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,16 +83,16 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 
 	private NeutronApi					neutronClient;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IResourceManagementListener			resourceManagementListener;
 
 	@DependingOn
 	IResourceManagementListener			rmListener;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider					serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IClientProviderFactory				clientProviderFactory;
 
 	@Resource

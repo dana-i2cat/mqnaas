@@ -80,10 +80,10 @@ public class ReservationManagement implements IReservationManagement, IReservati
 	@DependingOn
 	IReservationPerformer								reservationPerformer;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider									serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceExecutionScheduler							serviceExecutionScheduler;
 
 	public static boolean isSupporting(IRootResource rootResource) {

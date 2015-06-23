@@ -53,12 +53,12 @@ import org.mqnaas.core.impl.AttributeStore;
 import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.extensions.odl.client.helium.topology.api.IOpenDaylightTopologyNorthbound;
 import org.mqnaas.extensions.odl.client.switchnorthbound.ISwitchNorthboundAPI;
+import org.mqnaas.extensions.odl.helium.switchmanager.model.Node.NodeType;
 import org.mqnaas.extensions.odl.helium.switchmanager.model.NodeConnector;
 import org.mqnaas.extensions.odl.helium.switchmanager.model.NodeConnectorProperties;
 import org.mqnaas.extensions.odl.helium.switchmanager.model.NodeConnectors;
 import org.mqnaas.extensions.odl.helium.switchmanager.model.NodeProperties;
 import org.mqnaas.extensions.odl.helium.switchmanager.model.Nodes;
-import org.mqnaas.extensions.odl.helium.switchmanager.model.Node.NodeType;
 import org.mqnaas.extensions.odl.helium.topology.model.EdgeProperty;
 import org.mqnaas.extensions.odl.helium.topology.model.Topology;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
@@ -92,13 +92,13 @@ public class ODLRootResourceProvider implements IRootResourceProvider {
 	@Resource
 	IRootResource							resource;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider						serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IAPIClientProviderFactory				apiProviderFactory;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IResourceManagementListener				rmListener;
 
 	@DependingOn

@@ -65,7 +65,7 @@ public class ServiceExecutionScheduler implements IServiceExecutionScheduler {
 
 	private static final Logger			log	= LoggerFactory.getLogger(ServiceExecutionScheduler.class);
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IExecutionService			executionService;
 
 	private Scheduler					quartzScheduler;

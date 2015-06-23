@@ -40,7 +40,7 @@ public class LinkAdministration implements ILinkAdministration {
 
 	private IResource					srcPort, destPort;
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IResourceManagementListener	resourceManagementListener;
 
 	@Override

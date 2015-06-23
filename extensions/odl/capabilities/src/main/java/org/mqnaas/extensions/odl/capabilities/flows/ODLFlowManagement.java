@@ -37,16 +37,16 @@ import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfig;
 import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
 
 public class ODLFlowManagement implements IFlowManagement {
-	
+
 	@Resource
-	IResource	network;
-	
-	@DependingOn
+	IResource							network;
+
+	@DependingOn(core = true)
 	private IAPIClientProviderFactory	apiProviderFactory;
-	
+
 	public static boolean isSupporting(IRootResource rootResource) {
 		Type type = rootResource.getDescriptor().getSpecification().getType();
-		
+
 		return type == Type.NETWORK && StringUtils.equals(rootResource.getDescriptor().getSpecification().getModel(), "odl");
 	}
 
@@ -55,7 +55,7 @@ public class ODLFlowManagement implements IFlowManagement {
 		// fail fast when client is not available
 		try {
 			getFlowProgrammerClient();
-		} catch (Exception e){
+		} catch (Exception e) {
 			throw new ApplicationActivationException("Required client is unavailable", e);
 		}
 	}
@@ -73,7 +73,7 @@ public class ODLFlowManagement implements IFlowManagement {
 	public FlowConfigs getFlows(String dpid) throws IllegalStateException, Exception {
 		return getFlowProgrammerClient().getStaticFlows(dpid);
 	}
-	
+
 	@Override
 	public void addFlow(FlowConfig flow) throws IllegalStateException, Exception {
 		getFlowProgrammerClient().addOrModifyFlow(flow, flow.getNode().getId(), flow.getName());
@@ -83,14 +83,15 @@ public class ODLFlowManagement implements IFlowManagement {
 	public void deleteFlow(String dpid, String flowName) throws IllegalStateException, Exception {
 		getFlowProgrammerClient().deleteFlow(dpid, flowName);
 	}
-	
+
 	/**
 	 * 
 	 * @return
-	 * @throws IllegalStateException when client is not available
+	 * @throws IllegalStateException
+	 *             when client is not available
 	 */
 	private IOpenDaylightFlowProgrammerNorthbound getFlowProgrammerClient() throws IllegalStateException {
-		
+
 		try {
 			return apiProviderFactory.getAPIProvider(ICXFAPIProvider.class)
 					.getAPIClient(network, IOpenDaylightFlowProgrammerNorthbound.class, null);

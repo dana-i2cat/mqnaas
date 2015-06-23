@@ -58,7 +58,7 @@ public class RequestResourceMapping implements IRequestResourceMapping {
 	@Resource
 	IResource							resource;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider					serviceProvider;
 
 	private Map<IResource, IResource>	mapping;

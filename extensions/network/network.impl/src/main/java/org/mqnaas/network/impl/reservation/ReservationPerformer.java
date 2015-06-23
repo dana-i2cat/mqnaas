@@ -59,10 +59,10 @@ public class ReservationPerformer implements IReservationPerformer {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ReservationPerformer.class);
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider			serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceExecutionScheduler	serviceExecutionScheduler;
 
 	@Resource

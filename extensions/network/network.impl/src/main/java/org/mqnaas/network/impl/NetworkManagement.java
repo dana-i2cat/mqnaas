@@ -78,10 +78,10 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		return type == Type.NETWORK && !StringUtils.equals(rootResource.getDescriptor().getSpecification().getModel(), "nitos");
 	}
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IResourceManagementListener		resourceManagementListener;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider						serviceProvider;
 
 	@Resource

@@ -27,11 +27,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.jclouds.openstack.nova.v2_0.NovaApi;
 import org.jclouds.openstack.nova.v2_0.domain.Flavor;
 import org.jclouds.openstack.nova.v2_0.domain.Server;
+import org.jclouds.openstack.nova.v2_0.features.FlavorApi;
 import org.jclouds.openstack.nova.v2_0.features.ServerApi;
 import org.mqnaas.clientprovider.api.client.IClientProviderFactory;
 import org.mqnaas.clientprovider.exceptions.EndpointNotFoundException;
 import org.mqnaas.clientprovider.exceptions.ProviderNotFoundException;
 import org.mqnaas.core.api.IAttributeStore;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
@@ -67,7 +69,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 	@DependingOn
 	IAttributeStore				attributeStore;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IClientProviderFactory		clientProviderFactory;
 
 	@Resource
@@ -114,7 +116,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		log.debug("Getting number of cpus of host [id=" + resource.getId() + "]");
 
 		Server server = getServer();
-		Flavor flavor = (Flavor) server.getFlavor();
+		Flavor flavor = getFlavor(server);
 
 		return flavor.getVcpus();
 	}
@@ -124,7 +126,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		log.debug("Getting memory size of host [id=" + resource.getId() + "]");
 
 		Server server = getServer();
-		Flavor flavor = (Flavor) server.getFlavor();
+		Flavor flavor = getFlavor(server);
 
 		return flavor.getRam();
 	}
@@ -134,7 +136,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		log.debug("Getting disk size of host [id=" + resource.getId() + "]");
 
 		Server server = getServer();
-		Flavor flavor = (Flavor) server.getFlavor();
+		Flavor flavor = getFlavor(server);
 
 		return flavor.getDisk();
 	}
@@ -143,7 +145,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 	public String getSwapSize() {
 
 		Server server = getServer();
-		Flavor flavor = (Flavor) server.getFlavor();
+		Flavor flavor = getFlavor(server);
 
 		return flavor.getSwap() != null ? flavor.getSwap().get() : null;
 	}
@@ -165,7 +167,7 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		String vmId = attributeStore.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID);
 
 		if (StringUtils.isEmpty(zone) || StringUtils.isEmpty(vmId))
-			throw new IllegalStateException("Can't read VM cpus if AttributeStore does not contain its external id and the zone it belongs to.");
+			throw new IllegalStateException("Can't read VM profile if AttributeStore does not contain its external id and the zone it belongs to.");
 
 		ServerApi serverClient = novaClient.getServerApiForZone(zone);
 
@@ -179,4 +181,43 @@ public class OpenstackHostAdministration implements IHostAdministration {
 		return server;
 	}
 
+	/**
+	 * Retrieves the {@link Flavor} instance defining the hardware profile of the given {@link Server}
+	 * 
+	 * @param server
+	 *            Openstack VM representation, containing specific hardware features we want to retrieve.
+	 * @return Openstack {@link Flavor} object, containing the hardware profile of the given server.
+	 * @throws NullPointerException
+	 *             If specified server or its flavor information is null.
+	 * @throws IllegalStateException
+	 *             <ul>
+	 *             <li>If {@link IAttributeStore} capability of injected {@link IResource} does not contain information about the server's zone.</li>
+	 *             <li>If the information stored in the {@link IAttributeStore} and/or the {@link Server} instance about a specific {@link Flavor}
+	 *             does not reference valid information in Openstack.</li>
+	 *             </ul>
+	 */
+	private Flavor getFlavor(Server server) {
+
+		if (server == null || server.getFlavor() == null || StringUtils.isEmpty(server.getFlavor().getId()))
+			throw new NullPointerException("Openstack server requires a Flavor to define its profile.");
+
+		String zone = attributeStore.getAttribute(OpenstackRootResourceProvider.ZONE_ATTRIBUTE);
+
+		if (StringUtils.isEmpty(zone))
+			throw new IllegalStateException("Can't read VM profile if AttributeStore does not contain its external id.");
+
+		FlavorApi flavorApi = novaClient.getFlavorApiForZone(zone);
+
+		if (flavorApi == null)
+			throw new IllegalStateException("There's no zone with such id [zone=" + zone + "]");
+
+		Flavor flavor = flavorApi.get(server.getFlavor().getId());
+
+		if (flavor == null)
+			throw new IllegalArgumentException(
+					"Specified server does not contain a valid flavor [serverId=" + server.getId() + ", flavorId=" + server.getFlavor().getId() + "]");
+
+		return flavor;
+
+	}
 }

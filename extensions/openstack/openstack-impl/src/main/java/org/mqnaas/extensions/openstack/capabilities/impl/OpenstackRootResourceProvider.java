@@ -94,7 +94,7 @@ public class OpenstackRootResourceProvider implements IRootResourceProvider {
 	@DependingOn(core = true)
 	IResourceManagementListener			resourceManagementListener;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IResourceManagementListener			rmListener;
 
 	@DependingOn(core = true)

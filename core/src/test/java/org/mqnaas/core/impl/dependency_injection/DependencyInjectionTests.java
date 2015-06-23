@@ -31,7 +31,6 @@ import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mqnaas.core.api.Endpoint;
@@ -126,7 +125,6 @@ public class DependencyInjectionTests {
 		rootResourceMgmt.removeRootResource(resourceAInstance3);
 	}
 
-	@Ignore
 	@Test
 	public void rootResourceProviderInjectionTest() throws IllegalArgumentException, IllegalAccessException, CapabilityNotFoundException {
 		// get ISampleCapability instances of each resourceA instance
@@ -135,12 +133,9 @@ public class DependencyInjectionTests {
 		ISampleCapability resourceA3SampleCapabilityInstance = serviceProvider.getCapabilityInstance(resourceAInstance3, ISampleCapability.class);
 
 		// get IRootResourceProvider instances of each resourceA instance
-		IRootResourceProvider resourceA1RootResourceProviderInstance = serviceProvider.getCapabilityInstance(resourceAInstance1,
-				IRootResourceProvider.class);
-		IRootResourceProvider resourceA2RootResourceProviderInstance = serviceProvider.getCapabilityInstance(resourceAInstance2,
-				IRootResourceProvider.class);
-		IRootResourceProvider resourceA3RootResourceProviderInstance = serviceProvider.getCapabilityInstance(resourceAInstance3,
-				IRootResourceProvider.class);
+		IRootResourceProvider resourceA1RootResourceProviderInstance = serviceProvider.getCapability(resourceAInstance1, IRootResourceProvider.class);
+		IRootResourceProvider resourceA2RootResourceProviderInstance = serviceProvider.getCapability(resourceAInstance2, IRootResourceProvider.class);
+		IRootResourceProvider resourceA3RootResourceProviderInstance = serviceProvider.getCapability(resourceAInstance3, IRootResourceProvider.class);
 
 		// get injected IRootResourceProvider instances of each IRootResourceProvider instance
 		IRootResourceProvider resourceA1RootResourceProviderInjectedInstance = getPrivateField(resourceA1SampleCapabilityInstance,
@@ -150,10 +145,10 @@ public class DependencyInjectionTests {
 		IRootResourceProvider resourceA3RootResourceProviderInjectedInstance = getPrivateField(resourceA3SampleCapabilityInstance,
 				IRootResourceProvider.class);
 
-		// assert instance equality
-		Assert.assertEquals("Instances should be equals", resourceA1RootResourceProviderInstance, resourceA1RootResourceProviderInjectedInstance);
-		Assert.assertEquals("Instances should be equals", resourceA2RootResourceProviderInstance, resourceA2RootResourceProviderInjectedInstance);
-		Assert.assertEquals("Instances should be equals", resourceA3RootResourceProviderInstance, resourceA3RootResourceProviderInjectedInstance);
+		// assert instance equality (using class instance equality due to Proxies usage)
+		Assert.assertTrue("Instances should be equals", resourceA1RootResourceProviderInstance == resourceA1RootResourceProviderInjectedInstance);
+		Assert.assertTrue("Instances should be equals", resourceA2RootResourceProviderInstance == resourceA2RootResourceProviderInjectedInstance);
+		Assert.assertTrue("Instances should be equals", resourceA3RootResourceProviderInstance == resourceA3RootResourceProviderInjectedInstance);
 	}
 
 	private IRootResource createRootResource(Specification.Type resourceType, String resourceModel) throws InstantiationException,

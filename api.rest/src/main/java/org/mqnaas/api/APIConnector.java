@@ -72,36 +72,35 @@ public class APIConnector implements IAPIConnector, ServiceListener {
 
 	private static final Logger					log	= LoggerFactory.getLogger(APIConnector.class);
 
-	@DependingOn
+	@DependingOn(core = true)
 	ICoreModelCapability						coreModelCapability;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IObservationService							observationService;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider							serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	ICoreProvider								coreProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IRESTAPIProvider							restApiProvider;
 
 	/**
 	 * Depending on IBindingManagement forces this application to be activated only once IBindingManagement is available, which is required to get
 	 * observed services in activate() method.
 	 */
-	@DependingOn
-	@SuppressWarnings("unused")
+	@DependingOn(core = true)
 	IBindingManagement							bindingManagement;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IExecutionService							executionService;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IRootResourceProvider						rootResourceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IRootResourceAdministration					rootResourceAdmin;
 
 	private ServiceRegistration<IAPIConnector>	osgiRegistration;

@@ -39,10 +39,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mqnaas.core.api.IApplication;
+import org.mqnaas.core.api.ICapability;
+import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.RootResourceDescriptor;
+import org.mqnaas.core.api.Specification;
+import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
 import org.mqnaas.core.impl.ApplicationInstance;
+import org.mqnaas.core.impl.CapabilityInstance;
+import org.mqnaas.core.impl.RootResource;
 import org.mqnaas.core.impl.dependencies.samples.IApp;
 import org.mqnaas.core.impl.dummy.DummyExecutionService;
+import org.mqnaas.general.test.helpers.reflection.ReflectionTestHelper;
 
 /**
  * 
@@ -82,14 +90,14 @@ public class DependencyManagementTest {
 	}
 
 	@Before
-	public void initDepManager() {
+	public void initDepManager() throws SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 		depManager = new DependencyManagement();
 		// add execution service that is required for any ApplicationInstance
 		depManager.addApplicationInTheSystem(createApp(new DummyExecutionService()));
 	}
 
 	@Test
-	public void addedApplicationsAreInSystem() {
+	public void addedApplicationsAreInSystem() throws SecurityException, IllegalArgumentException, IllegalAccessException, InstantiationException {
 
 		// add application instances to system
 		List<ApplicationInstance> added = new ArrayList<ApplicationInstance>();
@@ -107,7 +115,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void removedApplicationsAreNotInSystem() {
+	public void removedApplicationsAreNotInSystem() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		// add application instances to system
 		List<ApplicationInstance> added = new ArrayList<ApplicationInstance>();
@@ -126,7 +135,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void newcommingAppIsResolvedWithExistingApps() {
+	public void newcommingAppIsResolvedWithExistingApps() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance app = createApp(iapp);
@@ -163,7 +173,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void newcommingAppIsUsedToResolveExistingApps() {
+	public void newcommingAppIsUsedToResolveExistingApps() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance app = createApp(iapp);
@@ -193,7 +204,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void appWithAllDependenciesAssignedIsResolved() {
+	public void appWithAllDependenciesAssignedIsResolved() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -222,7 +234,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void appWithAllDependencyChainResolvedIsActivated() {
+	public void appWithAllDependencyChainResolvedIsActivated() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
 			depManager.addApplicationInTheSystem(toAdd);
@@ -237,7 +250,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void removedAppsAreNotInjectedAsDependencies() {
+	public void removedAppsAreNotInjectedAsDependencies() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -255,7 +269,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void appsUsingDependencyAreDeactivatedWhenDependencyIsRemoved() {
+	public void appsUsingDependencyAreDeactivatedWhenDependencyIsRemoved() throws SecurityException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -282,7 +297,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void appsUsingDependencyAreNoLongerResolvedWhenDependencyIsRemoved() {
+	public void appsUsingDependencyAreNoLongerResolvedWhenDependencyIsRemoved() throws SecurityException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -310,7 +326,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void appsWithRemovedAppInDependencyChainAreDeactivated() {
+	public void appsWithRemovedAppInDependencyChainAreDeactivated() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -335,7 +352,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void iApplicationActivateCalledDuringAppActivation() {
+	public void iApplicationActivateCalledDuringAppActivation() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -355,7 +373,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void iApplicationDectivateCalledDuringAppDeactivation() {
+	public void iApplicationDectivateCalledDuringAppDeactivation() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -399,7 +418,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void scenarioIsAllActiveWhenCompletelyResolved() {
+	public void scenarioIsAllActiveWhenCompletelyResolved() throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
 
 		Set<Class<? extends IApplication>> implemented = new HashSet<Class<? extends IApplication>>();
 		Set<Class<? extends IApplication>> required = new HashSet<Class<? extends IApplication>>();
@@ -426,7 +446,8 @@ public class DependencyManagementTest {
 	}
 
 	@Test
-	public void resolveWithExistingImplementationsWhenDependencyIsRemoved() {
+	public void resolveWithExistingImplementationsWhenDependencyIsRemoved() throws SecurityException, IllegalArgumentException,
+			IllegalAccessException, InstantiationException {
 
 		for (IApp iapp : apps) {
 			ApplicationInstance toAdd = createApp(iapp);
@@ -483,9 +504,19 @@ public class DependencyManagementTest {
 
 	}
 
-	private ApplicationInstance createApp(IApplication app) {
-		ApplicationInstance ai = new ApplicationInstance(app.getClass(), app);
-		return ai;
+	private ApplicationInstance createApp(IApplication app) throws SecurityException, IllegalArgumentException, IllegalAccessException,
+			InstantiationException {
+		if (ICapability.class.isAssignableFrom(app.getClass())) {
+			// safe cast, it has been checked previously
+			@SuppressWarnings("unchecked")
+			CapabilityInstance ci = new CapabilityInstance((Class<? extends ICapability>) app.getClass(), (ICapability) app);
+			ReflectionTestHelper.injectPrivateField(ci, createDummyCoreResource(), "resource");
+			return ci;
+
+		} else {
+			ApplicationInstance ai = new ApplicationInstance(app.getClass(), app);
+			return ai;
+		}
 	}
 
 	private ApplicationInstance createAppFailingOnActivate() {
@@ -525,4 +556,9 @@ public class DependencyManagementTest {
 		}
 	}
 
+	private static IRootResource createDummyCoreResource() throws InstantiationException, IllegalAccessException {
+		Specification specification = new Specification(Type.CORE);
+		RootResourceDescriptor descriptor = RootResourceDescriptor.create(specification);
+		return new RootResource(descriptor);
+	}
 }

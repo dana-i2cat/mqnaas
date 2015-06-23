@@ -53,7 +53,7 @@ public class SliceProvider implements ISliceProvider {
 	@Resource
 	private IResource					resource;
 
-	@DependingOn
+	@DependingOn(core = true)
 	private IResourceManagementListener	resourceManagementListener;
 
 	@Override
@@ -64,8 +64,7 @@ public class SliceProvider implements ISliceProvider {
 	public static boolean isSupporting(IRootResource resource) {
 		Type resourceType = resource.getDescriptor().getSpecification().getType();
 
-		return resourceType.equals(Type.TSON) || resourceType.equals(Type.OF_SWITCH) || resourceType.equals(Type.CPE) || resourceType
-				.equals(Type.ARN);
+		return isSupporting(resourceType);
 	}
 
 	public static boolean isSupporting(IResource resource) {
@@ -79,14 +78,18 @@ public class SliceProvider implements ISliceProvider {
 
 				Type type = (Type) m.invoke(resource);
 
-				isSupporting = type.equals(Type.TSON) || type.equals(type.OF_SWITCH) || type.equals(type.ARN) || type.equals(type.CPE);
+				isSupporting = isSupporting(type);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
 		}
 
 		return isSupporting;
+	}
+
+	private static boolean isSupporting(Type resourceType) {
+		return resourceType.equals(Type.TSON) || resourceType.equals(Type.OF_SWITCH) || resourceType.equals(Type.CPE) ||
+				resourceType.equals(Type.ARN) || resourceType.equals(Type.EPC) || resourceType.equals(Type.LTE) || resourceType.equals(Type.WNODE);
 	}
 
 	@Override

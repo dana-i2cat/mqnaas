@@ -54,10 +54,10 @@ public abstract class AbstractProviderFactory<CP> implements ICapability {
 
 	private final Logger			log	= LoggerFactory.getLogger(getClass());
 
-	@DependingOn
+	@DependingOn(core = true)
 	protected ICoreModelCapability	coreModelCapability;
 
-	@DependingOn
+	@DependingOn(core = true)
 	protected IBundleGuard			bundleGuard;
 
 	public static boolean isSupporting(IRootResource resource) {

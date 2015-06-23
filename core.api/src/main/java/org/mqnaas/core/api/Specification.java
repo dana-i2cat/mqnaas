@@ -75,6 +75,10 @@ public class Specification implements Cloneable {
 		 */
 		LTE("LTE"),
 		/**
+		 * An EPC in an LTE network
+		 */
+		EPC("EPC"),
+		/**
 		 * Client premises equipment
 		 */
 		CPE("CPE"),

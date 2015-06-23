@@ -23,7 +23,9 @@ package org.mqnaas.core.impl;
  */
 
 import org.mqnaas.core.api.ICoreProvider;
+import org.mqnaas.core.api.IResource;
 import org.mqnaas.core.api.IRootResource;
+import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
 import org.mqnaas.core.api.annotations.Resource;
 import org.mqnaas.core.api.exceptions.ApplicationActivationException;
@@ -67,4 +69,18 @@ public class CoreProvider implements ICoreProvider {
 		return coreResource;
 	}
 
+	/**
+	 * Checks if a given resource is Core resource.
+	 * 
+	 * @param resource
+	 *            {@link IResource} to be checked
+	 * @return true if given resource is Core resource, false otherwise
+	 */
+	public static boolean isCore(IResource resource) {
+		if (IRootResource.class.isAssignableFrom(resource.getClass())) {
+			return ((IRootResource) resource).getDescriptor().getSpecification().getType() == Specification.Type.CORE;
+		}
+
+		return false;
+	}
 }

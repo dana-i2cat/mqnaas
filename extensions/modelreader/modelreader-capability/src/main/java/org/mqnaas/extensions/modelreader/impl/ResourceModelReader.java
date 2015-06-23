@@ -57,10 +57,10 @@ public class ResourceModelReader implements IResourceModelReader {
 
 	private static final Logger	log	= LoggerFactory.getLogger(ResourceModelReader.class);
 
-	@DependingOn
+	@DependingOn(core = true)
 	IServiceProvider			serviceProvider;
 
-	@DependingOn
+	@DependingOn(core = true)
 	IExecutionService			serviceExecution;
 
 	@Resource

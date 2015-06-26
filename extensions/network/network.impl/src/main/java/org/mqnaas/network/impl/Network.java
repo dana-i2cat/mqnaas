@@ -34,6 +34,7 @@ import org.mqnaas.core.api.IServiceProvider;
 import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.core.api.Specification;
 import org.mqnaas.core.api.Specification.Type;
+import org.mqnaas.core.api.credentials.Credentials;
 import org.mqnaas.core.api.exceptions.CapabilityNotFoundException;
 import org.mqnaas.core.api.exceptions.ResourceNotFoundException;
 import org.mqnaas.network.api.exceptions.NetworkCreationException;
@@ -90,7 +91,11 @@ public class Network implements IRootResourceProvider {
 
 	public IRootResource createResource(Specification spec, List<Endpoint> endpoints) throws InstantiationException, IllegalAccessException {
 		return getRootResourceAdministration().createRootResource(RootResourceDescriptor.create(spec, endpoints));
+	}
 
+	public IRootResource createResource(Specification spec, List<Endpoint> endpoints, Credentials creds) throws InstantiationException,
+			IllegalAccessException {
+		return getRootResourceAdministration().createRootResource(RootResourceDescriptor.create(spec, endpoints, creds));
 	}
 
 	public IResource createRequestResource(Type type) {

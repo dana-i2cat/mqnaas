@@ -109,11 +109,13 @@ public class ResourceTranslator implements Translator {
 
 		private List<IResource> getResources() {
 			try {
-				// The contract of the list method is, that it return a list of resources and has no parameters.
-				// TODO Document the contract
-				@SuppressWarnings("unchecked")
-				List<IResource> resources = (List<IResource>) listMethod.invoke(implementor, new Object[0]);
-				return resources;
+				if (listMethod != null) {
+					// The contract of the list method is, that it return a list of resources and has no parameters.
+					// TODO Document the contract
+					@SuppressWarnings("unchecked")
+					List<IResource> resources = (List<IResource>) listMethod.invoke(implementor, new Object[0]);
+					return resources;
+				}
 			} catch (IllegalArgumentException e) {
 				// TODO Rethink the handling of the exceptions caught..
 				e.printStackTrace();

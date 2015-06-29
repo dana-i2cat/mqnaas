@@ -43,6 +43,7 @@ import org.mqnaas.extensions.modelreader.api.IResourceModelReader;
 import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
 import org.mqnaas.extensions.openstack.capabilities.host.api.IHostAdministration;
+import org.mqnaas.network.api.topology.link.ILinkAdministration;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.slf4j.Logger;
@@ -89,7 +90,7 @@ public class ResourceModelReader implements IResourceModelReader {
 		ResourceModelWrapper modelWrapper = new ResourceModelWrapper(resource.getId());
 		setResourceType(modelWrapper, resource);
 
-		// we look for all management capabilities bound to this resource. They contain a method with annotation "listResources"
+		// we look for all capabilities containing useful information
 		for (Class<? extends ICapability> capabilityClass : serviceProvider.getCapabilities(resource)) {
 			try {
 
@@ -108,8 +109,20 @@ public class ResourceModelReader implements IResourceModelReader {
 					HostInformationWrapper hostInfo = new HostInformationWrapper(hostAdminCapab.getNumberOfCpus(), hostAdminCapab.getMemorySize(),
 							hostAdminCapab.getDiskSize(), hostAdminCapab.getSwapSize());
 					modelWrapper.setHostInformation(hostInfo);
+				} else if (capabilityClass.equals(ILinkAdministration.class)) {
+					ILinkAdministration linkAdminCapab = serviceProvider.getCapability(resource, ILinkAdministration.class);
+
+					ResourceModelWrapper srcPortModelWrapper = new ResourceModelWrapper(linkAdminCapab.getSrcPort().getId());
+					setResourceType(srcPortModelWrapper, linkAdminCapab.getSrcPort());
+
+					ResourceModelWrapper destPortModelWrapper = new ResourceModelWrapper(linkAdminCapab.getDestPort().getId());
+					setResourceType(destPortModelWrapper, linkAdminCapab.getDestPort());
+
+					modelWrapper.getResources().add(srcPortModelWrapper);
+					modelWrapper.getResources().add(destPortModelWrapper);
 				}
 				else {
+					// management capabilities bound to this resource contain a method with annotation "listResources"
 
 					Method listResourcesMethod = getListResourcesMethod(capabilityClass);
 

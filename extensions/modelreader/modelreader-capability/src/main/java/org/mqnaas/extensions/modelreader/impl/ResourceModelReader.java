@@ -44,6 +44,7 @@ import org.mqnaas.extensions.modelreader.api.ResourceModelWrapper;
 import org.mqnaas.extensions.odl.capabilities.flows.IFlowManagement;
 import org.mqnaas.extensions.openstack.capabilities.host.api.IHostAdministration;
 import org.mqnaas.network.api.topology.link.ILinkAdministration;
+import org.mqnaas.network.impl.request.RequestRootResource;
 import org.mqnaas.network.impl.topology.link.LinkResource;
 import org.mqnaas.network.impl.topology.port.PortResource;
 import org.slf4j.Logger;
@@ -203,7 +204,8 @@ public class ResourceModelReader implements IResourceModelReader {
 			modelWrapper.setType("port");
 		} else if (resource instanceof LinkResource) {
 			modelWrapper.setType("link");
-		}
+		} else if (resource instanceof RequestRootResource)
+			modelWrapper.setType(((RequestRootResource) resource).getType().toString());
 
 	}
 }

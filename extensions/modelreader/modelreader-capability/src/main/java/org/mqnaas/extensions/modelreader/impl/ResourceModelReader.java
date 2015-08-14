@@ -113,14 +113,17 @@ public class ResourceModelReader implements IResourceModelReader {
 				} else if (capabilityClass.equals(ILinkAdministration.class)) {
 					ILinkAdministration linkAdminCapab = serviceProvider.getCapability(resource, ILinkAdministration.class);
 
-					ResourceModelWrapper srcPortModelWrapper = new ResourceModelWrapper(linkAdminCapab.getSrcPort().getId());
-					setResourceType(srcPortModelWrapper, linkAdminCapab.getSrcPort());
-
-					ResourceModelWrapper destPortModelWrapper = new ResourceModelWrapper(linkAdminCapab.getDestPort().getId());
-					setResourceType(destPortModelWrapper, linkAdminCapab.getDestPort());
-
-					modelWrapper.getResources().add(srcPortModelWrapper);
-					modelWrapper.getResources().add(destPortModelWrapper);
+					IResource srcPort, destPort;
+					if ((srcPort = linkAdminCapab.getSrcPort()) != null) {
+						ResourceModelWrapper srcPortModelWrapper = new ResourceModelWrapper(srcPort.getId());
+						setResourceType(srcPortModelWrapper, srcPort);
+						modelWrapper.getResources().add(srcPortModelWrapper);
+					}
+					if ((destPort = linkAdminCapab.getDestPort()) != null) {
+						ResourceModelWrapper destPortModelWrapper = new ResourceModelWrapper(destPort.getId());
+						setResourceType(destPortModelWrapper, destPort);
+						modelWrapper.getResources().add(destPortModelWrapper);
+					}
 				}
 				else {
 					// management capabilities bound to this resource contain a method with annotation "listResources"

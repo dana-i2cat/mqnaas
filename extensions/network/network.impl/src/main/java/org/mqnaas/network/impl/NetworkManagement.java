@@ -68,9 +68,7 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkManagement implements IRequestBasedNetworkManagement {
 
-	private static final Logger	log							= LoggerFactory.getLogger(NetworkManagement.class);
-
-	public static String		PORT_INTERNAL_ID_ATTRIBUTE	= "portInternalId";
+	private static final Logger	log	= LoggerFactory.getLogger(NetworkManagement.class);
 
 	public static boolean isSupporting(IRootResource rootResource) {
 		Type type = rootResource.getDescriptor().getSpecification().getType();
@@ -196,7 +194,7 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 			resourceManagementListener.resourceAdded(newPort.getPortResource(),
 					serviceProvider.getCapability(resource, IPortManagement.class), IPortManagement.class);
 
-			newPort.setAttribute(PORT_INTERNAL_ID_ATTRIBUTE, physicalPort.getAttribute(PORT_INTERNAL_ID_ATTRIBUTE));
+			newPort.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, physicalPort.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 
 			virtualPortMapping.put(port, newPort.getPortResource());
 		}

@@ -54,7 +54,6 @@ import org.mqnaas.network.api.exceptions.NetworkCreationException;
 import org.mqnaas.network.api.request.Period;
 import org.mqnaas.network.impl.Link;
 import org.mqnaas.network.impl.Network;
-import org.mqnaas.network.impl.NetworkManagement;
 import org.mqnaas.network.impl.NetworkSubResource;
 import org.mqnaas.network.impl.PortResourceWrapper;
 import org.mqnaas.network.impl.request.Request;
@@ -149,10 +148,10 @@ public class NetworkManagementTest {
 		physicalPort22 = new PortResourceWrapper(physicalSwitch2.createPort(), serviceProvider);
 
 		// map ports to external ids
-		physicalPort11.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, PHYSICAL_PORT_11_EXTERNAL_ID);
-		physicalPort12.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, PHYSICAL_PORT_12_EXTERNAL_ID);
-		physicalPort21.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, PHYSICAL_PORT_21_EXTERNAL_ID);
-		physicalPort22.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, PHYSICAL_PORT_22_EXTERNAL_ID);
+		physicalPort11.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, PHYSICAL_PORT_11_EXTERNAL_ID);
+		physicalPort12.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, PHYSICAL_PORT_12_EXTERNAL_ID);
+		physicalPort21.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, PHYSICAL_PORT_21_EXTERNAL_ID);
+		physicalPort22.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, PHYSICAL_PORT_22_EXTERNAL_ID);
 
 		// create link between switches
 		Link link = new Link(physicalNetwork.createLink(), serviceProvider);
@@ -251,9 +250,9 @@ public class NetworkManagementTest {
 
 		// assert both ports contain the right external id
 		Assert.assertEquals("Virtual port of virtual switch 1 should be mapped to external port" + PHYSICAL_PORT_12_EXTERNAL_ID,
-				PHYSICAL_PORT_12_EXTERNAL_ID, createdOfSwitch1Port.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+				PHYSICAL_PORT_12_EXTERNAL_ID, createdOfSwitch1Port.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 		Assert.assertEquals("Virtual port of virtual switch 2 should be mapped to external port" + PHYSICAL_PORT_21_EXTERNAL_ID,
-				PHYSICAL_PORT_21_EXTERNAL_ID, createdOfSwitch2Port.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+				PHYSICAL_PORT_21_EXTERNAL_ID, createdOfSwitch2Port.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 
 		// assert network contains one link between the ports of the switches
 

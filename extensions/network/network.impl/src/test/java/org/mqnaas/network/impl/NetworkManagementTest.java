@@ -445,7 +445,7 @@ public class NetworkManagementTest {
 		phyPortAttributeStore.activate();
 		IAttributeStore slicedResourcePortAttributeStore = new AttributeStore();
 		ReflectionTestHelper.injectPrivateField(slicedResourcePortAttributeStore, new ConcurrentHashMap<String, String>(), "attributes");
-		phyPortAttributeStore.setAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE, portExternalId);
+		phyPortAttributeStore.setAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID, portExternalId);
 		PowerMockito.when(serviceProvider.getCapability(Mockito.eq(phyPort), Mockito.eq(IAttributeStore.class))).thenReturn(
 				phyPortAttributeStore);
 		PowerMockito.when(serviceProvider.getCapability(AdditionalMatchers.not(Mockito.eq(phyPort)), Mockito.eq(IAttributeStore.class))).thenReturn(
@@ -468,7 +468,7 @@ public class NetworkManagementTest {
 		// assert sliced resource has one port with mapped id
 		Assert.assertFalse("Slices resource should contain one port.", portManagement.getPorts().isEmpty());
 		Assert.assertEquals("Slices resource should contain one port.", 1, portManagement.getPorts().size());
-		Assert.assertEquals(portExternalId, slicedResourcePortAttributeStore.getAttribute(NetworkManagement.PORT_INTERNAL_ID_ATTRIBUTE));
+		Assert.assertEquals(portExternalId, slicedResourcePortAttributeStore.getAttribute(IAttributeStore.RESOURCE_EXTERNAL_ID));
 
 		Assert.assertEquals("Port map should have been fulfilled with one port.", 1, portsMap.size());
 		Assert.assertNotNull("Request port should have been mapped into a virtual one.", portsMap.get(virtPort));

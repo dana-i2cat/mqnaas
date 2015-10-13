@@ -33,6 +33,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.mqnaas.core.api.IResource;
+import org.mqnaas.core.api.RootResourceDescriptor;
 import org.mqnaas.extensions.odl.helium.flowprogrammer.model.FlowConfigs;
 
 /**
@@ -64,6 +65,8 @@ public class ResourceModelWrapper {
 	private FlowConfigs					configuredRules;
 
 	private HostInformationWrapper		hostInformation;
+
+	private RootResourceDescriptor		descriptor;
 
 	// constructor without arguments, required by JAXB
 	ResourceModelWrapper() {
@@ -123,12 +126,21 @@ public class ResourceModelWrapper {
 		this.hostInformation = hostInformation;
 	}
 
+	public RootResourceDescriptor getDescriptor() {
+		return descriptor;
+	}
+
+	public void setDescriptor(RootResourceDescriptor descriptor) {
+		this.descriptor = descriptor;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
 		result = prime * result + ((configuredRules == null) ? 0 : configuredRules.hashCode());
+		result = prime * result + ((descriptor == null) ? 0 : descriptor.hashCode());
 		result = prime * result + ((hostInformation == null) ? 0 : hostInformation.hashCode());
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result + ((resources == null) ? 0 : resources.hashCode());
@@ -155,6 +167,11 @@ public class ResourceModelWrapper {
 				return false;
 		} else if (!configuredRules.equals(other.configuredRules))
 			return false;
+		if (descriptor == null) {
+			if (other.descriptor != null)
+				return false;
+		} else if (!descriptor.equals(other.descriptor))
+			return false;
 		if (hostInformation == null) {
 			if (other.hostInformation != null)
 				return false;
@@ -180,7 +197,6 @@ public class ResourceModelWrapper {
 
 	@Override
 	public String toString() {
-		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", attributes=" + attributes + ", resources=" + resources + ", configuredRules=" + configuredRules + ", hostInformation=" + hostInformation + "]";
+		return "ResourceModelWrapper [id=" + id + ", type=" + type + ", attributes=" + attributes + ", resources=" + resources + ", configuredRules=" + configuredRules + ", hostInformation=" + hostInformation + ", descriptor=" + descriptor + "]";
 	}
-
 }

@@ -91,10 +91,13 @@ public class ResourceModelReader implements IResourceModelReader {
 		ResourceModelWrapper modelWrapper = new ResourceModelWrapper(resource.getId());
 		setResourceType(modelWrapper, resource);
 
+		if (resource instanceof IRootResource) {
+			modelWrapper.setDescriptor(((IRootResource) resource).getDescriptor());
+		}
+
 		// we look for all capabilities containing useful information
 		for (Class<? extends ICapability> capabilityClass : serviceProvider.getCapabilities(resource)) {
 			try {
-
 				if (capabilityClass.equals(IAttributeStore.class)) {
 					IAttributeStore attributeStoreCapab = serviceProvider.getCapability(resource, IAttributeStore.class);
 					modelWrapper.setAttributes(attributeStoreCapab.getAttributes().getMap());

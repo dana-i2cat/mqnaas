@@ -94,6 +94,8 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 	@Override
 	public IRootResource createNetwork(IResource requestResource) throws NetworkCreationException {
 
+		checkRequest(requestResource);
+
 		IRootResource networkResource = null;
 
 		// this structure saves all the resources of the new virtual network
@@ -178,6 +180,40 @@ public class NetworkManagement implements IRequestBasedNetworkManagement {
 		}
 
 		return networkResource;
+	}
+
+	private void checkRequest(IResource requestResource) throws NetworkCreationException {
+
+		Request request = new Request(requestResource, serviceProvider);
+
+		// check period is specified
+		if (request.getPeriod() == null)
+			throw new NetworkCreationException("Period must be defined");
+
+		// check resources has units/ranges/cubes
+		for (IResource rootResource : request.getRootResources()) {
+			// subnetworks have no slice, the rest must have a slice
+			if (rootResource instanceof IRootResource &&
+					!((IRootResource) rootResource).getDescriptor().getSpecification().getType().equals(Type.NETWORK)) {
+
+				NetworkSubResource subResource = new NetworkSubResource(rootResource, serviceProvider);
+				if (subResource.getSlice() == null)
+					throw new NetworkCreationException("Slice must be defined");
+
+				Slice slice = new Slice(subResource.getSlice(), serviceProvider);
+				if (slice.getUnits() == null || slice.getUnits().isEmpty())
+					throw new NetworkCreationException("Slice units must be defined");
+				for (Unit unit : slice.getUnits()) {
+					if (unit.getName() == null || unit.getName().isEmpty())
+						throw new NetworkCreationException("Each slice unit must have a name");
+					if (unit.getRange() == null)
+						throw new NetworkCreationException("Each slice unit must have a range");
+				}
+
+				if (slice.getCubes() == null || slice.getCubes().isEmpty())
+					throw new NetworkCreationException("Slice cubes must be defined");
+			}
+		}
 	}
 
 	private void createResourcePorts(List<IResource> virtualResourcePorts, IResource resource, Request request,

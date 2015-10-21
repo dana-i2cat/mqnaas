@@ -142,20 +142,23 @@ public class ResourceModelReader implements IResourceModelReader {
 						@SuppressWarnings("unchecked")
 						// safe casting
 						List<IResource> managedResources = (List<IResource>) serviceExecution.execute(listResourcesService, null);
-						List<ResourceModelWrapper> subResources = new ArrayList<ResourceModelWrapper>();
 
-						// for each resource returned by the management capability, call its ResourceModelReader capability
-						for (IResource managedResource : managedResources) {
+						if (managedResources != null) {
+							List<ResourceModelWrapper> subResources = new ArrayList<ResourceModelWrapper>();
 
-							// This filter has been introduced to avoid an infinite recursion over MQNaaS-Core resource, since its
-							// IRootResourceProvider capability returns the MQNaaS-Core as well in the list of its managed resources.
-							if (!managedResource.equals(resource)) {
-								IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource,
-										IResourceModelReader.class);
-								subResources.add(subResourceModelReader.getResourceModel());
+							// for each resource returned by the management capability, call its ResourceModelReader capability
+							for (IResource managedResource : managedResources) {
+
+								// This filter has been introduced to avoid an infinite recursion over MQNaaS-Core resource, since its
+								// IRootResourceProvider capability returns the MQNaaS-Core as well in the list of its managed resources.
+								if (!managedResource.equals(resource)) {
+									IResourceModelReader subResourceModelReader = serviceProvider.getCapability(managedResource,
+											IResourceModelReader.class);
+									subResources.add(subResourceModelReader.getResourceModel());
+								}
 							}
+							modelWrapper.getResources().addAll(subResources);
 						}
-						modelWrapper.getResources().addAll(subResources);
 					}
 				}
 

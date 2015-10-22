@@ -100,6 +100,16 @@ public class Slice {
 		return new Unit(getUnitManagement().createUnit(name), serviceProvider);
 	}
 
+	public void removeUnit(Unit unit) {
+		for (IResource unitResource : getUnitManagement().getUnits()) {
+			if (unitResource instanceof UnitResource) {
+				if (((UnitResource) unitResource).getName().equals(unit.getName())) {
+					getUnitManagement().removeUnit(unitResource);
+				}
+			}
+		}
+	}
+
 	public void setCubes(List<Cube> cubes) {
 		getAdministration().setCubes(new CubesList(cubes));
 	}

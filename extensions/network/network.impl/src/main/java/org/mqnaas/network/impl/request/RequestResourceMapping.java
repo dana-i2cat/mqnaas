@@ -74,14 +74,32 @@ public class RequestResourceMapping implements IRequestResourceMapping {
 	 */
 	@Override
 	public void defineMapping(IResource requestResource, IResource rootResource) {
+
+		if (requestResource == null || rootResource == null)
+			throw new IllegalArgumentException("Mapping doesn't accept null values");
+
+		if (mapping.containsKey(requestResource)) {
+			log.warn("Mapping already mapped resource" + resource.getId());
+
+			if (rootResource instanceof IRootResource && SliceableResource.isSliceable(serviceProvider, rootResource)) {
+				try {
+					removeSliceInformation(requestResource);
+				} catch (CapabilityNotFoundException e) {
+					log.warn("Could not automatically manage slice units on virtual resource. Process should be manually done.");
+				}
+			}
+		}
+
 		mapping.put(requestResource, rootResource);
 
-		if (rootResource instanceof IRootResource && SliceableResource.isSliceable(serviceProvider, rootResource))
+		if (rootResource instanceof IRootResource && SliceableResource.isSliceable(serviceProvider, rootResource)) {
 			try {
 				inheriteSliceInformation(requestResource, rootResource);
 			} catch (CapabilityNotFoundException e) {
 				log.warn("Could not automatically create slice units on virtual resource. Process should be manually done.");
 			}
+		}
+
 	}
 
 	@Override
@@ -106,6 +124,14 @@ public class RequestResourceMapping implements IRequestResourceMapping {
 
 	@Override
 	public void deactivate() {
+	}
+
+	private void removeSliceInformation(IResource requestResource) throws CapabilityNotFoundException {
+		Slice slice = new Slice(getSlice(requestResource), serviceProvider);
+
+		for (Unit unit : slice.getUnits()) {
+			slice.removeUnit(unit);
+		}
 	}
 
 	private void inheriteSliceInformation(IResource requestResource, IResource rootResource) throws CapabilityNotFoundException {

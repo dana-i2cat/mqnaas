@@ -38,6 +38,11 @@
 				<artifactId>openstack-api</artifactId>
 				<version>${openstack.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.mqnaas.extensions</groupId>
+				<artifactId>jclouds-client-provider</artifactId>
+				<version>${openstack.version}</version>
+			</dependency>			
 		</dependencies>
 	</dependencyManagement>
 

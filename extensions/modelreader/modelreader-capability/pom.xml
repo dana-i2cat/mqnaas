@@ -59,6 +59,12 @@
 			<groupId>org.mqnaas</groupId>
 			<artifactId>test-helpers</artifactId>
 		</dependency>
+		<!-- Runtime dependencies -->
+		<dependency>
+			<groupId>org.mqnaas.extensions</groupId>
+			<artifactId>jclouds-client-provider</artifactId>
+			<scope>runtime</scope>
+		</dependency>		
 	</dependencies>
 
 	<build>
